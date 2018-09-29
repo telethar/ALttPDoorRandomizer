@@ -1,0 +1,29 @@
+# Python package
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+jobs:
+
+- job: 'OSX build'
+  pool:
+    vmImage: 'macOS-10.13'
+
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.5'
+      architecture: 'x64'
+
+  - script: |
+      python -m pip install --upgrade pip 
+      pip3 install pyinstaller
+      pip3 install markdown
+      pip3 install pyobjc
+      pip3 install dmgbuild
+    displayName: 'Install dependencies'
+
+  - script: |
+      python -m markdown README.md > README.html
+      pyinstaller bundle/EntranceRandomizer.spec
+    displayName: 'pytest'
+
