@@ -25,11 +25,11 @@ jobs:
   - script: |
       python -m markdown README.md > README.html
       pyinstaller bundle/EntranceRandomizer.spec
-      dmgbuild -s bundle/dmgsettings.py -D app=dist/EntranceRandomizer.app "AlttPEntranceRandomizer" dist/EntranceRandomizer_$(date '+%Y-%m-%d_%H_%M').dmg
+      dmgbuild -s bundle/dmgsettings.py -D app=dist/EntranceRandomizer.app "AlttPEntranceRandomizer" dist/EntranceRandomizer.dmg
     displayName: 'Build'
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifact: dist'
     inputs:
-      pathtoPublish: 'dist/*.dmg'
+      pathtoPublish: 'dist/EntranceRandomizer.dmg'
       artifactName: 'dist'
 
