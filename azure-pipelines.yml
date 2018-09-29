@@ -30,6 +30,6 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifact: dist'
     inputs:
-      pathtoPublish: 'dist'
+      pathtoPublish: 'dist/*.dmg'
       artifactName: 'dist'
 
