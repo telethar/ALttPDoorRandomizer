@@ -3,7 +3,7 @@
 
 jobs:
 
-- job: 'OSX build'
+- job: 'OSXBuild'
   pool:
     vmImage: 'macOS-10.13'
 
