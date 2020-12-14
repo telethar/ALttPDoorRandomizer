@@ -2,9 +2,9 @@ import itertools
 import logging
 from collections import defaultdict, deque
 
-from BaseClasses import DoorType
+from BaseClasses import DoorType, dungeon_keys
 from Regions import dungeon_events
-from Dungeons import dungeon_keys, dungeon_bigs
+from Dungeons import dungeon_bigs
 from DungeonGenerator import ExplorationState, special_big_key_doors
 
 
@@ -54,6 +54,7 @@ class KeyLogic(object):
         self.location_rules = {}
         self.outside_keys = 0
         self.dungeon = dungeon_name
+        self.sm_doors = set()
 
     def check_placement(self, unplaced_keys, big_key_loc=None):
         for rule in self.placement_rules:
@@ -211,6 +212,8 @@ def calc_max_chests(builder, key_layout, world, player):
 def analyze_dungeon(key_layout, world, player):
     key_layout.key_counters = create_key_counters(key_layout, world, player)
     key_logic = key_layout.key_logic
+    for door in key_layout.flat_prop:
+        key_logic.sm_doors.add(door)
 
     find_bk_locked_sections(key_layout, world, player)
     key_logic.bk_chests.update(find_big_chest_locations(key_layout.all_chest_locations))

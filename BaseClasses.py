@@ -463,6 +463,10 @@ class CollectionState(object):
         self.stale = {player: True for player in range(1, parent.players + 1)}
         for item in parent.precollected_items:
             self.collect(item, True)
+        # self.door_counter = {player: Counter() for player in range(1, parent.players + 1)}
+        # self.reached_doors = {player: set() for player in range(1, parent.players + 1)}
+        # self.opened_doors = {player: set() for player in range(1, parent.players + 1)}
+        # self.dungeons_to_check = {player: dict() for player in range(1, parent.players + 1)}
 
     def update_reachable_regions(self, player):
         self.stale[player] = False
@@ -521,9 +525,36 @@ class CollectionState(object):
                         new_entrance = self.world.get_entrance(indirect_connections[new_region.name], player)
                         if new_entrance in bc and new_entrance not in queue and new_entrance.parent_region in rrp:
                             queue.append((new_entrance, rrp[new_entrance.parent_region]))
-            except IndexError:
+                # if CollectionState.is_small_door(connection):
+                #     door = connection.door
+                #     if door.name not in self.reached_doors[player]:
+                #         dungeon_name = connection.parent_region.dungeon.name
+                #         self.door_counter[player][dungeon_name] += 1
+                #         self.reached_doors[player].add(door.name)
+                #         if dungeon_name not in self.dungeons_to_check[player].keys():
+                #             self.dungeons_to_check[player][dungeon_name] = []
+                #         checklist = self.dungeons_to_check[player][dungeon_name]
+                #         checklist.append((door.name, door, connection, crystal_state))
+                #         if door.dest and door.dest.smallKey:
+                #             self.reached_doors[player].add(door.dest.name)
+            except IndexError as error:
+                # new_doors = False
+                # for dungeon_name, checklist in self.dungeons_to_check[player].items():
+                #     small_key_name = dungeon_keys[dungeon_name]
+                #     key_total = self.prog_items[(small_key_name, player)]
+                #     door_total = self.door_counter[player][dungeon_name]
+                #     if key_total >= door_total:
+                #         opened_doors = self.opened_doors[player]
+                #         for door_name, door, connection, crystal_state in checklist:
+                #             if door_name not in opened_doors:
+                #                 new_doors = True
+                #                 opened_doors.add(door_name)
+                #                 if door.dest and door.dest.smallKey:
+                #                     self.opened_doors[player].add(door.dest.name)
+                #                 queue.append((connection, crystal_state))
+                # if not new_doors:
+                # logging.getLogger('').debug(error)
                 break
-
 
     def copy(self):
         ret = CollectionState(self.world)
@@ -550,7 +581,6 @@ class CollectionState(object):
 
         return spot.can_reach(self)
 
-
     def sweep_for_events(self, key_only=False, locations=None):
         # this may need improvement
         if locations is None:
@@ -568,7 +598,6 @@ class CollectionState(object):
                     self.collect(event.item, True, event)
             new_locations = len(reachable_events) > checked_locations
             checked_locations = len(reachable_events)
-
 
     def can_reach_blue(self, region, player):
         return region in self.reachable_regions[player] and self.reachable_regions[player][region] in [CrystalBarrier.Blue, CrystalBarrier.Either]
@@ -594,6 +623,13 @@ class CollectionState(object):
             item_is_important = False if not item else item.advancement or item.bigkey or item.smallkey
             return flood_location in self.locations_checked or not item_is_important
         return True
+
+    @staticmethod
+    def is_small_door(connection):
+        return connection and connection.door and connection.door.smallKey
+
+    def is_door_open(self, door_name, player):
+        return door_name in self.opened_doors[player]
 
     def has(self, item, player, count=1):
         if count == 1:
@@ -622,9 +658,6 @@ class CollectionState(object):
         crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']
         return len([crystal for crystal in crystals if self.has(crystal, player)]) >= count
 
-    def can_lift_rocks(self, player):
-        return self.has('Power Glove', player) or self.has('Titans Mitts', player)
-
     def has_bottle(self, player):
         return self.bottle_count(player) > 0
 
@@ -645,10 +678,7 @@ class CollectionState(object):
             + 3 # starting hearts
         )
 
-    def can_lift_heavy_rocks(self, player):
-        return self.has('Titans Mitts', player)
-
-    def can_extend_magic(self, player, smallmagic=16, fullrefill=False): #This reflects the total magic Link has, not the total extra he has.
+    def can_extend_magic(self, player, smallmagic=16, fullrefill=False):  # This reflects the total magic Link has, not the total extra he has.
         basemagic = 8
         if self.has('Magic Upgrade (1/4)', player):
             basemagic = 32
@@ -687,26 +717,8 @@ class CollectionState(object):
             self.is_not_bunny(cave, player)
         )
 
-    def has_sword(self, player):
-        return self.has('Fighter Sword', player) or self.has('Master Sword', player) or self.has('Tempered Sword', player) or self.has('Golden Sword', player)
-
-    def has_beam_sword(self, player):
-        return self.has('Master Sword', player) or self.has('Tempered Sword', player) or self.has('Golden Sword', player)
-
     def has_blunt_weapon(self, player):
         return self.has_sword(player) or self.has('Hammer', player)
-
-    def has_Mirror(self, player):
-        return self.has('Magic Mirror', player)
-
-    def has_Boots(self, player):
-        return self.has('Pegasus Boots', player)
-
-    def has_Pearl(self, player):
-        return self.has('Moon Pearl', player)
-
-    def has_fire_source(self, player):
-        return self.has('Fire Rod', player) or self.has('Lamp', player)
 
     def can_flute(self, player):
         lw = self.world.get_region('Light World', player)
@@ -733,12 +745,6 @@ class CollectionState(object):
         if True in [i.is_dark_world for i in self.reachable_regions[player]]:
             return True
         return False
-
-    def has_misery_mire_medallion(self, player):
-        return self.has(self.world.required_medallions[player][0], player)
-
-    def has_turtle_rock_medallion(self, player):
-        return self.has(self.world.required_medallions[player][1], player)
 
     def collect(self, item, event=False, location=None):
         if location:
@@ -873,6 +879,7 @@ class CollectionState(object):
 
         raise RuntimeError('Cannot parse %s.' % item)
 
+
 @unique
 class RegionType(Enum):
     Menu = 0
@@ -948,13 +955,13 @@ class Entrance(object):
         self.spot_type = 'Entrance'
         self.recursion_count = 0
         self.vanilla = None
-        self.access_rule = lambda state: True
+        self.access_rule = RuleFactory.static_rule(True)
         self.player = player
         self.door = None
         self.hide_path = False
 
     def can_reach(self, state):
-        if self.parent_region.can_reach(state) and self.access_rule(state):
+        if self.parent_region.can_reach(state) and self.access_rule.eval(state):
             if not self.hide_path and not self in state.path:
                 state.path[self] = (self.name, state.path.get(self.parent_region, (self.parent_region.name, None)))
             return True
@@ -1637,7 +1644,7 @@ class Location(object):
         self.staleness_count = 0
         self.locked = False
         self.always_allow = lambda item, state: False
-        self.access_rule = lambda state: True
+        self.access_rule = RuleFactory.static_rule(True)
         self.item_rule = lambda item: True
         self.player = player
 
@@ -1645,7 +1652,7 @@ class Location(object):
         return self.always_allow(state, item) or (self.parent_region.can_fill(item) and self.item_rule(item) and (not check_access or self.can_reach(state)))
 
     def can_reach(self, state):
-        if self.parent_region.can_reach(state) and self.access_rule(state):
+        if self.parent_region.can_reach(state) and self.access_rule.eval(state):
             return True
         return False
 
@@ -2086,6 +2093,22 @@ dungeon_names = [
     'Swamp Palace', 'Skull Woods', 'Thieves Town', 'Ice Palace', 'Misery Mire', 'Turtle Rock', 'Ganons Tower'
 ]
 
+dungeon_keys = {
+    'Hyrule Castle': 'Small Key (Escape)',
+    'Eastern Palace': 'Small Key (Eastern Palace)',
+    'Desert Palace': 'Small Key (Desert Palace)',
+    'Tower of Hera': 'Small Key (Tower of Hera)',
+    'Agahnims Tower': 'Small Key (Agahnims Tower)',
+    'Palace of Darkness': 'Small Key (Palace of Darkness)',
+    'Swamp Palace': 'Small Key (Swamp Palace)',
+    'Skull Woods': 'Small Key (Skull Woods)',
+    'Thieves Town': 'Small Key (Thieves Town)',
+    'Ice Palace': 'Small Key (Ice Palace)',
+    'Misery Mire': 'Small Key (Misery Mire)',
+    'Turtle Rock': 'Small Key (Turtle Rock)',
+    'Ganons Tower': 'Small Key (Ganons Tower)'
+}
+
 
 class PotItem(FastEnum):
     Nothing = 0x0
@@ -2130,3 +2153,247 @@ class Pot(object):
         self.item = item
         self.room = room
         self.flags = flags
+
+
+@unique
+class RuleType(Enum):
+    Conjunction = 0
+    Disjunction = 1
+    Item = 2
+    Glitch = 3
+    Reachability = 4
+    Static = 5
+    Bottle = 6
+    Crystal = 7
+    Barrier = 8
+    Hearts = 9
+    Unlimited = 10
+    ExtendMagic = 11
+    Boss = 12
+    Negate = 13
+    LocationCheck = 14
+
+
+def eval_conjunction(rule, state):
+    for r in rule.sub_rules:
+        if not r.eval(state):
+            return False
+    return True
+
+
+def eval_disjunction(rule, state):
+    for r in rule.sub_rules:
+        if r.eval(state):
+            return True
+    return False
+
+
+def eval_item(rule, state):
+    return state.has(rule.principal, rule.player, rule.count)
+
+
+def eval_reachability(rule, state):
+    return state.can_reach(rule.principal, rule.resolution_hint, rule.player)
+
+
+def eval_static(rule, state):
+    return rule.principal
+
+
+def eval_bottle(rule, state):
+    return state.has_bottle(rule.player)
+
+
+def eval_crystals(rule, state):
+    return state.has_crystals(rule.principal, rule.player)
+
+
+def eval_barrier(rule, state):
+    region, player, barrier = rule.principal, rule.player, rule.barrier
+    return region in state.reachable_regions[player] and state.reachable_regions[player][region] in [rule.barrier, CrystalBarrier.Either]
+
+
+def eval_hearts(rule, state):
+    return state.has_hearts(rule.player, rule.principal)
+
+
+def eval_unlimited(rule, state):
+    return state.can_buy_unlimited(rule.principal, rule.player)
+
+
+def eval_extend_magic(rule, state):
+    return state.can_extend_magic(rule.player, rule.principal, rule.flag)
+
+
+def eval_boss(rule, state):
+    return rule.principal.defeat_rule.eval(state)
+
+
+def eval_negate(rule, state):
+    return not rule.sub_rules[0].eval(state)
+
+
+def eval_locations(rule, state):
+    for loc in rule.locations:
+        location = state.world.get_location(loc, rule.player)
+        if location.item and location == rule.principal and location.player == rule.player:
+            return True
+    return False
+
+
+rule_evaluations = {
+    RuleType.Conjunction: eval_conjunction,
+    RuleType.Disjunction: eval_disjunction,
+    RuleType.Item: eval_item,
+    RuleType.Reachability: eval_reachability,
+    RuleType.Static: eval_static,
+    RuleType.Crystal: eval_crystals,
+    RuleType.Barrier: eval_barrier,
+    RuleType.Hearts: eval_hearts,
+    RuleType.Unlimited: eval_unlimited,
+    RuleType.ExtendMagic: eval_extend_magic,
+    RuleType.Boss: eval_boss,
+    RuleType.Negate: eval_negate,
+    RuleType.LocationCheck: eval_locations
+}
+
+rule_prints = {
+    RuleType.Conjunction: lambda self: f'({" and ".join([str(x) for x in self.sub_rules])})',
+    RuleType.Disjunction: lambda self: f'({" or ".join([str(x) for x in self.sub_rules])})',
+    RuleType.Item: lambda self: f'has {self.principal}' if self.count == 1 else f'has {self.count} {self.principal}(s)',
+    RuleType.Reachability: lambda self: f'canReach {self.principal}',
+    RuleType.Static: lambda self: f'{self.principal}',
+    RuleType.Crystal: lambda self: f'has {self.principal} crystals',
+    RuleType.Barrier: lambda self: f'{self.barrier} @ {self.principal}',
+    RuleType.Hearts: lambda self: f'has {self.principal} hearts',
+    RuleType.Unlimited: lambda self: f'canBuyUnlimited {self.principal}',
+    RuleType.ExtendMagic: lambda self: f'magicNeeded {self.principal}',
+    RuleType.Boss: lambda self: f'canDefeat({self.principal.defeat_rule})',
+    RuleType.Negate: lambda self: f'not ({self.sub_rules[0]})',
+    RuleType.LocationCheck: lambda self: f'{self.principal} in [{", ".join(self.locations)}]'
+}
+
+
+class Rule(object):
+
+    def __init__(self, rule_type):
+        self.rule_type = rule_type
+        self.sub_rules = []
+        self.principal = None
+        self.player = 0
+        self.resolution_hint = None
+        self.barrier = None
+        self.flag = None
+        self.locations = []
+        self.count = 1
+
+    def eval(self, state):
+        return rule_evaluations[self.rule_type](self, state)
+
+    def __str__(self):
+        return str(self.__unicode__())
+
+    def __unicode__(self):
+        return rule_prints[self.rule_type](self)
+
+
+class RuleFactory(object):
+
+    @staticmethod
+    def static_rule(boolean):
+        rule = Rule(RuleType.Static)
+        rule.principal = boolean
+        return rule
+
+    @staticmethod
+    def conj(rules):
+        rule = Rule(RuleType.Conjunction)
+        rule.sub_rules.extend(rules)
+        return rule
+
+    @staticmethod
+    def disj(rules):
+        rule = Rule(RuleType.Disjunction)
+        rule.sub_rules.extend(rules)
+        return rule
+
+    @staticmethod
+    def item(item, player, count=1):
+        rule = Rule(RuleType.Item)
+        rule.principal = item
+        rule.player = player
+        rule.count = count
+        return rule
+
+    @staticmethod
+    def reach(spot, resolution_hint, player):
+        rule = Rule(RuleType.Reachability)
+        rule.principal = spot
+        rule.resolution_hint = resolution_hint
+        rule.player = player
+        return rule
+
+    @staticmethod
+    def bottle(player):
+        rule = Rule(RuleType.Bottle)
+        rule.player = player
+        return rule
+
+    @staticmethod
+    def crystals(number, player):
+        rule = Rule(RuleType.Crystal)
+        rule.principal = number
+        rule.player = player
+        return rule
+
+    @staticmethod
+    def barrier(region, player, barrier):
+        rule = Rule(RuleType.Barrier)
+        rule.principal = region
+        rule.player = player
+        rule.barrier = barrier
+        return rule
+
+    @staticmethod
+    def hearts(number, player):
+        rule = Rule(RuleType.Hearts)
+        rule.principal = number
+        rule.player = player
+        return rule
+
+    @staticmethod
+    def unlimited(item, player):
+        rule = Rule(RuleType.Unlimited)
+        rule.principal = item
+        rule.player = player
+        return rule
+
+    @staticmethod
+    def extend_magic(player, magic, flag):
+        rule = Rule(RuleType.ExtendMagic)
+        rule.principal = magic
+        rule.player = player
+        rule.flag = flag
+        return rule
+
+    @staticmethod
+    def boss(boss):
+        rule = Rule(RuleType.Boss)
+        rule.principal = boss
+        return rule
+
+    @staticmethod
+    def neg(orig):
+        rule = Rule(RuleType.Negate)
+        rule.sub_rules.append(orig)
+        return rule
+
+    @staticmethod
+    def check_locations(item, locations, player):
+        rule = Rule(RuleType.LocationCheck)
+        rule.principal = item
+        rule.locations = locations
+        rule.player = player
+        return rule
+
+

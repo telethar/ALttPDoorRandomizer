@@ -10,7 +10,7 @@ def create_dungeons(world, player):
     def make_dungeon(name, id, default_boss, dungeon_regions, big_key, small_keys, dungeon_items):
         dungeon = Dungeon(name, dungeon_regions, big_key, [] if world.retro[player] else small_keys,
                           dungeon_items, player, id)
-        dungeon.boss = BossFactory(default_boss, player)
+        dungeon.boss = BossFactory(default_boss, world, player)
         for region in dungeon.regions:
             world.get_region(region, player).dungeon = dungeon
             dungeon.world = world
@@ -30,9 +30,9 @@ def create_dungeons(world, player):
     AT = make_dungeon('Agahnims Tower', 4, 'Agahnim', tower_regions, None, ItemFactory(['Small Key (Agahnims Tower)'] * 2, player), [])
     GT = make_dungeon('Ganons Tower', 13, 'Agahnim2', gt_regions, ItemFactory('Big Key (Ganons Tower)', player), ItemFactory(['Small Key (Ganons Tower)'] * 4, player), ItemFactory(['Map (Ganons Tower)', 'Compass (Ganons Tower)'], player))
 
-    GT.bosses['bottom'] = BossFactory('Armos Knights', player)
-    GT.bosses['middle'] = BossFactory('Lanmolas', player)
-    GT.bosses['top'] = BossFactory('Moldorm', player)
+    GT.bosses['bottom'] = BossFactory('Armos Knights', world, player)
+    GT.bosses['middle'] = BossFactory('Lanmolas', world, player)
+    GT.bosses['top'] = BossFactory('Moldorm', world, player)
 
     world.dungeons += [ES, EP, DP, ToH, AT, PoD, TT, SW, SP, IP, MM, TR, GT]
 
@@ -358,22 +358,6 @@ split_region_starts = {
 
 flexible_starts = {
     'Skull Woods': ['Skull Left Drop', 'Skull Pinball']
-}
-
-dungeon_keys = {
-    'Hyrule Castle': 'Small Key (Escape)',
-    'Eastern Palace': 'Small Key (Eastern Palace)',
-    'Desert Palace': 'Small Key (Desert Palace)',
-    'Tower of Hera': 'Small Key (Tower of Hera)',
-    'Agahnims Tower': 'Small Key (Agahnims Tower)',
-    'Palace of Darkness': 'Small Key (Palace of Darkness)',
-    'Swamp Palace': 'Small Key (Swamp Palace)',
-    'Skull Woods': 'Small Key (Skull Woods)',
-    'Thieves Town': 'Small Key (Thieves Town)',
-    'Ice Palace': 'Small Key (Ice Palace)',
-    'Misery Mire': 'Small Key (Misery Mire)',
-    'Turtle Rock': 'Small Key (Turtle Rock)',
-    'Ganons Tower': 'Small Key (Ganons Tower)'
 }
 
 dungeon_bigs = {

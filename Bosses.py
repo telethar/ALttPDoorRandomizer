@@ -3,108 +3,128 @@ import random
 
 from BaseClasses import Boss
 from Fill import FillError
+from Rules import has_blunt_weapon, can_shoot_arrows, can_extend_magic, has, or_rule, and_rule, has_sword, can_get_good_bee, flag
 
-def BossFactory(boss, player):
+
+def BossFactory(boss, world, player):
     if boss is None:
         return None
     if boss in boss_table:
         enemizer_name, defeat_rule = boss_table[boss]
-        return Boss(boss, enemizer_name, defeat_rule, player)
+        return Boss(boss, enemizer_name, defeat_rule(world, player), player)
 
     logging.getLogger('').error('Unknown Boss: %s', boss)
     return None
 
-def ArmosKnightsDefeatRule(state, player):
+
+def ArmosKnightsDefeatRule(world, player):
     # Magic amounts are probably a bit overkill
-    return (
-        state.has_blunt_weapon(player) or
-        state.can_shoot_arrows(player) or
-        (state.has('Cane of Somaria', player) and state.can_extend_magic(player, 10)) or
-        (state.has('Cane of Byrna', player) and state.can_extend_magic(player, 16)) or
-        (state.has('Ice Rod', player) and state.can_extend_magic(player, 32)) or
-        (state.has('Fire Rod', player) and state.can_extend_magic(player, 32)) or
-        state.has('Blue Boomerang', player) or
-        state.has('Red Boomerang', player))
-
-def LanmolasDefeatRule(state, player):
-    return (
-        state.has_blunt_weapon(player) or
-        state.has('Fire Rod', player) or
-        state.has('Ice Rod', player) or
-        state.has('Cane of Somaria', player) or
-        state.has('Cane of Byrna', player) or
-        state.can_shoot_arrows(player))
-
-def MoldormDefeatRule(state, player):
-    return state.has_blunt_weapon(player)
-
-def HelmasaurKingDefeatRule(state, player):
-    return state.has_sword(player) or state.can_shoot_arrows(player)
-
-def ArrghusDefeatRule(state, player):
-    if not state.has('Hookshot', player):
-        return False
-    # TODO: ideally we would have a check for bow and silvers, which combined with the
-    # hookshot is enough. This is not coded yet because the silvers that only work in pyramid feature
-    # makes this complicated
-    if state.has_blunt_weapon(player):
-        return True
-
-    return ((state.has('Fire Rod', player) and (state.can_shoot_arrows(player) or state.can_extend_magic(player, 12))) or #assuming mostly gitting two puff with one shot
-            (state.has('Ice Rod', player) and (state.can_shoot_arrows(player) or state.can_extend_magic(player, 16))))
+    return or_rule(
+        has_blunt_weapon(player),
+        can_shoot_arrows(world, player),
+        and_rule(has('Cane of Somaria', player) and can_extend_magic(player, 10)),
+        and_rule(has('Cane of Byrna', player) and can_extend_magic(player, 16)),
+        and_rule(has('Ice Rod', player) and can_extend_magic(player, 32)),
+        and_rule(has('Fire Rod', player) and can_extend_magic(player, 32)),
+        has('Blue Boomerang', player),
+        has('Red Boomerang', player))
 
 
-def MothulaDefeatRule(state, player):
-    return (
-        state.has_blunt_weapon(player) or
-        (state.has('Fire Rod', player) and state.can_extend_magic(player, 10)) or
-        # TODO: Not sure how much (if any) extend magic is needed for these two, since they only apply
-        # to non-vanilla locations, so are harder to test, so sticking with what VT has for now:
-        (state.has('Cane of Somaria', player) and state.can_extend_magic(player, 16)) or
-        (state.has('Cane of Byrna', player) and state.can_extend_magic(player, 16)) or
-        state.can_get_good_bee(player)
+def LanmolasDefeatRule(world, player):
+    return or_rule(
+        has_blunt_weapon(player),
+        has('Fire Rod', player),
+        has('Ice Rod', player),
+        has('Cane of Somaria', player),
+        has('Cane of Byrna', player),
+        can_shoot_arrows(world, player))
+
+
+def MoldormDefeatRule(world, player):
+    return has_blunt_weapon(player)
+
+
+def HelmasaurKingDefeatRule(world, player):
+    return or_rule(has_sword(player), can_shoot_arrows(world, player))
+
+
+def ArrghusDefeatRule(world, player):
+    return and_rule(
+        has('Hookshot', player),
+        or_rule(
+            has_blunt_weapon(player),
+            or_rule(
+                and_rule(has('Fire Rod', player), or_rule(can_extend_magic(player, 12), can_shoot_arrows(world, player))),  # assuming mostly getting two puff with one shot
+                and_rule(has('Ice Rod', player), or_rule(can_extend_magic(player, 16), can_shoot_arrows(world, player)))
+            )
+            # TODO: ideally we would have a check for bow and silvers, which combined with the
+            # hookshot is enough. This is not coded yet because the silvers that only work in pyramid feature
+            # makes this complicated
+        )
     )
 
-def BlindDefeatRule(state, player):
-    return state.has_blunt_weapon(player) or state.has('Cane of Somaria', player) or state.has('Cane of Byrna', player)
 
-def KholdstareDefeatRule(state, player):
-    return (
-        (
-            state.has('Fire Rod', player) or
-            (
-                state.has('Bombos', player) and
+def MothulaDefeatRule(world, player):
+    return or_rule(
+        has_blunt_weapon(player),
+        and_rule(has('Fire Rod', player), can_extend_magic(player, 10)),
+        # TODO: Not sure how much (if any) extend magic is needed for these two, since they only apply
+        # to non-vanilla locations, so are harder to test, so sticking with what VT has for now:
+        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 16)),
+        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16)),
+        can_get_good_bee(world, player)
+    )
+
+
+def BlindDefeatRule(world, player):
+    return or_rule(has_blunt_weapon(player), has('Cane of Somaria', player), has('Cane of Byrna', player))
+
+
+def KholdstareDefeatRule(world, player):
+    return and_rule(
+        or_rule(
+            has('Fire Rod', player),
+            and_rule(
+                has('Bombos', player),
                 # FIXME: the following only actually works for the vanilla location for swordless
-                (state.has_sword(player) or state.world.swords[player] == 'swordless')
+                or_rule(has_sword(player), flag(world.swords[player] == 'swordless'))
             )
-        ) and
-        (
-            state.has_blunt_weapon(player) or
-            (state.has('Fire Rod', player) and state.can_extend_magic(player, 20)) or
+        ),
+        or_rule(
+            has_blunt_weapon(player),
+            and_rule(has('Fire Rod', player) and can_extend_magic(player, 20)),
             # FIXME: this actually only works for the vanilla location for swordless
-            (
-                state.has('Fire Rod', player) and
-                state.has('Bombos', player) and
-                state.world.swords[player] == 'swordless' and
-                state.can_extend_magic(player, 16)
+            and_rule(
+                has('Fire Rod', player),
+                has('Bombos', player),
+                flag(world.swords[player] == 'swordless'),
+                can_extend_magic(player, 16)
             )
         )
     )
 
-def VitreousDefeatRule(state, player):
-    return state.can_shoot_arrows(player) or state.has_blunt_weapon(player)
 
-def TrinexxDefeatRule(state, player):
-    if not (state.has('Fire Rod', player) and state.has('Ice Rod', player)):
-        return False
-    return (state.has('Hammer', player) or
-            state.has('Golden Sword', player) or
-            state.has('Tempered Sword', player) or
-            (state.has('Master Sword', player) and state.can_extend_magic(player, 16)) or
-            (state.has_sword(player) and state.can_extend_magic(player, 32)))
+def VitreousDefeatRule(world, player):
+    return or_rule(can_shoot_arrows(world, player), has_blunt_weapon(player))
 
-def AgahnimDefeatRule(state, player):
-    return state.has_sword(player) or state.has('Hammer', player) or state.has('Bug Catching Net', player)
+
+def TrinexxDefeatRule(world, player):
+    return and_rule(
+        has('Fire Rod', player),
+        has('Ice Rod', player),
+        or_rule(
+            has('Hammer', player),
+            has('Golden Sword', player),
+            has('Tempered Sword', player),
+            and_rule(has('Master Sword', player) and can_extend_magic(player, 16)),
+            and_rule(has_sword(player) and can_extend_magic(player, 32))
+        )
+    )
+
+
+def AgahnimDefeatRule(world, player):
+    return or_rule(has_sword(player), has('Hammer', player), has('Bug Catching Net', player))
+
 
 boss_table = {
     'Armos Knights': ('Armos', ArmosKnightsDefeatRule),
@@ -120,6 +140,7 @@ boss_table = {
     'Agahnim': ('Agahnim', AgahnimDefeatRule),
     'Agahnim2': ('Agahnim2', AgahnimDefeatRule)
 }
+
 
 def can_place_boss(world, player, boss, dungeon_name, level=None):
     if world.swords[player] in ['swordless'] and boss == 'Kholdstare' and dungeon_name != 'Ice Palace':
@@ -142,6 +163,7 @@ def can_place_boss(world, player, boss, dungeon_name, level=None):
     if boss in ["Agahnim",	"Agahnim2",	"Ganon"]:
         return False
     return True
+
 
 def place_bosses(world, player):
     if world.boss_shuffle[player] == 'none':

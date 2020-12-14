@@ -8,7 +8,7 @@ import random
 import time
 import zlib
 
-from BaseClasses import World, CollectionState, Item, Region, Location, Shop, Entrance
+from BaseClasses import World, CollectionState, Item, Region, Location, Shop, Entrance, RuleFactory
 from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from PotShuffle import shuffle_pots
@@ -455,7 +455,7 @@ def copy_world(world):
         if location.locked:
             new_location.locked = True
         # these need to be modified properly by set_rules
-        new_location.access_rule = lambda state: True
+        new_location.access_rule = RuleFactory.static_rule(True)
         new_location.item_rule = lambda state: True
 
     # copy remaining itempool. No item in itempool should have an assigned location

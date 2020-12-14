@@ -7,9 +7,9 @@ from enum import unique, Flag
 from typing import DefaultDict, Dict, List
 
 from functools import reduce
-from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo
+from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
 from Dungeons import dungeon_regions, region_starts, standard_starts, split_region_starts
-from Dungeons import dungeon_bigs, dungeon_keys, dungeon_hints
+from Dungeons import dungeon_bigs, dungeon_hints
 from Items import ItemFactory
 from RoomData import DoorKind, PairedDoor
 from DungeonGenerator import ExplorationState, convert_regions, generate_dungeon, pre_validate, determine_required_paths, drop_entrances
@@ -71,6 +71,7 @@ def link_doors(world, player):
         for portal in world.dungeon_portals[player]:
             connect_portal(portal, world, player)
 
+    fix_big_key_doors_with_ugly_smalls(world, player)
     if world.doorShuffle[player] == 'vanilla':
         for entrance, ext in open_edges:
             connect_two_way(world, entrance, ext, player)
@@ -629,7 +630,6 @@ def find_entrance_region(portal):
 #         paired_door.pair = False
 
 def within_dungeon(world, player):
-    fix_big_key_doors_with_ugly_smalls(world, player)
     add_inaccessible_doors(world, player)
     entrances_map, potentials, connections = determine_entrance_list(world, player)
     connections_tuple = (entrances_map, potentials, connections)
@@ -866,7 +866,6 @@ def aga_tower_enabled(enabled):
 
 
 def cross_dungeon(world, player):
-    fix_big_key_doors_with_ugly_smalls(world, player)
     add_inaccessible_doors(world, player)
     entrances_map, potentials, connections = determine_entrance_list(world, player)
     connections_tuple = (entrances_map, potentials, connections)
