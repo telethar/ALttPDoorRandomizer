@@ -250,8 +250,8 @@ def analyze_dungeon(key_layout, world, player):
         while len(child_queue) > 0:
             child, odd_counter, empty_flag = child_queue.popleft()
             if not child.bigKey and child not in doors_completed:
-                best_counter = find_best_counter(child, odd_counter, key_counter, key_layout, world, player, False, empty_flag)
-                rule = create_rule(best_counter, key_counter, key_layout, world, player)
+                best_counter = find_best_counter(child, key_layout, odd_counter, False, empty_flag)
+                rule = create_rule(best_counter, key_counter, world, player)
                 check_for_self_lock_key(rule, child, best_counter, key_layout, world, player)
                 bk_restricted_rules(rule, child, odd_counter, empty_flag, key_counter, key_layout, world, player)
                 key_logic.door_rules[child.name] = rule
@@ -589,33 +589,50 @@ def unique_child_door_2(child, key_counter):
     return True
 
 
-def find_best_counter(door, odd_counter, key_counter, key_layout, world, player, skip_bk, empty_flag):  # try to waste as many keys as possible?
-    ignored_doors = {door, door.dest} if door is not None else {}
-    finished = False
-    opened_doors = dict(key_counter.open_doors)
-    bk_opened = key_counter.big_key_opened
-    # new_counter = key_counter
-    last_counter = key_counter
-    while not finished:
-        door_set = find_potential_open_doors(last_counter, ignored_doors, key_layout, skip_bk)
-        if door_set is None or len(door_set) == 0:
-            finished = True
-            continue
-        for new_door in door_set:
-            proposed_doors = {**opened_doors, **dict.fromkeys([new_door, new_door.dest])}
-            bk_open = bk_opened or new_door.bigKey
-            new_counter = find_counter(proposed_doors, bk_open, key_layout)
-            bk_open = new_counter.big_key_opened
-            # this means the new_door invalidates the door / leads to the same stuff
-            if not empty_flag and relative_empty_counter(odd_counter, new_counter):
-                ignored_doors.add(new_door)
-            elif empty_flag or key_wasted(new_door, door, last_counter, new_counter, key_layout, world, player):
-                last_counter = new_counter
-                opened_doors = proposed_doors
-                bk_opened = bk_open
-            else:
-                ignored_doors.add(new_door)
-    return last_counter
+# def find_best_counter(door, odd_counter, key_counter, key_layout, world, player, skip_bk, empty_flag):  # try to waste as many keys as possible?
+#     ignored_doors = {door, door.dest} if door is not None else {}
+#     finished = False
+#     opened_doors = dict(key_counter.open_doors)
+#     bk_opened = key_counter.big_key_opened
+#     # new_counter = key_counter
+#     last_counter = key_counter
+#     while not finished:
+#         door_set = find_potential_open_doors(last_counter, ignored_doors, key_layout, skip_bk)
+#         if door_set is None or len(door_set) == 0:
+#             finished = True
+#             continue
+#         for new_door in door_set:
+#             proposed_doors = {**opened_doors, **dict.fromkeys([new_door, new_door.dest])}
+#             bk_open = bk_opened or new_door.bigKey
+#             new_counter = find_counter(proposed_doors, bk_open, key_layout)
+#             bk_open = new_counter.big_key_opened
+#             # this means the new_door invalidates the door / leads to the same stuff
+#             if not empty_flag and relative_empty_counter(odd_counter, new_counter):
+#                 ignored_doors.add(new_door)
+#             elif empty_flag or key_wasted(new_door, door, last_counter, new_counter, key_layout, world, player):
+#                 last_counter = new_counter
+#                 opened_doors = proposed_doors
+#                 bk_opened = bk_open
+#             else:
+#                 ignored_doors.add(new_door)
+#     return last_counter
+
+
+def find_best_counter(door, key_layout, odd_counter, skip_bk, empty_flag):
+    best, best_ctr, locations = 0, None, 0
+    for code, counter in key_layout.key_counters.items():
+        if door not in counter.open_doors:
+            if best_ctr is None or counter.used_keys > best or (counter.used_keys == best and count_locations(counter) > locations):
+                if not skip_bk or not counter.big_key_opened:
+                    if empty_flag or not relative_empty_counter(odd_counter, counter):
+                        best = counter.used_keys
+                        best_ctr = counter
+                        locations = count_locations(counter)
+    return best_ctr
+
+
+def count_locations(ctr):
+    return len(ctr.free_locations) + len(ctr.key_only_locations) + len(ctr.other_locations) + len(ctr.important_locations)
 
 
 def find_worst_counter(door, odd_counter, key_counter, key_layout, skip_bk):  # try to waste as many keys as possible?
@@ -712,7 +729,7 @@ def calc_avail_keys(key_counter, world, player):
     return raw_avail - key_counter.used_keys
 
 
-def create_rule(key_counter, prev_counter, key_layout, world, player):
+def create_rule(key_counter, prev_counter, world, player):
     # prev_chest_keys = available_chest_small_keys(prev_counter, world)
     # prev_avail = prev_chest_keys + len(prev_counter.key_only_locations)
     chest_keys = available_chest_small_keys(key_counter, world, player)
@@ -840,8 +857,8 @@ def big_key_drop_available(key_counter):
 def bk_restricted_rules(rule, door, odd_counter, empty_flag, key_counter, key_layout, world, player):
     if key_counter.big_key_opened:
         return
-    best_counter = find_best_counter(door, odd_counter, key_counter, key_layout, world, player, True, empty_flag)
-    bk_rule = create_rule(best_counter, key_counter, key_layout, world, player)
+    best_counter = find_best_counter(door, key_layout, odd_counter, True, empty_flag)
+    bk_rule = create_rule(best_counter, key_counter, world, player)
     if bk_rule.small_key_num >= rule.small_key_num:
         return
     door_open = find_next_counter(door, best_counter, key_layout)
@@ -1192,7 +1209,7 @@ def check_rules_deep(original_counter, key_layout, world, player):
             elif not door.bigKey:
                 can_open = True
             if can_open:
-                can_progress = smalls_opened or not big_maybe_not_found
+                can_progress = (big_avail or not big_maybe_not_found) if door.bigKey else smalls_opened
                 next_counter = find_next_counter(door, counter, key_layout)
                 c_id = cid(next_counter, key_layout)
                 if c_id not in completed:

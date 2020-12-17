@@ -2274,6 +2274,134 @@ rule_prints = {
 }
 
 
+def conjunction_requirements(rule, state):
+    results = Counter()
+    for r in rule.sub_rules:
+        result = r.get_requirements(state)
+        results = merge_requirements(results, result)
+    return results
+
+
+def merge_requirements(starting_requirements, new_requirements):
+    merge = []
+    if isinstance(starting_requirements, list):
+        for req in starting_requirements:
+            if isinstance(new_requirements, list):
+                for new_r in new_requirements:
+                    merge.append(req | new_r)
+            else:
+                merge.append(req | new_requirements)
+    elif isinstance(new_requirements, list):
+        for new_r in new_requirements:
+            merge.append(starting_requirements | new_r)
+    else:
+        return reduce_requirements(starting_requirements | new_requirements)
+    return reduce_requirements(merge)
+
+
+def disjunction_requirements(rule, state):
+    results = []
+    for r in rule.sub_rules:
+        result = r.get_requirements(state)
+        if isinstance(result, list):
+            results.extend(result)
+        else:
+            results.append(result)
+    return results
+
+
+def reachability_requirements(rule, state):
+    region, location = None, None
+    world = state.world
+    if rule.resolution_hint == 'Location':
+        location = world.get_location(rule.principal, rule.player)
+        region = location.parent_region
+    elif rule.resolution_hint == 'Entrance':
+        region = world.get_entrance(rule.principal, rule.player).parent_region
+    elif rule.resolution_hint == 'Region':
+        region = world.get_region(rule.principal, rule.player)
+    if region and region in state.reachable_regions[rule.player]:
+        requirements = []
+        for req in state.reachable_regions[rule.player][region][1]:
+            if isinstance(req, list):
+                requirements.extend(req)
+            else:
+                requirements.append(req)
+        if location:
+            requirements = merge_requirements(requirements, location.access_rule.get_requirements(state))
+        return requirements
+    return Counter('Unreachable')
+
+
+rule_requirements = {
+    RuleType.Conjunction: conjunction_requirements,
+    RuleType.Disjunction: disjunction_requirements,
+    RuleType.Item: lambda rule, s: Counter({rule.principal: rule.count}),
+    RuleType.Reachability: reachability_requirements,
+    RuleType.Static: lambda rule, s: Counter(),
+    RuleType.Crystal: lambda rule, s: Counter(),
+    RuleType.Bottle: lambda rule, s: Counter({'Bottle': 1}),
+    RuleType.Barrier: lambda rule, s: Counter(),
+    RuleType.Hearts: lambda rule, s: Counter(),
+    RuleType.Unlimited: lambda rule, s: Counter(),
+    RuleType.ExtendMagic: lambda rule, s: Counter(),
+    RuleType.Boss: lambda rule, s: Counter(),
+    RuleType.Negate: lambda rule, s: Counter(),
+    RuleType.LocationCheck: lambda rule, s: Counter()
+}
+
+only_one = {'Moon Pearl', 'Hammer', 'Blue Boomerang', 'Red Boomerang', 'Hookshot', 'Mushroom', 'Powder',
+            'Fire Rod', 'Ice Rod', 'Bombos', 'Ether', 'Quake', 'Lamp', 'Shovel', 'Ocarina', 'Bug Catching Net',
+            'Book of Mudora', 'Magic Mirror', 'Cape', 'Cane of Somaria', 'Cane of Byrna', 'Flippers', 'Pegasus Boots'}
+
+
+def reduce_requirements(requirements):
+    if not isinstance(requirements, list):
+        requirements = [requirements]
+    for req in requirements:
+        for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
+            req[item] = 1
+        substitute_progressive(req)  # todo: work with non-progressives?
+    removals = []
+    # subset manip
+    for i, req in enumerate(requirements):
+        for other_req in requirements[i+1:]:
+            if len(req - other_req) == 0:
+                removals.append(other_req)
+            elif len(other_req - req) == 0:
+                removals.append(req)
+    reduced = list(requirements)  # todo: optimize by doing it in place?
+    for removal in removals:
+        if removal in reduced:
+            reduced.remove(removal)
+    assert len(reduced) != 0
+    return reduced[0] if len(reduced) == 1 else list(reduced)
+
+
+progress_sub = {
+    'Fighter Sword': ('Progressive Sword', 1),
+    'Master Sword': ('Progressive Sword', 2),
+    'Tempered Sword': ('Progressive Sword', 3),
+    'Golden Sword': ('Progressive Sword', 4),
+    'Power Glove': ('Progressive Glove', 1),
+    'Titans Mitts': ('Progressive Glove', 2),
+    'Bow': ('Progressive Bow', 1),
+    'Silver Arrows': ('Progressive Bow', 2),
+    'Blue Mail': ('Progressive Armor', 1),
+    'Red Mail': ('Progressive Armor', 2),
+    'Blue Shield': ('Progressive Shield', 1),
+    'Red Shield': ('Progressive Shield', 2),
+    'Mirror Shield': ('Progressive Shield', 3),
+}
+
+
+def substitute_progressive(req_counter):
+    for item in [x for x in req_counter.keys() if x in progress_sub.keys()]:
+        progressive_item, count = progress_sub[item]
+        req_counter[progressive_item] = count
+        del req_counter[item]
+
+
 class Rule(object):
 
     def __init__(self, rule_type):
@@ -2289,6 +2417,19 @@ class Rule(object):
 
     def eval(self, state):
         return rule_evaluations[self.rule_type](self, state)
+
+    def get_requirements(self, state):
+        return reduce_requirements(rule_requirements[self.rule_type](self, state))
+
+    def get_deferment(self, world):
+        if self.rule_type == RuleType.Reachability:
+            if self.resolution_hint == 'Location':
+                return world.get_location(self.principal, self.player).parent_region
+            elif self.resolution_hint == 'Region':
+                return world.get_region(self.principal, self.player)
+            elif self.resolution_hint == 'Entrance':
+                return world.get_entrance(self.principal, self.player).parent_region
+        return None
 
     def __str__(self):
         return str(self.__unicode__())
@@ -2308,13 +2449,25 @@ class RuleFactory(object):
     @staticmethod
     def conj(rules):
         rule = Rule(RuleType.Conjunction)
-        rule.sub_rules.extend(rules)
+        for r in rules:
+            if r.rule_type == RuleType.Conjunction:
+                rule.sub_rules.extend(r.sub_rules)
+            elif r.rule_type == RuleType.Static and r.principal:  # remove static flag if unecessary
+                continue
+            else:
+                rule.sub_rules.append(r)
         return rule
 
     @staticmethod
     def disj(rules):
         rule = Rule(RuleType.Disjunction)
-        rule.sub_rules.extend(rules)
+        for r in rules:
+            if r.rule_type == RuleType.Disjunction:
+                rule.sub_rules.extend(r.sub_rules)
+            elif r.rule_type == RuleType.Static and not r.principal:  # remove static flag if unecessary
+                continue
+            else:
+                rule.sub_rules.append(r)
         return rule
 
     @staticmethod

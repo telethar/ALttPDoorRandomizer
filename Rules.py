@@ -1,8 +1,9 @@
 import logging
-from collections import deque
+from collections import deque, defaultdict, Counter
 
-from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier
-from BaseClasses import RuleFactory
+from BaseClasses import RegionType, DoorType, Entrance, CrystalBarrier
+from BaseClasses import RuleFactory, merge_requirements
+from CollectionState import CollectionState
 from RoomData import DoorKind
 
 
@@ -413,7 +414,6 @@ def global_rules(world, player):
 
     # End of door rando rules.
 
-    add_rule(world.get_location('Sunken Treasure', player), has('Open Floodgate', player))
     set_rule(world.get_location('Ganon', player),
              and_rule(has_beam_sword(player), has_fire_source(player), RuleFactory.crystals(world.crystals_needed_for_ganon[player], player),
                       or_rule(or_rule(has('Tempered Sword', player), has('Golden Sword', player)),
@@ -691,8 +691,8 @@ def no_glitches_rules(world, player):
         add_rule(world.get_entrance('Zoras River', player), or_rule(has('Flippers', player), can_lift_rocks(player)))
         add_rule(world.get_entrance('Lake Hylia Central Island Pier', player), has('Flippers', player))  # can be fake flippered to
         add_rule(world.get_entrance('Hobo Bridge', player), has('Flippers', player))
-        add_rule(world.get_entrance('Dark Lake Hylia Drop (East)', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))
-        add_rule(world.get_entrance('Dark Lake Hylia Teleporter', player), and_rule(has('Moon Pearl', player), has('Flippers', player), or_rule(has('Hammer', player), can_lift_rocks(player))))
+        set_rule(world.get_entrance('Dark Lake Hylia Drop (East)', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))
+        add_rule(world.get_entrance('Dark Lake Hylia Teleporter', player), has('Flippers', player))
         add_rule(world.get_entrance('Dark Lake Hylia Ledge Drop', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))
         add_rule(world.get_entrance('East Dark World River Pier', player), has('Flippers', player))
     else:
@@ -1622,7 +1622,7 @@ def add_key_logic_rules(world, player):
             spot = world.get_entrance(door_name, player)
             if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
                 rule = create_advanced_key_rule(d_logic, world, player, keys)
-                if keys.opposite:
+                if keys.opposite and keys.opposite.small_key_num != keys.small_key_num:
                     rule = or_rule(rule, create_advanced_key_rule(d_logic, world, player, keys.opposite))
                 add_rule(spot, rule)
         for location in d_logic.bk_restricted:
@@ -1636,8 +1636,171 @@ def add_key_logic_rules(world, player):
             add_rule(world.get_location(chest.name, player), has(d_logic.bk_name, player))
 
 
+def analyze_world(world):
+    state = get_all_state(world, keys=True)
+    return state
+    # each region has a set of requirements, those should be gathered instead of the visited
+    # rrp = {player: dict() for player in range(1, world.players + 1)}
+    # bc = {player: dict() for player in range(1, world.players + 1)}
+    # location_paths = {player: defaultdict(list) for player in range(1, world.players + 1)}
+    #
+    # queue = deque()
+    # for player in range(1, world.players + 1):
+    #     start = world.get_region('Menu', player)
+    #     for conn in start.exits:
+    #         queue.append((conn, player, CrystalBarrier.Orange, [], Counter()))
+    #
+    # while len(queue) > 0:
+    #     connection, player, crystal_state, path, logic = queue.popleft()
+    #     new_region = connection.connected_region
+    #     if should_visit(new_region, rrp, crystal_state, logic, player):
+    #         complete_logic = logic if new_region not in rrp[player] else merge_requirements(rrp[player][new_region], logic)
+    #         for location in new_region.locations:
+    #             new_logic = merge_requirements(complete_logic, location.access_rule.get_requirements())
+    #             location_paths[player][location].append((path, new_logic))
+    #         if new_region.type == RegionType.Dungeon:
+    #             new_crystal_state = crystal_state
+    #             for conn in new_region.exits:
+    #                 door = conn.door
+    #                 if door is not None and door.crystal == CrystalBarrier.Either:
+    #                     new_crystal_state = CrystalBarrier.Either
+    #                     break
+    #             if new_region in rrp[player]:
+    #                 new_crystal_state |= rrp[player][new_region][0]
+    #
+    #             rrp[player][new_region] = (new_crystal_state, complete_logic)
+    #
+    #             for conn in new_region.exits:
+    #                 deferment = conn.access_rule.get_deferment(world)
+    #                 if deferment:
+    #                     bc[player][deferment] = conn
+    #                 else:
+    #                     new_logic = merge_requirements(complete_logic, conn.access_rule.get_requirements())
+    #                     new_path = list(path) + [conn]
+    #                     door = conn.door
+    #                     if door is not None and not door.blocked:
+    #                         door_crystal_state = door.crystal if door.crystal else new_crystal_state
+    #                         queue.append((conn, player, door_crystal_state, new_path, new_logic))
+    #                     elif door is None:
+    #                         queue.append((conn, player, new_crystal_state, new_path, new_logic))
+    #         else:
+    #             new_crystal_state = CrystalBarrier.Orange
+    #             rrp[player][new_region] = (new_crystal_state, complete_logic)
+    #             for conn in new_region.exits:
+    #                 deferment = conn.access_rule.get_deferment(world)
+    #                 if deferment:
+    #                     bc[player][deferment] = conn
+    #                 else:
+    #                     new_logic = merge_requirements(complete_logic, conn.access_rule.get_requirements())
+    #                     queue.append((conn, player, new_crystal_state, list(path) + [conn], new_logic))
+    #
+    #     # todo: activate deferments
+    #
+    #     # todo: indirect connections?
+    #
+    # return location_paths
+
+
+def should_visit(new_region, rrp, crystal_state, logic, player):
+    if not new_region:
+        return False
+    if new_region not in rrp[player]:
+        return True
+    record = rrp[player][new_region]
+    logic_is_different = is_logic_different(logic, record[1])
+    if new_region.type != RegionType.Dungeon and logic_is_different:
+        return True
+    return (record[0] & crystal_state) != record[0] or logic_is_different
+
+
+def should_defer():
+    pass
+    # todo: check if we can already access the deferment
+
+
+def is_logic_different(current_logic, old_logic):
+    if isinstance(old_logic, list):
+        for oldie in old_logic:
+            logic_diff = oldie - current_logic
+            if len(logic_diff) == 0:
+                return False
+        return True
+    elif isinstance(current_logic, list):
+        for current in current_logic:
+            logic_diff = old_logic - current
+            if len(logic_diff) == 0:
+                return False
+        return True
+    else:
+        logic_diff = old_logic - current_logic
+        return len(logic_diff) > 0
+
+
 # def door_is_open(door_name, player):
 #     return lambda state: state.is_door_open(door_name, player)
+
+def get_all_state(world, keys=False):
+    ret = CollectionState(world)
+
+    def soft_collect(item):
+        if item.name.startswith('Progressive '):
+            if 'Sword' in item.name:
+                if ret.has('Golden Sword', item.player):
+                    pass
+                elif ret.has('Tempered Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 4:
+                    ret.prog_items['Golden Sword', item.player] += 1
+                elif ret.has('Master Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 3:
+                    ret.prog_items['Tempered Sword', item.player] += 1
+                elif ret.has('Fighter Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 2:
+                    ret.prog_items['Master Sword', item.player] += 1
+                elif world.difficulty_requirements[item.player].progressive_sword_limit >= 1:
+                    ret.prog_items['Fighter Sword', item.player] += 1
+            elif 'Glove' in item.name:
+                if ret.has('Titans Mitts', item.player):
+                    pass
+                elif ret.has('Power Glove', item.player):
+                    ret.prog_items['Titans Mitts', item.player] += 1
+                else:
+                    ret.prog_items['Power Glove', item.player] += 1
+            elif 'Shield' in item.name:
+                if ret.has('Mirror Shield', item.player):
+                    pass
+                elif ret.has('Red Shield', item.player) and world.difficulty_requirements[item.player].progressive_shield_limit >= 3:
+                    ret.prog_items['Mirror Shield', item.player] += 1
+                elif ret.has('Blue Shield', item.player) and world.difficulty_requirements[item.player].progressive_shield_limit >= 2:
+                    ret.prog_items['Red Shield', item.player] += 1
+                elif world.difficulty_requirements[item.player].progressive_shield_limit >= 1:
+                    ret.prog_items['Blue Shield', item.player] += 1
+            elif 'Bow' in item.name:
+                if ret.has('Silver Arrows', item.player):
+                    pass
+                elif ret.has('Bow', item.player) and world.difficulty_requirements[item.player].progressive_bow_limit >= 2:
+                    ret.prog_items['Silver Arrows', item.player] += 1
+                elif world.difficulty_requirements[item.player].progressive_bow_limit >= 1:
+                    ret.prog_items['Bow', item.player] += 1
+        elif item.name.startswith('Bottle'):
+            if ret.bottle_count(item.player) < world.difficulty_requirements[item.player].progressive_bottle_limit:
+                ret.prog_items[item.name, item.player] += 1
+        elif item.advancement or item.smallkey or item.bigkey:
+            ret.prog_items[item.name, item.player] += 1
+
+    for item in world.itempool:
+        soft_collect(item)
+
+    if keys:
+        for p in range(1, world.players + 1):
+            key_list = []
+            player_dungeons = [x for x in world.dungeons if x.player == p]
+            for dungeon in player_dungeons:
+                if dungeon.big_key is not None:
+                    key_list += [dungeon.big_key.name]
+                if len(dungeon.small_keys) > 0:
+                    key_list += [x.name for x in dungeon.small_keys]
+            from Items import ItemFactory
+            for item in ItemFactory(key_list, p):
+                soft_collect(item)
+    ret.sweep_for_events()
+    return ret
 
 
 def retro_in_hc(spot):

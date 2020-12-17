@@ -19,7 +19,7 @@ from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, L
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal_copy
 from RoomData import create_rooms
-from Rules import set_rules
+from Rules import set_rules, analyze_world
 from Dungeons import create_dungeons, fill_dungeons, fill_dungeons_restrictive
 from Fill import distribute_items_cutoff, distribute_items_staleness, distribute_items_restrictive, flood_items, balance_multiworld_progression
 from ItemList import generate_itempool, difficulties, fill_prizes, fill_specific_items
@@ -146,6 +146,8 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         set_rules(world, player)
+
+    location_paths = analyze_world(world)
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
 
