@@ -147,7 +147,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
-    location_paths = analyze_world(world)
+    # location_paths = analyze_world(world)
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
 

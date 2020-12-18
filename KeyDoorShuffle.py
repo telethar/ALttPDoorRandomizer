@@ -2,7 +2,7 @@ import itertools
 import logging
 from collections import defaultdict, deque
 
-from BaseClasses import DoorType, dungeon_keys
+from BaseClasses import DoorType, dungeon_keys, KeyRuleType
 from Regions import dungeon_events
 from Dungeons import dungeon_bigs
 from DungeonGenerator import ExplorationState, special_big_key_doors
@@ -54,7 +54,7 @@ class KeyLogic(object):
         self.location_rules = {}
         self.outside_keys = 0
         self.dungeon = dungeon_name
-        self.sm_doors = set()
+        self.sm_doors = {}
 
     def check_placement(self, unplaced_keys, big_key_loc=None):
         for rule in self.placement_rules:
@@ -79,6 +79,8 @@ class DoorRules(object):
         self.allow_small = False
         self.small_location = None
         self.opposite = None
+
+        self.new_rules = {}  # keyed by type, or type+lock_item -> number
 
 
 class LocationRule(object):
@@ -212,8 +214,12 @@ def calc_max_chests(builder, key_layout, world, player):
 def analyze_dungeon(key_layout, world, player):
     key_layout.key_counters = create_key_counters(key_layout, world, player)
     key_logic = key_layout.key_logic
-    for door in key_layout.flat_prop:
-        key_logic.sm_doors.add(door)
+    for door in key_layout.proposal:
+        if isinstance(door, tuple):
+            key_logic.sm_doors[door[0]] = door[1]
+            key_logic.sm_doors[door[1]] = door[0]
+        else:
+            key_logic.sm_doors[door] = None
 
     find_bk_locked_sections(key_layout, world, player)
     key_logic.bk_chests.update(find_big_chest_locations(key_layout.all_chest_locations))
@@ -252,6 +258,7 @@ def analyze_dungeon(key_layout, world, player):
             if not child.bigKey and child not in doors_completed:
                 best_counter = find_best_counter(child, key_layout, odd_counter, False, empty_flag)
                 rule = create_rule(best_counter, key_counter, world, player)
+                create_worst_case_rule(rule, best_counter, world, player)
                 check_for_self_lock_key(rule, child, best_counter, key_layout, world, player)
                 bk_restricted_rules(rule, child, odd_counter, empty_flag, key_counter, key_layout, world, player)
                 key_logic.door_rules[child.name] = rule
@@ -748,6 +755,18 @@ def create_rule(key_counter, prev_counter, world, player):
     return DoorRules(rule_num, is_valid)
 
 
+def create_worst_case_rule(rules, key_counter, world, player):
+    chest_keys = available_chest_small_keys(key_counter, world, player)
+    # key_gain = len(key_counter.key_only_locations) - len(prev_counter.key_only_locations)
+    required_keys = key_counter.used_keys + 1  # this makes more sense, if key_counter has wasted all keys
+    adj_chest_keys = min(chest_keys, required_keys)
+    needed_chests = required_keys - len(key_counter.key_only_locations)
+    if needed_chests <= chest_keys:
+        unneeded_chests = max(0, adj_chest_keys - needed_chests)
+        rule_num = required_keys - unneeded_chests
+        rules.new_rules[KeyRuleType.WorstCase] = rule_num
+
+
 def check_for_self_lock_key(rule, door, parent_counter, key_layout, world, player):
     if world.accessibility[player] != 'locations':
         counter = find_inverted_counter(door, parent_counter, key_layout, world, player)
@@ -756,6 +775,7 @@ def check_for_self_lock_key(rule, door, parent_counter, key_layout, world, playe
         if len(counter.free_locations) == 1 and len(counter.key_only_locations) == 0 and not counter.important_location:
             rule.allow_small = True
             rule.small_location = next(iter(counter.free_locations))
+            rule.new_rules[KeyRuleType.AllowSmall] = rule.new_rules[KeyRuleType.WorstCase] - 1
 
 
 def find_inverted_counter(door, parent_counter, key_layout, world, player):

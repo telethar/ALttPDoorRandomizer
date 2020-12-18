@@ -1,9 +1,8 @@
 import logging
-from collections import deque, defaultdict, Counter
+from collections import deque
 
-from BaseClasses import RegionType, DoorType, Entrance, CrystalBarrier
-from BaseClasses import RuleFactory, merge_requirements
-from CollectionState import CollectionState
+from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier
+from BaseClasses import RuleFactory
 from RoomData import DoorKind
 
 
@@ -1616,15 +1615,15 @@ bunny_impassible_doors = {
 def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     for d_name, d_logic in key_logic.items():
-        # for door in d_logic.sm_doors:
-        #     add_rule(world.get_entrance(door.name, player), door_is_open(door.name, player))
-        for door_name, keys in d_logic.door_rules.items():
-            spot = world.get_entrance(door_name, player)
-            if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
-                rule = create_advanced_key_rule(d_logic, world, player, keys)
-                if keys.opposite and keys.opposite.small_key_num != keys.small_key_num:
-                    rule = or_rule(rule, create_advanced_key_rule(d_logic, world, player, keys.opposite))
-                add_rule(spot, rule)
+        for door_name, rule in d_logic.door_rules.items():
+            add_rule(world.get_entrance(door_name, player), RuleFactory.small_key_door(door_name, d_name, player))
+        # for door_name, keys in d_logic.door_rules.items():
+        #     spot = world.get_entrance(door_name, player)
+        #     if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
+        #         rule = create_advanced_key_rule(d_logic, world, player, keys)
+        #         if keys.opposite and keys.opposite.small_key_num != keys.small_key_num:
+        #             rule = or_rule(rule, create_advanced_key_rule(d_logic, world, player, keys.opposite))
+        #         add_rule(spot, rule)
         for location in d_logic.bk_restricted:
             if not location.forced_item:
                 forbid_item(location, d_logic.bk_name, player)
@@ -1639,66 +1638,6 @@ def add_key_logic_rules(world, player):
 def analyze_world(world):
     state = get_all_state(world, keys=True)
     return state
-    # each region has a set of requirements, those should be gathered instead of the visited
-    # rrp = {player: dict() for player in range(1, world.players + 1)}
-    # bc = {player: dict() for player in range(1, world.players + 1)}
-    # location_paths = {player: defaultdict(list) for player in range(1, world.players + 1)}
-    #
-    # queue = deque()
-    # for player in range(1, world.players + 1):
-    #     start = world.get_region('Menu', player)
-    #     for conn in start.exits:
-    #         queue.append((conn, player, CrystalBarrier.Orange, [], Counter()))
-    #
-    # while len(queue) > 0:
-    #     connection, player, crystal_state, path, logic = queue.popleft()
-    #     new_region = connection.connected_region
-    #     if should_visit(new_region, rrp, crystal_state, logic, player):
-    #         complete_logic = logic if new_region not in rrp[player] else merge_requirements(rrp[player][new_region], logic)
-    #         for location in new_region.locations:
-    #             new_logic = merge_requirements(complete_logic, location.access_rule.get_requirements())
-    #             location_paths[player][location].append((path, new_logic))
-    #         if new_region.type == RegionType.Dungeon:
-    #             new_crystal_state = crystal_state
-    #             for conn in new_region.exits:
-    #                 door = conn.door
-    #                 if door is not None and door.crystal == CrystalBarrier.Either:
-    #                     new_crystal_state = CrystalBarrier.Either
-    #                     break
-    #             if new_region in rrp[player]:
-    #                 new_crystal_state |= rrp[player][new_region][0]
-    #
-    #             rrp[player][new_region] = (new_crystal_state, complete_logic)
-    #
-    #             for conn in new_region.exits:
-    #                 deferment = conn.access_rule.get_deferment(world)
-    #                 if deferment:
-    #                     bc[player][deferment] = conn
-    #                 else:
-    #                     new_logic = merge_requirements(complete_logic, conn.access_rule.get_requirements())
-    #                     new_path = list(path) + [conn]
-    #                     door = conn.door
-    #                     if door is not None and not door.blocked:
-    #                         door_crystal_state = door.crystal if door.crystal else new_crystal_state
-    #                         queue.append((conn, player, door_crystal_state, new_path, new_logic))
-    #                     elif door is None:
-    #                         queue.append((conn, player, new_crystal_state, new_path, new_logic))
-    #         else:
-    #             new_crystal_state = CrystalBarrier.Orange
-    #             rrp[player][new_region] = (new_crystal_state, complete_logic)
-    #             for conn in new_region.exits:
-    #                 deferment = conn.access_rule.get_deferment(world)
-    #                 if deferment:
-    #                     bc[player][deferment] = conn
-    #                 else:
-    #                     new_logic = merge_requirements(complete_logic, conn.access_rule.get_requirements())
-    #                     queue.append((conn, player, new_crystal_state, list(path) + [conn], new_logic))
-    #
-    #     # todo: activate deferments
-    #
-    #     # todo: indirect connections?
-    #
-    # return location_paths
 
 
 def should_visit(new_region, rrp, crystal_state, logic, player):
@@ -1735,9 +1674,6 @@ def is_logic_different(current_logic, old_logic):
         logic_diff = old_logic - current_logic
         return len(logic_diff) > 0
 
-
-# def door_is_open(door_name, player):
-#     return lambda state: state.is_door_open(door_name, player)
 
 def get_all_state(world, keys=False):
     ret = CollectionState(world)

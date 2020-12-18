@@ -1,12 +1,10 @@
 import random
 from collections import defaultdict, deque
 import logging
-import operator as op
 import time
 from enum import unique, Flag
 from typing import DefaultDict, Dict, List
 
-from functools import reduce
 from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
 from Dungeons import dungeon_regions, region_starts, standard_starts, split_region_starts
 from Dungeons import dungeon_bigs, dungeon_hints
@@ -16,6 +14,7 @@ from DungeonGenerator import ExplorationState, convert_regions, generate_dungeon
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
 from DungeonGenerator import dungeon_portals, dungeon_drops
 from KeyDoorShuffle import analyze_dungeon, validate_vanilla_key_logic, build_key_layout, validate_key_layout
+from Utils import ncr, kth_combination
 
 
 def link_doors(world, player):
@@ -1513,28 +1512,6 @@ def find_key_door_candidates(region, checked, world, player):
                 if d is not None:
                     checked_doors.append(d)
     return candidates, checked_doors
-
-
-def kth_combination(k, l, r):
-    if r == 0:
-        return []
-    elif len(l) == r:
-        return l
-    else:
-        i = ncr(len(l)-1, r-1)
-        if k < i:
-            return l[0:1] + kth_combination(k, l[1:], r-1)
-        else:
-            return kth_combination(k-i, l[1:], r)
-
-
-def ncr(n, r):
-    if r == 0:
-        return 1
-    r = min(r, n-r)
-    numerator = reduce(op.mul, range(n, n-r, -1), 1)
-    denominator = reduce(op.mul, range(1, r+1), 1)
-    return numerator / denominator
 
 
 def reassign_key_doors(builder, world, player):
