@@ -435,6 +435,7 @@ def create_dynamic_shop_locations(world, player):
 
 def fill_prizes(world, attempts=15):
     all_state = world.get_all_state(keys=True)
+    # missing_locations = [x for y in world.regions for x in y.locations if x.parent_region not in all_state.reachable_regions[x.player]]
     for player in range(1, world.players + 1):
         crystals = ItemFactory(['Red Pendant', 'Blue Pendant', 'Green Pendant', 'Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 7', 'Crystal 5', 'Crystal 6'], player)
         crystal_locations = [world.get_location('Turtle Rock - Prize', player), world.get_location('Eastern Palace - Prize', player), world.get_location('Desert Palace - Prize', player), world.get_location('Tower of Hera - Prize', player), world.get_location('Palace of Darkness - Prize', player),

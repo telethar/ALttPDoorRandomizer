@@ -148,6 +148,13 @@ def main(args, seed=None, fish=None):
         set_rules(world, player)
 
     # location_paths = analyze_world(world)
+    prizes = []
+    for player in range(1, world.players + 1):
+        prizes += ItemFactory(['Red Pendant', 'Blue Pendant', 'Green Pendant', 'Crystal 1', 'Crystal 2', 'Crystal 3',
+                               'Crystal 4', 'Crystal 7', 'Crystal 5', 'Crystal 6'], player)
+    world.itempool += prizes
+    world.get_all_state(keys=True)
+    world.itempool = [x for x in world.itempool if x not in prizes]
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
 

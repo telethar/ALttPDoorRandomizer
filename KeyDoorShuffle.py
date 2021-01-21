@@ -764,15 +764,8 @@ def create_rule(key_counter, prev_counter, world, player):
 
 
 def create_worst_case_rule(rules, key_counter, world, player):
-    chest_keys = available_chest_small_keys(key_counter, world, player)
-    # key_gain = len(key_counter.key_only_locations) - len(prev_counter.key_only_locations)
     required_keys = key_counter.used_keys + 1  # this makes more sense, if key_counter has wasted all keys
-    adj_chest_keys = min(chest_keys, required_keys)
-    needed_chests = required_keys - len(key_counter.key_only_locations)
-    if needed_chests <= chest_keys:
-        unneeded_chests = max(0, adj_chest_keys - needed_chests)
-        rule_num = required_keys - unneeded_chests
-        rules.new_rules[KeyRuleType.WorstCase] = rule_num
+    rules.new_rules[KeyRuleType.WorstCase] = required_keys
 
 
 def check_for_self_lock_key(rule, door, parent_counter, key_layout, world, player):
