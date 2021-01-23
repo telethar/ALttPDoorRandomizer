@@ -22,10 +22,10 @@ def ArmosKnightsDefeatRule(world, player):
     return or_rule(
         has_blunt_weapon(player),
         can_shoot_arrows(world, player),
-        and_rule(has('Cane of Somaria', player) and can_extend_magic(player, 10)),
-        and_rule(has('Cane of Byrna', player) and can_extend_magic(player, 16)),
-        and_rule(has('Ice Rod', player) and can_extend_magic(player, 32)),
-        and_rule(has('Fire Rod', player) and can_extend_magic(player, 32)),
+        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 10)),
+        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16)),
+        and_rule(has('Ice Rod', player), can_extend_magic(player, 32)),
+        and_rule(has('Fire Rod', player), can_extend_magic(player, 32)),
         has('Blue Boomerang', player),
         has('Red Boomerang', player))
 
@@ -116,8 +116,8 @@ def TrinexxDefeatRule(world, player):
             has('Hammer', player),
             has('Golden Sword', player),
             has('Tempered Sword', player),
-            and_rule(has('Master Sword', player) and can_extend_magic(player, 16)),
-            and_rule(has_sword(player) and can_extend_magic(player, 32))
+            and_rule(has('Master Sword', player), can_extend_magic(player, 16)),
+            and_rule(has_sword(player), can_extend_magic(player, 32))
         )
     )
 

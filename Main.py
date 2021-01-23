@@ -19,11 +19,12 @@ from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, L
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal
 from RoomData import create_rooms
-from Rules import set_rules, analyze_world
+from Rules import set_rules
 from Dungeons import create_dungeons, fill_dungeons, fill_dungeons_restrictive
 from Fill import distribute_items_cutoff, distribute_items_staleness, distribute_items_restrictive, flood_items, balance_multiworld_progression
 from ItemList import generate_itempool, difficulties, fill_prizes, fill_specific_items
 from Utils import output_path, parse_player_names
+from WorldAnalyzer import WorldAnalyzer
 
 __version__ = '0.3.0.1-u'
 
@@ -147,14 +148,15 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
-    # location_paths = analyze_world(world)
-    prizes = []
+    # logic analysis
+    x = time.perf_counter()
+    analyzer = WorldAnalyzer(world)
     for player in range(1, world.players + 1):
-        prizes += ItemFactory(['Red Pendant', 'Blue Pendant', 'Green Pendant', 'Crystal 1', 'Crystal 2', 'Crystal 3',
-                               'Crystal 4', 'Crystal 7', 'Crystal 5', 'Crystal 6'], player)
-    world.itempool += prizes
-    world.get_all_state(keys=True)
-    world.itempool = [x for x in world.itempool if x not in prizes]
+        analyzer.analyze(player)
+        # analyzer.print_rrp(analyzer.reachable_regions[player])
+    analyzer.build_location_logic()
+    analyzer.print_location_logic()
+    logger.info(f'Analyze time: {time.perf_counter() - x}')
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
 

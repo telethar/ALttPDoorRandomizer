@@ -1,18 +1,28 @@
 import logging
 from collections import Counter, deque, defaultdict
+from itertools import groupby
 
 from BaseClasses import CrystalBarrier, RegionType, dungeon_keys
 from EntranceShuffle import indirect_connections
 
 
-class WorldAnalysis(object):
+class WorldAnalyzer(object):
 
     def __init__(self, parent):
         self.world = parent
+        parent.analyzer = self
         self.reachable_regions = {player: dict() for player in range(1, parent.players + 1)}
         self.blocked_connections = {player: dict() for player in range(1, parent.players + 1)}
 
-    def update_reachable_regions(self, player):
+        self.location_logic = {player: dict() for player in range(1, parent.players + 1)}
+
+        self.logic_lookup = {player: dict() for player in range(1, parent.players + 1)}
+        self.reverse_lookup = {player: dict() for player in range(1, parent.players + 1)}
+
+        # self.item_locked_by = {player: dict() for player in range(1, parent.players + 1)}
+        # self.item_locks = {player: dict() for player in range(1, parent.players + 1)}
+
+    def analyze(self, player):
         rrp = self.reachable_regions[player]
         bc = self.blocked_connections[player]
 
@@ -21,32 +31,116 @@ class WorldAnalysis(object):
         if not start in rrp:
             rrp[start] = (CrystalBarrier.Orange, [Counter()], [[]])
             for conn in start.exits:
-                bc[conn] = (CrystalBarrier.Orange, Counter(), [])
+                requirements = conn.access_rule.get_requirements(self)
+                bc[conn] = (CrystalBarrier.Orange, requirements, [])
 
         queue = deque(self.blocked_connections[player].items())
 
         self.traverse_world(queue, rrp, bc, player)
 
+    def build_location_logic(self):
+        for location in self.world.get_locations():
+            loc_logic = location.access_rule.get_requirements(self)
+            record = self.reachable_regions[location.player][location.parent_region]
+            cs, region_logic, paths = record
+            new_logic = merge_requirements(region_logic, loc_logic)
+            paths = [k for k, v in groupby(paths)]
+            self.location_logic[location.player][location] = (new_logic, paths)
+            self.track_locks(location)
+
+    @staticmethod
+    def is_interesting_item(item):
+        return item.advancement or item.priority or item.type is not None  # todo: heart containers and poh?
+
+    # todo: multiworld
+    def track_locks(self, location):
+        (new_logic, paths) = self.location_logic[location.player][location]
+        if location.item and len(new_logic) > 0 and self.is_interesting_item(location.item):
+            item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
+            valid_logic = []
+            if not isinstance(new_logic, list):
+                new_logic = [new_logic]
+            for potential_logic in new_logic:
+                if item_name not in potential_logic or (item_name in progress_max and progress_max[item_name] - potential_logic[item_name] > 0):
+                    valid_logic.append(potential_logic)
+            if len(valid_logic) < len(new_logic):
+                self.location_logic[location.player][location] = (valid_logic, paths)
+                # todo: back track and clean up invalid logics
+
+            indices = []
+            for i, lgc in enumerate(new_logic):
+                replaces = []
+                for item, cnt in lgc.items():
+                    if item in self.logic_lookup[location.item.player]:
+                        replaces.append((item, self.logic_lookup[location.item.player][item][0]))  # todo: multiple
+                for remove, replace in replaces:
+                    del lgc[remove]  # todo: progressives
+                    indices.append((i, merge_requirements(lgc, replace)))
+            for idx, replacement in indices:
+                new_logic[idx] = replacement
+
+            if item_name not in self.logic_lookup[location.item.player]:
+                self.logic_lookup[location.item.player][item_name] = []
+            lookup_list = self.logic_lookup[location.item.player][item_name]
+            lookup_list.append(new_logic)
+
+            for lgc in new_logic:
+                for item, cnt in lgc.items():
+                    if item not in self.reverse_lookup[location.item.player]:
+                        self.reverse_lookup[location.item.player][item] = set()
+                    refs = self.reverse_lookup[location.item.player][item]
+                    refs.add(item_name)
+
+            # clean up lookup table
+            if item_name in self.reverse_lookup[location.item.player]:
+                for ref in self.reverse_lookup[location.item.player][item_name]:
+                    old_logic = self.logic_lookup[location.item.player][ref][0]  # todo: multiple
+                    for lgc in old_logic:
+                        lgc[item_name] = 0  # todo: progressives
+                    new_reqs = merge_requirements(old_logic, new_logic)
+                    new_reqs = new_reqs if isinstance(new_reqs, list) else [new_reqs]
+                    self.logic_lookup[location.item.player][ref] = new_reqs
+
+
+
+
+            # logic_intersection = None
+            # for valid in valid_logic:
+            #     if not logic_intersection:
+            #         logic_intersection = Counter(valid)
+            #     else:
+            #         logic_intersection &= valid
+            # if item_name in self.item_locked_by[location.item.player]:
+            #     item = self.item_locked_by[location.item.player][item_name]
+            #     if not isinstance(item, list):
+            #         item = self.item_locked_by[location.item.player][item_name] = [item]
+            #     item.append(logic_intersection)
+            # else:
+            #     self.item_locked_by[location.item.player][item_name] = logic_intersection
+            # for item, count in logic_intersection.items():
+            #     locks = self.item_locks[location.player]
+            #     if (item, count) not in locks:
+            #         self.item_locks[location.player][(item, count)] = Counter()
+            #     self.item_locks[location.player][(item, count)][item_name] += 1
+
     def traverse_world(self, queue, rrp, bc, player):
-        ctr = 0
         # run BFS on all connections, and keep track of those blocked by missing items
         while len(queue) > 0:
-            ctr += 1
-            # if ctr % 1000 == 0:
 
             connection, record = queue.popleft()
             crystal_state, logic, path = record
             new_region = connection.connected_region
             if not self.should_visit(new_region, rrp, crystal_state, logic):
                 bc.pop(connection, None)
+            elif self.should_defer(logic):
+                requirements = connection.access_rule.get_requirements(self)
+                queue.append((connection, (crystal_state, requirements, path)))
             else:
-                # location logic can go here
-                # complete_logic = logic if new_region not in rrp else merge_requirements(rrp[new_region][1], logic)
                 if new_region.type == RegionType.Dungeon:
                     new_crystal_state = crystal_state
                     for conn in new_region.exits:
                         door = conn.door
-                        if door is not None and door.crystal == CrystalBarrier.Either and door.entrance.can_reach(self):
+                        if door is not None and door.crystal == CrystalBarrier.Either:
                             new_crystal_state = CrystalBarrier.Either
                             break
                     if new_region in rrp:
@@ -100,6 +194,15 @@ class WorldAnalysis(object):
         return (record[0] & crystal_state) != crystal_state or logic_is_different
 
     @staticmethod
+    def should_defer(logic):
+        if not isinstance(logic, list):
+            logic = [logic]
+        for lgc in logic:
+            if 'Unreachable' in lgc:
+                return True
+        return False
+
+    @staticmethod
     def is_logic_different(current_logic, old_logic):
         if isinstance(old_logic, list):
             if isinstance(current_logic, list):
@@ -132,15 +235,19 @@ class WorldAnalysis(object):
     @staticmethod
     def assign_rrp(rrp, new_region, barrier, logic, path):
         record = rrp[new_region] if new_region in rrp else (barrier, [], [])
+        rrp[new_region] = WorldAnalyzer.combine_logic(record, barrier, logic, path)
+
+    @staticmethod
+    def combine_logic(record, barrier, logic, path):
         logic_to_delete, logic_to_append = [], []
         for visited_logic in record[1]:
-            if not WorldAnalysis.is_logic_different(visited_logic, logic):
+            if not WorldAnalyzer.is_logic_different(visited_logic, logic):
                 logic_to_delete.append(visited_logic)
         if isinstance(logic, list):
             for logic_item in logic:
-                if WorldAnalysis.is_logic_different(logic_item, record[1]):
+                if WorldAnalyzer.is_logic_different(logic_item, record[1]):
                     logic_to_append.append(logic_item)
-        elif WorldAnalysis.is_logic_different(logic, record[1]):
+        elif WorldAnalyzer.is_logic_different(logic, record[1]):
             logic_to_append.append(logic)
         for deletion in logic_to_delete:
             idx = record[1].index(deletion)
@@ -149,8 +256,7 @@ class WorldAnalysis(object):
         for logic_item in logic_to_append:
             record[1].append(logic_item)
             record[2].append(path)
-        record = (barrier, record[1], record[2])
-        rrp[new_region] = record
+        return barrier, record[1], record[2]
 
     @staticmethod
     def print_rrp(rrp):
@@ -162,6 +268,21 @@ class WorldAnalysis(object):
             for i in range(0, len(logic)):
                 logger.debug(f'{logic[i]}')
                 logger.debug(f'{",".join(str(x) for x in path[i])}')
+
+    def print_location_logic(self):
+        logger = logging.getLogger('')
+        logger.debug('Location Checking')
+        for player in range(1, self.world.players + 1):
+            for location, packet in self.location_logic[player].items():
+                logic, path = packet
+                logger.debug(f'\nLocation: {location.name}')
+                if isinstance(logic, list):
+                    for i in range(0, len(logic)):
+                        logger.debug(f'{logic[i]}')
+                else:
+                    logger.debug(f'{logic}')
+                for i in range(0, len(path)):
+                    logger.debug(f'{", ".join(str(x) for x in path[i])}')
 
 
 def merge_requirements(starting_requirements, new_requirements):
@@ -204,7 +325,7 @@ def reduce_requirements(requirements):
         for j, other_req in enumerate(dedup_requirements):
             if i == j:
                 continue
-            if all(req[k] > other_req[k] for k in (req | other_req)):
+            if all(req[k] >= other_req[k] for k in (req | other_req)):
                 removals.append(req)
     reduced = list(dedup_requirements)  # todo: optimize by doing it in place?
     for removal in removals:
@@ -236,3 +357,14 @@ def substitute_progressive(req_counter):
         progressive_item, count = progress_sub[item]
         req_counter[progressive_item] = count
         del req_counter[item]
+
+
+# todo: pools with more/less progressives
+progress_max = {
+    'Progressive Sword': 4,
+    'Progressive Glove': 2,
+    'Progressive Bow': 2,
+    'Progressive Armor': 2,
+    'Progressive Shield': 3,
+    'Bottle': 4,
+}

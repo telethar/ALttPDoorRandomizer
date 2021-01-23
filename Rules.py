@@ -1635,11 +1635,6 @@ def add_key_logic_rules(world, player):
             add_rule(world.get_location(chest.name, player), has(d_logic.bk_name, player))
 
 
-def analyze_world(world):
-    state = get_all_state(world, keys=True)
-    return state
-
-
 def should_visit(new_region, rrp, crystal_state, logic, player):
     if not new_region:
         return False

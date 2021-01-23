@@ -1,5 +1,6 @@
 import copy
 import json
+import itertools
 import logging
 from collections import OrderedDict, Counter, deque, defaultdict
 from enum import Enum, unique
@@ -12,7 +13,7 @@ except ImportError:
 
 from source.classes.BabelFish import BabelFish
 from EntranceShuffle import door_addresses, indirect_connections
-from Utils import int16_as_bytes
+from Utils import int16_as_bytes, ncr
 from Tables import normal_offset_table, spiral_offset_table, multiply_lookup, divisor_lookup
 from RoomData import Room
 
@@ -84,6 +85,7 @@ class World(object):
         self.sanc_portal = {}
         self.fish = BabelFish()
         self.traversal_hints = defaultdict(dict)
+        self.analyzer = None
 
         for player in range(1, players + 1):
             # If World State is Retro, set to Open and set Retro flag
@@ -363,7 +365,8 @@ class World(object):
             item.world = self
             if collect:
                 self.state.collect(item, location.event, location)
-
+            if self.analyzer:
+                self.analyzer.track_locks(location)
             logging.getLogger('').debug('Placed %s at %s', item, location)
         else:
             raise RuntimeError('Cannot assign item %s to location %s.' % (item, location))
@@ -2573,7 +2576,53 @@ def reachability_requirements(rule, state):
         if location:
             requirements = merge_requirements(requirements, location.access_rule.get_requirements(state))
         return requirements
-    return Counter({'Unreachable', 1})
+    return Counter({'Unreachable': 1})
+
+
+avail_crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']
+
+
+def crystal_requirements(rule):
+    combinations = itertools.combinations(avail_crystals, rule.principal)
+    num_combos = ncr(len(avail_crystals), rule.principal)
+    if num_combos == 1:
+        return Counter(next(combinations))
+    else:
+        counter_list = []
+        for combo in combinations:
+            counter_list.append(Counter(combo))
+        return counter_list
+
+
+# todo: potion shop req
+# todo: 1/4 magic
+def magic_requirements(rule, state):
+    if rule.principal <= 8:
+        return Counter()
+    bottle_val = 1.0
+    if state.world.difficulty_adjustments[rule.player] == 'expert' and not rule.flag:
+        bottle_val = 0.25
+    elif state.world.difficulty_adjustments[rule.player] == 'hard' and not rule.flag:
+        bottle_val = 0.5
+    base, min_bot, reqs = 8, None, []
+    for i in range(1, 5):
+        if base + bottle_val*base*i >= rule.principal:
+            min_bot = i
+            break
+    if min_bot:
+        reqs.append(Counter({'Bottle': min_bot}))
+    if rule.principal <= 16:
+        reqs.append(Counter({'Magic Upgrade (1/2)': 1}))
+        return reqs
+    else:
+        base, min_bot = 16, 4
+        for i in range(1, 5):
+            if base + bottle_val*base*i >= rule.principal:
+                min_bot = i
+                break
+        if min_bot:
+            reqs.append(Counter({'Magic Upgrade (1/2)': 1, 'Bottle': min_bot}))
+        return reqs
 
 
 rule_requirements = {
@@ -2582,13 +2631,13 @@ rule_requirements = {
     RuleType.Item: lambda rule, s: Counter({rule.principal: rule.count}),
     RuleType.Reachability: reachability_requirements,
     RuleType.Static: lambda rule, s: Counter(),
-    RuleType.Crystal: lambda rule, s: Counter(),
+    RuleType.Crystal: lambda rule, s: crystal_requirements(rule),  # lambda rule, s: Counter({'Crystal', rule.count}),
     RuleType.Bottle: lambda rule, s: Counter({'Bottle': 1}),
     RuleType.Barrier: lambda rule, s: Counter(),
     RuleType.Hearts: lambda rule, s: Counter(),
     RuleType.Unlimited: lambda rule, s: Counter(),
-    RuleType.ExtendMagic: lambda rule, s: Counter(),
-    RuleType.Boss: lambda rule, s: Counter(),
+    RuleType.ExtendMagic: magic_requirements,
+    RuleType.Boss: lambda rule, s: rule.principal.defeat_rule.get_requirements(s),
     RuleType.Negate: lambda rule, s: Counter(),
     RuleType.LocationCheck: lambda rule, s: Counter(),
     RuleType.SmallKeyDoor: lambda rule, s: Counter({rule.principal[0]: 1})
