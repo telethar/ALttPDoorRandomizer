@@ -16,7 +16,8 @@ class WorldAnalyzer(object):
 
         self.location_logic = {player: dict() for player in range(1, parent.players + 1)}
 
-        self.logic_lookup = {player: dict() for player in range(1, parent.players + 1)}
+        self.logic_lookup = dict()
+        # self.logic_lookup = {player: dict() for player in range(1, parent.players + 1)}
         self.reverse_lookup = {player: dict() for player in range(1, parent.players + 1)}
 
         # self.item_locked_by = {player: dict() for player in range(1, parent.players + 1)}
@@ -39,6 +40,18 @@ class WorldAnalyzer(object):
         self.traverse_world(queue, rrp, bc, player)
 
     def build_location_logic(self):
+        items = Counter()
+        for player in range(1, self.world.players + 1):
+            for location in self.world.get_filled_locations(player):
+                items[(location.item.name, location.item.player)] += 1
+        for dungeon in self.world.dungeons:
+            for item in dungeon.all_items:
+                items[(item.name, item.player)] += 19
+        for item in self.world.itempool:
+            items[(item.name, item.player)] += 1
+        for key, amount in items.items():
+            name, player = key
+            self.logic_lookup[key] = ItemLogic(name, player, amount)
         for location in self.world.get_locations():
             loc_logic = location.access_rule.get_requirements(self)
             record = self.reachable_regions[location.player][location.parent_region]
@@ -368,3 +381,29 @@ progress_max = {
     'Progressive Shield': 3,
     'Bottle': 4,
 }
+
+
+class ItemLogic(object):
+
+    def __init__(self, name, player, total_in_pool):
+        self.name = name
+        self.player = player
+        self.total_in_pool = total_in_pool
+        self.logic_options = []  # same length as total
+
+    def __eq__(self, other):
+        return other and self.name == other.name and self.player == other.player
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash((self.name, self.player))
+
+
+
+class LogicOption(object):
+
+    def __init__(self):
+        self.logic = Counter()
+        self.path = []
