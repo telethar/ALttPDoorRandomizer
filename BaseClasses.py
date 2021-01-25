@@ -16,6 +16,7 @@ from EntranceShuffle import door_addresses, indirect_connections
 from Utils import int16_as_bytes, ncr
 from Tables import normal_offset_table, spiral_offset_table, multiply_lookup, divisor_lookup
 from RoomData import Room
+from Utils import standardize_requirements, merge_requirements
 
 class World(object):
 
@@ -2473,15 +2474,21 @@ def eval_small_key_door(rule, state):
         return True
     key_logic = state.world.key_logic[rule.player][dungeon]
     door_rule = key_logic.door_rules[door_name]
-    for type, number in door_rule.new_rules.items():
-        if type == KeyRuleType.WorstCase:
-            return state.has_sm_key(key_logic.small_key_name, rule.player, number)
-        elif type == KeyRuleType.AllowSmall:
-            if door_rule.small_location.item and door_rule.small_location.item.name == key_logic.small_key_nam:
-                return state.has_sm_key(key_logic.small_key_name, rule.player, number)
-        elif type == KeyRuleType.Lock:
-            pass  # todo: locking type rules
-    return False
+    door_openable = False
+    for ruleType, number in door_rule.new_rules.items():
+        if door_openable:
+            return True
+        if ruleType == KeyRuleType.WorstCase:
+            door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, number)
+        elif ruleType == KeyRuleType.AllowSmall:
+            if door_rule.small_location.item and door_rule.small_location.item.name == key_logic.small_key_name:
+                door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, number)
+        elif ruleType == KeyRuleType.Lock:
+            num, lock_item = number
+            item_logic = state.world.analyzer.logic_lookup[(lock_item, rule.player)]
+            if door_name in item_logic.get_locking_items():
+                door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, num)
+    return door_openable
 
 
 rule_evaluations = {
@@ -2526,23 +2533,6 @@ def conjunction_requirements(rule, state):
         result = r.get_requirements(state)
         results = merge_requirements(results, result)
     return results
-
-
-def merge_requirements(starting_requirements, new_requirements):
-    merge = []
-    if isinstance(starting_requirements, list):
-        for req in starting_requirements:
-            if isinstance(new_requirements, list):
-                for new_r in new_requirements:
-                    merge.append(req | new_r)
-            else:
-                merge.append(req | new_requirements)
-    elif isinstance(new_requirements, list):
-        for new_r in new_requirements:
-            merge.append(starting_requirements | new_r)
-    else:
-        return reduce_requirements(starting_requirements | new_requirements)
-    return reduce_requirements(merge)
 
 
 def disjunction_requirements(rule, state):
@@ -2643,62 +2633,6 @@ rule_requirements = {
     RuleType.SmallKeyDoor: lambda rule, s: Counter({rule.principal[0]: 1})
 }
 
-only_one = {'Moon Pearl', 'Hammer', 'Blue Boomerang', 'Red Boomerang', 'Hookshot', 'Mushroom', 'Powder',
-            'Fire Rod', 'Ice Rod', 'Bombos', 'Ether', 'Quake', 'Lamp', 'Shovel', 'Ocarina', 'Bug Catching Net',
-            'Book of Mudora', 'Magic Mirror', 'Cape', 'Cane of Somaria', 'Cane of Byrna', 'Flippers', 'Pegasus Boots'}
-
-
-def reduce_requirements(requirements):
-    if not isinstance(requirements, list):
-        requirements = [requirements]
-    for req in requirements:
-        for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
-            req[item] = 1
-        substitute_progressive(req)  # todo: work with non-progressives?
-    removals = []
-    requirements = list(requirements)
-    dedup_requirements = []
-    for req in requirements:
-        if req not in dedup_requirements:
-            dedup_requirements.append(req)
-    # subset manip
-    for i, req in enumerate(dedup_requirements):
-        for j, other_req in enumerate(dedup_requirements):
-            if i == j:
-                continue
-            if all(req[k] > other_req[k] for k in (req | other_req)):
-                removals.append(req)
-    reduced = list(dedup_requirements)  # todo: optimize by doing it in place?
-    for removal in removals:
-        if removal in reduced:
-            reduced.remove(removal)
-    assert len(reduced) != 0
-    return reduced[0] if len(reduced) == 1 else list(reduced)
-
-
-progress_sub = {
-    'Fighter Sword': ('Progressive Sword', 1),
-    'Master Sword': ('Progressive Sword', 2),
-    'Tempered Sword': ('Progressive Sword', 3),
-    'Golden Sword': ('Progressive Sword', 4),
-    'Power Glove': ('Progressive Glove', 1),
-    'Titans Mitts': ('Progressive Glove', 2),
-    'Bow': ('Progressive Bow', 1),
-    'Silver Arrows': ('Progressive Bow', 2),
-    'Blue Mail': ('Progressive Armor', 1),
-    'Red Mail': ('Progressive Armor', 2),
-    'Blue Shield': ('Progressive Shield', 1),
-    'Red Shield': ('Progressive Shield', 2),
-    'Mirror Shield': ('Progressive Shield', 3),
-}
-
-
-def substitute_progressive(req_counter):
-    for item in [x for x in req_counter.keys() if x in progress_sub.keys()]:
-        progressive_item, count = progress_sub[item]
-        req_counter[progressive_item] = count
-        del req_counter[item]
-
 
 class Rule(object):
 
@@ -2717,17 +2651,7 @@ class Rule(object):
         return rule_evaluations[self.rule_type](self, state)
 
     def get_requirements(self, state):
-        return reduce_requirements(rule_requirements[self.rule_type](self, state))
-
-    def get_deferment(self, world):
-        if self.rule_type == RuleType.Reachability:
-            if self.resolution_hint == 'Location':
-                return world.get_location(self.principal, self.player).parent_region
-            elif self.resolution_hint == 'Region':
-                return world.get_region(self.principal, self.player)
-            elif self.resolution_hint == 'Entrance':
-                return world.get_entrance(self.principal, self.player).parent_region
-        return None
+        return standardize_requirements(rule_requirements[self.rule_type](self, state))
 
     def __str__(self):
         return str(self.__unicode__())

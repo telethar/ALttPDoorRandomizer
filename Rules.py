@@ -795,9 +795,11 @@ def no_glitches_rules(world, player):
 
 
 def open_rules(world, player):
+    pass
+    # these really aren't needed with the new key rules
     # softlock protection as you can reach the sewers small key door with a guard drop key
-    set_rule(world.get_location('Hyrule Castle - Boomerang Chest', player), has_sm_key('Small Key (Escape)', world, player))
-    set_rule(world.get_location('Hyrule Castle - Zelda\'s Chest', player), has_sm_key('Small Key (Escape)', world, player))
+    # set_rule(world.get_location('Hyrule Castle - Boomerang Chest', player), has_sm_key('Small Key (Escape)', world, player))
+    # set_rule(world.get_location('Hyrule Castle - Zelda\'s Chest', player), has_sm_key('Small Key (Escape)', world, player))
 
 
 def swordless_rules(world, player):

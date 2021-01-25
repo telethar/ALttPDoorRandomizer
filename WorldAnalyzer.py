@@ -1,9 +1,11 @@
 import logging
 from collections import Counter, deque, defaultdict
-from itertools import groupby
+from itertools import groupby, combinations
 
 from BaseClasses import CrystalBarrier, RegionType, dungeon_keys
 from EntranceShuffle import indirect_connections
+from Items import ItemFactory
+from Utils import merge_requirements, reduce_requirements
 
 
 class WorldAnalyzer(object):
@@ -17,11 +19,7 @@ class WorldAnalyzer(object):
         self.location_logic = {player: dict() for player in range(1, parent.players + 1)}
 
         self.logic_lookup = dict()
-        # self.logic_lookup = {player: dict() for player in range(1, parent.players + 1)}
-        self.reverse_lookup = {player: dict() for player in range(1, parent.players + 1)}
-
-        # self.item_locked_by = {player: dict() for player in range(1, parent.players + 1)}
-        # self.item_locks = {player: dict() for player in range(1, parent.players + 1)}
+        self.reverse_lookup = dict()
 
     def analyze(self, player):
         rrp = self.reachable_regions[player]
@@ -41,17 +39,28 @@ class WorldAnalyzer(object):
 
     def build_location_logic(self):
         items = Counter()
+        # init - logic lookup
         for player in range(1, self.world.players + 1):
             for location in self.world.get_filled_locations(player):
-                items[(location.item.name, location.item.player)] += 1
+                if self.is_interesting_item(location.item):
+                    item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
+                    items[(item_name, location.item.player)] += 1
+            for prize in ItemFactory(['Red Pendant', 'Blue Pendant', 'Green Pendant', 'Crystal 1', 'Crystal 2',
+                                      'Crystal 3', 'Crystal 4', 'Crystal 7', 'Crystal 5', 'Crystal 6'], player):
+                items[(prize.name, prize.player)] += 1
         for dungeon in self.world.dungeons:
             for item in dungeon.all_items:
-                items[(item.name, item.player)] += 19
+                if self.is_interesting_item(item):
+                    item_name = 'Bottle' if item.name.startswith('Bottle') else item.name
+                    items[(item_name, item.player)] += 1
         for item in self.world.itempool:
-            items[(item.name, item.player)] += 1
+            if self.is_interesting_item(item):
+                item_name = 'Bottle' if item.name.startswith('Bottle') else item.name
+                items[(item_name, item.player)] += 1
         for key, amount in items.items():
             name, player = key
             self.logic_lookup[key] = ItemLogic(name, player, amount)
+
         for location in self.world.get_locations():
             loc_logic = location.access_rule.get_requirements(self)
             record = self.reachable_regions[location.player][location.parent_region]
@@ -63,78 +72,107 @@ class WorldAnalyzer(object):
 
     @staticmethod
     def is_interesting_item(item):
-        return item.advancement or item.priority or item.type is not None  # todo: heart containers and poh?
+        # todo: heart containers and poh?
+        return item.advancement or (item.type is not None and item.type in ['BigKey', 'SmallKey']) or (item.type is None and item.priority)
 
     # todo: multiworld
     def track_locks(self, location):
         (new_logic, paths) = self.location_logic[location.player][location]
-        if location.item and len(new_logic) > 0 and self.is_interesting_item(location.item):
-            item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
-            valid_logic = []
+        if location.item and self.is_interesting_item(location.item):
+            if len(new_logic) == 0:
+                item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
+                item_logic = self.logic_lookup[(item_name, location.item.player)]
+                item_logic.locations.append(location)
+                item_logic.logic_options.append(Counter())  # no requirements
+                return
+
             if not isinstance(new_logic, list):
                 new_logic = [new_logic]
-            for potential_logic in new_logic:
-                if item_name not in potential_logic or (item_name in progress_max and progress_max[item_name] - potential_logic[item_name] > 0):
-                    valid_logic.append(potential_logic)
-            if len(valid_logic) < len(new_logic):
-                self.location_logic[location.player][location] = (valid_logic, paths)
-                # todo: back track and clean up invalid logics
-
-            indices = []
+            complete_logic = []
             for i, lgc in enumerate(new_logic):
-                replaces = []
+                # update logic from the lookup - (makes a copy?)
+                new_lgc = [Counter(x) for x in lgc] if isinstance(lgc, list) else Counter(lgc)
                 for item, cnt in lgc.items():
-                    if item in self.logic_lookup[location.item.player]:
-                        replaces.append((item, self.logic_lookup[location.item.player][item][0]))  # todo: multiple
-                for remove, replace in replaces:
-                    del lgc[remove]  # todo: progressives
-                    indices.append((i, merge_requirements(lgc, replace)))
-            for idx, replacement in indices:
-                new_logic[idx] = replacement
+                    if (item, location.player) in self.logic_lookup:
+                        item_logic = self.logic_lookup[(item, location.player)]
+                        if item_logic.complete():
+                            combined, subsets = [], item_logic.get_option_subset(cnt)
+                            for subset in subsets:
+                                merged = merge_requirements(new_lgc, subset)
+                                (combined.extend if isinstance(merged, list) else combined.append)(merged)
+                            new_lgc = combined
+                (complete_logic.extend if isinstance(new_lgc, list) else complete_logic.append)(new_lgc)
 
-            if item_name not in self.logic_lookup[location.item.player]:
-                self.logic_lookup[location.item.player][item_name] = []
-            lookup_list = self.logic_lookup[location.item.player][item_name]
-            lookup_list.append(new_logic)
+            complete_logic = reduce_requirements(complete_logic)
+            if not isinstance(complete_logic, list):
+                complete_logic = [complete_logic]
+            item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
+            item_player = location.item.player
+            key = (item_name, item_player)
 
-            for lgc in new_logic:
-                for item, cnt in lgc.items():
-                    if item not in self.reverse_lookup[location.item.player]:
-                        self.reverse_lookup[location.item.player][item] = set()
-                    refs = self.reverse_lookup[location.item.player][item]
-                    refs.add(item_name)
+            item_logic = self.logic_lookup[key]
+            valid_logic = self.check_validity(complete_logic, item_logic)
+            if len(valid_logic) < len(complete_logic):
+                self.location_logic[location.player][location] = (valid_logic, paths)
+                # todo: back track and clean up invalid logic?
 
-            # clean up lookup table
-            if item_name in self.reverse_lookup[location.item.player]:
-                for ref in self.reverse_lookup[location.item.player][item_name]:
-                    old_logic = self.logic_lookup[location.item.player][ref][0]  # todo: multiple
-                    for lgc in old_logic:
-                        lgc[item_name] = 0  # todo: progressives
-                    new_reqs = merge_requirements(old_logic, new_logic)
-                    new_reqs = new_reqs if isinstance(new_reqs, list) else [new_reqs]
-                    self.logic_lookup[location.item.player][ref] = new_reqs
+            # add this item to the item logic
+            item_logic.logic_options.append(valid_logic)
+            item_logic.locations.append(location)
+            # clean up lookup table if this is now complete
+            if item_logic.complete() and key in self.reverse_lookup:
+                for ref in self.reverse_lookup[key]:
+                    old_logic = self.logic_lookup[ref]
+                    new_reqs = []
+                    for logic in old_logic.logic_options:
+                        if isinstance(logic, list):
+                            sub_options = []
+                            for sub_logic in logic:
+                                if key[0] in sub_logic:
+                                    sub_merge = merge_requirements(sub_logic, valid_logic)
+                                    (sub_options.extend if isinstance(sub_merge, list) else sub_options.append)(sub_merge)
+                                    self.record_reverse_refs(sub_merge, old_logic.player, ref)
+                                else:
+                                    sub_options.append(sub_logic)
+                            new_reqs.append(reduce_requirements(self.check_validity(sub_options, old_logic)))
+                        elif key[0] in logic:
+                            merge_req = merge_requirements(logic, valid_logic)
+                            merge_req = merge_req if isinstance(merge_req, list) else [merge_req]
+                            self.record_reverse_refs(merge_req, old_logic.player, ref)
+                            new_reqs.append(reduce_requirements(self.check_validity(merge_req, old_logic)))
+                        else:
+                            new_reqs.append(logic)
+                    old_logic.logic_options = new_reqs
 
+            # set up reverse lookup
+            for lgc in valid_logic:
+                self.record_reverse_refs(lgc, location.player, key)
 
+    def record_reverse_refs(self, logic, logic_player, key):
+        if isinstance(logic, list):
+            for lgc in logic:
+                self.record_single_reverse_refs(key, lgc, logic_player)
+        else:
+            self.record_single_reverse_refs(key, logic, logic_player)
 
+    def record_single_reverse_refs(self, key, lgc, logic_player):
+        for item, cnt in lgc.items():
+            if (item, logic_player) not in self.reverse_lookup:
+                self.reverse_lookup[(item, logic_player)] = set()
+            refs = self.reverse_lookup[(item, logic_player)]
+            refs.add(key)
 
-            # logic_intersection = None
-            # for valid in valid_logic:
-            #     if not logic_intersection:
-            #         logic_intersection = Counter(valid)
-            #     else:
-            #         logic_intersection &= valid
-            # if item_name in self.item_locked_by[location.item.player]:
-            #     item = self.item_locked_by[location.item.player][item_name]
-            #     if not isinstance(item, list):
-            #         item = self.item_locked_by[location.item.player][item_name] = [item]
-            #     item.append(logic_intersection)
-            # else:
-            #     self.item_locked_by[location.item.player][item_name] = logic_intersection
-            # for item, count in logic_intersection.items():
-            #     locks = self.item_locks[location.player]
-            #     if (item, count) not in locks:
-            #         self.item_locks[location.player][(item, count)] = Counter()
-            #     self.item_locks[location.player][(item, count)][item_name] += 1
+    def check_validity(self, complete_logic, item_logic):
+        valid_logic = []
+        for potential_logic in complete_logic:
+            if item_logic.name not in potential_logic:
+                valid_logic.append(potential_logic)
+            else:
+                needed = potential_logic[item_logic.name]
+                total = self.logic_lookup[(item_logic.name, item_logic.player)].total_in_pool
+                if total - needed > 0:
+                    valid_logic.append(potential_logic)
+        return valid_logic
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -297,90 +335,19 @@ class WorldAnalyzer(object):
                 for i in range(0, len(path)):
                     logger.debug(f'{", ".join(str(x) for x in path[i])}')
 
-
-def merge_requirements(starting_requirements, new_requirements):
-    merge = []
-    if isinstance(starting_requirements, list):
-        for req in starting_requirements:
-            if isinstance(new_requirements, list):
-                for new_r in new_requirements:
-                    merge.append(req | new_r)
-            else:
-                merge.append(req | new_requirements)
-    elif isinstance(new_requirements, list):
-        for new_r in new_requirements:
-            merge.append(starting_requirements | new_r)
-    else:
-        return reduce_requirements(starting_requirements | new_requirements)
-    return reduce_requirements(merge)
-
-
-only_one = {'Moon Pearl', 'Hammer', 'Blue Boomerang', 'Red Boomerang', 'Hookshot', 'Mushroom', 'Powder',
-            'Fire Rod', 'Ice Rod', 'Bombos', 'Ether', 'Quake', 'Lamp', 'Shovel', 'Ocarina', 'Bug Catching Net',
-            'Book of Mudora', 'Magic Mirror', 'Cape', 'Cane of Somaria', 'Cane of Byrna', 'Flippers', 'Pegasus Boots'}
-
-
-def reduce_requirements(requirements):
-    if not isinstance(requirements, list):
-        requirements = [requirements]
-    for req in requirements:
-        for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
-            req[item] = 1
-        substitute_progressive(req)  # todo: work with non-progressives?
-    removals = []
-    requirements = list(requirements)
-    dedup_requirements = []
-    for req in requirements:
-        if req not in dedup_requirements:
-            dedup_requirements.append(req)
-    # subset manip
-    for i, req in enumerate(dedup_requirements):
-        for j, other_req in enumerate(dedup_requirements):
-            if i == j:
-                continue
-            if all(req[k] >= other_req[k] for k in (req | other_req)):
-                removals.append(req)
-    reduced = list(dedup_requirements)  # todo: optimize by doing it in place?
-    for removal in removals:
-        if removal in reduced:
-            reduced.remove(removal)
-    assert len(reduced) != 0
-    return reduced[0] if len(reduced) == 1 else list(reduced)
-
-
-progress_sub = {
-    'Fighter Sword': ('Progressive Sword', 1),
-    'Master Sword': ('Progressive Sword', 2),
-    'Tempered Sword': ('Progressive Sword', 3),
-    'Golden Sword': ('Progressive Sword', 4),
-    'Power Glove': ('Progressive Glove', 1),
-    'Titans Mitts': ('Progressive Glove', 2),
-    'Bow': ('Progressive Bow', 1),
-    'Silver Arrows': ('Progressive Bow', 2),
-    'Blue Mail': ('Progressive Armor', 1),
-    'Red Mail': ('Progressive Armor', 2),
-    'Blue Shield': ('Progressive Shield', 1),
-    'Red Shield': ('Progressive Shield', 2),
-    'Mirror Shield': ('Progressive Shield', 3),
-}
-
-
-def substitute_progressive(req_counter):
-    for item in [x for x in req_counter.keys() if x in progress_sub.keys()]:
-        progressive_item, count = progress_sub[item]
-        req_counter[progressive_item] = count
-        del req_counter[item]
-
-
-# todo: pools with more/less progressives
-progress_max = {
-    'Progressive Sword': 4,
-    'Progressive Glove': 2,
-    'Progressive Bow': 2,
-    'Progressive Armor': 2,
-    'Progressive Shield': 3,
-    'Bottle': 4,
-}
+    def print_item_logic(self):
+        logger = logging.getLogger('')
+        logger.debug('Item Checking')
+        for key, item_logic in self.logic_lookup.items():
+            logger.debug(f'\n{item_logic.name} (Player {item_logic.player})  Total: {item_logic.total_in_pool}')
+            for i, logic_option in enumerate(item_logic.logic_options):
+                multi = '' if item_logic.player == item_logic.locations[i].player else f' (Player {item_logic.locations[i].player})'
+                logger.debug(f'Instance {i+1} @ {item_logic.locations[i].name}' + multi)
+                if isinstance(logic_option, list):
+                    for j in range(0, len(logic_option)):
+                        logger.debug(f'{logic_option[j]}')
+                else:
+                    logger.debug(f'{logic_option}')
 
 
 class ItemLogic(object):
@@ -389,7 +356,35 @@ class ItemLogic(object):
         self.name = name
         self.player = player
         self.total_in_pool = total_in_pool
+        # each entry is a list or Counter
         self.logic_options = []  # same length as total
+        self.locations = []
+
+    def complete(self):
+        return len(self.logic_options) == self.total_in_pool
+
+    def get_option_subset(self, cnt):
+        combos = combinations(self.logic_options, cnt)
+        ret = []
+        for combo in combos:
+            val = None
+            for logic_item in combo:
+                if not val:
+                    val = logic_item
+                else:
+                    val = merge_requirements(val, logic_item)
+            ret.append(val)
+        return ret
+
+    def get_locking_items(self):
+        locks = Counter()
+        for logic_option in self.logic_options:
+            if isinstance(logic_option, list):
+                for lgc in logic_option:
+                    locks &= lgc
+            else:
+                locks &= logic_option
+        return locks
 
     def __eq__(self, other):
         return other and self.name == other.name and self.player == other.player
@@ -401,7 +396,7 @@ class ItemLogic(object):
         return hash((self.name, self.player))
 
 
-
+# todo: use this to preserve the path, possibly
 class LogicOption(object):
 
     def __init__(self):

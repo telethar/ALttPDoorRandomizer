@@ -155,6 +155,91 @@ def ncr(n, r):
     return numerator / denominator
 
 
+# requirement utility methods
+def merge_requirements(starting_requirements, new_requirements):
+    merge = []
+    if isinstance(starting_requirements, list):
+        for req in starting_requirements:
+            if isinstance(new_requirements, list):
+                for new_r in new_requirements:
+                    merge.append(req | new_r)
+            else:
+                merge.append(req | new_requirements)
+    elif isinstance(new_requirements, list):
+        for new_r in new_requirements:
+            merge.append(starting_requirements | new_r)
+    else:
+        return reduce_requirements(starting_requirements | new_requirements)
+    return reduce_requirements(merge)
+
+
+only_one = {'Moon Pearl', 'Hammer', 'Blue Boomerang', 'Red Boomerang', 'Hookshot', 'Mushroom', 'Powder',
+            'Fire Rod', 'Ice Rod', 'Bombos', 'Ether', 'Quake', 'Lamp', 'Shovel', 'Ocarina', 'Bug Catching Net',
+            'Book of Mudora', 'Magic Mirror', 'Cape', 'Cane of Somaria', 'Cane of Byrna', 'Flippers', 'Pegasus Boots'}
+
+
+def standardize_requirements(requirements):
+    if not isinstance(requirements, list):
+        requirements = [requirements]
+    for req in requirements:
+        for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
+            req[item] = 1
+        substitute_progressive(req)  # todo: work with non-progressives?
+    return reduce_requirements(requirements)
+
+
+def reduce_requirements(requirements):
+    if not isinstance(requirements, list):
+        requirements = [requirements]
+    # for req in requirements:
+    #     for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
+    #         req[item] = 1
+    #     substitute_progressive(req)
+    removals = []
+    requirements = list(requirements)
+    dedup_requirements = []
+    for req in requirements:
+        if req not in dedup_requirements:
+            dedup_requirements.append(req)
+    # subset manip
+    for i, req in enumerate(dedup_requirements):
+        for j, other_req in enumerate(dedup_requirements):
+            if i == j:
+                continue
+            if all(req[k] >= other_req[k] for k in (req | other_req)):
+                removals.append(req)
+    reduced = list(dedup_requirements)  # todo: optimize by doing it in place?
+    for removal in removals:
+        if removal in reduced:
+            reduced.remove(removal)
+    assert len(reduced) != 0
+    return reduced[0] if len(reduced) == 1 else list(reduced)
+
+
+progress_sub = {
+    'Fighter Sword': ('Progressive Sword', 1),
+    'Master Sword': ('Progressive Sword', 2),
+    'Tempered Sword': ('Progressive Sword', 3),
+    'Golden Sword': ('Progressive Sword', 4),
+    'Power Glove': ('Progressive Glove', 1),
+    'Titans Mitts': ('Progressive Glove', 2),
+    'Bow': ('Progressive Bow', 1),
+    'Silver Arrows': ('Progressive Bow', 2),
+    'Blue Mail': ('Progressive Armor', 1),
+    'Red Mail': ('Progressive Armor', 2),
+    'Blue Shield': ('Progressive Shield', 1),
+    'Red Shield': ('Progressive Shield', 2),
+    'Mirror Shield': ('Progressive Shield', 3),
+}
+
+
+def substitute_progressive(req_counter):
+    for item in [x for x in req_counter.keys() if x in progress_sub.keys()]:
+        progressive_item, count = progress_sub[item]
+        req_counter[progressive_item] = count
+        del req_counter[item]
+
+
 entrance_offsets = {
     'Sanctuary': 0x2,
     'HC West': 0x3,

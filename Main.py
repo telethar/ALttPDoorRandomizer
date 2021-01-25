@@ -212,6 +212,7 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli","cli","balance.multiworld"))
         balance_multiworld_progression(world)
 
+    world.analyzer.print_item_logic()
     # if we only check for beatable, we can do this sanity check first before creating the rom
     if not world.can_beat_game():
         raise RuntimeError(world.fish.translate("cli","cli","cannot.beat.game"))
@@ -409,6 +410,7 @@ def copy_world(world):
     ret.keydropshuffle = world.keydropshuffle.copy()
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
+    ret.analyzer = world.analyzer
 
     for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':

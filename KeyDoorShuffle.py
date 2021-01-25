@@ -885,9 +885,9 @@ def bk_restricted_rules(rule, door, odd_counter, empty_flag, key_counter, key_la
     door_open = find_next_counter(door, best_counter, key_layout)
     ignored_doors = dict_intersection(best_counter.child_doors, door_open.child_doors)
     dest_ignored = []
-    for door in ignored_doors.keys():
-        if door.dest not in ignored_doors:
-            dest_ignored.append(door.dest)
+    for d in ignored_doors.keys():
+        if d.dest not in ignored_doors:
+            dest_ignored.append(d.dest)
     ignored_doors = {**ignored_doors, **dict.fromkeys(dest_ignored)}
     post_counter = open_some_counter(door_open, key_layout, ignored_doors.keys())
     unique_loc = dict_difference(post_counter.free_locations, best_counter.free_locations)
@@ -895,6 +895,8 @@ def bk_restricted_rules(rule, door, odd_counter, empty_flag, key_counter, key_la
     if len(unique_loc) > 0:  # and bk_rule.is_valid
         rule.alternate_small_key = bk_rule.small_key_num
         rule.alternate_big_key_loc.update(unique_loc)
+        if not door.bigKey:
+            rule.new_rules[KeyRuleType.Lock] = (best_counter.used_keys + 1, key_layout.key_logic.bk_name)
     # elif not bk_rule.is_valid:
     #     key_layout.key_logic.bk_restricted.update(unique_loc)
 
