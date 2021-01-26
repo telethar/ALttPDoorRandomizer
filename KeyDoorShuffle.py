@@ -2,10 +2,10 @@ import itertools
 import logging
 from collections import defaultdict, deque
 
-from BaseClasses import DoorType, dungeon_keys, KeyRuleType
+from BaseClasses import DoorType, dungeon_keys, KeyRuleType, RegionType
 from Regions import dungeon_events
 from Dungeons import dungeon_bigs
-from DungeonGenerator import ExplorationState, special_big_key_doors
+from DungeonGenerator import ExplorationState, special_big_key_doors, dungeon_portals, drop_entrances
 
 
 class KeyLayout(object):
@@ -65,6 +65,22 @@ class KeyLogic(object):
                     if rule_a.contradicts(rule_b, unplaced_keys, big_key_loc):
                         return False
         return True
+
+    def copy(self):
+        ret = KeyLogic(self.dungeon)
+        ret.door_rules = self.door_rules.copy()
+        ret.bk_restricted = self.bk_restricted.copy()
+        ret.bk_locked = self.bk_locked.copy()
+        ret.sm_restricted = self.sm_restricted.copy()
+        ret.bk_doors = self.bk_doors.copy()
+        ret.bk_chests = self.bk_chests.copy()
+        ret.logic_min = self.logic_min.copy()
+        ret.logic_max = self.logic_max.copy()
+        ret.placement_rules = self.placement_rules.copy()
+        ret.location_rules = self.location_rules.copy()
+        ret.outside_keys = self.outside_keys.copy()
+        ret.sm_doors = self.sm_doors.copy()
+        return ret
 
 
 class DoorRules(object):
@@ -212,6 +228,31 @@ def calc_max_chests(builder, key_layout, world, player):
 
 
 def analyze_dungeon(key_layout, world, player):
+    analysis_sets = {}
+    for region in key_layout.start_regions:
+        if region.name in world.inaccessible_regions[player]:  # or portal destination, I suppose would work
+            continue
+        search_region, found = region, False
+        while not found:
+            for entrance in search_region.entrances:
+                if entrance.parent_region.type != RegionType.Dungeon:
+                    search_region = entrance.parent_region
+                    found = True
+                    break
+                elif entrance.parent_region.name.endswith(' Portal') or entrance.parent_region.name == 'Sewer Drop':
+                    search_region = entrance.parent_region
+        if search_region not in analysis_sets:
+            analysis_sets[search_region] = set()
+        analysis_sets[search_region].add(region)
+    key_logic_copies = []
+    for parent_region, region_set in analysis_sets:
+        key_layout.start_regions = region_set
+        analyze_dungeon_single(key_layout, world, player)
+        key_logic_copies.append(key_layout.key_logic.copy()) # copy key_logic
+    # todo: merge key_logic
+    # set merged key_logic
+
+def analyze_dungeon_single(key_layout, world, player):
     key_layout.key_counters = create_key_counters(key_layout, world, player)
     key_logic = key_layout.key_logic
     for door in key_layout.proposal:
@@ -304,7 +345,7 @@ def create_exhaustive_placement_rules(key_layout, world, player):
                 else:
                     placement_self_lock_adjustment(rule, max_ctr, blocked_loc, key_counter, world, player)
                     rule.check_locations_w_bk = accessible_loc
-                    check_sm_restriction_needed(key_layout, max_ctr, rule, blocked_loc)
+                    # check_sm_restriction_needed(key_layout, max_ctr, rule, blocked_loc)
             else:
                 if big_key_progress(key_counter) and only_sm_doors(key_counter):
                     create_inclusive_rule(key_layout, max_ctr, code, key_counter, blocked_loc, accessible_loc, min_keys, world, player)
@@ -330,6 +371,7 @@ def placement_self_lock_adjustment(rule, max_ctr, blocked_loc, ctr, world, playe
             rule.needed_keys_w_bk -= 1
 
 
+# this rule is suspect - commented out usages for now
 def check_sm_restriction_needed(key_layout, max_ctr, rule, blocked):
     if rule.needed_keys_w_bk == key_layout.max_chests + len(max_ctr.key_only_locations):
         key_layout.key_logic.sm_restricted.update(blocked.difference(max_ctr.key_only_locations))
@@ -488,7 +530,7 @@ def create_inclusive_rule(key_layout, max_ctr, code, key_counter, blocked_loc, a
     else:
         placement_self_lock_adjustment(rule, max_ctr, blocked_loc, key_counter, world, player)
         rule.check_locations_w_bk = accessible_loc
-        check_sm_restriction_needed(key_layout, max_ctr, rule, blocked_loc)
+        # check_sm_restriction_needed(key_layout, max_ctr, rule, blocked_loc)
         key_logic.placement_rules.append(rule)
         adjust_locations_rules(key_logic, rule, accessible_loc, key_layout, key_counter, max_ctr)
 
