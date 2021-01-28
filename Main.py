@@ -22,7 +22,7 @@ from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons, fill_dungeons, fill_dungeons_restrictive
 from Fill import distribute_items_cutoff, distribute_items_staleness, distribute_items_restrictive, flood_items, balance_multiworld_progression
-from ItemList import generate_itempool, difficulties, fill_prizes, fill_specific_items
+from ItemList import generate_itempool, difficulties, fill_prizes, fill_specific_items, fill_vanilla_prizes, fill_vanilla_major
 from Utils import output_path, parse_player_names
 from WorldAnalyzer import WorldAnalyzer
 
@@ -153,17 +153,16 @@ def main(args, seed=None, fish=None):
     analyzer = WorldAnalyzer(world)
     for player in range(1, world.players + 1):
         analyzer.analyze(player)
-        # analyzer.print_rrp(analyzer.reachable_regions[player])
-    analyzer.build_location_logic()
-    analyzer.print_location_logic()
-    logger.info(f'Analyze time: {time.perf_counter() - x}')
+    logger.debug(f'Analyze time: {time.perf_counter() - x}')
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
 
+    # fill_vanilla_prizes(world)
     fill_prizes(world)
 
     # used for debugging
     # fill_specific_items(world)
+    # fill_vanilla_major(world)
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.items"))
 

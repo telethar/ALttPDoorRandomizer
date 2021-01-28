@@ -477,6 +477,7 @@ class CollectionState(object):
             self.dungeons_to_check = {player: defaultdict(dict) for player in range(1, parent.players + 1)}
 
             self.ghost_keys = Counter()
+        self.test_location = None
 
     def update_reachable_regions(self, player):
         self.stale[player] = False
@@ -496,8 +497,7 @@ class CollectionState(object):
         t_hints = self.find_traversal_hints(player)
         if len(t_hints) > 0:
             self.apply_traversal_hints(t_hints, rrp, bc)
-        else:
-            self.check_key_doors_in_dungeons(rrp, bc, player)
+        self.check_key_doors_in_dungeons(rrp, bc, player, t_hints)
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -579,8 +579,10 @@ class CollectionState(object):
             return False
         return (rrp[new_region] & crystal_state) != crystal_state
 
-    def check_key_doors_in_dungeons(self, rrp, bc, player):
+    def check_key_doors_in_dungeons(self, rrp, bc, player, current_t_hints):
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
+            if dungeon_name in current_t_hints.keys():  # skip dungeons that have t_hints
+                continue
             init_door_candidates = CollectionState.should_explore_child_state(self, dungeon_name, player)
             child_states = deque()
             child_states.append(self)
@@ -692,7 +694,7 @@ class CollectionState(object):
                     t_hints.append(TraversalHint(flat_candidates, remaining_keys, rrp_adds, bc_adds))
 
     def find_traversal_hints(self, player):
-        t_hints = []
+        t_hints = defaultdict(list)
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
             if dungeon_name in self.world.traversal_hints[player]:
                 reachable_dungeon_regions = [x for x in self.reachable_regions[1].keys() if x.dungeon and x.dungeon.name == dungeon_name]
@@ -706,16 +708,17 @@ class CollectionState(object):
                     door_candidates = flatten_paired(door_candidates)
                     for t_hint in self.world.traversal_hints[player][dungeon_name]:
                         if remaining_keys == t_hint.keys_remaining and door_candidates == t_hint.door_candidates:
-                            t_hints.append(t_hint)
+                            t_hints[dungeon_name].append(t_hint)
         return t_hints
 
     @staticmethod
     def apply_traversal_hints(t_hints, rrp, bc):
-        for t_hint in t_hints:
-            for common, crystal in t_hint.rrp.items():
-                rrp[common] = crystal
-            for common, crystal in t_hint.bc.items():
-                bc[common] = crystal
+        for dungeon, t_hint_list in t_hints.items():
+            for t_hint in t_hint_list:
+                for common, crystal in t_hint.rrp.items():
+                    rrp[common] = crystal
+                for common, crystal in t_hint.bc.items():
+                    bc[common] = crystal
 
     @staticmethod
     def should_explore_child_state(state, dungeon_name, player):
@@ -763,6 +766,20 @@ class CollectionState(object):
         ret.dungeons_to_check = {player: copy.copy(self.dungeons_to_check[player]) for player in range(1, self.world.players + 1)}
         ret.ghost_keys = self.ghost_keys.copy()
         return ret
+
+    def get_item_logic_with_test_item(self, item, player):
+        if self.test_location and item == self.test_location.item.name:
+            # bottle check not checked(can't think of a dungeon that would be interested in a bottle lock)
+            (current_logic, paths) = self.world.analyzer.location_logic[self.test_location.player][self.test_location]
+            key, complete_logic, valid_logic = self.world.analyzer.calculate_complete_and_valid_logic(
+                current_logic, self.test_location.player, item, player)
+            item_logic = self.world.analyzer.logic_lookup[key].copy()
+            item_logic.logic_options.append(valid_logic)
+            item_logic.locations.append(self.test_location)
+            return item_logic
+        else:
+            item_name = 'Bottle' if item.startswith('Bottle') else item
+            return self.world.analyzer.logic_lookup[(item_name, player)]
 
     def can_reach(self, spot, resolution_hint=None, player=None):
         try:
@@ -2483,11 +2500,12 @@ def eval_small_key_door(rule, state):
         elif ruleType == KeyRuleType.AllowSmall:
             if door_rule.small_location.item and door_rule.small_location.item.name == key_logic.small_key_name:
                 door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, number)
-        elif ruleType == KeyRuleType.Lock:
-            num, lock_item = number
-            item_logic = state.world.analyzer.logic_lookup[(lock_item, rule.player)]
+        elif isinstance(ruleType, tuple):
+            lock, lock_item = ruleType
+            item_logic = state.get_item_logic_with_test_item(lock_item, rule.player)
+            # item_logic = state.world.analyzer.logic_lookup[(lock_item, rule.player)]
             if door_name in item_logic.get_locking_items():
-                door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, num)
+                door_openable |= state.has_sm_key(key_logic.small_key_name, rule.player, number)
     return door_openable
 
 

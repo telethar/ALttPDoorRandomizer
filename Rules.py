@@ -100,17 +100,6 @@ def add_item_rule(location, rule):
     old_rule = location.item_rule
     location.item_rule = lambda item: rule(item) and old_rule(item)
 
-def item_in_locations(state, item, player, locations):
-    for location in locations:
-        if item_name(state, location[0], location[1]) == (item, player):
-            return True
-    return False
-
-def item_name(state, location, player):
-    location = state.world.get_location(location, player)
-    if location.item is None:
-        return None
-    return (location.item.name, location.item.player)
 
 def global_rules(world, player):
     # ganon can only carry triforce

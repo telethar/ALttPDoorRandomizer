@@ -25,6 +25,7 @@ class KeyLayout(object):
         self.all_locations = set()
         self.item_locations = set()
 
+        self.found_doors = set()
         # bk special?
         # bk required? True if big chests or big doors exists
 
@@ -48,8 +49,6 @@ class KeyLogic(object):
         self.bk_name = dungeon_bigs[dungeon_name]
         self.bk_doors = set()
         self.bk_chests = set()
-        self.logic_min = {}
-        self.logic_max = {}
         self.placement_rules = []
         self.location_rules = {}
         self.outside_keys = 0
@@ -66,6 +65,15 @@ class KeyLogic(object):
                         return False
         return True
 
+    def reset(self):
+        self.door_rules.clear()
+        self.bk_restricted.clear()
+        self.bk_locked.clear()
+        self.sm_restricted.clear()
+        self.bk_doors.clear()
+        self.bk_chests.clear()
+        self.placement_rules.clear()
+
     def copy(self):
         ret = KeyLogic(self.dungeon)
         ret.door_rules = self.door_rules.copy()
@@ -74,13 +82,52 @@ class KeyLogic(object):
         ret.sm_restricted = self.sm_restricted.copy()
         ret.bk_doors = self.bk_doors.copy()
         ret.bk_chests = self.bk_chests.copy()
-        ret.logic_min = self.logic_min.copy()
-        ret.logic_max = self.logic_max.copy()
         ret.placement_rules = self.placement_rules.copy()
         ret.location_rules = self.location_rules.copy()
-        ret.outside_keys = self.outside_keys.copy()
+        ret.outside_keys = self.outside_keys
         ret.sm_doors = self.sm_doors.copy()
         return ret
+
+    def merge(self, other):
+        # merge door rules
+        door_rule_set = set(self.door_rules.keys()) | set(other.door_rules.keys())
+        for door in door_rule_set:
+            if door in self.door_rules and door in other.door_rules:
+                current_rules = self.door_rules[door].new_rules
+                other_rules = other.door_rules[door].new_rules
+                new_rule_set = set(current_rules.keys()) | set(other_rules.keys())
+                for new_rule_type in new_rule_set:
+                    if new_rule_type in current_rules and new_rule_type in other_rules:
+                        if new_rule_type == KeyRuleType.WorstCase:
+                            current_rules[new_rule_type] = max(current_rules[new_rule_type], other_rules[new_rule_type])
+                        elif new_rule_type == KeyRuleType.AllowSmall:
+                            current_rules[new_rule_type] = max(current_rules[new_rule_type], other_rules[new_rule_type])
+                        elif isinstance(new_rule_type, tuple):
+                            current_rules[new_rule_type] = max(current_rules[new_rule_type], other_rules[new_rule_type])
+                    elif new_rule_type in other_rules:
+                        if new_rule_type not in [KeyRuleType.AllowSmall]:
+                            current_rules[new_rule_type] = other_rules[new_rule_type]
+
+            elif door in other.door_rules:
+                self.door_rules[door] = other.door_rules[door] # this probably won't happen often if ever
+        self.bk_restricted |= other.bk_restricted
+        self.bk_locked |= other.bk_locked
+        self.sm_restricted |= other.sm_restricted
+        self.bk_doors |= other.bk_doors
+        self.bk_chests |= other.bk_chests
+        for placement_rule in other.placement_rules:
+            add_it, remove_it = True, None
+            for current_rule in self.placement_rules:
+                if is_placement_rule_better(current_rule, placement_rule):
+                    add_it = False
+                    break
+                elif is_placement_rule_better(placement_rule, current_rule):
+                    remove_it = current_rule
+                    break
+            if add_it:
+                self.placement_rules.append(placement_rule)
+            if remove_it:
+                self.placement_rules.remove(remove_it)
 
 
 class DoorRules(object):
@@ -228,31 +275,7 @@ def calc_max_chests(builder, key_layout, world, player):
 
 
 def analyze_dungeon(key_layout, world, player):
-    analysis_sets = {}
-    for region in key_layout.start_regions:
-        if region.name in world.inaccessible_regions[player]:  # or portal destination, I suppose would work
-            continue
-        search_region, found = region, False
-        while not found:
-            for entrance in search_region.entrances:
-                if entrance.parent_region.type != RegionType.Dungeon:
-                    search_region = entrance.parent_region
-                    found = True
-                    break
-                elif entrance.parent_region.name.endswith(' Portal') or entrance.parent_region.name == 'Sewer Drop':
-                    search_region = entrance.parent_region
-        if search_region not in analysis_sets:
-            analysis_sets[search_region] = set()
-        analysis_sets[search_region].add(region)
-    key_logic_copies = []
-    for parent_region, region_set in analysis_sets:
-        key_layout.start_regions = region_set
-        analyze_dungeon_single(key_layout, world, player)
-        key_logic_copies.append(key_layout.key_logic.copy()) # copy key_logic
-    # todo: merge key_logic
-    # set merged key_logic
-
-def analyze_dungeon_single(key_layout, world, player):
+    key_layout.key_logic.reset()
     key_layout.key_counters = create_key_counters(key_layout, world, player)
     key_logic = key_layout.key_logic
     for door in key_layout.proposal:
@@ -260,7 +283,11 @@ def analyze_dungeon_single(key_layout, world, player):
             key_logic.sm_doors[door[0]] = door[1]
             key_logic.sm_doors[door[1]] = door[0]
         else:
-            key_logic.sm_doors[door] = None
+            if door.dest and door.type != DoorType.SpiralStairs:
+                key_logic.sm_doors[door] = door.dest
+                key_logic.sm_doors[door.dest] = door
+            else:
+                key_logic.sm_doors[door] = None
 
     find_bk_locked_sections(key_layout, world, player)
     key_logic.bk_chests.update(find_big_chest_locations(key_layout.all_chest_locations))
@@ -504,6 +531,27 @@ def refine_placement_rules(key_layout, max_ctr):
                     removed_rules[r2] = r1
 
 
+# checks if b is better than a
+def is_placement_rule_better(b, a):
+        if a == b:
+            return True
+        if a.check_locations_w_bk and b.check_locations_w_bk:
+            if b.check_locations_w_bk == a.check_locations_w_bk and b.needed_keys_w_bk > a.needed_keys_w_bk:
+                return True
+            elif b.needed_keys_w_bk == a.needed_keys_w_bk and b.check_locations_w_bk < a.check_locations_w_bk:
+                return True
+            elif b.check_locations_w_bk == a.check_locations_w_bk and b.needed_keys_w_bk == a.needed_keys_w_bk:
+                return True
+        if a.check_locations_wo_bk and b.check_locations_wo_bk and a.bk_conditional_set == b.bk_conditional_set:
+            if b.check_locations_wo_bk == a.check_locations_wo_bk and b.needed_keys_wo_bk > a.needed_keys_wo_bk:
+                return True
+            elif b.needed_keys_wo_bk == a.needed_keys_wo_bk and b.check_locations_wo_bk < a.check_locations_wo_bk:
+                return True
+            elif b.check_locations_wo_bk == a.check_locations_wo_bk and b.needed_keys_wo_bk == a.needed_keys_wo_bk:
+                return True
+        return False
+
+
 def refine_location_rules(key_layout):
     locs_to_remove = []
     for loc, rule in key_layout.key_logic.location_rules.items():
@@ -589,6 +637,8 @@ def relative_empty_counter(odd_counter, key_counter):
     if len(set(odd_counter.key_only_locations).difference(key_counter.key_only_locations)) > 0:
         return False
     if len(set(odd_counter.free_locations).difference(key_counter.free_locations)) > 0:
+        return False
+    if len(set(odd_counter.other_locations).difference(key_counter.other_locations)) > 0:
         return False
     # important only
     if len(set(odd_counter.important_locations).difference(key_counter.important_locations)) > 0:
@@ -938,7 +988,7 @@ def bk_restricted_rules(rule, door, odd_counter, empty_flag, key_counter, key_la
         rule.alternate_small_key = bk_rule.small_key_num
         rule.alternate_big_key_loc.update(unique_loc)
         if not door.bigKey:
-            rule.new_rules[KeyRuleType.Lock] = (best_counter.used_keys + 1, key_layout.key_logic.bk_name)
+            rule.new_rules[(KeyRuleType.Lock, key_layout.key_logic.bk_name)] = best_counter.used_keys + 1
     # elif not bk_rule.is_valid:
     #     key_layout.key_logic.bk_restricted.update(unique_loc)
 
@@ -1458,6 +1508,7 @@ def cnt_avail_big_locations(ttl_locations, state, world, player):
 
 def create_key_counters(key_layout, world, player):
     key_counters = {}
+    key_layout.found_doors.clear()
     flat_proposal = key_layout.flat_prop
     state = ExplorationState(dungeon=key_layout.sector.name)
     if world.doorShuffle[player] == 'vanilla':
@@ -1480,6 +1531,9 @@ def create_key_counters(key_layout, world, player):
     while len(queue) > 0:
         next_key_counter, parent_state = queue.popleft()
         for door in next_key_counter.child_doors:
+            key_layout.found_doors.add(door)
+            if door.dest in flat_proposal and door.type != DoorType.SpiralStairs:
+                key_layout.found_doors.add(door.dest)
             child_state = parent_state.copy()
             if door.bigKey or door.name in special_big_key_doors:
                 key_layout.key_logic.bk_doors.add(door)
@@ -1594,11 +1648,11 @@ def find_counter_hint(opened_doors, bk_hint, key_layout):
 
 
 def find_max_counter(key_layout):
-    max_counter = find_counter_hint(dict.fromkeys(key_layout.flat_prop), False, key_layout)
+    max_counter = find_counter_hint(dict.fromkeys(key_layout.found_doors), False, key_layout)
     if max_counter is None:
         raise Exception("Max Counter is none - something is amiss")
     if len(max_counter.child_doors) > 0:
-        max_counter = find_counter_hint(dict.fromkeys(key_layout.flat_prop), True, key_layout)
+        max_counter = find_counter_hint(dict.fromkeys(key_layout.found_doors), True, key_layout)
     return max_counter
 
 

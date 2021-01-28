@@ -201,6 +201,7 @@ def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = 
                     if item_to_place.smallkey or item_to_place.bigkey:  # a better test to see if a key can go there
                         location.item = item_to_place
                         test_state = maximum_exploration_state.copy()
+                        test_state.test_location = location
                         test_state.stale[item_to_place.player] = True
                     else:
                         test_state = maximum_exploration_state

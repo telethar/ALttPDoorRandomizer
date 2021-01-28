@@ -7,7 +7,7 @@ from Bosses import place_bosses
 from Dungeons import get_dungeon_item_pool
 from EntranceShuffle import connect_entrance
 from Fill import FillError, fill_restrictive, fast_fill
-from Items import ItemFactory
+from Items import ItemFactory, vanilla_prize_placements, vanilla_major_placements
 
 import source.classes.constants as CONST
 
@@ -741,19 +741,50 @@ if __name__ == '__main__':
     test()
 
 
-def fill_specific_items(world):
-    keypool = [item for item in world.itempool if item.smallkey]
-    cage = world.get_location('Tower of Hera - Basement Cage', 1)
-    c_dungeon = cage.parent_region.dungeon
-    key_item = next(x for x in keypool if c_dungeon.name in x.name or (c_dungeon.name == 'Hyrule Castle' and 'Escape' in x.name))
-    world.itempool.remove(key_item)
-    all_state = world.get_all_state(True)
-    fill_restrictive(world, all_state, [cage], [key_item])
+def fill_vanilla_prizes(world):
+    for player in range(1, world.players + 1):
+        p = {world.get_location(k, player): ItemFactory(v, player) for k, v in vanilla_prize_placements.items()}
+        fill_specific_items(world, p,  False)
 
-    location = world.get_location('Tower of Hera - Map Chest', 1)
-    key_item = next(x for x in world.itempool if 'Byrna' in x.name)
-    world.itempool.remove(key_item)
-    fast_fill(world, [key_item], [location])
+
+def fill_vanilla_major(world):
+    testpool = list(world.itempool)
+    for player in range(1, world.players + 1):
+        p = {}
+        for k, v in vanilla_major_placements.items():
+            item = find_item_in_pool(testpool, v, player)
+            testpool.remove(item)
+            p[world.get_location(k, player)] = item
+        fill_specific_items(world, p)
+
+
+def find_item_in_pool(pool, item_name, player):
+    for item in pool:
+        if ((item_name == 'Bottle' and item.name.startswith('Bottle')) or item_name == item.name) and item.player == player:
+            return item
+
+
+def fill_specific_items(world, location_item_map, in_pool=True):
+    for location, item in location_item_map.items():
+        world.push_item(location, item, False)
+        if in_pool:
+            world.itempool.remove(item)
+        location.event = True
+
+
+# def fill_specific_items(world):
+#     keypool = [item for item in world.itempool if item.smallkey]
+#     cage = world.get_location('Tower of Hera - Basement Cage', 1)
+#     c_dungeon = cage.parent_region.dungeon
+#     key_item = next(x for x in keypool if c_dungeon.name in x.name or (c_dungeon.name == 'Hyrule Castle' and 'Escape' in x.name))
+#     world.itempool.remove(key_item)
+#     all_state = world.get_all_state(True)
+#     fill_restrictive(world, all_state, [cage], [key_item])
+#
+#     location = world.get_location('Tower of Hera - Map Chest', 1)
+#     key_item = next(x for x in world.itempool if 'Byrna' in x.name)
+#     world.itempool.remove(key_item)
+#     fast_fill(world, [key_item], [location])
 
 
     # somaria = next(item for item in world.itempool if item.name == 'Cane of Somaria')

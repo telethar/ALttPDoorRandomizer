@@ -72,7 +72,7 @@ class WorldAnalyzer(object):
 
     @staticmethod
     def is_interesting_item(item):
-        # todo: heart containers and poh?
+        # deferred: heart containers and poh? - are we going for health requirements some day?
         return item.advancement or (item.type is not None and item.type in ['BigKey', 'SmallKey']) or (item.type is None and item.priority)
 
     # todo: multiworld
@@ -86,67 +86,90 @@ class WorldAnalyzer(object):
                 item_logic.logic_options.append(Counter())  # no requirements
                 return
 
-            if not isinstance(new_logic, list):
-                new_logic = [new_logic]
-            complete_logic = []
-            for i, lgc in enumerate(new_logic):
-                # update logic from the lookup - (makes a copy?)
-                new_lgc = [Counter(x) for x in lgc] if isinstance(lgc, list) else Counter(lgc)
-                for item, cnt in lgc.items():
-                    if (item, location.player) in self.logic_lookup:
-                        item_logic = self.logic_lookup[(item, location.player)]
-                        if item_logic.complete():
-                            combined, subsets = [], item_logic.get_option_subset(cnt)
-                            for subset in subsets:
-                                merged = merge_requirements(new_lgc, subset)
-                                (combined.extend if isinstance(merged, list) else combined.append)(merged)
-                            new_lgc = combined
-                (complete_logic.extend if isinstance(new_lgc, list) else complete_logic.append)(new_lgc)
-
-            complete_logic = reduce_requirements(complete_logic)
-            if not isinstance(complete_logic, list):
-                complete_logic = [complete_logic]
-            item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
-            item_player = location.item.player
-            key = (item_name, item_player)
-
-            item_logic = self.logic_lookup[key]
-            valid_logic = self.check_validity(complete_logic, item_logic)
+            key, complete_logic, valid_logic = self.calculate_complete_and_valid_logic(
+                new_logic, location.player, location.item.name, location.item.player)
             if len(valid_logic) < len(complete_logic):
                 self.location_logic[location.player][location] = (valid_logic, paths)
-                # todo: back track and clean up invalid logic?
+                # deferred: back track and clean up invalid logic - seems to be unnecessary
 
+            item_logic = self.logic_lookup[key]
             # add this item to the item logic
             item_logic.logic_options.append(valid_logic)
             item_logic.locations.append(location)
             # clean up lookup table if this is now complete
             if item_logic.complete() and key in self.reverse_lookup:
-                for ref in self.reverse_lookup[key]:
-                    old_logic = self.logic_lookup[ref]
-                    new_reqs = []
-                    for logic in old_logic.logic_options:
-                        if isinstance(logic, list):
-                            sub_options = []
-                            for sub_logic in logic:
-                                if key[0] in sub_logic:
-                                    sub_merge = merge_requirements(sub_logic, valid_logic)
-                                    (sub_options.extend if isinstance(sub_merge, list) else sub_options.append)(sub_merge)
-                                    self.record_reverse_refs(sub_merge, old_logic.player, ref)
-                                else:
-                                    sub_options.append(sub_logic)
-                            new_reqs.append(reduce_requirements(self.check_validity(sub_options, old_logic)))
-                        elif key[0] in logic:
-                            merge_req = merge_requirements(logic, valid_logic)
-                            merge_req = merge_req if isinstance(merge_req, list) else [merge_req]
-                            self.record_reverse_refs(merge_req, old_logic.player, ref)
-                            new_reqs.append(reduce_requirements(self.check_validity(merge_req, old_logic)))
-                        else:
-                            new_reqs.append(logic)
-                    old_logic.logic_options = new_reqs
+                repeat, done, repeat_flagged = False, False, False
+                while not done:
+                    done = True
+                    if repeat:
+                        self.clean_up_complete(key, location.player)  # clean up the item logic first
+                    for ref in self.reverse_lookup[key]:
+                        if ref == key:
+                            if not repeat:
+                                done, repeat = False, True
+                            continue
+                        old_logic = self.logic_lookup[ref]
+                        new_reqs = []
+                        for logic in old_logic.logic_options:
+                            if isinstance(logic, list):
+                                sub_options = []
+                                for sub_logic in logic:
+                                    if key[0] in sub_logic:
+                                        complete_valid, sub_merged = item_logic.get_option_subset(sub_logic[key[0]]), []
+                                        for cv in complete_valid:
+                                            sub_merge = merge_requirements(sub_logic, cv)
+                                            (sub_merged.extend if isinstance(sub_merge, list) else sub_merged.append)(sub_merge)
+                                        sub_options.extend(sub_merged)
+                                        # self.record_reverse_refs(sub_merged, old_logic.player, ref)
+                                    else:
+                                        sub_options.append(sub_logic)
+                                requirements = reduce_requirements(self.check_validity(sub_options, old_logic))
+                                self.record_reverse_refs(requirements, old_logic.player, ref)
+                                new_reqs.append(requirements)
+                            elif key[0] in logic:
+                                complete_valid, all_merged = item_logic.get_option_subset(logic[key[0]]), []
+                                for cv in complete_valid:
+                                    merged = merge_requirements(logic, cv)
+                                    (all_merged.extend if isinstance(merged, list) else all_merged.append)(merged)
+                                # self.record_reverse_refs(all_merged, old_logic.player, ref)
+                                requirements = reduce_requirements(self.check_validity(all_merged, old_logic))
+                                self.record_reverse_refs(requirements, old_logic.player, ref)
+                                new_reqs.append(requirements)
+                            else:
+                                new_reqs.append(logic)
+                        old_logic.logic_options = new_reqs
 
             # set up reverse lookup
             for lgc in valid_logic:
                 self.record_reverse_refs(lgc, location.player, key)
+
+    def calculate_complete_and_valid_logic(self, new_logic, location_player, name, player):
+        if not isinstance(new_logic, list):
+            new_logic = [new_logic]
+        complete_logic = []
+        for i, lgc in enumerate(new_logic):
+            # update logic from the lookup - (makes a copy?)
+            new_lgc = [Counter(x) for x in lgc] if isinstance(lgc, list) else Counter(lgc)
+            for item, cnt in lgc.items():
+                if (item, location_player) in self.logic_lookup:
+                    item_logic = self.logic_lookup[(item, location_player)]
+                    if item_logic.complete():
+                        combined, subsets = [], item_logic.get_option_subset(cnt)
+                        for subset in subsets:
+                            merged = merge_requirements(new_lgc, subset)
+                            (combined.extend if isinstance(merged, list) else combined.append)(merged)
+                        new_lgc = combined
+            (complete_logic.extend if isinstance(new_lgc, list) else complete_logic.append)(new_lgc)
+
+        complete_logic = reduce_requirements(complete_logic)
+        if not isinstance(complete_logic, list):
+            complete_logic = [complete_logic]
+        item_name = 'Bottle' if name.startswith('Bottle') else name
+        item_player = player
+        key = (item_name, item_player)
+
+        valid_logic = self.check_validity(complete_logic, self.logic_lookup[key])
+        return key, complete_logic, valid_logic
 
     def record_reverse_refs(self, logic, logic_player, key):
         if isinstance(logic, list):
@@ -349,6 +372,32 @@ class WorldAnalyzer(object):
                 else:
                     logger.debug(f'{logic_option}')
 
+    def clean_up_complete(self, key, player):
+        item_logic = self.logic_lookup[key]
+        clean_options = []
+        for logic in item_logic.logic_options:
+            if not isinstance(logic, list):
+                logic = [logic]
+            clean_logic = []
+            for lgc in logic:
+                new_lgc = Counter(lgc)
+                for item, cnt in lgc.items():
+                    if (item, player) in self.logic_lookup:
+                        other_logic = self.logic_lookup[(item, player)]
+                        if other_logic.complete():
+                            combined, subsets = [], other_logic.get_option_subset(cnt)
+                            for subset in subsets:
+                                merged = merge_requirements(new_lgc, subset)
+                                (combined.extend if isinstance(merged, list) else combined.append)(merged)
+                            new_lgc = combined
+                (clean_logic.extend if isinstance(new_lgc, list) else clean_logic.append)(new_lgc)
+            clean_logic = reduce_requirements(clean_logic)
+            if not isinstance(clean_logic, list):
+                clean_logic = [clean_logic]
+            valid_logic = self.check_validity(clean_logic, item_logic)
+            clean_options.append(valid_logic if len(valid_logic) > 1 else valid_logic[0])
+        item_logic.logic_options = clean_options
+
 
 class ItemLogic(object):
 
@@ -363,8 +412,11 @@ class ItemLogic(object):
     def complete(self):
         return len(self.logic_options) == self.total_in_pool
 
-    def get_option_subset(self, cnt):
-        combos = combinations(self.logic_options, cnt)
+    def get_option_subset(self, cnt, exclude=None):
+        options = self.logic_options
+        if exclude:
+            options = [n for i, n in enumerate(options) if i != exclude]
+        combos = combinations(options, cnt)
         ret = []
         for combo in combos:
             val = None
@@ -385,6 +437,12 @@ class ItemLogic(object):
             else:
                 locks &= logic_option
         return locks
+
+    def copy(self):
+        ret = ItemLogic(self.name, self.player, self.total_in_pool)
+        ret.logic_options.extend(self.logic_options)
+        ret.locations.extend(self.locations)
+        return ret
 
     def __eq__(self, other):
         return other and self.name == other.name and self.player == other.player
