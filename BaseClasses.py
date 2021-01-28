@@ -496,7 +496,7 @@ class CollectionState(object):
         self.traverse_world(queue, rrp, bc, player)
         t_hints = self.find_traversal_hints(player)
         if len(t_hints) > 0:
-            self.apply_traversal_hints(t_hints, rrp, bc)
+            self.apply_traversal_hints(player, t_hints)
         self.check_key_doors_in_dungeons(rrp, bc, player, t_hints)
 
     def traverse_world(self, queue, rrp, bc, player):
@@ -588,7 +588,7 @@ class CollectionState(object):
             child_states.append(self)
             visited_opened_doors = set()
             visited_opened_doors.add(frozenset(self.opened_doors[player]))
-            terminal_states, done, common_regions, common_bc = [], False, {}, {}
+            terminal_states, done, common_regions, common_bc, common_doors = [], False, {}, {}, set()
             while not done:
                 terminal_states.clear()
                 while len(child_states) > 0:
@@ -618,7 +618,7 @@ class CollectionState(object):
                                 child_states.append(child_state)
                     else:
                         terminal_states.append(next_child)
-                common_regions, common_bc, first, ttl_forced_keys = {}, {}, True, None
+                common_regions, common_bc, common_doors, first, ttl_forced_keys = {}, {}, set(), True, None
                 for term_state in terminal_states:
                     t_rrp = term_state.reachable_regions[player]
                     t_bc = term_state.blocked_connections[player]
@@ -631,14 +631,17 @@ class CollectionState(object):
                                 forced_keys += 1
                     if first:
                         first = False
-                        common_regions = {k: [t_rrp[k]] for k in new_regions}
+                        common_regions = {x: y for x, y in t_rrp.items() if x not in rrp or y != rrp[x]}
                         common_bc = {k: [t_bc[k]] for k in new_blocks}
+                        common_doors = term_state.opened_doors[player] - self.opened_doors[player]
                         ttl_forced_keys = forced_keys
                     else:
-                        intersection = common_regions.keys() & new_regions
-                        common_regions = {k: common_regions[k]+[t_rrp[k]] for k in intersection}
+                        cm_rrp = {x: y for x, y in t_rrp.items() if x not in rrp or y != rrp[x]}
+                        common_regions = {k: self.comb_crys(v, cm_rrp[k]) for k, v in common_regions.items()
+                                          if k in cm_rrp and self.crys_agree(v, cm_rrp[k])}
                         intersection = common_bc.keys() & new_blocks
                         common_bc = {k: common_bc[k]+[t_bc[k]] for k in intersection}
+                        common_doors &= term_state.opened_doors[player] - self.opened_doors[player]
                         ttl_forced_keys = min(ttl_forced_keys, forced_keys)
                 if ttl_forced_keys > 0:
                     for term_state in terminal_states:
@@ -647,18 +650,9 @@ class CollectionState(object):
                             child_states.append(term_state)
                 done = len(child_states) == 0
 
-            rrp_adds, bc_adds = {}, {}
-            for common_region, crystal_list in common_regions.items():
-                valid, new_crystal_state = True, None
-                for crystal in crystal_list:
-                    if new_crystal_state and (new_crystal_state & crystal == CrystalBarrier.Null):
-                        valid = False
-                        break
-                    if not new_crystal_state or new_crystal_state & crystal != new_crystal_state:
-                        new_crystal_state = crystal
-                if valid:
-                    rrp[common_region] = new_crystal_state
-                    rrp_adds[common_region] = new_crystal_state
+            bc_adds = {}
+            for common_region, new_crystal_state in common_regions.items():
+                rrp[common_region] = new_crystal_state
             for common_block, crystal_list in common_bc.items():
                 valid, new_crystal_state = True, None
                 for crystal in crystal_list:
@@ -672,6 +666,10 @@ class CollectionState(object):
                     bc_adds[common_block] = new_crystal_state
             key_total = self.prog_items[(dungeon_keys[dungeon_name], player)]  # todo: universal
             remaining_keys = key_total - self.door_counter[player][1][dungeon_name]
+            for door in common_doors:
+                self.opened_doors[player].add(door)
+                if self.find_door_pair(player, dungeon_name, door) not in self.opened_doors[player]:
+                    self.door_counter[player][1][dungeon_name] += 1
             # if init_door_candidates and remaining_keys > 0:
             #     logger = logging.getLogger('')
             #     logger.debug(f'\nExploring Dungeon: {dungeon_name}')
@@ -681,9 +679,8 @@ class CollectionState(object):
             #     logger.debug(f'Common Blocks: {" : ".join([f"({x.name},{y.name})" for x,y in bc_adds.items()])}')
             if init_door_candidates and remaining_keys > 0:
                 if dungeon_name not in self.world.traversal_hints[player]:
-                    self.world.traversal_hints[player][dungeon_name] = t_hints = []
-                else:
-                    t_hints = self.world.traversal_hints[player][dungeon_name]
+                    self.world.traversal_hints[player][dungeon_name] = []
+                t_hints = self.world.traversal_hints[player][dungeon_name]
                 flat_candidates = flatten_paired(init_door_candidates)
                 found = False
                 for old_hint in t_hints:
@@ -691,7 +688,22 @@ class CollectionState(object):
                         found = True
                         break
                 if not found:
-                    t_hints.append(TraversalHint(flat_candidates, remaining_keys, rrp_adds, bc_adds))
+                    t_hints.append(TraversalHint(flat_candidates, remaining_keys, common_regions, bc_adds, common_doors))
+
+    @staticmethod
+    def comb_crys(a, b):
+        return a if a == b or a != CrystalBarrier.Either else b
+
+    @staticmethod
+    def crys_agree(a, b):
+        return a == b or a == CrystalBarrier.Either or b == CrystalBarrier.Either
+
+    def find_door_pair(self, player, dungeon_name, name):
+        for door in self.world.key_logic[player][dungeon_name].sm_doors.keys():
+            if door.name == name:
+                return self.world.key_logic[player][dungeon_name].sm_doors[door].name
+        return None
+
 
     def find_traversal_hints(self, player):
         t_hints = defaultdict(list)
@@ -711,14 +723,23 @@ class CollectionState(object):
                             t_hints[dungeon_name].append(t_hint)
         return t_hints
 
-    @staticmethod
-    def apply_traversal_hints(t_hints, rrp, bc):
+    def apply_traversal_hints(self, player, t_hints):
         for dungeon, t_hint_list in t_hints.items():
             for t_hint in t_hint_list:
-                for common, crystal in t_hint.rrp.items():
-                    rrp[common] = crystal
+                for door in t_hint.doors:
+                    self.opened_doors[player].add(door)
+                    if self.find_door_pair(player, dungeon, door) not in self.opened_doors[player]:
+                        self.door_counter[player][1][dungeon] += 1
                 for common, crystal in t_hint.bc.items():
-                    bc[common] = crystal
+                    self.blocked_connections[player][common] = crystal
+                for common, crystal in t_hint.rrp.items():
+                    self.reachable_regions[player][common] = crystal
+                    new_crystal_state = crystal
+                    for conn in common.exits:
+                        door = conn.door
+                        if door is not None and not door.blocked:
+                            door_crystal_state = door.crystal if door.crystal else new_crystal_state
+                            self.blocked_connections[player][conn] = door_crystal_state
 
     @staticmethod
     def should_explore_child_state(state, dungeon_name, player):
@@ -1097,11 +1118,12 @@ class CollectionState(object):
 
 class TraversalHint(object):
 
-    def __init__(self, candidates, keys_remaining, rrp, bc):
+    def __init__(self, candidates, keys_remaining, rrp, bc, doors):
         self.door_candidates = candidates
         self.keys_remaining = keys_remaining
         self.rrp = rrp  # reachable regions
         self.bc = bc  # blocked connections
+        self.doors = doors  # opened doors
 
 
 @unique

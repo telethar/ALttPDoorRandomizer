@@ -153,6 +153,7 @@ def main(args, seed=None, fish=None):
     analyzer = WorldAnalyzer(world)
     for player in range(1, world.players + 1):
         analyzer.analyze(player)
+    analyzer.build_location_logic()
     logger.debug(f'Analyze time: {time.perf_counter() - x}')
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
