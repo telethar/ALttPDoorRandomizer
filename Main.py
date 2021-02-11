@@ -32,6 +32,21 @@ class EnemizerError(RuntimeError):
     pass
 
 
+# Profiling code
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         profile = cProfile.Profile()
+#         try:
+#             profile.enable()
+#             result = func(*args, **kwargs)
+#             profile.disable()
+#             return result
+#         finally:
+#             profile.print_stats()
+#     return profiled_func
+
+
+# @do_cprofile
 def main(args, seed=None, fish=None):
     if args.outputpath:
         os.makedirs(args.outputpath, exist_ok=True)
@@ -465,6 +480,7 @@ def copy_world(world):
         # these need to be modified properly by set_rules
         new_location.access_rule = RuleFactory.static_rule(True)
         new_location.item_rule = lambda state: True
+        new_location.forced_item = location.forced_item
 
     # copy remaining itempool. No item in itempool should have an assigned location
     for item in world.itempool:

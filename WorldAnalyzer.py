@@ -315,7 +315,8 @@ class WorldAnalyzer(object):
     def combine_logic(record, barrier, logic, path):
         logic_to_delete, logic_to_append = [], []
         for visited_logic in record[1]:
-            if not WorldAnalyzer.is_logic_different(visited_logic, logic):
+            equal = visited_logic in logic if isinstance(logic, list) else visited_logic == logic
+            if not equal and not WorldAnalyzer.is_logic_different(visited_logic, logic):
                 logic_to_delete.append(visited_logic)
         if isinstance(logic, list):
             for logic_item in logic:

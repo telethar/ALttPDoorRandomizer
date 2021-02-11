@@ -92,7 +92,7 @@ def KholdstareDefeatRule(world, player):
         ),
         or_rule(
             has_blunt_weapon(player),
-            and_rule(has('Fire Rod', player) and can_extend_magic(player, 20)),
+            and_rule(has('Fire Rod', player), can_extend_magic(player, 20)),
             # FIXME: this actually only works for the vanilla location for swordless
             and_rule(
                 has('Fire Rod', player),

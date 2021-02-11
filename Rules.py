@@ -665,7 +665,8 @@ def inverted_rules(world, player):
     set_rule(world.get_entrance('Dark Grassy Lawn Flute', player), can_flute(world, player))
     set_rule(world.get_entrance('Hammer Peg Area Flute', player), can_flute(world, player))
 
-    set_rule(world.get_entrance('Inverted Pyramid Hole', player), or_rule(has('Beat Agahnim 2', player), world.open_pyramid[player]))
+    set_rule(world.get_entrance('Inverted Pyramid Hole', player), or_rule(has('Beat Agahnim 2', player),
+                                                                          flag(world.open_pyramid[player])))
     set_rule(world.get_entrance('Inverted Ganons Tower', player), flag(False))  # This is a safety for the TR function below to not require GT entrance in its key logic.
 
     if world.swords[player] == 'swordless':
@@ -906,7 +907,7 @@ def standard_rules(world, player):
     rule_list, debug_path = find_rules_for_zelda_delivery(world, player)
     set_rule(world.get_location('Zelda Drop Off', player),
              and_rule(has('Zelda Herself', player),
-                      flag(True) if len(rule_list) == 0 else and_rule(rule_list)))
+                      flag(True) if len(rule_list) == 0 else and_rule(*rule_list)))
 
     for location in ['Mushroom', 'Bottle Merchant', 'Flute Spot', 'Sunken Treasure', 'Purple Chest', 'Maze Race']:
         add_rule(world.get_location(location, player), has('Zelda Delivered', player))
@@ -1377,10 +1378,10 @@ def set_bunny_rules(world, player):
                                   'Hype Cave - Generous Guy', 'Peg Cave', 'Bumper Cave Ledge', 'Dark Blacksmith Ruins']
 
     def path_to_access_rule(path, entrance):
-        return and_rule(can_reach(entrance, "Entrance", player), and_rule(path))
+        return and_rule(can_reach(entrance, "Entrance", player), and_rule(*path))
 
     def options_to_access_rule(options):
-        return or_rule(options)
+        return or_rule(*options)
 
     def get_rule_to_add(start_region):
         if not start_region.is_light_world:
@@ -1462,10 +1463,10 @@ def set_inverted_bunny_rules(world, player):
                                   'Bombos Tablet', 'Ether Tablet', 'Purple Chest']
 
     def path_to_access_rule(path, entrance):
-        return and_rule(can_reach(entrance, "Entrance", player), and_rule(path))
+        return and_rule(can_reach(entrance, "Entrance", player), and_rule(*path))
 
     def options_to_access_rule(options):
-        return or_rule(options)
+        return or_rule(*options)
 
     def get_rule_to_add(start_region):
         if not start_region.is_dark_world:

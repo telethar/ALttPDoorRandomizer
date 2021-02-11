@@ -191,24 +191,24 @@ def standardize_requirements(requirements):
 def reduce_requirements(requirements):
     if not isinstance(requirements, list):
         requirements = [requirements]
+    # if len(requirements) == 0:
+    #     return requirements
     # for req in requirements:
     #     for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
     #         req[item] = 1
     #     substitute_progressive(req)
     removals = []
-    requirements = list(requirements)
-    dedup_requirements = []
+    reduced = []
     for req in requirements:
-        if req not in dedup_requirements:
-            dedup_requirements.append(req)
+        if req not in reduced:
+            reduced.append(req)
     # subset manip
-    for i, req in enumerate(dedup_requirements):
-        for j, other_req in enumerate(dedup_requirements):
+    for i, req in enumerate(reduced):
+        for j, other_req in enumerate(reduced):
             if i == j:
                 continue
             if all(req[k] >= other_req[k] for k in (req | other_req)):
                 removals.append(req)
-    reduced = list(dedup_requirements)  # todo: optimize by doing it in place?
     for removal in removals:
         if removal in reduced:
             reduced.remove(removal)

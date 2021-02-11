@@ -494,10 +494,19 @@ class CollectionState(object):
         queue = deque(self.blocked_connections[player].items())
 
         self.traverse_world(queue, rrp, bc, player)
-        t_hints = self.find_traversal_hints(player)
-        if len(t_hints) > 0:
-            self.apply_traversal_hints(player, t_hints)
-        self.check_key_doors_in_dungeons(rrp, bc, player, t_hints)
+        unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
+                             if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
+                             and x not in self.locations_checked and x.can_reach(self)]
+        if len(unresolved_events) == 0:
+            # I'm uncertain if this is overdoing it - dependent checks should be handled by the fact that all other
+            #   unresolved events (placed items) are now handled first
+            # If filtering, it could be filtered to those items that this dungeon cares about
+            #   what those items are could be determined by Key counters in the future
+            prog_items_map = self.prog_items_filter(player)
+            t_hints = self.find_traversal_hints(player, prog_items_map)
+            if len(t_hints) > 0:
+                self.apply_traversal_hints(player, t_hints)
+            self.check_key_doors_in_dungeons(rrp, bc, player, t_hints, prog_items_map)
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -579,11 +588,15 @@ class CollectionState(object):
             return False
         return (rrp[new_region] & crystal_state) != crystal_state
 
-    def check_key_doors_in_dungeons(self, rrp, bc, player, current_t_hints):
+    def check_key_doors_in_dungeons(self, rrp, bc, player, current_t_hints, prog_items_map):
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
             if dungeon_name in current_t_hints.keys():  # skip dungeons that have t_hints
                 continue
             init_door_candidates = CollectionState.should_explore_child_state(self, dungeon_name, player)
+            key_total = self.prog_items[(dungeon_keys[dungeon_name], player)]  # todo: universal
+            remaining_keys = key_total - self.door_counter[player][1][dungeon_name]
+            if not init_door_candidates or remaining_keys == 0:
+                continue
             child_states = deque()
             child_states.append(self)
             visited_opened_doors = set()
@@ -664,8 +677,7 @@ class CollectionState(object):
                 if valid:
                     bc[common_block] = new_crystal_state
                     bc_adds[common_block] = new_crystal_state
-            key_total = self.prog_items[(dungeon_keys[dungeon_name], player)]  # todo: universal
-            remaining_keys = key_total - self.door_counter[player][1][dungeon_name]
+
             for door in common_doors:
                 self.opened_doors[player].add(door)
                 if self.find_door_pair(player, dungeon_name, door) not in self.opened_doors[player]:
@@ -684,11 +696,13 @@ class CollectionState(object):
                 flat_candidates = flatten_paired(init_door_candidates)
                 found = False
                 for old_hint in t_hints:
-                    if remaining_keys == old_hint.keys_remaining and old_hint.door_candidates == flat_candidates:
+                    if remaining_keys == old_hint.keys_remaining and old_hint.door_candidates == flat_candidates\
+                         and prog_items_map[dungeon_name] == old_hint.prog_items:
                         found = True
                         break
                 if not found:
-                    t_hints.append(TraversalHint(flat_candidates, remaining_keys, common_regions, bc_adds, common_doors))
+                    t_hints.append(TraversalHint(flat_candidates, remaining_keys, prog_items_map[dungeon_name],
+                                                 common_regions, bc_adds, common_doors))
 
     @staticmethod
     def comb_crys(a, b):
@@ -701,25 +715,22 @@ class CollectionState(object):
     def find_door_pair(self, player, dungeon_name, name):
         for door in self.world.key_logic[player][dungeon_name].sm_doors.keys():
             if door.name == name:
-                return self.world.key_logic[player][dungeon_name].sm_doors[door].name
+                paired_door = self.world.key_logic[player][dungeon_name].sm_doors[door]
+                return paired_door.name if paired_door else None
         return None
 
-
-    def find_traversal_hints(self, player):
+    def find_traversal_hints(self, player, prog_items_map):
         t_hints = defaultdict(list)
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
             if dungeon_name in self.world.traversal_hints[player]:
-                reachable_dungeon_regions = [x for x in self.reachable_regions[1].keys() if x.dungeon and x.dungeon.name == dungeon_name]
-                unresolved_events = [x for y in reachable_dungeon_regions for x in y.locations if x.event and x not in self.locations_checked and x.can_reach(self)]
-                if len(unresolved_events) > 0:
-                    continue  # skip this dungeon for now
                 door_candidates = CollectionState.should_explore_child_state(self, dungeon_name, player)
                 key_total = self.prog_items[(dungeon_keys[dungeon_name], player)]  # todo: universal
                 remaining_keys = key_total - self.door_counter[player][1][dungeon_name]
                 if door_candidates and remaining_keys > 0:
                     door_candidates = flatten_paired(door_candidates)
                     for t_hint in self.world.traversal_hints[player][dungeon_name]:
-                        if remaining_keys == t_hint.keys_remaining and door_candidates == t_hint.door_candidates:
+                        if remaining_keys == t_hint.keys_remaining and door_candidates == t_hint.door_candidates\
+                             and prog_items_map[dungeon_name] == t_hint.prog_items:
                             t_hints[dungeon_name].append(t_hint)
         return t_hints
 
@@ -740,6 +751,23 @@ class CollectionState(object):
                         if door is not None and not door.blocked:
                             door_crystal_state = door.crystal if door.crystal else new_crystal_state
                             self.blocked_connections[player][conn] = door_crystal_state
+
+    def prog_items_filter(self, player):
+        prog_item_per_dungeon = defaultdict(Counter)
+        relevant = Counter()
+        for key, amount in self.prog_items.items():
+            item_name, item_player = key
+            if item_player == player:
+                item_name = 'Bottle' if item_name.startswith("Bottle") else item_name
+                if item_name in dungeon_relevant_progression:
+                    relevant[(item_name, player)] += amount
+                if item_name.startswith('Small Key') or item_name.startswith('Big Key'):
+                    dungeon_name = item_name[item_name.find('(')+1:item_name.find(')')]
+                    dungeon_name = 'Hyrule Castle' if dungeon_name == 'Escape' else dungeon_name
+                    prog_item_per_dungeon[dungeon_name][key] += amount
+        for d_name in self.dungeons_to_check[player]:
+            prog_item_per_dungeon[d_name] += relevant
+        return prog_item_per_dungeon
 
     @staticmethod
     def should_explore_child_state(state, dungeon_name, player):
@@ -953,6 +981,9 @@ class CollectionState(object):
              self.is_not_bunny(cave, player)
         )
 
+    def has_sword(self, player):
+        return self.has('Fighter Sword', player) or self.has('Master Sword', player) or self.has('Tempered Sword', player) or self.has('Golden Sword', player)
+
     def has_blunt_weapon(self, player):
         return self.has_sword(player) or self.has('Hammer', player)
 
@@ -1118,9 +1149,10 @@ class CollectionState(object):
 
 class TraversalHint(object):
 
-    def __init__(self, candidates, keys_remaining, rrp, bc, doors):
+    def __init__(self, candidates, keys_remaining, prog_items, rrp, bc, doors):
         self.door_candidates = candidates
         self.keys_remaining = keys_remaining
+        self.prog_items = Counter(prog_items)
         self.rrp = rrp  # reachable regions
         self.bc = bc  # blocked connections
         self.doors = doors  # opened doors
@@ -2412,6 +2444,13 @@ def flatten_paired(paired_list):
             flat_set.add(d)
     return flat_set
 
+dungeon_relevant_progression = {
+    'Bow', 'Blue Boomerang', 'Red Boomerang', 'Hookshot', 'Fire Rod', 'Ice Rod',  'Bombos', 'Lamp', 'Hammer',
+    'Bottle', 'Cane of Somaria', 'Cane of Byrna', 'Cape', 'Moon Pearl', 'Flippers', 'Power Glove',
+    'Pegasus Boots', 'Fighter Sword', 'Mirror Shield', 'Magic Upgrade (1/2)', 'Open Floodgate',
+    'Trench 1 Filled', 'Trench 2 Filled', 'Drained Swamp', 'Convenient Block', 'Zelda Herself',
+    'Zelda Delivered'}
+
 @unique
 class KeyRuleType(Enum):
     WorstCase = 0
@@ -2502,7 +2541,7 @@ def eval_negate(rule, state):
 def eval_locations(rule, state):
     for loc in rule.locations:
         location = state.world.get_location(loc, rule.player)
-        if location.item and location == rule.principal and location.player == rule.player:
+        if location.item and location.item.name == rule.principal and location.player == rule.player:
             return True
     return False
 
