@@ -45,6 +45,7 @@ def MoldormDefeatRule(world, player):
 
 
 def HelmasaurKingDefeatRule(world, player):
+    # TODO: technically possible with the hammer
     return or_rule(has_sword(player), can_shoot_arrows(world, player))
 
 

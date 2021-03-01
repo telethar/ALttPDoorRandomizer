@@ -35,7 +35,7 @@ def link_doors(world, player):
                     door.dest = None
                     door.entranceFlag = False
                     ent = door.entrance
-                    if door.type != DoorType.Logical and ent.connected_region is not None:
+                    if (door.type != DoorType.Logical or door.controller) and ent.connected_region is not None:
                         ent.connected_region.entrances = [x for x in ent.connected_region.entrances if x != ent]
                         ent.connected_region = None
             for portal in world.dungeon_portals[player]:
@@ -58,16 +58,16 @@ def link_doors_main(world, player):
         connect_simple_door(world, exitName, regionName, player)
     for exitName, regionName in dungeon_warps:
         connect_simple_door(world, exitName, regionName, player)
-    for ent, ext in ladders:
-        connect_two_way(world, ent, ext, player)
 
     if world.intensity[player] < 2:
         for entrance, ext in open_edges:
             connect_two_way(world, entrance, ext, player)
         for entrance, ext in straight_staircases:
             connect_two_way(world, entrance, ext, player)
+        for entrance, ext in ladders:
+            connect_two_way(world, entrance, ext, player)
 
-    if world.intensity[player] < 3 or world.doorShuffle == 'vanilla':
+    if world.intensity[player] < 3 or world.doorShuffle[player] == 'vanilla':
         mirror_route = world.get_entrance('Sanctuary Mirror Route', player)
         mr_door = mirror_route.door
         sanctuary = mirror_route.parent_region
@@ -89,7 +89,7 @@ def link_doors_main(world, player):
             world.get_portal('Desert East', player).destination = True
             if world.mode[player] == 'inverted':
                 world.get_portal('Desert West', player).destination = True
-            if world.mode[player] == 'open':
+            else:
                 world.get_portal('Skull 2 West', player).destination = True
                 world.get_portal('Turtle Rock Lazy Eyes', player).destination = True
                 world.get_portal('Turtle Rock Eye Bridge', player).destination = True
@@ -107,6 +107,8 @@ def link_doors_main(world, player):
         for exitName, regionName in vanilla_logical_connections:
             connect_simple_door(world, exitName, regionName, player)
         for entrance, ext in spiral_staircases:
+            connect_two_way(world, entrance, ext, player)
+        for entrance, ext in ladders:
             connect_two_way(world, entrance, ext, player)
         for entrance, ext in default_door_connections:
             connect_two_way(world, entrance, ext, player)
@@ -162,7 +164,7 @@ def create_door_spoiler(world, player):
                 door_a = ext.door
                 connect = ext.connected_region
                 if door_a and door_a.type in [DoorType.Normal, DoorType.SpiralStairs, DoorType.Open,
-                                              DoorType.StraightStairs] and door_a not in done:
+                                              DoorType.StraightStairs, DoorType.Ladder] and door_a not in done:
                     done.add(door_a)
                     door_b = door_a.dest
                     if door_b and not isinstance(door_b, Region):
@@ -356,6 +358,7 @@ def choose_portals(world, player):
     if world.doorShuffle[player] in ['basic', 'crossed']:
         cross_flag = world.doorShuffle[player] == 'crossed'
         bk_shuffle = world.bigkeyshuffle[player]
+        std_flag = world.mode[player] == 'standard'
         # roast incognito doors
         world.get_room(0x60, player).delete(5)
         world.get_room(0x60, player).change(2, DoorKind.DungeonEntrance)
@@ -368,13 +371,14 @@ def choose_portals(world, player):
             region_map = defaultdict(list)
             reachable_portals = []
             inaccessible_portals = []
+            hc_flag = std_flag and dungeon == 'Hyrule Castle'
             for portal in portal_list:
                 placeholder = world.get_region(portal + ' Portal', player)
                 portal_region = placeholder.exits[0].connected_region
                 name = portal_region.name
                 if portal_region.type == RegionType.LightWorld:
                     world.get_portal(portal, player).light_world = True
-                if name in world.inaccessible_regions[player]:
+                if name in world.inaccessible_regions[player] or (hc_flag and portal != 'Hyrule Castle South'):
                     name_key = 'Desert Ledge' if name == 'Desert Palace Entrance (North) Spot' else name
                     region_map[name_key].append(portal)
                     inaccessible_portals.append(portal)
@@ -394,9 +398,13 @@ def choose_portals(world, player):
 
         master_door_list = [x for x in world.doors if x.player == player and x.portalAble]
         portal_assignment = defaultdict(list)
-        for dungeon, info in info_map.items():
+        shuffled_info = list(info_map.items())
+        if cross_flag:
+            random.shuffle(shuffled_info)
+        for dungeon, info in shuffled_info:
             outstanding_portals = list(dungeon_portals[dungeon])
-            if dungeon == 'Hyrule Castle' and world.mode[player] == 'standard':
+            hc_flag = std_flag and dungeon == 'Hyrule Castle'
+            if hc_flag:
                 sanc = world.get_portal('Sanctuary', player)
                 sanc.destination = True
                 clean_up_portal_assignment(portal_assignment, dungeon, sanc, master_door_list, outstanding_portals)
@@ -424,7 +432,7 @@ def choose_portals(world, player):
             the_rest = info.total - len(portal_assignment[dungeon])
             for i in range(0, the_rest):
                 candidates = find_portal_candidates(master_door_list, dungeon, crossed=cross_flag,
-                                                    bk_shuffle=bk_shuffle)
+                                                    bk_shuffle=bk_shuffle, standard=hc_flag)
                 choice, portal = assign_portal(candidates, outstanding_portals, world, player)
                 clean_up_portal_assignment(portal_assignment, dungeon, portal, master_door_list, outstanding_portals)
 
@@ -535,23 +543,20 @@ def disconnect_portal(portal, world, player):
     chosen_door.entranceFlag = False
 
 
-def find_portal_candidates(door_list, dungeon, need_passage=False, dead_end_allowed=False, crossed=False, bk_shuffle=False):
-    filter_list = [x for x in door_list if bk_shuffle or not x.bk_shuffle_req]
-    if need_passage:
-        if crossed:
-            return [x for x in filter_list if x.passage and (x.dungeonLink is None or x.entrance.parent_region.dungeon.name == dungeon)]
-        else:
-            return [x for x in filter_list if x.passage and x.entrance.parent_region.dungeon.name == dungeon]
-    elif dead_end_allowed:
-        if crossed:
-            return [x for x in filter_list if x.dungeonLink is None or x.entrance.parent_region.dungeon.name == dungeon]
-        else:
-            return [x for x in filter_list if x.entrance.parent_region.dungeon.name == dungeon]
+def find_portal_candidates(door_list, dungeon, need_passage=False, dead_end_allowed=False, crossed=False,
+                           bk_shuffle=False, standard=False):
+    ret = [x for x in door_list if bk_shuffle or not x.bk_shuffle_req]
+    if crossed:
+        ret = [x for x in ret if not x.dungeonLink or x.dungeonLink == dungeon or x.dungeonLink.startswith('link')]
     else:
-        if crossed:
-            return [x for x in filter_list if (not x.dungeonLink or x.entrance.parent_region.dungeon.name == dungeon) and not x.deadEnd]
-        else:
-            return [x for x in filter_list if x.entrance.parent_region.dungeon.name == dungeon and not x.deadEnd]
+        ret = [x for x in ret if x.entrance.parent_region.dungeon.name == dungeon]
+    if need_passage:
+        ret = [x for x in ret if x.passage]
+    if not dead_end_allowed:
+        ret = [x for x in ret if not x.deadEnd]
+    if standard:
+        ret = [x for x in ret if not x.standard_restrict]
+    return ret
 
 
 def assign_portal(candidates, possible_portals, world, player):
@@ -1323,11 +1328,10 @@ def combine_layouts(recombinant_builders, dungeon_builders, entrances_map):
                 if recombine.master_sector is None:
                     recombine.master_sector = builder.master_sector
                     recombine.master_sector.name = recombine.name
-                    recombine.pre_open_stonewall = builder.pre_open_stonewall
+                    recombine.pre_open_stonewalls = builder.pre_open_stonewalls
                 else:
                     recombine.master_sector.regions.extend(builder.master_sector.regions)
-                    if builder.pre_open_stonewall:
-                        recombine.pre_open_stonewall = builder.pre_open_stonewall
+                    recombine.pre_open_stonewalls.update(builder.pre_open_stonewalls)
         recombine.layout_starts = list(entrances_map[recombine.name])
         dungeon_builders[recombine.name] = recombine
 
@@ -1986,8 +1990,9 @@ class DROptions(Flag):
     Debug = 0x08
     Rails = 0x10  # If on, draws rails
     OriginalPalettes = 0x20
-    Reserved = 0x40  # Reserved for PoD sliding wall?
+    Open_PoD_Wall = 0x40  # If on, pre opens the PoD wall, no bow required
     Open_Desert_Wall = 0x80  # If on, pre opens the desert wall, no fire required
+    Hide_Total = 0x100
 
 
 # DATA GOES DOWN HERE
@@ -2019,6 +2024,13 @@ logical_connections = [
     ('PoD Basement Ledge Drop Down', 'PoD Stalfos Basement'),
     ('PoD Falling Bridge Path N', 'PoD Falling Bridge Ledge'),
     ('PoD Falling Bridge Path S', 'PoD Falling Bridge'),
+    ('PoD Bow Statue Crystal Path', 'PoD Bow Statue Moving Wall'),
+    ('PoD Bow Statue Moving Wall Path', 'PoD Bow Statue'),
+    ('PoD Bow Statue Moving Wall Cane Path', 'PoD Bow Statue'),
+    ('PoD Dark Pegs Hammer Path', 'PoD Dark Pegs Ladder'),
+    ('PoD Dark Pegs Ladder Hammer Path', 'PoD Dark Pegs'),
+    ('PoD Dark Pegs Ladder Cane Path', 'PoD Dark Pegs Switch'),
+    ('PoD Dark Pegs Switch Path', 'PoD Dark Pegs Ladder'),
     ('Swamp Lobby Moat', 'Swamp Entrance'),
     ('Swamp Entrance Moat', 'Swamp Lobby'),
     ('Swamp Trench 1 Approach Dry', 'Swamp Trench 1 Nexus'),
