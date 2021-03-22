@@ -694,7 +694,6 @@ def no_glitches_rules(world, player):
         add_rule(world.get_entrance('Lake Hylia Island Pier', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))  # can be fake flippered to
         set_rule(world.get_entrance('Lake Hylia Warp', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))  # can be fake flippered to
         set_rule(world.get_entrance('Northeast Light World Warp', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))  # can be fake flippered to
-        add_rule(world.get_entrance('Lake Hylia Island', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))
         add_rule(world.get_entrance('Hobo Bridge', player), and_rule(has('Moon Pearl', player), has('Flippers', player)))
         add_rule(world.get_entrance('Dark Lake Hylia Drop (East)', player), has('Flippers', player))
         add_rule(world.get_entrance('Dark Lake Hylia Teleporter', player), and_rule(has('Flippers', player), or_rule(has('Hammer', player), can_lift_rocks(player))))

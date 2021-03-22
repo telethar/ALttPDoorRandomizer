@@ -336,7 +336,7 @@ def analyze_dungeon(key_layout, world, player):
             if ctr_id not in visited_cid:
                 queue.append((child, next_counter))
                 visited_cid.add(ctr_id)
-    check_rules(original_key_counter, key_layout, world, player)
+    # check_rules(original_key_counter, key_layout, world, player)
 
     # Flip bk rules if more restrictive, to prevent placing a big key in a softlocking location
     for rule in key_logic.door_rules.values():

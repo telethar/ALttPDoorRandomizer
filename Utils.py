@@ -205,10 +205,13 @@ def reduce_requirements(requirements):
     # subset manip
     for i, req in enumerate(reduced):
         for j, other_req in enumerate(reduced):
-            if i == j:
+            if i >= j:
                 continue
-            if all(req[k] >= other_req[k] for k in (req | other_req)):
+            union_set = req | other_req
+            if all(req[k] >= other_req[k] for k in union_set):
                 removals.append(req)
+            if all(other_req[k] >= req[k] for k in union_set):
+                removals.append(other_req)
     for removal in removals:
         if removal in reduced:
             reduced.remove(removal)

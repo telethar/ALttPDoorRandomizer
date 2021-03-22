@@ -7,6 +7,7 @@ import os
 import random
 import time
 import zlib
+import cProfile
 
 from BaseClasses import World, CollectionState, Item, Region, Location, Shop, Entrance, Settings, RuleFactory
 from Items import ItemFactory
@@ -33,7 +34,6 @@ __version__ = '0.3.1.4-u'
 class EnemizerError(RuntimeError):
     pass
 
-
 # Profiling code
 # def do_cprofile(func):
 #     def profiled_func(*args, **kwargs):
@@ -46,8 +46,8 @@ class EnemizerError(RuntimeError):
 #         finally:
 #             profile.print_stats()
 #     return profiled_func
-
-
+#
+#
 # @do_cprofile
 def main(args, seed=None, fish=None):
     if args.outputpath:
@@ -246,7 +246,7 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli","cli","balance.multiworld"))
         balance_multiworld_progression(world)
 
-    world.analyzer.print_item_logic()
+    # world.analyzer.print_item_logic()
     # if we only check for beatable, we can do this sanity check first before creating the rom
     if not world.can_beat_game():
         raise RuntimeError(world.fish.translate("cli","cli","cannot.beat.game"))

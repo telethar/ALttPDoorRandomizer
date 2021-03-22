@@ -167,6 +167,7 @@ def distribute_items_staleness(world):
     if unplaced or unfilled:
         logging.warning('Unplaced items: %s - Unfilled Locations: %s', unplaced, unfilled)
 
+
 def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = None, single_player_placement = False):
     def sweep_from_pool():
         new_state = base_state.copy()
@@ -202,6 +203,7 @@ def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = 
                 for location in locations:
                     if item_to_place.smallkey or item_to_place.bigkey:  # a better test to see if a key can go there
                         location.item = item_to_place
+                        location.event = True
                         test_state = maximum_exploration_state.copy()
                         test_state.test_location = location
                         test_state.stale[item_to_place.player] = True
@@ -214,6 +216,7 @@ def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = 
                         break
                     elif item_to_place.smallkey or item_to_place.bigkey:
                         location.item = None
+                        location.event = False
 
                 if spot_to_fill is None:
                     # we filled all reachable spots. Maybe the game can be beaten anyway?
@@ -251,9 +254,7 @@ def valid_key_placement(item, location, itempool, world):
 def track_outside_keys(item, location, world):
     if not item.smallkey:
         return
-    item_dungeon = item.name.split('(')[1][:-1]
-    if item_dungeon == 'Escape':
-        item_dungeon = 'Hyrule Castle'
+    item_dungeon = item.dungeon
     if location.player == item.player:
         loc_dungeon = location.parent_region.dungeon
         if loc_dungeon and loc_dungeon.name == item_dungeon:
