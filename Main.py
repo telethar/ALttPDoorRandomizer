@@ -27,6 +27,8 @@ from Fill import sell_potions, sell_keys, balance_multiworld_progression, balanc
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
 
+import Mapper
+
 __version__ = '0.4.0.1-u'
 
 
@@ -206,6 +208,7 @@ def main(args, seed=None, fish=None):
                         player
                       )
                     )
+        Mapper.map(world)
 
     logger.info(world.fish.translate("cli","cli","fill.world"))
 

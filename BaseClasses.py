@@ -1285,7 +1285,7 @@ class Door(object):
 
         # logical properties
         # self.connected = False  # combine with Dest?
-        self.dest = None
+        self.dest = None # The door this door leads to, if any
         self.blocked = False  # Indicates if the door is normally blocked off as an exit. (Sanc door or always closed)
         self.blocked_orig = False
         self.stonewall = False  # Indicate that the door cannot be enter until exited (Desert Torches, PoD Eye Statue)

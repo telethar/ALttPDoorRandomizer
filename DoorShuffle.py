@@ -230,6 +230,10 @@ def switch_dir(direction):
     return oppositemap[direction]
 
 
+def switch_dir_safe(direction):
+    return oppositemap.get(direction)
+
+
 def convert_key_doors(k_doors, world, player):
     result = []
     for d in k_doors:
