@@ -29,7 +29,7 @@ from Utils import output_path, parse_player_names
 
 import Mapper
 
-__version__ = '0.4.0.1-u'
+__version__ = '0.4.0.3-u'
 
 
 class EnemizerError(RuntimeError):
