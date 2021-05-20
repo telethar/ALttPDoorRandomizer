@@ -26,8 +26,7 @@ from Fill import distribute_items_cutoff, distribute_items_staleness, distribute
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
-
-import Mapper
+from map.NewMapper import create_maps
 
 __version__ = '0.4.0.3-u'
 
@@ -208,7 +207,9 @@ def main(args, seed=None, fish=None):
                         player
                       )
                     )
-        Mapper.map(world)
+        # Mapper.map(world)
+
+    create_maps(world)
 
     logger.info(world.fish.translate("cli","cli","fill.world"))
 
