@@ -146,11 +146,20 @@ region_to_rooms = {}
 
 def init_map_data():
     init_hc()
-    init_eastern()  # todo
-    init_desert()  # todo
+    init_eastern()
+    init_desert()
     init_hera()  # todo
     init_aga_tower()
-    init_pod()  # todo
+
+    init_pod()
+    init_swamp()  # todo
+    init_skull()  # todo
+    init_tt()  # todo
+    init_ice()  # todo
+    init_mire()  # todo
+    init_tr()  # todo
+
+    init_gt()
 
 
 def init_hc():
@@ -346,12 +355,31 @@ def init_eastern():
         .add_node((2, 0), GridNode('185-1.png', NodeType.Quad))
         .add_node((3, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Cannonball Ledge Key Door EN')))
     region_to_rooms['Eastern Courtyard Ledge'] = (
-        sector({0xb9: bottom_side})
+        sector({0xa9: bottom_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Courtyard Ledge W'))
         .add_node((1, 0), GridNode('169-0.png', NodeType.Quad))
         .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Courtyard Ledge S'))
         .add_node((2, 0), GridNode('169-1.png', NodeType.Quad))
         .add_node((3, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Courtyard Ledge E')))
+    region_to_rooms['Eastern East Wing'] = (
+        sector({0xaa: all_quadrants})
+            .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern East Wing W'))
+            .add_node((1, 0), GridNode('170-0.png', NodeType.Quad))
+            .add_node((1, 1), GridNode('170-2.png', NodeType.Quad))
+            .add_node((2, 0), GridNode('170-1.png', NodeType.Quad))
+            .add_node((2, 1), GridNode('170-3.png', NodeType.Quad)))
+    east_tile_a8 = (
+        sector({0xa8: bottom_side})
+        .add_node((0, 0), GridNode('168-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('168-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('168-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('168-3.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Hint Tile Blocked Path SE'))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Hint Tile EN'))
+        .add_node((2, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern West Wing E')))
+    region_to_rooms['Eastern West Wing'] = east_tile_a8
+    region_to_rooms['Eastern Hint Tile'] = east_tile_a8
+    region_to_rooms['Eastern Hint Tile Blocked Path'] = east_tile_a8
     region_to_rooms['Eastern Courtyard'] = (
         sector({0xa9: top_side})
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Courtyard WN'))
@@ -359,13 +387,38 @@ def init_eastern():
         .add_node((1, 1), GridNode('169-0.png', NodeType.Quad))
         .add_node((2, 1), GridNode('169-1.png', NodeType.Quad))
         .add_node((3, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Courtyard EN')))
+    region_to_rooms['Eastern Fairies'] = (
+        sector({0x89: top_side})
+        .add_node((0, 0), GridNode('137-0.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('137-1.png', NodeType.Quad)))
+    region_to_rooms['Eastern Map Valley'] = (
+        sector({0xaa: left_side.union({4})})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Map Valley WN'))
+        .add_node((1, 0), GridNode('170-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('170-2.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Map Valley SW')))
+    region_to_rooms['Eastern Dark Square'] = (
+        sector({0xba: top_side})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Dark Square Key Door WN'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Dark Square NW'))
+        .add_node((1, 1), GridNode('186-0.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('186-1.png', NodeType.Quad)))
     region_to_rooms['Eastern Big Key'] = (
         sector({0xb8: right_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Big Key NE'))
         .add_node((0, 1), GridNode('184-1.png', NodeType.Quad))
         .add_node((0, 2), GridNode('184-3.png', NodeType.Quad))
         .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Big Key EN')))
-
+    region_to_rooms['Eastern Darkness'] = (
+        sector({0x99: {1, 2, 3}})
+        .add_node((0, 1), GridNode('153-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Darkness S'))
+        .add_node((1, 0), GridNode('153-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('153-3.png', NodeType.Quad)))
+    region_to_rooms['Eastern Attic Start'] = (
+        sector({0xda: {2}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Attic Start WS'))
+        .add_node((1, 0), GridNode('218-2.png', NodeType.Quad)))
     east_d9_tile = (
         sector({0xd9: bottom_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Cannonball Hell WS'))
@@ -374,6 +427,14 @@ def init_eastern():
         .add_node((3, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern False Switches ES')))
     region_to_rooms['Eastern False Switches'] = east_d9_tile
     region_to_rooms['Eastern Cannonball Hell'] = east_d9_tile
+    east_d8_tile = (
+        sector({0xd8: right_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Duo Eyegores NE'))
+        .add_node((0, 1), GridNode('216-1.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('217-3.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Eastern Single Eyegore ES')))
+    region_to_rooms['Eastern Duo Eyegores'] = east_d8_tile
+    region_to_rooms['Eastern Single Eyegore'] = east_d8_tile
     region_to_rooms['Eastern Boss'] = (
         sector({0xc8: all_quadrants})
         .add_node((0, 0), GridNode('200-3.png', NodeType.Quad))
@@ -451,6 +512,35 @@ def init_desert():
         .add_node((1, 2), GridNode('131-3.png', NodeType.Quad)))
     region_to_rooms['Desert West Wing'] = dp_83_tile
     region_to_rooms['Desert West Lobby'] = dp_83_tile
+    dp_tile_63 = (
+        sector({0x63: left_side})
+        .add_node((0, 1), GridNode('99-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('99-2.png', NodeType.Quad))
+        .add_node((0, 3),  GridNode('empty-tile.png', NodeType.Reserved, 'Desert Back Lobby S')))
+    region_to_rooms['Desert Back Lobby'] = dp_tile_63
+    region_to_rooms['Desert Tiles 1'] = dp_tile_63
+    dp_53_tile = (
+        sector({0x53: all_quadrants})
+        .add_node((0, 1), GridNode('83-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('83-2.png', NodeType.Quad))
+        .add_node((1, 0),  GridNode('empty-tile.png', NodeType.Reserved, 'Desert Beamos Hall NE'))
+        .add_node((1, 1), GridNode('83-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('83-3.png', NodeType.Quad)))
+    region_to_rooms['Desert Bridge'] = dp_53_tile
+    region_to_rooms['Desert Beamos Hall'] = dp_53_tile
+    dp_43_tile = (
+        sector({0x43: {0, 1, 3}})
+        .add_node((0, 0),  GridNode('empty-tile.png', NodeType.Reserved, 'Desert Wall Slide NW'))
+        .add_node((0, 1), GridNode('67-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('67-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('67-3.png', NodeType.Quad))
+        .add_node((1, 3),  GridNode('empty-tile.png', NodeType.Reserved, 'Desert Beamos Hall NE')))
+    region_to_rooms['Desert Wall Slide'] = dp_43_tile
+    region_to_rooms['Desert Tiles 2'] = dp_43_tile
+    region_to_rooms['Desert Boss'] = (
+        sector({0x33: {2}})
+        .add_node((0, 0), GridNode('51-2.png', NodeType.Quad))
+        .add_node((0, 1),  GridNode('empty-tile.png', NodeType.Reserved, 'Desert Boss SW')))
 
 
 def init_hera():
@@ -485,6 +575,65 @@ def init_hera():
         .add_node((0, 1), GridNode('7-2.png', NodeType.Quad))
         .add_node((1, 0), GridNode('7-1.png', NodeType.Quad))
         .add_node((1, 1), GridNode('7-3.png', NodeType.Quad)))
+
+
+def init_aga_tower():
+    # at
+    at_e0_tile = (
+        sector({0xe0: all_quadrants})
+        .add_node((0, 0), GridNode('224-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('224-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Lobby S'))
+        .add_node((1, 0), GridNode('224-1.png', NodeType.Quad)))
+    region_to_rooms['Tower Lobby'] = at_e0_tile
+    region_to_rooms['Tower Room 03'] = at_e0_tile
+    at_d0_tile = (
+        sector({0xd0: all_quadrants})
+        .add_node((0, 0), GridNode('208-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('208-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('208-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('208-3.png', NodeType.Quad)))
+    region_to_rooms['Tower Lone Statue'] = at_d0_tile
+    region_to_rooms['Tower Dark Chargers'] = at_d0_tile
+    at_c0_tile = (
+        sector({0xc0: all_quadrants})
+        .add_node((0, 0), GridNode('192-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('192-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('192-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('192-3.png', NodeType.Quad)))
+    region_to_rooms['Tower Dual Statues'] = at_c0_tile
+    region_to_rooms['Tower Dark Archers'] = at_c0_tile
+    at_b0_tile = (
+        sector({0xb0: all_quadrants})
+        .add_node((0, 0), GridNode('176-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('176-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('176-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('176-3.png', NodeType.Quad)))
+    region_to_rooms['Tower Red Spears'] = at_b0_tile
+    region_to_rooms['Tower Pacifist Run'] = at_b0_tile
+    at_40_tile = (
+        sector({0x40: {0, 2, 3}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Catwalk North Stairs'))
+        .add_node((0, 1), GridNode('64-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('64-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('64-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('64-3.png', NodeType.Quad)))
+    region_to_rooms['Tower Push Statue'] = at_40_tile
+    region_to_rooms['Tower Catwalk'] = at_40_tile
+    at_30_tile = (
+        sector({0x30: left_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Altar NW'))
+        .add_node((0, 1), GridNode('48-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('48-2.png', NodeType.Quad))
+        .add_node((0, 3), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Antechamber South Stairs'))
+        .add_node((1, 1), GridNode('48-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('48-3.png', NodeType.Quad)))
+    region_to_rooms['Tower Antechamber'] = at_30_tile
+    region_to_rooms['Tower Altar'] = at_30_tile
+    region_to_rooms['Tower Agahnim 1'] = (
+        sector({0x30: {2}})
+        .add_node((0, 0), GridNode('32-2.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Agahnim 1 SW')))
 
 
 def init_pod():
@@ -571,6 +720,21 @@ def init_pod():
         sector({0x1a: {0}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Big Chest Balcony W'))
         .add_node((1, 0), GridNode('26-0.png', NodeType.Quad)))
+    pod_4b_tile = (
+        sector({0x4b: all_quadrants})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Mimics 1 NW'))
+        .add_node((0, 1), GridNode('75-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('75-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('75-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('75-3.png', NodeType.Quad)))
+    region_to_rooms['PoD Mimics 1'] = pod_4b_tile
+    region_to_rooms['PoD Warp Hint'] = pod_4b_tile
+    region_to_rooms['PoD Conveyor'] = (
+        sector({0x3b: left_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Conveyor North Stairs'))
+        .add_node((0, 1), GridNode('59-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('59-2.png', NodeType.Quad))
+        .add_node((0, 3), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Conveyor SW')))
     pod_2b_tile = (
         sector({0x2b: all_quadrants})
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Sexy Statue W'))
@@ -608,7 +772,8 @@ def init_pod():
         .add_node((0, 1), GridNode('90-3.png', NodeType.Quad))
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'PoD Boss SE')))
 
-    # swamp
+
+def init_swamp():
     swamp_28_tile = (
         sector({0x28: all_quadrants})
         .add_node((0, 0), GridNode('40-0.png', NodeType.Quad))
@@ -653,6 +818,10 @@ def init_pod():
         .add_node((3, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Swamp Hub ES')))
     region_to_rooms['Swamp Hub'] = swamp_36_tile
     region_to_rooms['Swamp Hub North Ledge'] = swamp_36_tile
+    region_to_rooms['Swamp Hub Dead Ledge'] = (
+        sector({0x36: {1}})
+        .add_node((0, 0), GridNode('54-1.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Swamp Hub Dead Ledge EN')))
     region_to_rooms['Swamp Donut Top'] = (
         sector({0x46: all_quadrants})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Swamp Donut Top N'))
@@ -716,7 +885,20 @@ def init_pod():
     region_to_rooms['Swamp Waterfall Room'] = swamp_66_tile
     region_to_rooms['Swamp Behind Waterfall'] = swamp_66_tile
 
-    # skull
+
+def init_skull():
+    region_to_rooms['Skull Pot Prison'] = (
+        sector({0x57: {3}})
+        .add_node((0, 0), GridNode('87-3.png', NodeType.Quad))
+        .add_node((0, 1),  GridNode('empty-tile.png', NodeType.Reserved, 'Skull Pot Prison SE'))
+        .add_node((1, 0),  GridNode('empty-tile.png', NodeType.Reserved, 'Skull Pot Prison ES')))
+    region_to_rooms['Skull 2 East Lobby'] = (
+        sector({0x57: {0, 1, 2}})
+        .add_node((0, 1),  GridNode('empty-tile.png', NodeType.Reserved, 'Skull 2 East Lobby WS'))
+        .add_node((1, 0), GridNode('87-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('87-2.png', NodeType.Quad))
+        .add_node((1, 2),  GridNode('empty-tile.png', NodeType.Reserved, 'Skull 2 East Lobby SW'))
+        .add_node((2, 0), GridNode('87-1.png', NodeType.Quad)))
     region_to_rooms['Skull 3 Lobby'] = (
         sector({0x59: all_quadrants})
         .add_node((0, 0),  GridNode('empty-tile.png', NodeType.Reserved, 'Skull 3 Lobby NW'))
@@ -736,7 +918,8 @@ def init_pod():
     region_to_rooms['Skull Star Pits'] = sk_49_tile
     region_to_rooms['Skull Vines'] = sk_49_tile
 
-    # tt
+
+def init_tt():
     region_to_rooms['Thieves Lobby'] = (
         sector({0xdb: {0, 1, 2}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Lobby N Edge'))
@@ -785,12 +968,58 @@ def init_pod():
         sector({0xdb: {3}})
         .add_node((0, 0), GridNode('219-3.png', NodeType.Quad))
         .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Big Chest Nook ES Edge')))
+    tt_tile_bc = (
+        sector({0xbc: all_quadrants})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Conveyor Maze WN'))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Pot Alcove Mid WS'))
+        .add_node((1, 1), GridNode('188-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('188-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Hallway NE'))
+        .add_node((2, 1), GridNode('188-1.png', NodeType.Quad))
+        .add_node((2, 2), GridNode('188-3.png', NodeType.Quad))
+        .add_node((2, 3), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Hallway SE')))
+    region_to_rooms['Thieves Hallway'] = tt_tile_bc
+    region_to_rooms['Thieves Pot Alcove Mid'] = tt_tile_bc
+    region_to_rooms['Thieves Conveyor Maze'] = tt_tile_bc
+    region_to_rooms['Thieves Pot Alcove Bottom'] = (
+        sector({0xbc: {2}})
+        .add_node((0, 0), GridNode('188-2.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Pot Alcove Bottom SW')))
+    region_to_rooms['Thieves Boss'] = (
+        sector({0xac: {3}})
+        .add_node((0, 0), GridNode('172-3.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Boss SE')))
+    tt_tile_bc = (
+        sector({0xbb: all_quadrants})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Hellway NW'))
+        .add_node((0, 1), GridNode('187-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('187-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('187-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('187-3.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Triple Bypass EN'))
+        .add_node((2, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Spike Track ES')))
+    region_to_rooms['Thieves Spike Track'] = tt_tile_bc
+    region_to_rooms['Thieves Hellway'] = tt_tile_bc
+    region_to_rooms['Thieves Triple Bypass'] = tt_tile_bc
     region_to_rooms['Thieves Spike Switch'] = (
         sector({0xab: {2}})
         .add_node((0, 0), GridNode('171-2.png', NodeType.Quad))
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Spike Switch SW')))
+    tt_tile_64 = (
+        sector({0x64: bottom_side})
+        .add_node((0, 0), GridNode('100-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('100-3.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Cricket Hall Left Edge')))
+    region_to_rooms['Thieves Attic'] = tt_tile_64
+    region_to_rooms['Thieves Cricket Hall Left'] = tt_tile_64
+    region_to_rooms['Thieves Cricket Hall Right'] = (
+        sector({0x65: bottom_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Thieves Cricket Hall Right Edge'))
+        .add_node((1, 0), GridNode('101-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('101-3.png', NodeType.Quad)))
 
-    # ice
+
+def init_ice():
     ice_0e_tile = (
         sector({0x0e: bottom_side})
         .add_node((0, 0), GridNode('14-2.png', NodeType.Quad))
@@ -820,6 +1049,14 @@ def init_pod():
         sector({0x1e: {1}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Compass Room NE'))
         .add_node((0, 1), GridNode('46-1.png', NodeType.Quad)))
+    ice_tile_3e = (
+        sector({0x3e: {1, 2, 3}})
+        .add_node((0, 1), GridNode('62-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Conveyor SW'))
+        .add_node((1, 0), GridNode('62-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('62-3.png', NodeType.Quad)))
+    region_to_rooms['Ice Stalfos Hint'] = ice_tile_3e
+    region_to_rooms['Ice Conveyor'] = ice_tile_3e
     ice_4e_tile = (
         sector({0x4e: top_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Bomb Jump NW'))
@@ -845,12 +1082,65 @@ def init_pod():
         sector({0x5f: {2}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Pengator Trap NE'))
         .add_node((1, 0), GridNode('95-2.png', NodeType.Quad)))
+    ice_tile_3f = (
+        sector({0x3f: bottom_side})
+        .add_node((0, 1), GridNode('63-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Tongue Pull Up Ladder'))
+        .add_node((1, 1), GridNode('63-3.png', NodeType.Quad)))
+    region_to_rooms['Ice Hammer Block'] = ice_tile_3f
+    region_to_rooms['Ice Tongue Pull'] = ice_tile_3f
+    ice_tile_1f = (
+        sector({0x1f: bottom_side})
+        .add_node((0, 0), GridNode('31-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('31-3.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Big Key Down Ladder')))
+    region_to_rooms['Ice Pengator Switch'] = ice_tile_1f
+    region_to_rooms['Ice Big Key'] = ice_tile_1f
+    ice_tile_7f = (
+        sector({0x7f: left_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Hookshot Ledge WN'))
+        .add_node((1, 0), GridNode('127-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('127-2.png', NodeType.Quad)))
+    region_to_rooms['Ice Hookshot Ledge'] = ice_tile_7f
+    region_to_rooms['Ice Spikeball'] = ice_tile_7f
+    ice_tile_7e = (
+        sector({0x7e: {1, 2, 3}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Freezors Up Ladder'))
+        .add_node((0, 1), GridNode('126-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('126-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('126-3.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Tall Hint SE'))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Tall Hint EN')))
+    region_to_rooms['Ice Tall Hint'] = ice_tile_7e
+    region_to_rooms['Ice Freezors'] = ice_tile_7e
     region_to_rooms['Ice Lonely Freezor'] = (
         sector({0x8e: {1}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Lonely Freezor NE'))
         .add_node((0, 1), GridNode('142-1.png', NodeType.Quad)))
+    region_to_rooms['Iced T'] = (
+        sector({0xae: {1}})
+        .add_node((0, 0), GridNode('174-1.png', NodeType.Quad))
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Iced T EN')))
+    region_to_rooms['Ice Antechamber'] = (
+        sector({0xce: {1}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Antechamber NE'))
+        .add_node((0, 1), GridNode('206-1.png', NodeType.Quad)))
+    region_to_rooms['Ice Boss'] = (sector({0xde: {1}}).add_node((0, 0), GridNode('222-1.png', NodeType.Quad)))
 
-    # mire
+
+def init_mire():
+    mm_tile_98 = (
+        sector({0x98: bottom_side})
+        .add_node((0, 0), GridNode('152-2.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Lobby S'))
+        .add_node((1, 0), GridNode('152-3.png', NodeType.Quad)))
+    region_to_rooms['Mire Lobby'] = mm_tile_98
+    region_to_rooms['Mire Post-Gap'] = mm_tile_98
+    region_to_rooms['Mire 2'] = (
+        sector({0xd2: right_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Mire 2 NE'))
+        .add_node((0, 1), GridNode('210-1.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('210-3.png', NodeType.Quad)))
     mm_tile_c2 = (
         sector({0xc2: all_quadrants})
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Hub WN'))
@@ -943,10 +1233,46 @@ def init_pod():
         sector({0xa3: left_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Bent Bridge W'))
         .add_node((1, 0), GridNode('163-0.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('166-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('163-2.png', NodeType.Quad))
         .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Bent Bridge SW')))
+    mm_tile_93 = (
+        sector({0x93: all_quadrants})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Block X WS'))
+        .add_node((1, 0), GridNode('147-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('147-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('147-1.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('147-3.png', NodeType.Quad)))
+    region_to_rooms['Mire Dark Shooters'] = mm_tile_93
+    region_to_rooms['Mire Block X'] = mm_tile_93
+    mm_tile_92 = (
+        sector({0x92: all_quadrants})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Crystal Left WS'))
+        .add_node((1, 0), GridNode('146-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('146-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('146-1.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('146-3.png', NodeType.Quad))
+        .add_node((3, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Tall Dark and Roomy ES')))
+    region_to_rooms['Mire Tall Dark and Roomy'] = mm_tile_92
+    region_to_rooms['Mire Crystal Left'] = mm_tile_92
+    region_to_rooms['Mire Falling Foes'] = (
+        sector({0x91: right_side})
+        .add_node((0, 0), GridNode('145-1.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('145-3.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Falling Foes ES')))
+    mm_tile_a0 = (
+        sector({0xa0: top_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Antechamber NW'))
+        .add_node((0, 1), GridNode('160-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('160-1.png', NodeType.Quad)))
+    region_to_rooms['Mire Antechamber'] = mm_tile_a0
+    region_to_rooms['Mire Firesnake Skip'] = mm_tile_a0
+    region_to_rooms['Mire Boss'] = (
+        sector({0x90: {2}})
+        .add_node((0, 0), GridNode('144-2.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Mire Boss SW')))
 
-    # tr
+
+def init_tr():
     tr_d6_tile_r = (
         sector({0xd6: right_side})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'TR Lobby Ledge NE'))
@@ -1115,8 +1441,32 @@ def init_pod():
         .add_node((0, 0), GridNode('164-2.png', NodeType.Quad))
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'TR Boss SW')))
 
-    # gt
+
+def init_gt():
+    region_to_rooms['GT Lobby'] = (
+        sector({0x0c: all_quadrants})
+        .add_node((0, 0), GridNode('12-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('12-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Lobby S'))
+        .add_node((1, 0), GridNode('12-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('12-3.png', NodeType.Quad)))
     # right side
+    gt_8d_tile = (
+        sector({0x8d: all_quadrants})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Tile Room WN'))
+        .add_node((1, 1), GridNode('141-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('141-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Speed Torch NE'))
+        .add_node((2, 1), GridNode('141-1.png', NodeType.Quad))
+        .add_node((2, 2), GridNode('141-3.png', NodeType.Quad))
+        .add_node((2, 3), GridNode('empty-tile.png', NodeType.Reserved, 'GT Speed Torch SE')))
+    region_to_rooms['GT Tile Room'] = gt_8d_tile
+    region_to_rooms['GT Speed Torch'] = gt_8d_tile
+    region_to_rooms['GT Speed Torch Upper'] = gt_8d_tile
+    region_to_rooms['GT Petting Zoo'] = (
+        sector({0x7d: {3}})
+        .add_node((0, 0), GridNode('125-3.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Petting Zoo SE')))
     region_to_rooms['GT Crystal Conveyor'] = (
         sector({0x9d: top_side})
         .add_node((0, 1), GridNode('157-0.png', NodeType.Quad))
@@ -1210,6 +1560,24 @@ def init_pod():
         sector({0x8c: {3}})
         .add_node((0, 0), GridNode('140-3.png', NodeType.Quad))
         .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Bob\'s Room SE')))
+    region_to_rooms['GT Invisible Catwalk'] = (
+        sector({0x9c: all_quadrants})
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Invisible Catwalk WS'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Invisible Catwalk NW'))
+        .add_node((1, 1), GridNode('156-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('156-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Invisible Catwalk NE'))
+        .add_node((2, 1), GridNode('156-1.png', NodeType.Quad))
+        .add_node((2, 2), GridNode('156-3.png', NodeType.Quad))
+        .add_node((3, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Invisible Catwalk ES')))
+    gt_tile_1c = (
+        sector({0x1c: all_quadrants})
+        .add_node((0, 0), GridNode('28-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('28-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('28-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('28-3.png', NodeType.Quad)))
+    region_to_rooms['GT Ice Armos'] = gt_tile_1c
+    region_to_rooms['GT Four Torches'] = gt_tile_1c
     # upstairs
     gt_6b_tile = (
         sector({0x6b: all_quadrants})
@@ -1221,105 +1589,109 @@ def init_pod():
     region_to_rooms['GT Dash Hall'] = gt_6b_tile
     region_to_rooms['GT Crystal Paths'] = gt_6b_tile
     region_to_rooms['GT Hidden Spikes'] = (
-        sector({0x5b: all_quadrants})
+        sector({0x5b: right_side})
         .add_node((0, 0), GridNode('91-1.png', NodeType.Quad))
         .add_node((0, 1), GridNode('91-3.png', NodeType.Quad))
         .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Hidden Spikes SE'))
         .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Hidden Spikes EN')))
-
-
-def init_aga_tower():
-    # at
-    at_e0_tile = (
-        sector({0xe0: all_quadrants})
-        .add_node((0, 0), GridNode('224-0.png', NodeType.Quad))
-        .add_node((0, 1), GridNode('224-2.png', NodeType.Quad))
-        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Lobby S'))
-        .add_node((1, 0), GridNode('224-1.png', NodeType.Quad)))
-    region_to_rooms['Tower Lobby'] = at_e0_tile
-    region_to_rooms['Tower Room 03'] = at_e0_tile
-    at_d0_tile = (
-        sector({0xd0: all_quadrants})
-        .add_node((0, 0), GridNode('208-0.png', NodeType.Quad))
-        .add_node((0, 1), GridNode('208-2.png', NodeType.Quad))
-        .add_node((1, 0), GridNode('208-1.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('208-3.png', NodeType.Quad)))
-    region_to_rooms['Tower Lone Statue'] = at_d0_tile
-    region_to_rooms['Tower Dark Chargers'] = at_d0_tile
-    at_c0_tile = (
-        sector({0xc0: all_quadrants})
-        .add_node((0, 0), GridNode('192-0.png', NodeType.Quad))
-        .add_node((0, 1), GridNode('192-2.png', NodeType.Quad))
-        .add_node((1, 0), GridNode('192-1.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('192-3.png', NodeType.Quad)))
-    region_to_rooms['Tower Dual Statues'] = at_c0_tile
-    region_to_rooms['Tower Dark Archers'] = at_c0_tile
-    at_b0_tile = (
-        sector({0xb0: all_quadrants})
-        .add_node((0, 0), GridNode('176-0.png', NodeType.Quad))
-        .add_node((0, 1), GridNode('176-2.png', NodeType.Quad))
-        .add_node((1, 0), GridNode('176-1.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('176-3.png', NodeType.Quad)))
-    region_to_rooms['Tower Red Spears'] = at_b0_tile
-    region_to_rooms['Tower Pacifist Run'] = at_b0_tile
-    at_40_tile = (
-        sector({0x40: {0, 2, 3}})
-        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Catwalk North Stairs'))
-        .add_node((0, 1), GridNode('64-0.png', NodeType.Quad))
-        .add_node((0, 2), GridNode('64-2.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('64-1.png', NodeType.Quad))
-        .add_node((1, 2), GridNode('64-3.png', NodeType.Quad)))
-    region_to_rooms['Tower Push Statue'] = at_40_tile
-    region_to_rooms['Tower Catwalk'] = at_40_tile
-    at_30_tile = (
-        sector({0x30: left_side})
-        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Altar NW'))
-        .add_node((0, 1), GridNode('48-0.png', NodeType.Quad))
-        .add_node((0, 2), GridNode('48-2.png', NodeType.Quad))
-        .add_node((0, 3), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Antechamber South Stairs'))
-        .add_node((1, 1), GridNode('48-1.png', NodeType.Quad))
-        .add_node((1, 2), GridNode('48-3.png', NodeType.Quad)))
-    region_to_rooms['Tower Antechamber'] = at_30_tile
-    region_to_rooms['Tower Altar'] = at_30_tile
-    region_to_rooms['Tower Agahnim 1'] = (
-        sector({0x30: {2}})
-        .add_node((0, 0), GridNode('32-2.png', NodeType.Quad))
-        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Antechamber South Stairs')))
+    region_to_rooms['GT Cannonball Bridge'] = (
+        sector({0x5c: {0, 1, 3}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Cannonball Bridge WN'))
+        .add_node((1, 0), GridNode('92-0.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('92-1.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('92-3.png', NodeType.Quad)))
+    gt_tile_5d = (
+        sector({0x5d: {0, 1, 2}})
+        .add_node((0, 0), GridNode('93-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('93-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Gauntlet 3 SW'))
+        .add_node((1, 0), GridNode('93-1.png', NodeType.Quad)))
+    region_to_rooms['GT Gauntlet 1'] = gt_tile_5d
+    region_to_rooms['GT Gauntlet 3'] = gt_tile_5d
+    gt_tile_6d = (
+        sector({0x6d: left_side})
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Gauntlet 5 WS'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Gauntlet 4 NW'))
+        .add_node((1, 1), GridNode('109-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('109-2.png', NodeType.Quad)))
+    region_to_rooms['GT Gauntlet 4'] = gt_tile_6d
+    region_to_rooms['GT Gauntlet 5'] = gt_tile_6d
+    gt_tile_6c = (
+    sector({0x6c: {0, 2, 3}})
+        .add_node((0, 0), GridNode('108-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('108-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('108-3.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Beam Dash ES')))
+    region_to_rooms['GT Beam Dash'] = gt_tile_6c
+    region_to_rooms['GT Quad Pot'] = gt_tile_6c
+    gt_tile_a5 = (
+        sector({0xa5: all_quadrants})
+        .add_node((0, 1), GridNode('165-0.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('165-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Wizzrobes 2 NE'))
+        .add_node((1, 1), GridNode('165-1.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('165-3.png', NodeType.Quad)))
+    region_to_rooms['GT Wizzrobes 1'] = gt_tile_a5
+    region_to_rooms['GT Wizzrobes 2'] = gt_tile_a5
+    region_to_rooms['GT Conveyor Bridge'] = (
+        sector({0x95: right_side})
+        .add_node((0, 0), GridNode('149-1.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('149-3.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Conveyor Bridge SE'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Conveyor Bridge EN')))
+    gt_tile_96 = (
+        sector({0x96: {0, 2, 3}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Torch Cross WN'))
+        .add_node((1, 0), GridNode('150-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('150-2.png', NodeType.Quad))
+        .add_node((2, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Staredown Up Ladder'))
+        .add_node((2, 1), GridNode('150-3.png', NodeType.Quad)))
+    region_to_rooms['GT Torch Cross'] = gt_tile_96
+    region_to_rooms['GT Staredown'] = gt_tile_96
+    gt_tile_3d = (
+        sector({0x3d: all_quadrants})
+        .add_node((0, 0), GridNode('61-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('61-2.png', NodeType.Quad))
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Crystal Circles SW'))
+        .add_node((1, 0), GridNode('61-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('61-3.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Falling Torches Down Ladder')))
+    region_to_rooms['GT Crystal Circles'] = gt_tile_3d
+    region_to_rooms['GT Falling Torches'] = gt_tile_3d
+    gt_tile_4d = (
+        sector({0x4d: all_quadrants})
+        .add_node((0, 2), GridNode('empty-tile.png', NodeType.Reserved, 'GT Validation WS'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Left Moldorm Ledge NW'))
+        .add_node((1, 1), GridNode('77-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('77-2.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('77-1.png', NodeType.Quad))
+        .add_node((2, 2), GridNode('77-3.png', NodeType.Quad)))
+    region_to_rooms['GT Left Moldorm Ledge'] = gt_tile_4d
+    region_to_rooms['GT Right Moldorm Ledge'] = gt_tile_4d
+    region_to_rooms['GT Validation Door'] = gt_tile_4d
+    region_to_rooms['GT Moldorm Pit'] = (
+        sector({0xa6: all_quadrants})
+        .add_node((1, 1), GridNode('166-0.png', NodeType.Quad))
+        .add_node((1, 2), GridNode('166-2.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('166-1.png', NodeType.Quad))
+        .add_node((2, 2), GridNode('166-3.png', NodeType.Quad)))
+    region_to_rooms['GT Frozen Over'] = (
+        sector({0x4c: right_side})
+        .add_node((0, 0), GridNode('76-1.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('76-3.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Frozen Over ES')))
+    region_to_rooms['GT Brightly Lit Hall'] = (
+        sector({0x1d: top_side})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'GT Brightly Lit Hall NW'))
+        .add_node((0, 1), GridNode('29-0.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('29-1.png', NodeType.Quad)))
+    region_to_rooms['GT Agahnim 2'] = (
+        sector({0x0d: {2}})
+        .add_node((0, 0), GridNode('13-2.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'GT Agahnim 2 SW')))
 
 # old_region_to_rooms = {
 
-
-# 'Eastern Courtyard Ledge':make_room(169, bottom_side),
-# 'Eastern East Wing':make_room(170, left_side),
-# 'Eastern Pot Switch':make_room(170, [1]),
-# 'Eastern Map Balcony':make_room(170, [3]),
-# 'Eastern Map Room':make_room(170, [3]),
-# 'Eastern West Wing':make_room(168, right_side),
-# 'Eastern Stalfos Spawn':make_room(168, [0]),
-# 'Eastern Compass Room':make_room(168, [2]),
-# 'Eastern Hint Tile':make_room(168, right_side),
-# 'Eastern Hint Tile Blocked Path':make_room(168, right_side),
-# 'Eastern Fairies':make_room(137, top_side),
-# 'Eastern Map Valley':make_room(170, left_side),
-# 'Eastern Dark Square':make_room(186, [0]),
-# 'Eastern Dark Pots':make_room(186, [1]),
-# 'Eastern Big Key':make_room(184, right_side),
-# 'Eastern Darkness':make_room(153, bottom_side),
-# 'Eastern Rupees':make_room(153, [1]),
-# 'Eastern Attic Start':make_room(218, [2]),
-# 'Eastern Single Eyegore':make_room(216, [3]),
-# 'Eastern Duo Eyegores':make_room(216, [1]),
-#
-#
-#         # Desert Palace
-# 'Desert Back Lobby':make_room(99, [2]),
-# 'Desert Tiles 1':make_room(99, [0]),
-# 'Desert Bridge':make_room(83, [0]),
-# 'Desert Four Statues':make_room(83, [2]),
-# 'Desert Beamos Hall':make_room(83, right_side),
-# 'Desert Tiles 2':make_room(67, [3]),
-# 'Desert Wall Slide':make_room(67, top_side),
-# 'Desert Boss':make_room(51, [2]),
 #
 #         # Hera
 # 'Hera Basement Cage':make_room(135, [2]),
@@ -1331,12 +1703,6 @@ def init_aga_tower():
 # 'Hera Startile Wide':make_room(49, top_side),
 # 'Hera Fairies':make_room(167, [0]),
 #
-#         # pod
-
-# 'PoD Conveyor':make_room(59, left_side),
-# 'PoD Mimics 1':make_room(75, [0]),
-# 'PoD Jelly Hall':make_room(75, bottom_side),
-# 'PoD Warp Hint':make_room(75, [1]),
 #
 #         # swamp
 # 'Swamp Push Statue':make_room(38, bottom_side),
@@ -1359,10 +1725,7 @@ def init_aga_tower():
 # 'Skull Pinball':make_room(104, all_quadrants),
 # 'Skull Compass Room':make_room(103, right_side), #????
 # 'Skull Left Drop':make_room(103, left_side), #???
-# 'Skull Pot Prison':make_room(87, [3]),
-# 'Skull 2 East Lobby':make_room(87, [2]),
-# 'Skull Big Key':make_room(87, [0]),
-# 'Skull Lone Pot':make_room(87, [1]),
+
 # 'Skull Small Hall':make_room(86, [3]), #???
 # 'Skull Back Drop':make_room(86, right_side),
 # 'Skull 2 West Lobby':make_room(86, [2]),
@@ -1376,22 +1739,7 @@ def init_aga_tower():
 # 'Skull Boss':make_room(41, [3]),
 #
 #         # tt
-# 'Thieves Hallway':make_room(188, right_side),
-# 'Thieves Boss':make_room(172, [3]),
-# 'Thieves Pot Alcove Mid':make_room(188, [2]),
-# 'Thieves Pot Alcove Bottom':make_room(188, [2]),
-# 'Thieves Pot Alcove Top':make_room(188, [2]),
-# 'Thieves Conveyor Maze':make_room(188, [0]),
-# 'Thieves Spike Track':make_room(187, [3]),
-# 'Thieves Hellway':make_room(187, left_side),
-# 'Thieves Hellway N Crystal':make_room(187, [0]),
-# 'Thieves Hellway S Crystal':make_room(187, [2]),
-# 'Thieves Triple Bypass':make_room(187, [1]),
 
-# 'Thieves Attic':make_room(100, [2]),
-# 'Thieves Cricket Hall Left':make_room(100, [3]),
-# 'Thieves Cricket Hall Right':make_room(101, [2]),
-# 'Thieves Attic Window':make_room(101, [3]),
 # 'Thieves Basement Block':make_room(69, [0]),
 # 'Thieves Blocked Entry':make_room(69, [0]),
 # 'Thieves Lonely Zazak':make_room(69, [2]),
@@ -1411,17 +1759,9 @@ def init_aga_tower():
 # 'Ice Dead End':make_room(31, [3]),
 # 'Ice Big Key':make_room(31, [3]),
 # 'Ice Bomb Drop':make_room(30, [1]),
-# 'Ice Stalfos Hint':make_room(62, [1]),
-# 'Ice Conveyor':make_room(62, bottom_side),
 # 'Ice Hammer Block':make_room(63, [2]),
 # 'Ice Tongue Pull':make_room(63, [3]),
-# 'Ice Freezors':make_room(126, [2]),
-# 'Ice Freezors Ledge':make_room(126, [2]),
-# 'Ice Tall Hint':make_room(126, right_side),
-# 'Ice Hookshot Ledge':make_room(127, [0]),
-# 'Ice Hookshot Balcony':make_room(127, [0]),
-# 'Ice Spikeball':make_room(127, [2]),
-# 'Iced T':make_room(174, [1]),
+
 # 'Ice Catwalk':make_room(175, [0]),
 # 'Ice Many Pots':make_room(159, [2]),
 # 'Ice Crystal Right':make_room(158, [3]),
@@ -1434,13 +1774,9 @@ def init_aga_tower():
 # 'Ice Switch Room':make_room(190, [3]),
 # 'Ice Refill':make_room(191, [2]),
 # 'Ice Fairy':make_room(191, [1]),
-# 'Ice Antechamber':make_room(206, [1]),
-# 'Ice Boss':make_room(222, [1]),
+
 #
 #         # mire
-# 'Mire Lobby':make_room(152, bottom_side),
-# 'Mire Post-Gap':make_room(152, [3]),
-# 'Mire 2':make_room(210, right_side),
 # 'Mire Lone Shooter':make_room(195, [2]),
 # 'Mire Failure Bridge':make_room(195, left_side),
 # 'Mire Falling Bridge':make_room(195, right_side),
@@ -1459,85 +1795,13 @@ def init_aga_tower():
 # 'Mire Dark Shooters':make_room(147, top_side),
 # 'Mire Key Rupees':make_room(147, [3]),
 # 'Mire Block X':make_room(147, [2]),
-# 'Mire Tall Dark and Roomy':make_room(146, right_side),
-# 'Mire Crystal Right':make_room(146, [2]),
-# 'Mire Crystal Mid':make_room(146, [2]),
-# 'Mire Crystal Left':make_room(146, [2]),
-# 'Mire Crystal Top':make_room(146, [0]),
-# 'Mire Shooter Rupees':make_room(146, [0]),
-# 'Mire Falling Foes':make_room(145, right_side),
-# 'Mire Firesnake Skip':make_room(160, [1]),
-# 'Mire Antechamber':make_room(160, [0]),
-# 'Mire Boss':make_room(144, [2]),
+
 #
 #         # tr
 # 'TR Final Abyss':make_room(180, all_quadrants),
 # 'TR Boss':make_room(164, [2]),
 #
-#         # gt
-# 'GT Lobby':make_room(12, all_quadrants),
-# 'GT Blocked Stairs':make_room(140, [2]),
-# 'GT Tile Room':make_room(141, [0]),
-# 'GT Speed Torch':make_room(141, right_side),
-# 'GT Speed Torch Upper':make_room(141, [1]),
-# 'GT Pots n Blocks':make_room(141, [2]),
-# 'GT Crystal Conveyor':make_room(157,[1]),
-# 'GT Compass Room':make_room(157, [0]),
-#
-# 'GT Invisible Catwalk':make_room(156, all_quadrants), #???
-#
-#
-# 'GT Double Switch Switches':make_room(155, [0]),
-# 'GT Double Switch Transition':make_room(155, [0]),
-# 'GT Double Switch Key Spot':make_room(155, [0]),
-# 'GT Double Switch Exit':make_room(155, [0]),
-# 'GT Spike Crystals':make_room(155, [1]),
-# 'GT Warp Maze - Left Section':make_room(155, bottom_side),
-# 'GT Warp Maze - Mid Section':make_room(155, bottom_side),
-# 'GT Warp Maze - Right Section':make_room(155, bottom_side),
-# 'GT Warp Maze - Pit Section':make_room(155, bottom_side),
-# 'GT Warp Maze - Pit Exit Warp Spot':make_room(155, bottom_side),
-#
-# 'GT Firesnake Room':make_room(125, top_side),
-# 'GT Firesnake Room Ledge':make_room(125, top_side),
-# 'GT Warp Maze - Rail Choice':make_room(125, [2]), #ugh. Need to attach this together
-# 'GT Warp Maze - Rando Rail':make_room(125, [2]),
-# 'GT Warp Maze - Main Rails':make_room(125, [2]),
-# 'GT Warp Maze - Pot Rail':make_room(125, [2]),
-# 'GT Petting Zoo':make_room(125, [3]),
 
-# 'GT Ice Armos':make_room(28, [3]),
-# 'GT Big Key Room':make_room(28, [1]),
-# 'GT Four Torches':make_room(28, [2]),
-# 'GT Fairy Abyss':make_room(28, [0]),
-# 'GT Cannonball Bridge':make_room(92, top_side),
-# 'GT Refill':make_room(92, [3]),
-# 'GT Gauntlet 1':make_room(93, [1]),
-# 'GT Gauntlet 2':make_room(93, [0]),
-# 'GT Gauntlet 3':make_room(93, [2]),
-# 'GT Gauntlet 4':make_room(109, [0]),
-# 'GT Gauntlet 5':make_room(109, [2]),
-# 'GT Beam Dash':make_room(108, [3]),
-# 'GT Lanmolas 2':make_room(108, [2]),
-# 'GT Quad Pot':make_room(108, [1]),
-# 'GT Wizzrobes 1':make_room(165, all_quadrants),
-# 'GT Dashing Bridge':make_room(165, all_quadrants),
-# 'GT Wizzrobes 2':make_room(165, all_quadrants),
-# 'GT Conveyor Bridge':make_room(149, right_side),
-# 'GT Torch Cross':make_room(150, left_side),
-# 'GT Staredown':make_room(150, [3]),
-# 'GT Falling Torches':make_room(61, [3]),
-# 'GT Mini Helmasaur Room':make_room(61, [1]),
-# 'GT Bomb Conveyor':make_room(61, [0]),
-# 'GT Crystal Circles':make_room(61, [2]),
-# 'GT Left Moldorm Ledge':make_room(77, [0]),
-# 'GT Right Moldorm Ledge':make_room(77, [1]),
-# 'GT Moldorm':make_room(77, all_quadrants),
-# 'GT Moldorm Pit':make_room(166, all_quadrants),
-# 'GT Validation':make_room(77, bottom_side),
-# 'GT Validation Door':make_room(77, [2]),
-# 'GT Frozen Over':make_room(76, right_side),
-# 'GT Brightly Lit Hall':make_room(29, top_side),
-# 'GT Agahnim 2':make_room(13, [2]),
+
 # }
 #
