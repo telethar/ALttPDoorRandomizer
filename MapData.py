@@ -148,7 +148,7 @@ def init_map_data():
     init_hc()
     init_eastern()
     init_desert()
-    init_hera()  # todo
+    init_hera()
     init_aga_tower()
 
     init_pod()
@@ -555,6 +555,23 @@ def init_hera():
     region_to_rooms['Hera Down Stairs Landing'] = hera_77_tile
     region_to_rooms['Hera Up Stairs Landing'] = hera_77_tile
     region_to_rooms['Hera Back'] = hera_77_tile
+    region_to_rooms['Hera Tile Room'] = (
+        sector({0x87: {0, 1, 3}})
+        .add_node((0, 0), GridNode('135-0.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('135-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('135-3.png', NodeType.Quad)))
+    region_to_rooms['Hera Basement Cage'] = (
+        sector({0x87: {2}}).add_node((0, 0), GridNode('135-2.png', NodeType.Quad)))
+    region_to_rooms['Hera Fairies'] = (
+        sector({0xa7: {0}}).add_node((0, 0), GridNode('167-0.png', NodeType.Quad)))
+    hera_tile_31 = (
+        sector({0x31: all_quadrants})
+        .add_node((0, 0), GridNode('49-0.png', NodeType.Quad))
+        .add_node((0, 1), GridNode('49-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('49-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('49-3.png', NodeType.Quad)))
+    region_to_rooms['Hera Beetles'] = hera_tile_31
+    region_to_rooms['Hera Startile Wide'] = hera_tile_31
     hera_27_tile = (
         sector({0x27: all_quadrants})
         .add_node((0, 0), GridNode('39-0.png', NodeType.Quad))
@@ -616,7 +633,6 @@ def init_aga_tower():
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Tower Catwalk North Stairs'))
         .add_node((0, 1), GridNode('64-0.png', NodeType.Quad))
         .add_node((0, 2), GridNode('64-2.png', NodeType.Quad))
-        .add_node((1, 1), GridNode('64-1.png', NodeType.Quad))
         .add_node((1, 2), GridNode('64-3.png', NodeType.Quad)))
     region_to_rooms['Tower Push Statue'] = at_40_tile
     region_to_rooms['Tower Catwalk'] = at_40_tile
@@ -1117,10 +1133,32 @@ def init_ice():
         sector({0x8e: {1}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Lonely Freezor NE'))
         .add_node((0, 1), GridNode('142-1.png', NodeType.Quad)))
+
+    region_to_rooms['Ice Catwalk'] = (
+        sector({0xaf: {0}})
+        .add_node((0, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Catwalk WN'))
+        .add_node((1, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Catwalk NW'))
+        .add_node((1, 1), GridNode('175-0.png', NodeType.Quad)))
     region_to_rooms['Iced T'] = (
         sector({0xae: {1}})
         .add_node((0, 0), GridNode('174-1.png', NodeType.Quad))
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Iced T EN')))
+    region_to_rooms['Ice Many Pots'] = (
+        sector({0x9f: {2}})
+        .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Many Pots WS'))
+        .add_node((1, 0), GridNode('159-2.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Many Pots SW')))
+    ice_tile_9e = (
+        sector({0x9e: {1, 2, 3}})
+        .add_node((0, 1), GridNode('159-2.png', NodeType.Quad))
+        .add_node((1, 0), GridNode('159-1.png', NodeType.Quad))
+        .add_node((1, 1), GridNode('159-3.png', NodeType.Quad))
+        .add_node((2, 1), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Crystal Right ES')))
+    region_to_rooms['Ice Crystal Right'] = ice_tile_9e
+    region_to_rooms['Ice Big Chest View'] = ice_tile_9e
+    region_to_rooms['Ice Big Chest Landing'] = ice_tile_9e
+    region_to_rooms['Ice Backwards Room'] = ice_tile_9e
+    # 'Ice Anti-Fairy':make_room(190, [1]),#???
     region_to_rooms['Ice Antechamber'] = (
         sector({0xce: {1}})
         .add_node((0, 0), GridNode('empty-tile.png', NodeType.Reserved, 'Ice Antechamber NE'))
@@ -1692,16 +1730,7 @@ def init_gt():
 
 # old_region_to_rooms = {
 
-#
-#         # Hera
-# 'Hera Basement Cage':make_room(135, [2]),
-# 'Hera Tile Room':make_room(135, [0]),
-# 'Hera Tridorm':make_room(135, [1]),
-# 'Hera Torches':make_room(135, [3]),
-# 'Hera Beetles':make_room(49, [3]),
-# 'Hera Startile Corner':make_room(49, [2]),
-# 'Hera Startile Wide':make_room(49, top_side),
-# 'Hera Fairies':make_room(167, [0]),
+
 #
 #
 #         # swamp
@@ -1762,15 +1791,6 @@ def init_gt():
 # 'Ice Hammer Block':make_room(63, [2]),
 # 'Ice Tongue Pull':make_room(63, [3]),
 
-# 'Ice Catwalk':make_room(175, [0]),
-# 'Ice Many Pots':make_room(159, [2]),
-# 'Ice Crystal Right':make_room(158, [3]),
-# 'Ice Crystal Left':make_room(158, [3]),
-# 'Ice Crystal Block':make_room(158, [3]),
-# 'Ice Big Chest View':make_room(158, [2]),
-# 'Ice Big Chest Landing':make_room(158, [2]),
-# 'Ice Backwards Room':make_room(158, [1]), #???
-# 'Ice Anti-Fairy':make_room(190, [1]),#???
 # 'Ice Switch Room':make_room(190, [3]),
 # 'Ice Refill':make_room(191, [2]),
 # 'Ice Fairy':make_room(191, [1]),

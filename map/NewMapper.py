@@ -161,7 +161,7 @@ def create_dungeon_map(dungeon, portal, world, player):
     dungeon_floors = combine_floors(dungeon_floors, visited)
     for i, floor in enumerate(dungeon_floors):
         fill_out_floor(floor)
-        create_floor_image(floor, dungeon, f'{i + 1}f', player, world.seed)
+        create_floor_image(floor, dungeon, f'{i + 1}f', world, player)
 
 
 def combine_floors(dungeon_floors, visited):
@@ -293,7 +293,9 @@ def fill_out_floor(cur_floor):
                 cur_floor.add_node((x, y), GridNode('empty-tile.png', NodeType.Empty))
 
 
-def create_floor_image(cur_floor, dungeon, fid, player, seed):
+def create_floor_image(cur_floor, dungeon, fid, world, player):
+    multi = True if world.players > 1 else False
+    seed = world.seed
     im_cache = {}
     im_rows = []
     for y in range(cur_floor.minHeight, cur_floor.maxHeight):
@@ -301,12 +303,17 @@ def create_floor_image(cur_floor, dungeon, fid, player, seed):
         for x in range(cur_floor.minWidth, cur_floor.maxWidth):
             node = cur_floor.nodeMap[(x, y)]
             if node.image not in im_cache:
-                im = cv2.imread(f'data/room_images/{node.image}')
+                im = cv2.imread(f'data/room_images64/{node.image}')
                 im_cache[node.image] = im
             im_row.append(im_cache[node.image])
         im_rows.append((cv2.hconcat(im_row)))
     full_im = cv2.vconcat(im_rows)
-    os.makedirs('map_spoiler', exist_ok=True)
-    cv2.imwrite(f'map_spoiler/{dungeon}-{fid}-{player}-{seed}.png', full_im)
+    directory = f'map_spoiler/{seed}/{player}' if multi else f'map_spoiler/{seed}'
+    os.makedirs(directory, exist_ok=True)
+    if multi:
+        map_name = f'map_spoiler/{seed}/{player}/{dungeon}-{fid}.png'
+    else:
+        map_name = f'map_spoiler/{seed}/{dungeon}-{fid}.png'
+    cv2.imwrite(map_name, full_im)
 
 
