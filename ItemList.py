@@ -303,9 +303,17 @@ def generate_itempool(world, player):
             if shop.region.name in shop_to_location_table:
                 for index, slot in enumerate(shop.inventory):
                     if slot:
-                        pool.append(slot['item'])
+                        item = slot['item']
+                        if shop.region.name == 'Capacity Upgrade' and world.difficulty[player] != 'normal':
+                            pool.append('Rupees (20)')
+                        else:
+                            pool.append(item)
 
     items = ItemFactory(pool, player)
+    if world.shopsanity[player]:
+        for potion in ['Green Potion', 'Blue Potion', 'Red Potion']:
+            p_item = next(item for item in items if item.name == potion and item.player == player)
+            p_item.priority = True  # don't beemize one of each potion
 
     world.lamps_needed_for_dark_rooms = lamps_needed_for_dark_rooms
 
@@ -337,11 +345,11 @@ def generate_itempool(world, player):
         for hp in adv_heart_pieces:
             hp.advancement = True
 
-    beeweights = {0: {None: 100},
-                  1: {None: 75, 'trap': 25},
-                  2: {None: 40, 'trap': 40, 'bee': 20},
-                  3: {'trap': 50, 'bee': 50},
-                  4: {'trap': 100}}
+    beeweights = {'0': {None: 100},
+                  '1': {None: 75, 'trap': 25},
+                  '2': {None: 40, 'trap': 40, 'bee': 20},
+                  '3': {'trap': 50, 'bee': 50},
+                  '4': {'trap': 100}}
     def beemizer(item):
         if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
             choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
@@ -552,30 +560,31 @@ def customize_shops(world, player):
             shopkeeper = random.choice([0xC1, 0xA0, 0xE2, 0xE3])
             shop.shopkeeper_config = shopkeeper
     # handle capacity upgrades - randomly choose a bomb bunch or arrow bunch to become capacity upgrades
-    if not found_bomb_upgrade and len(possible_replacements) > 0:
-        choices = []
-        for shop, idx, loc, item in possible_replacements:
-            if item.name in ['Bombs (3)', 'Bombs (10)']:
-                choices.append((shop, idx, loc, item))
-        if len(choices) > 0:
-            shop, idx, loc, item = random.choice(choices)
-            upgrade = ItemFactory('Bomb Upgrade (+5)', player)
-            shop.add_inventory(idx, upgrade.name, randomize_price(upgrade.price), 6,
-                               item.name, randomize_price(item.price), player=item.player)
-            loc.item = upgrade
-            upgrade.location = loc
-    if not found_arrow_upgrade and len(possible_replacements) > 0:
-        choices = []
-        for shop, idx, loc, item in possible_replacements:
-            if item.name == 'Arrows (10)' or (item.name == 'Single Arrow' and not world.retro[player]):
-                choices.append((shop, idx, loc, item))
-        if len(choices) > 0:
-            shop, idx, loc, item = random.choice(choices)
-            upgrade = ItemFactory('Arrow Upgrade (+5)', player)
-            shop.add_inventory(idx, upgrade.name, randomize_price(upgrade.price), 6,
-                               item.name, randomize_price(item.price), player=item.player)
-            loc.item = upgrade
-            upgrade.location = loc
+    if world.difficulty[player] == 'normal':
+        if not found_bomb_upgrade and len(possible_replacements) > 0:
+            choices = []
+            for shop, idx, loc, item in possible_replacements:
+                if item.name in ['Bombs (3)', 'Bombs (10)']:
+                    choices.append((shop, idx, loc, item))
+            if len(choices) > 0:
+                shop, idx, loc, item = random.choice(choices)
+                upgrade = ItemFactory('Bomb Upgrade (+5)', player)
+                shop.add_inventory(idx, upgrade.name, randomize_price(upgrade.price), 6,
+                                   item.name, randomize_price(item.price), player=item.player)
+                loc.item = upgrade
+                upgrade.location = loc
+        if not found_arrow_upgrade and len(possible_replacements) > 0:
+            choices = []
+            for shop, idx, loc, item in possible_replacements:
+                if item.name == 'Arrows (10)' or (item.name == 'Single Arrow' and not world.retro[player]):
+                    choices.append((shop, idx, loc, item))
+            if len(choices) > 0:
+                shop, idx, loc, item = random.choice(choices)
+                upgrade = ItemFactory('Arrow Upgrade (+5)', player)
+                shop.add_inventory(idx, upgrade.name, randomize_price(upgrade.price), 6,
+                                   item.name, randomize_price(item.price), player=item.player)
+                loc.item = upgrade
+                upgrade.location = loc
     change_shop_items_to_rupees(world, player, shops_to_customize)
     balance_prices(world, player)
 

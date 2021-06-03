@@ -28,7 +28,7 @@ from ItemList import generate_itempool, difficulties, fill_prizes, customize_sho
 from Utils import output_path, parse_player_names
 from map.NewMapper import create_maps
 
-__version__ = '0.4.0.3-u'
+__version__ = '0.4.0.6-u'
 
 
 class EnemizerError(RuntimeError):
@@ -90,6 +90,7 @@ def main(args, seed=None, fish=None):
     world.standardize_palettes = args.standardize_palettes.copy()
     world.treasure_hunt_count = args.triforce_goal.copy()
     world.treasure_hunt_total = args.triforce_pool.copy()
+    world.shufflelinks = args.shufflelinks.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
 

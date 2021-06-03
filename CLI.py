@@ -74,7 +74,6 @@ def parse_cli(argv, no_defaults=False):
     parser.add_argument('--customitemarray', default={}, help=argparse.SUPPRESS)
 
     # included for backwards compatibility
-    parser.add_argument('--beemizer', default=defval(settings["beemizer"]), type=lambda value: min(max(int(value), 0), 4))
     parser.add_argument('--multi', default=defval(settings["multi"]), type=lambda value: min(max(int(value), 1), 255))
     parser.add_argument('--securerandom', default=defval(settings["securerandom"]), action='store_true')
     parser.add_argument('--teams', default=defval(1), type=lambda value: max(int(value), 1))
@@ -98,7 +97,7 @@ def parse_cli(argv, no_defaults=False):
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
                          'triforce_pool_min', 'triforce_pool_max', 'triforce_goal_min', 'triforce_goal_max',
-                         'triforce_min_difference', 'triforce_goal', 'triforce_pool',
+                         'triforce_min_difference', 'triforce_goal', 'triforce_pool', 'shufflelinks',
                          'retro', 'accessibility', 'hints', 'beemizer', 'experimental', 'dungeon_counters',
                          'shufflebosses', 'shuffleenemies', 'enemy_health', 'enemy_damage', 'shufflepots',
                          'ow_palettes', 'uw_palettes', 'sprite', 'disablemusic', 'quickswap', 'fastmenu', 'heartcolor', 'heartbeep',
@@ -143,6 +142,7 @@ def parse_settings():
         "openpyramid": False,
         "shuffleganon": True,
         "shuffle": "vanilla",
+        "shufflelinks": False,
 
         "shufflepots": False,
         "shuffleenemies": "none",
@@ -178,9 +178,7 @@ def parse_settings():
         "names": "",
         "securerandom": False,
 
-        # Hints default to TRUE
-        "hints": True,
-        "no_hints": False,
+        "hints": False,
         "disablemusic": False,
         "quickswap": False,
         "heartcolor": "red",

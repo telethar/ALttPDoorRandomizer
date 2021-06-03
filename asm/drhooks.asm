@@ -165,13 +165,19 @@ org $08c450 ; <- ancilla_receive_item.asm : 146-148 (STY $5D : STZ $02D8)
 JSL RetrieveBunnyState : NOP
 
 org $02d9ce ; <- Bank02.asm : Dungeon_LoadEntrance 10829 (STA $A0 : STA $048E)
-JSL CheckDarkWorldSanc : NOP
+JSL CheckDarkWorldSpawn : NOP
 
 org $01891e ; <- Bank 01.asm : 991 Dungeon_LoadType2Object (LDA $00 : XBA : AND.w #$00FF)
 JSL RainPrevention : NOP #2
 
 org $1edabf ; <- sprite_energy_ball.asm : 86-7 Sprite_EnergyBall (LDA.b #$10 : LDX.b #$00)
 JSL StandardAgaDmg
+
+
+org $09a681 ; < - similar to talalong.asm : 1157 (JSL Main_ShowTextMessage)
+JSL BlindsAtticHint : NOP #2
+org $1cfd69
+Main_ShowTextMessage:
 
 ; These two, if enabled together, have implications for vanilla BK doors in IP/Hera/Mire
 ; IPBJ is common enough to consider not doing this. Mire is not a concern for vanilla - maybe glitched modes

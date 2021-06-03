@@ -1,11 +1,37 @@
 # New Features
 
+## Maiden Hint for Theives Town Attic
+
+In crossed dungeon mode, if you bring the maiden to the boss room when the attic is not bombed (and thus no light in the room), she mentions the dungeon where you can find the cracked floor.
+
+## Shuffle Links House
+
+Links house can now be shuffled in different ER settings. It will be limited to the Light World (or Dark World in inverted) if Crossed or Insanity shuffle is not one. It it also limited if door shuffle settings allow the Sanctuary to be in the dark world. (This is prevent having no Light World spawn points in Open modes) This setting is ignored by standard mode. THe CLI parameter is --shufflelinks
+
 ## OWG Glitch Logic
 
 Thanks to qadan, cheuer, & compiling
 
 # Bug Fixes and Notes.
 
+* 0.4.0.6
+	* Hints now default to off
+	* The maiden gives you a hint to the attic if you bring her to the unlit boss room
+	* Beemizer support and fix for shopsanity
+	* Capacity upgrades removed in hard/expert item difficulties
+	* Swamp Hub added to lobby shuffle with ugly cave entrance.
+	* TR Lava Escape added to lobby shuffle.
+	* Hyrule Main Lobby and Sanctuary can now have a more visible outside exit, and rugs modified to be fully clipped. 
+* 0.4.0.5
+	* Insanity - less restrictions on exiting (all modes)
+	* Fix for simple bosses shuffle
+	* Fix for boss shuffle from Mystery.py
+	* Minor msu fade out bug (thanks codemann8)
+	* Other bug fixes (thanks Catobat)
+* 0.4.0.4
+	* Added --shufflelinks option
+	* Moved spawning as a bunny indoors to experimental
+	* Baserom bug fixes	
 * 0.4.0.3
 	* Fixed a bug where Sanctuary could be chosen as a lobby for a DW dungeon in non-crossed ER modes
 * 0.4.0.2
@@ -37,8 +63,7 @@ Thanks to qadan, cheuer, & compiling
 # Known Issues
 
 * Shopsanity Issues
-	* Hints for items in shops can be misleading
-	* Capacity upgrades present in hard/expert item pools
+	* Hints for items in shops can be misleading (ER)
 	* Forfeit in Multiworld not granting all shop items
 * Potential keylocks in multi-entrance dungeons
 * Incorrect vanilla key logic for Mire

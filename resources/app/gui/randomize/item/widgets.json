@@ -1,7 +1,10 @@
 {
   "checkboxes": {
     "retro": { "type": "checkbox" },
-    "shopsanity": { "type": "checkbox" }
+    "shopsanity": { "type": "checkbox" },
+    "hints": {
+      "type": "checkbox"
+    }
   },
   "leftItemFrame": {
     "worldstate": {
@@ -54,6 +57,12 @@
         "assured",
         "swordless",
         "vanilla"
+      ]
+    },
+    "beemizer": {
+      "type": "selectbox",
+      "options": [
+        "0", "1", "2", "3", "4"
       ]
     }
   },

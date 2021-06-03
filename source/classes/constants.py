@@ -55,6 +55,7 @@ CUSTOMITEMLABELS = [
 SETTINGSTOPROCESS = {
   "randomizer": {
     "item": {
+      "hints": "hints",
       "retro": "retro",
       "shopsanity": "shopsanity",
       "worldstate": "mode",
@@ -68,11 +69,13 @@ SETTINGSTOPROCESS = {
       "timer": "timer",
       "progressives": "progressive",
       "accessibility": "accessibility",
-      "sortingalgo": "algorithm"
+      "sortingalgo": "algorithm",
+      "beemizer": "beemizer"
     },
     "entrance": {
       "openpyramid": "openpyramid",
       "shuffleganon": "shuffleganon",
+      "shufflelinks": "shufflelinks",
       "entranceshuffle": "shuffle"
     },
     "enemizer": {
@@ -96,7 +99,6 @@ SETTINGSTOPROCESS = {
       "standardize_palettes": "standardize_palettes",
     },
     "gameoptions": {
-      "hints": "hints",
       "nobgm": "disablemusic",
       "quickswap": "quickswap",
       "heartcolor": "heartcolor",

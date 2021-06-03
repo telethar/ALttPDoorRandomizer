@@ -447,10 +447,16 @@ def choose_portals(world, player):
     if not hc_south.entranceFlag:
         world.get_room(0x61, player).delete(6)
         world.get_room(0x61, player).change(4, DoorKind.NormalLow)
+    else:
+        world.get_room(0x61, player).change(4, DoorKind.DungeonEntrance)
+        world.get_room(0x61, player).change(6, DoorKind.CaveEntranceLow)
     sanctuary_door = world.get_door('Sanctuary S', player)
     if not sanctuary_door.entranceFlag:
         world.get_room(0x12, player).delete(3)
         world.get_room(0x12, player).change(2, DoorKind.NormalLow)
+    else:
+        world.get_room(0x12, player).change(2, DoorKind.DungeonEntrance)
+        world.get_room(0x12, player).change(3, DoorKind.CaveEntranceLow)
     hera_door = world.get_door('Hera Lobby S', player)
     if not hera_door.entranceFlag:
         world.get_room(0x77, player).change(0, DoorKind.NormalLow2)
@@ -584,7 +590,12 @@ def assign_portal(candidates, possible_portals, world, player):
                 world.get_room(old_door.roomIndex, player).change(old_door.doorListPos, old_door_kind)
         portal.change_door(candidate)
         if candidate.name not in ['Hyrule Castle Lobby S', 'Sanctuary S']:
-            new_door_kind = DoorKind.DungeonEntranceLow if candidate.layer or candidate.pseudo_bg else DoorKind.DungeonEntrance
+            if candidate.name == 'Swamp Hub S':
+                new_door_kind = DoorKind.CaveEntranceLow
+            elif candidate.layer or candidate.pseudo_bg:
+                new_door_kind = DoorKind.DungeonEntranceLow
+            else:
+                new_door_kind = DoorKind.DungeonEntrance
             world.get_room(candidate.roomIndex, player).change(candidate.doorListPos, new_door_kind)
         candidate.entranceFlag = True
     return candidate, portal
@@ -2025,6 +2036,7 @@ class DROptions(Flag):
     Open_PoD_Wall = 0x40  # If on, pre opens the PoD wall, no bow required
     Open_Desert_Wall = 0x80  # If on, pre opens the desert wall, no fire required
     Hide_Total = 0x100
+    DarkWorld_Spawns = 0x200
 
 
 # DATA GOES DOWN HERE
@@ -2180,7 +2192,6 @@ logical_connections = [
 
     ('Ice Cross Bottom Push Block Left', 'Ice Floor Switch'),
     ('Ice Cross Right Push Block Top', 'Ice Bomb Drop'),
-    ('Ice Cross Top Push Block Bottom', 'Ice Compass Room'),
     ('Ice Conveyor to Crystal', 'Ice Conveyor - Crystal'),
     ('Ice Conveyor Crystal Exit', 'Ice Conveyor'),
     ('Ice Big Key Push Block', 'Ice Dead End'),

@@ -572,6 +572,18 @@ InroomStairsY:
 dw $0058, $0148, $0198, $0190
 
 
+org $27E000
+CutoffRooms:
+; TT Alcove, Mire Bridge Left & Right, Mire Bent Bridge, Mire Hub
+; Pod Falling & Harmless, SW Star Pits, TR Lava Escape & TR Dual Pipes, Bob's Room & GT Big Chest
+dw $00bc, $00a2, $00a3, $00c2, $001a, $0049, $0014, $008c
+; Ice Many Pots, Swamp Waterfall, GT Gauntlet 3, Eastern Push Block, Eastern Courtyard, Eastern Map Valley
+; Eastern Cannonball, HC East Hall
+dw $009f, $0066, $005d, $00a8, $00a9, $00aa, $00b9, $0052
+; HC West Hall, TR Dash Bridge, TR Hub, Pod Arena, GT Petting Zoo
+dw $0050, $00c5, $00c6, $0009, $0003, $002a, $007d
+dw $ffff
+
 ; dungeon tables
 ;   HC   HC   EP   DP   AT   SP   PD   MM   SW   IP   TH   TT   TR   GT
 org $27f000
@@ -669,6 +681,12 @@ db $07,$07,$02,$02,$02,$02,$07,$07,$07,$20,$20,$07,$20,$20,$20,$07
 ;27f300
 
 ;
-org $27ff00
-SancDarkWorldFlag:
-db 0
+;org $27ff00
+
+org $27fff0
+LinksHouseDarkWorld:
+dw $ffff
+SanctuaryDarkWorld:
+dw $ffff
+OldManDarkWorld:
+dw $ffff

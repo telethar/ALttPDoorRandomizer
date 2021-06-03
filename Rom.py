@@ -27,7 +27,7 @@ from EntranceShuffle import door_addresses, exit_ids
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '5c5111bcb73b033ddf72be5b8ea08a8e'
+RANDOMIZERBASEHASH = '47e937d11855bc775587fe2a7acfa3a3'
 
 
 class JsonRom(object):
@@ -655,6 +655,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         dr_flags |= DROptions.Rails
     if world.standardize_palettes[player] == 'original':
         dr_flags |= DROptions.OriginalPalettes
+    if world.experimental[player]:
+        dr_flags |= DROptions.DarkWorld_Spawns
 
 
     # fix hc big key problems (map and compass too)
@@ -664,6 +666,26 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         sanctuary = world.get_region('Sanctuary', player)
         rom.write_byte(0x1597b, sanctuary.dungeon.dungeon_id*2)
         update_compasses(rom, world, player)
+
+    def should_be_bunny(region, mode):
+        if mode != 'inverted':
+            return region.is_dark_world and not region.is_light_world
+        else:
+            return region.is_light_world and not region.is_dark_world
+
+    # dark world spawns
+    sanc_region = world.get_region('Sanctuary', player)
+    if should_be_bunny(sanc_region, world.mode[player]):
+        rom.write_bytes(0x13fff2, [0x12, 0x00])
+
+    lh_name = 'Links House' if world.mode[player] != 'inverted' else 'Inverted Links House'
+    links_house = world.get_region(lh_name, player)
+    if should_be_bunny(links_house, world.mode[player]):
+        rom.write_bytes(0x13fff0, [0x04, 0x01])
+
+    old_man_house = world.get_region('Old Man House', player)
+    if should_be_bunny(old_man_house, world.mode[player]):
+        rom.write_bytes(0x13fff4, [0xe4, 0x00])
 
     # patch doors
     if world.doorShuffle[player] == 'crossed':
@@ -951,7 +973,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     #Work around for json patch ordering issues - write bow limit separately so that it is replaced in the patch
     rom.write_bytes(0x180098, [difficulty.progressive_bow_limit, overflow_replacement])
 
-    if difficulty.progressive_bow_limit < 2 and world.swords == 'swordless':
+    if difficulty.progressive_bow_limit < 2 and world.swords[player] == 'swordless':
         rom.write_bytes(0x180098, [2, overflow_replacement])
 
     # set up game internal RNG seed
@@ -1295,9 +1317,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             if item.name != 'Piece of Heart' or equip[0x36B] == 0:
                 equip[0x36C] = min(equip[0x36C] + 0x08, 0xA0)
                 equip[0x36D] = min(equip[0x36D] + 0x08, 0xA0)
-        elif item.name == 'Pegasus Boots':
-            rom.write_byte(0x183015, 0x01)
-            ability_flags |= 0b00000100
         else:
             raise RuntimeError(f'Unsupported item in starting equipment: {item.name}')
 
@@ -1584,6 +1603,9 @@ def write_custom_shops(rom, world, player):
                 loc_item = world.get_location(retro_shops[shop.region.name][index], player).item
             else:
                 loc_item = ItemFactory(item['item'], player)
+            if (not world.shopsanity[player] and shop.region.name == 'Capacity Upgrade'
+               and world.difficulty[player] != 'normal'):
+                continue  # skip cap upgrades except in normal/shopsanity
             item_id = loc_item.code
             price = int16_as_bytes(item['price'])
             replace = ItemFactory(item['replacement'], player).code if item['replacement'] else 0xFF
@@ -2010,7 +2032,7 @@ def write_strings(rom, world, player, team):
         if world.doorShuffle[player] in ['crossed']:
             attic_hint = world.get_location("Thieves' Town - Attic", player).parent_region.dungeon.name
             this_hint = 'A cracked floor can be found in ' + attic_hint + '.'
-            if hint_locations[0] == 'telepathic_tile_thieves_town_upstairs':
+            if world.intensity[player] < 2 and hint_locations[0] == 'telepathic_tile_thieves_town_upstairs':
                 tt[hint_locations.pop(1)] = this_hint
             else:
                 tt[hint_locations.pop(0)] = this_hint
@@ -2098,6 +2120,17 @@ def write_strings(rom, world, player, team):
     bombositem = world.get_location('Bombos Tablet', player).item
     bombos_text = 'Some Hot Air' if bombositem is None else hint_text(bombositem, True) if bombositem.pedestal_hint_text is not None else 'Unknown Item'
     tt['tablet_bombos_book'] = bombos_text
+
+    # attic hint
+    if world.doorShuffle[player] in ['crossed']:
+        attic_hint = world.get_location("Thieves' Town - Attic", player).parent_region.dungeon.name
+        tt['blind_not_that_way'] = f'{attic_hint} is too bright for my eyes'
+        # see tagalog.asm tables at 957,967 or Follower_HandleTrigger in JPDASM
+        # also the baserom table at org $09A4C2 in hooks.asm (Escort text)
+        rom.write_byte(0x04a4be, 0xac)  # change the room to blind's room
+        rom.write_byte(0x04a526, 0xb8)  # y coordinate, shifted down
+        rom.write_byte(0x04a529, 0x19)  # x tile shifted right a few tiles
+        rom.write_byte(0x04a52e, 0x06)  # follower set to blind maiden
 
     # inverted spawn menu changes
     if world.mode[player] == 'inverted':

@@ -640,7 +640,8 @@ def bomb_rules(world, player):
         add_rule(world.get_entrance('TR Lazy Eyes SE', player), lambda state: state.can_use_bombs(player)) # ToDo: Add always true for inverted, cross-entrance, and door-variants and so on.
         add_rule(world.get_entrance('Turtle Rock Ledge Exit (West)', player), lambda state: state.can_use_bombs(player)) # Is this the same as above?
 
-        dungeon_bonkable = ['PoD Warp Hint SE', 'PoD Jelly Hall NW', 'PoD Jelly Hall NE', 'PoD Mimics 1 SW',
+        dungeon_bonkable = ['Sewers Rat Path WS', 'Sewers Rat Path WN',
+                            'PoD Warp Hint SE', 'PoD Jelly Hall NW', 'PoD Jelly Hall NE', 'PoD Mimics 1 SW',
                             'Thieves Ambush E', 'Thieves Rail Ledge W',
                             'TR Dash Room NW', 'TR Crystaroller SW', 'TR Dash Room ES',
                             'GT Four Torches NW','GT Fairy Abyss SW'
@@ -1668,7 +1669,7 @@ def set_bunny_rules(world, player, inverted):
     # Note spiral cave may be technically passible, but it would be too absurd to require since OHKO mode is a thing.
     bunny_impassable_caves = ['Bumper Cave', 'Two Brothers House', 'Hookshot Cave',
                               'Pyramid', 'Spiral Cave (Top)', 'Fairy Ascension Cave (Drop)']
-    bunny_accessible_locations = ['Link\'s House', 'Link\'s Uncle', 'Sahasrahla', 'Sick Kid', 'Lost Woods Hideout', 'Lumberjack Tree',
+    bunny_accessible_locations = ['Link\'s Uncle', 'Sahasrahla', 'Sick Kid', 'Lost Woods Hideout', 'Lumberjack Tree',
                                   'Checkerboard Cave', 'Potion Shop', 'Spectacle Rock Cave', 'Pyramid',
                                   'Hype Cave - Generous Guy', 'Peg Cave', 'Bumper Cave Ledge', 'Dark Blacksmith Ruins',
                                   'Spectacle Rock', 'Bombos Tablet', 'Ether Tablet', 'Purple Chest', 'Blacksmith',

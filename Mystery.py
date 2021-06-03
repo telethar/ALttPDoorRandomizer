@@ -142,6 +142,7 @@ def roll_settings(weights):
     if ret.dungeon_counters == 'default':
         ret.dungeon_counters = 'pickup' if ret.door_shuffle != 'vanilla' or ret.compassshuffle == 'on' else 'off'
 
+    ret.shufflelinks = get_choice('shufflelinks') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
     ret.keydropshuffle = get_choice('keydropshuffle') == 'on'
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
@@ -186,9 +187,9 @@ def roll_settings(weights):
 
     ret.item_functionality = get_choice('item_functionality')
 
-    old_style_bosses = {'simple': 'basic',
-                        'full': 'normal',
-                        'random': 'chaos'}
+    old_style_bosses = {'basic': 'simple',
+                        'normal': 'full',
+                        'chaos': 'random'}
     boss_choice = get_choice('boss_shuffle')
     if boss_choice in old_style_bosses.keys():
         boss_choice = old_style_bosses[boss_choice]
@@ -208,7 +209,7 @@ def roll_settings(weights):
 
     ret.shufflepots = get_choice('pot_shuffle') == 'on'
 
-    ret.beemizer = int(get_choice('beemizer')) if 'beemizer' in weights else 0
+    ret.beemizer = get_choice('beemizer') if 'beemizer' in weights else '0'
 
     inventoryweights = weights.get('startinventory', {})
     startitems = []
