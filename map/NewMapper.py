@@ -31,9 +31,10 @@ class DefermentQueue(object):
         self.warp = {}
         self.collision = {}
         self.floor = {}
+        self.portals = []
 
     def any_ready(self):
-        return len(self.warp) > 0 or len(self.collision) > 0 or len(self.floor) > 0
+        return len(self.warp) > 0 or len(self.collision) > 0 or len(self.floor) > 0 or len(self.portals) > 0
 
 
 class VisitedData(object):
@@ -70,8 +71,6 @@ def slide_cursor(pos, direction):
     if direction == Direction.East:
         return pos[0]-1, pos[1]
 
-# todo: warp affinity - for placing certain warps near each other
-
 
 def create_maps(world):
     for player in range(1, world.players+1):
@@ -80,10 +79,15 @@ def create_maps(world):
             portal_list = dungeon_portals[dungeon]
             if len(portal_list) == 1:
                 portal = world.get_portal(next(iter(portal_list)), player)
-                create_dungeon_map(dungeon, portal, world, player)
+                create_dungeon_map(dungeon, portal, [], world, player)
+            else:
+                portal = world.get_portal(next(iter(portal_list)), player)
+                others = [world.get_portal(x, player) for x in portal_list if x != portal.name]
+                create_dungeon_map(dungeon, portal, others, world, player)
+                # todo: drops
 
 
-def create_dungeon_map(dungeon, portal, world, player):
+def create_dungeon_map(dungeon, portal, others, world, player):
     dungeon_floors = []
     door = portal.door
     init_pos = (5, 7) if door.doorIndex == 2 else (4, 7)
@@ -93,41 +97,47 @@ def create_dungeon_map(dungeon, portal, world, player):
     visited.doors.add(door)
     queue = deque([(door, init_pos, init_floor)])
     deferred = DefermentQueue()
+    deferred.portals.extend(others)
     while len(queue) > 0:
         door, current_pos, cur_floor = queue.popleft()
         if door.entranceFlag:
             cur_floor.add_node(current_pos, GridNode('entrance-arrow.png', NodeType.Entrance))
-            if current_pos == init_pos:  # todo: remember to reset init_pos on starting a new portal
+            if current_pos == init_pos:
                 region, dest = door.entrance.parent_region, door.name
+                init_pos = None
             else:
-                # todo: remove from portal deferred?
+                found_portal = next((x for x in deferred.portals if x.door == door), None)
+                # remove from portal deferred
+                if found_portal:
+                    deferred.portals.remove(found_portal)
                 region, dest = None, None
         else:
             region, dest = door.entrance.connected_region, door.dest.name
-        if region and region in visited.regions:
-            continue
-        if region and region.name in region_to_rooms:
-            map_node = region_to_rooms[region.name]
-            direction = special_warps[door.name] if door.name in special_warps else door.direction
-            match_point = current_pos if door.entranceFlag else slide_cursor(current_pos, direction)
-            shift, match_node = cur_floor.match_items(map_node, match_point, dest)
-            if not cur_floor.check_for_collisions(map_node, shift, match_node, current_pos):
-                cur_floor.merge_map(map_node, shift, match_node)
-                visited.connect(door)
-                visited.regions.add(region)
-                if region in deferred.collision:
-                    del deferred.collision[region]
-                queue_doors_for_new_region(cur_floor, queue, region, deferred, visited)
+        if region and region not in visited.regions:
+            if region.name in region_to_rooms:
+                covering_floor = covered(region, dungeon_floors)
+                if not covering_floor:
+                    map_node = region_to_rooms[region.name]
+                    direction = special_warps[door.name] if door.name in special_warps else door.direction
+                    match_point = current_pos if door.entranceFlag else slide_cursor(current_pos, direction)
+                    shift, match_node = cur_floor.match_items(map_node, match_point, dest)
+                    if match_node and not cur_floor.check_for_collisions(map_node, shift, match_node, current_pos):
+                        cur_floor.merge_map(map_node, shift, match_node)
+                        visited.connect(door)
+                        visited.regions.add(region)
+                        if region in deferred.collision:
+                            del deferred.collision[region]
+                        queue_doors_for_new_region(cur_floor, queue, region, deferred, visited)
+                    else:
+                        if region.name in deferred.collision:
+                            collision_options = deferred.collision[region]
+                        else:
+                            collision_options = []
+                            deferred.collision[region] = collision_options
+                        collision_options.append((door, current_pos, cur_floor))
+                        # this is where we'd adjust things via connectors or create a new floor
             else:
-                if region.name in deferred.collision:
-                    collision_options = deferred.collision[region]
-                else:
-                    collision_options = []
-                    deferred.collision[region] = collision_options
-                collision_options.append((door, current_pos, cur_floor))
-                # this is where we'd adjust things via connectors or create a new floor
-        if region and region.name not in region_to_rooms:
-            logging.getLogger('').warning(f'{region} does not have map data')
+                logging.getLogger('').warning(f'{region} does not have map data')
         while len(queue) == 0 and deferred.any_ready():
             if len(deferred.warp) > 0:
                 d = next(iter(deferred.warp.values()))
@@ -157,7 +167,19 @@ def create_dungeon_map(dungeon, portal, world, player):
                             visited.regions.add(region)
                             queue_doors_for_new_region(covering_floor, queue, region, deferred, visited)
                 del deferred.floor[d.name]
-            # todo: check the portal deferred
+            elif len(deferred.portals) > 0:
+                next_portal = deferred.portals.pop(0)
+                d = next_portal.door
+                if d not in visited.doors:
+                    region = d.entrance.parent_region
+                    if region not in visited.regions:
+                        covering_floor = covered(region, dungeon_floors)
+                        if not covering_floor:
+                            add_new_portal_floor(dungeon_floors, deferred, queue, region, visited, d)
+                        elif isinstance(covering_floor, GridMap):
+                            visited.regions.add(region)
+                            queue_doors_for_new_region(covering_floor, queue, region, deferred, visited)
+
     dungeon_floors = combine_floors(dungeon_floors, visited)
     for i, floor in enumerate(dungeon_floors):
         fill_out_floor(floor)
@@ -180,7 +202,38 @@ def combine_floors(dungeon_floors, visited):
                     visited.unconnected = {d: (f if f != dest_floor else floor) for d, f in visited.unconnected.items()}
             del visited.unconnected[door.dest]
         del visited.unconnected[door]
+    # more squishing, but not every combination    
+    i = 0
+    while i + 1 < len(dungeon_floors):
+        target = dungeon_floors[i + 1]
+        floor = dungeon_floors[i]
+        spot = floor.can_add(target)
+        if spot:
+            floor.merge_map(target, spot, None)
+            dungeon_floors.remove(target)
+        else:
+            i += 1
     return dungeon_floors
+
+
+def add_new_portal_floor(dungeon_floors, deferred, queue, region, visited, door):
+    init_pos = (5, 7) if door.doorIndex == 2 else (4, 7)
+    new_floor = GridMap()
+    new_floor.add_node(init_pos, GridNode('entrance-arrow.png', NodeType.Entrance))
+    map_node = region_to_rooms[region.name]
+    direction = special_warps[door.name] if door.name in special_warps else door.direction
+    match_point = init_pos if door.entranceFlag else slide_cursor(init_pos, direction)
+    shift, match_node = new_floor.match_items(map_node, match_point, door.name)
+    if match_node and not new_floor.check_for_collisions(map_node, shift, match_node, init_pos):
+        new_floor.merge_map(map_node, shift, match_node)
+        visited.connect(door)
+        visited.regions.add(region)
+        if region in deferred.collision:
+            del deferred.collision[region]
+        queue_doors_for_new_region(new_floor, queue, region, deferred, visited)
+        dungeon_floors.append(new_floor)
+    else:
+        logging.getLogger('').error(f'No match node or early collision for {door}')
 
 
 def add_new_floor(dungeon_floors, deferred, queue, region, visited):
@@ -305,7 +358,10 @@ def create_floor_image(cur_floor, dungeon, fid, world, player):
             if node.image not in im_cache:
                 im = cv2.imread(f'data/room_images64/{node.image}')
                 im_cache[node.image] = im
-            im_row.append(im_cache[node.image])
+            image = im_cache[node.image]
+            if image is None:
+                logging.getLogger('').error(f'{node.image} is not found')
+            im_row.append(image)
         im_rows.append((cv2.hconcat(im_row)))
     full_im = cv2.vconcat(im_rows)
     directory = f'map_spoiler/{seed}/{player}' if multi else f'map_spoiler/{seed}'
