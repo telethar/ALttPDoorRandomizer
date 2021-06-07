@@ -570,7 +570,7 @@ def extract_data_from_us_rom(rom):
     with open(rom, 'rb') as stream:
         rom_data = bytearray(stream.read())
 
-    rooms = [0x1c, 0x1d, 0x4e]
+    rooms = [0xa9, 0xaa, 0xbe]
     # rooms = [0x9a, 0x69, 0x78, 0x79, 0x7a, 0x88, 0x8a, 0xad]
     for room in rooms:
         b2idx = room*2
@@ -696,7 +696,7 @@ def extract_data_from_jp_rom(rom):
     with open(rom, 'rb') as stream:
         rom_data = bytearray(stream.read())
 
-    rooms = [0x1c, 0x1d, 0x4e]
+    rooms = [0xa9, 0xaa, 0xbe]
     # rooms = [0x7b, 0x7c, 0x7d, 0x8b, 0x8c, 0x8d, 0x9b, 0x9c, 0x9d]
     # rooms = [0x1a, 0x2a, 0xd1]
     for room in rooms:

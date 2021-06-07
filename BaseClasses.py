@@ -645,8 +645,8 @@ class CollectionState(object):
                     new_regions = set(t_rrp) - set(rrp)
                     forced_keys = 0
                     for region in new_regions:
-                        for location in region.locations:
-                            if location.forced_item and location.item.name == dungeon_keys[dungeon_name]:
+                        for l in region.locations:
+                            if l.forced_item and l.item and l.item.name == dungeon_keys[dungeon_name]:
                                 forced_keys += 1
                     if first:
                         first = False

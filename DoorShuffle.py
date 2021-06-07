@@ -1590,6 +1590,8 @@ def reassign_key_doors(builder, world, player):
             for dp in world.paired_doors[player]:
                 if dp.door_a == d.name or dp.door_b == d.name:
                     dp.pair = False
+        elif d.type is DoorType.Normal and d.entranceFlag and d.smallKey:
+            d.smallKey = False
     for obj in proposal:
         if type(obj) is tuple:
             d1 = obj[0]
