@@ -1,5 +1,6 @@
 import logging
 from collections import deque
+from itertools import chain
 
 from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier
 from BaseClasses import RuleFactory
@@ -129,10 +130,10 @@ def global_rules(world, player):
     set_rule(world.get_location('Spike Cave', player), and_rule(
         has('Hammer', player), can_lift_rocks(player),
         or_rule(
-            and_rule(has('Cape', player), can_extend_magic(player, 16, True)),
+            and_rule(has('Cape', player), can_extend_magic(player, 16, world, True)),
             and_rule(has('Cane of Byrna', player),
                      or_rule(
-                         can_extend_magic(player, 12, True),
+                         can_extend_magic(player, 12, world, True),
                          and_rule(flag(world.can_take_damage),
                                   or_rule(has('Pegasus Boots', player), RuleFactory.hearts(4, player)))
                      ))
@@ -410,7 +411,7 @@ def global_rules(world, player):
              and_rule(has_beam_sword(player), has_fire_source(player), RuleFactory.crystals(world.crystals_needed_for_ganon[player], player),
                       or_rule(or_rule(has('Tempered Sword', player), has('Golden Sword', player)),
                               and_rule(has('Silver Arrows', player), can_shoot_arrows(world, player)),
-                              has('Lamp', player), can_extend_magic(player, 12, False))))  # need to light torch a sufficient amount of times
+                              has('Lamp', player), can_extend_magic(player, 12, world, False))))  # need to light torch a sufficient amount of times
     set_rule(world.get_entrance('Ganon Drop', player), has_beam_sword(player))  # need to damage ganon to get tiles to drop
 
 
@@ -1648,7 +1649,7 @@ def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     for d_name, d_logic in key_logic.items():
         for door_name, rule in d_logic.door_rules.items():
-            add_rule(world.get_entrance(door_name, player), RuleFactory.small_key_door(door_name, d_name, player))
+            add_rule(world.get_entrance(door_name, player), RuleFactory.small_key_door(door_name, d_name, player, rule))
         # for door_name, keys in d_logic.door_rules.items():
         #     spot = world.get_entrance(door_name, player)
         #     if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
@@ -1665,110 +1666,11 @@ def add_key_logic_rules(world, player):
             add_rule(world.get_entrance(door.name, player), has(d_logic.bk_name, player))
         for chest in d_logic.bk_chests:
             add_rule(world.get_location(chest.name, player), has(d_logic.bk_name, player))
-    if world.retro[player]:
+    if world.retro[player]:  # todo: retro
         for d_name, layout in world.key_layout[player].items():
             for door in layout.flat_prop:
                 if world.mode[player] != 'standard' or not retro_in_hc(door.entrance):
                     add_rule(door.entrance, create_key_rule('Small Key (Universal)', world, player, 1))
-
-
-def should_visit(new_region, rrp, crystal_state, logic, player):
-    if not new_region:
-        return False
-    if new_region not in rrp[player]:
-        return True
-    record = rrp[player][new_region]
-    logic_is_different = is_logic_different(logic, record[1])
-    if new_region.type != RegionType.Dungeon and logic_is_different:
-        return True
-    return (record[0] & crystal_state) != record[0] or logic_is_different
-
-
-def should_defer():
-    pass
-    # todo: check if we can already access the deferment
-
-
-def is_logic_different(current_logic, old_logic):
-    if isinstance(old_logic, list):
-        for oldie in old_logic:
-            logic_diff = oldie - current_logic
-            if len(logic_diff) == 0:
-                return False
-        return True
-    elif isinstance(current_logic, list):
-        for current in current_logic:
-            logic_diff = old_logic - current
-            if len(logic_diff) == 0:
-                return False
-        return True
-    else:
-        logic_diff = old_logic - current_logic
-        return len(logic_diff) > 0
-
-
-def get_all_state(world, keys=False):
-    ret = CollectionState(world)
-
-    def soft_collect(item):
-        if item.name.startswith('Progressive '):
-            if 'Sword' in item.name:
-                if ret.has('Golden Sword', item.player):
-                    pass
-                elif ret.has('Tempered Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 4:
-                    ret.prog_items['Golden Sword', item.player] += 1
-                elif ret.has('Master Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 3:
-                    ret.prog_items['Tempered Sword', item.player] += 1
-                elif ret.has('Fighter Sword', item.player) and world.difficulty_requirements[item.player].progressive_sword_limit >= 2:
-                    ret.prog_items['Master Sword', item.player] += 1
-                elif world.difficulty_requirements[item.player].progressive_sword_limit >= 1:
-                    ret.prog_items['Fighter Sword', item.player] += 1
-            elif 'Glove' in item.name:
-                if ret.has('Titans Mitts', item.player):
-                    pass
-                elif ret.has('Power Glove', item.player):
-                    ret.prog_items['Titans Mitts', item.player] += 1
-                else:
-                    ret.prog_items['Power Glove', item.player] += 1
-            elif 'Shield' in item.name:
-                if ret.has('Mirror Shield', item.player):
-                    pass
-                elif ret.has('Red Shield', item.player) and world.difficulty_requirements[item.player].progressive_shield_limit >= 3:
-                    ret.prog_items['Mirror Shield', item.player] += 1
-                elif ret.has('Blue Shield', item.player) and world.difficulty_requirements[item.player].progressive_shield_limit >= 2:
-                    ret.prog_items['Red Shield', item.player] += 1
-                elif world.difficulty_requirements[item.player].progressive_shield_limit >= 1:
-                    ret.prog_items['Blue Shield', item.player] += 1
-            elif 'Bow' in item.name:
-                if ret.has('Silver Arrows', item.player):
-                    pass
-                elif ret.has('Bow', item.player) and world.difficulty_requirements[item.player].progressive_bow_limit >= 2:
-                    ret.prog_items['Silver Arrows', item.player] += 1
-                elif world.difficulty_requirements[item.player].progressive_bow_limit >= 1:
-                    ret.prog_items['Bow', item.player] += 1
-        elif item.name.startswith('Bottle'):
-            if ret.bottle_count(item.player) < world.difficulty_requirements[item.player].progressive_bottle_limit:
-                ret.prog_items[item.name, item.player] += 1
-        elif item.advancement or item.smallkey or item.bigkey:
-            ret.prog_items[item.name, item.player] += 1
-
-    for item in world.itempool:
-        soft_collect(item)
-
-    if keys:
-        for p in range(1, world.players + 1):
-            key_list = []
-            player_dungeons = [x for x in world.dungeons if x.player == p]
-            for dungeon in player_dungeons:
-                if dungeon.big_key is not None:
-                    key_list += [dungeon.big_key.name]
-                if len(dungeon.small_keys) > 0:
-                    key_list += [x.name for x in dungeon.small_keys]
-            from Items import ItemFactory
-            for item in ItemFactory(key_list, p):
-                soft_collect(item)
-    ret.sweep_for_events()
-    return ret
 
 
 def retro_in_hc(spot):
@@ -1801,18 +1703,18 @@ def create_key_rule_bk_exception_or_allow(small_key_name, big_key_name, world, p
                    and_rule(checks, has_sm_key(small_key_name, world, player, bk_keys)))
 
 
-def create_advanced_key_rule(key_logic, world, player, rule):
-    if not rule.allow_small and rule.alternate_small_key is None:
-        return create_key_rule(key_logic.small_key_name, world, player, rule.small_key_num)
-    if rule.allow_small and rule.alternate_small_key is None:
-        return create_key_rule_allow_small(key_logic.small_key_name, world, player, rule.small_key_num, rule.small_location)
-    if not rule.allow_small and rule.alternate_small_key is not None:
-        return create_key_rule_bk_exception(key_logic.small_key_name, key_logic.bk_name, world, player,
-                                            rule.small_key_num, rule.alternate_small_key, rule.alternate_big_key_loc)
-    if rule.allow_small and rule.alternate_small_key is not None:
-        return create_key_rule_bk_exception_or_allow(key_logic.small_key_name, key_logic.bk_name, world, player,
-                                                     rule.small_key_num, rule.small_location, rule.alternate_small_key,
-                                                     rule.alternate_big_key_loc)
+# def create_advanced_key_rule(key_logic, world, player, rule):
+#     if not rule.allow_small and rule.alternate_small_key is None:
+#         return create_key_rule(key_logic.small_key_name, world, player, rule.small_key_num)
+#     if rule.allow_small and rule.alternate_small_key is None:
+#         return create_key_rule_allow_small(key_logic.small_key_name, world, player, rule.small_key_num, rule.small_location)
+#     if not rule.allow_small and rule.alternate_small_key is not None:
+#         return create_key_rule_bk_exception(key_logic.small_key_name, key_logic.bk_name, world, player,
+#                                             rule.small_key_num, rule.alternate_small_key, rule.alternate_big_key_loc)
+#     if rule.allow_small and rule.alternate_small_key is not None:
+#         return create_key_rule_bk_exception_or_allow(key_logic.small_key_name, key_logic.bk_name, world, player,
+#                                                      rule.small_key_num, rule.small_location, rule.alternate_small_key,
+#                                                      rule.alternate_big_key_loc)
 
 
 # short cut rules
@@ -1875,11 +1777,17 @@ def has_blunt_weapon(player):
     return or_rule(has_sword(player), has('Hammer', player))
 
 
+def find_shops_that_sell(item, world, player):
+    return {shop.region for shop in world.shops[player] if shop.has_unlimited(item) and shop.region.player == player}
+
 def can_shoot_arrows(world, player):
     if world.retro[player]:
         # todo: Non-progressive silvers grant wooden arrows, but progressive bows do not.
         # Always require shop arrows to be safe
-        return and_rule(has('Bow', player), RuleFactory.unlimited('Single Arrow', player))
+        shops = find_shops_that_sell('Single Arrow', world, player)
+        # retro+shopsanity, shops may not sell the Single Arrow
+        return and_rule(has('Bow', player), or_rule(RuleFactory.unlimited('Single Arrow', player, shops),
+                                                    has('Single Arrow', player)))
     return has('Bow', player)
 
 
@@ -1906,8 +1814,10 @@ def can_reach_orange(region, player):
     return RuleFactory.barrier(region, player, CrystalBarrier.Orange)
 
 
-def can_extend_magic(player, magic, flag_t=False):
-    return RuleFactory.extend_magic(player, magic, flag_t)
+def can_extend_magic(player, magic, world, flag_t=False):
+    potion_shops = (find_shops_that_sell('Blue Potion', world, player) |
+                    find_shops_that_sell('Green Potion', world, player))
+    return RuleFactory.extend_magic(player, magic, world.difficulty_adjustments[player], potion_shops, flag_t)
 
 
 def is_not_bunny(world, player, region):
@@ -1939,7 +1849,8 @@ def has_sm_key(item, world, player, count=1):
     if world.retro[player]:
         if world.mode[player] == 'standard' and world.doorShuffle[player] == 'vanilla' and item == 'Small Key (Escape)':
             return flag(True)  # Cannot access the shop until escape is finished.  This is safe because the key is manually placed in make_custom_item_pool
-        return RuleFactory.unlimited('Small Key (Universal)', player)
+        shops = find_shops_that_sell('Small Key (Universal)', world, player)
+        return RuleFactory.unlimited('Small Key (Universal)', player, shops)
     if count == 1:
         return has(item, player)
     return has(item, player, count)

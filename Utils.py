@@ -158,18 +158,9 @@ def ncr(n, r):
 # requirement utility methods
 def merge_requirements(starting_requirements, new_requirements):
     merge = []
-    if isinstance(starting_requirements, list):
-        for req in starting_requirements:
-            if isinstance(new_requirements, list):
-                for new_r in new_requirements:
-                    merge.append(req | new_r)
-            else:
-                merge.append(req | new_requirements)
-    elif isinstance(new_requirements, list):
+    for req in starting_requirements:
         for new_r in new_requirements:
-            merge.append(starting_requirements | new_r)
-    else:
-        return reduce_requirements(starting_requirements | new_requirements)
+            merge.append(req.merge(new_r))
     return reduce_requirements(merge)
 
 
@@ -178,45 +169,34 @@ only_one = {'Moon Pearl', 'Hammer', 'Blue Boomerang', 'Red Boomerang', 'Hookshot
             'Book of Mudora', 'Magic Mirror', 'Cape', 'Cane of Somaria', 'Cane of Byrna', 'Flippers', 'Pegasus Boots'}
 
 
-def standardize_requirements(requirements):
-    if not isinstance(requirements, list):
-        requirements = [requirements]
+def standardize_requirements(requirements, progressive_flag):
+    assert isinstance(requirements, list)
     for req in requirements:
-        for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
-            req[item] = 1
-        substitute_progressive(req)  # todo: work with non-progressives?
+        for thing in req.get_values():
+            if thing.item in only_one and thing.amount > 1:
+                thing.amount = 1
+        if progressive_flag:
+            substitute_progressive(req)
     return reduce_requirements(requirements)
 
 
 def reduce_requirements(requirements):
-    if not isinstance(requirements, list):
-        requirements = [requirements]
-    # if len(requirements) == 0:
-    #     return requirements
-    # for req in requirements:
-    #     for item in [x for x in req.keys() if x in only_one and req[x] > 1]:
-    #         req[item] = 1
-    #     substitute_progressive(req)
     removals = []
-    reduced = []
-    for req in requirements:
-        if req not in reduced:
-            reduced.append(req)
+    reduced = list(requirements)
     # subset manip
-    for i, req in enumerate(reduced):
-        for j, other_req in enumerate(reduced):
-            if i >= j:
-                continue
-            union_set = req | other_req
-            if all(req[k] >= other_req[k] for k in union_set):
+    ttl = len(reduced)
+    for i in range(0, ttl - 1):
+        for j in range(i + 1, ttl):
+            req, other_req = reduced[i], reduced[j]
+            if req.redundant(other_req):
                 removals.append(req)
-            if all(other_req[k] >= req[k] for k in union_set):
+            elif other_req.redundant(req):
                 removals.append(other_req)
     for removal in removals:
         if removal in reduced:
             reduced.remove(removal)
     assert len(reduced) != 0
-    return reduced[0] if len(reduced) == 1 else list(reduced)
+    return reduced
 
 
 progress_sub = {
@@ -236,11 +216,10 @@ progress_sub = {
 }
 
 
-def substitute_progressive(req_counter):
-    for item in [x for x in req_counter.keys() if x in progress_sub.keys()]:
-        progressive_item, count = progress_sub[item]
-        req_counter[progressive_item] = count
-        del req_counter[item]
+def substitute_progressive(req):
+    for item in req.get_values():
+        if item.item in progress_sub.keys():
+            item.item, item.amount = progress_sub[item.item]
 
 
 entrance_offsets = {

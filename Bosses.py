@@ -3,7 +3,8 @@ import random
 
 from BaseClasses import Boss
 from Fill import FillError
-from Rules import has_blunt_weapon, can_shoot_arrows, can_extend_magic, has, or_rule, and_rule, has_sword, can_get_good_bee, flag
+from Rules import has_blunt_weapon, can_shoot_arrows, can_extend_magic, has, or_rule, and_rule, has_sword
+from Rules import can_get_good_bee, flag
 
 
 def BossFactory(boss, world, player):
@@ -22,10 +23,10 @@ def ArmosKnightsDefeatRule(world, player):
     return or_rule(
         has_blunt_weapon(player),
         can_shoot_arrows(world, player),
-        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 10)),
-        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16)),
-        and_rule(has('Ice Rod', player), can_extend_magic(player, 32)),
-        and_rule(has('Fire Rod', player), can_extend_magic(player, 32)),
+        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 10, world)),
+        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16, world)),
+        and_rule(has('Ice Rod', player), can_extend_magic(player, 32, world)),
+        and_rule(has('Fire Rod', player), can_extend_magic(player, 32, world)),
         has('Blue Boomerang', player),
         has('Red Boomerang', player))
 
@@ -55,8 +56,8 @@ def ArrghusDefeatRule(world, player):
         or_rule(
             has_blunt_weapon(player),
             or_rule(
-                and_rule(has('Fire Rod', player), or_rule(can_extend_magic(player, 12), can_shoot_arrows(world, player))),  # assuming mostly getting two puff with one shot
-                and_rule(has('Ice Rod', player), or_rule(can_extend_magic(player, 16), can_shoot_arrows(world, player)))
+                and_rule(has('Fire Rod', player), or_rule(can_extend_magic(player, 12, world), can_shoot_arrows(world, player))),  # assuming mostly getting two puff with one shot
+                and_rule(has('Ice Rod', player), or_rule(can_extend_magic(player, 16, world), can_shoot_arrows(world, player)))
             )
             # TODO: ideally we would have a check for bow and silvers, which combined with the
             # hookshot is enough. This is not coded yet because the silvers that only work in pyramid feature
@@ -68,11 +69,11 @@ def ArrghusDefeatRule(world, player):
 def MothulaDefeatRule(world, player):
     return or_rule(
         has_blunt_weapon(player),
-        and_rule(has('Fire Rod', player), can_extend_magic(player, 10)),
+        and_rule(has('Fire Rod', player), can_extend_magic(player, 10, world)),
         # TODO: Not sure how much (if any) extend magic is needed for these two, since they only apply
         # to non-vanilla locations, so are harder to test, so sticking with what VT has for now:
-        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 16)),
-        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16)),
+        and_rule(has('Cane of Somaria', player), can_extend_magic(player, 16, world)),
+        and_rule(has('Cane of Byrna', player), can_extend_magic(player, 16, world)),
         can_get_good_bee(world, player)
     )
 
@@ -93,13 +94,13 @@ def KholdstareDefeatRule(world, player):
         ),
         or_rule(
             has_blunt_weapon(player),
-            and_rule(has('Fire Rod', player), can_extend_magic(player, 20)),
+            and_rule(has('Fire Rod', player), can_extend_magic(player, 20, world)),
             # FIXME: this actually only works for the vanilla location for swordless
             and_rule(
                 has('Fire Rod', player),
                 has('Bombos', player),
                 flag(world.swords[player] == 'swordless'),
-                can_extend_magic(player, 16)
+                can_extend_magic(player, 16, world)
             )
         )
     )
@@ -117,8 +118,8 @@ def TrinexxDefeatRule(world, player):
             has('Hammer', player),
             has('Golden Sword', player),
             has('Tempered Sword', player),
-            and_rule(has('Master Sword', player), can_extend_magic(player, 16)),
-            and_rule(has_sword(player), can_extend_magic(player, 32))
+            and_rule(has('Master Sword', player), can_extend_magic(player, 16, world)),
+            and_rule(has_sword(player), can_extend_magic(player, 32, world))
         )
     )
 

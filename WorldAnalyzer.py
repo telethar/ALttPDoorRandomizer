@@ -1,8 +1,9 @@
 import logging
 from collections import Counter, deque, defaultdict
 from itertools import groupby, combinations
+from queue import PriorityQueue
 
-from BaseClasses import CrystalBarrier, RegionType, dungeon_keys
+from BaseClasses import CrystalBarrier, RegionType, dungeon_keys, ReqType, ReqSet
 from EntranceShuffle import indirect_connections
 from Items import ItemFactory
 from Utils import merge_requirements, reduce_requirements
@@ -27,13 +28,16 @@ class WorldAnalyzer(object):
 
         # init on first call - this can't be done on construction since the regions don't exist yet
         start = self.world.get_region('Menu', player)
-        if not start in rrp:
-            rrp[start] = (CrystalBarrier.Orange, [Counter()], [[]])
+        rrp_key = (start, CrystalBarrier.Orange)
+        if not rrp_key in rrp:
+            rrp[rrp_key] = ([ReqSet()], [[]])
             for conn in start.exits:
-                requirements = conn.access_rule.get_requirements(self)
-                bc[conn] = (CrystalBarrier.Orange, requirements, [])
+                requirements = conn.access_rule.get_requirements(self.world.progressive[player])
+                bc[(conn, CrystalBarrier.Orange)] = (requirements, [])
 
-        queue = deque(self.blocked_connections[player].items())
+        queue = PriorityQueue()
+        for key, record in self.blocked_connections[player].items():
+            queue.put(Visitor(key[0], key[1], record[0], record[1]))
 
         self.traverse_world(queue, rrp, bc, player)
 
@@ -63,8 +67,15 @@ class WorldAnalyzer(object):
 
         for location in self.world.get_locations():
             loc_logic = location.access_rule.get_requirements(self)
-            record = self.reachable_regions[location.player][location.parent_region]
-            cs, region_logic, paths = record
+            rrp = self.reachable_regions[location.player]
+            if location.parent_region.type == RegionType.Dungeon:
+                region_logic, paths = None, None
+                for cs in [CrystalBarrier.Orange, CrystalBarrier.Blue, CrystalBarrier.Either]:
+                    if (location.parent_region, cs) in rrp:
+                        if region_logic is None:  # todo: or more simple
+                            region_logic, paths = rrp[(location.parent_region, cs)]
+            else:
+                region_logic, paths = rrp[(location.parent_region, CrystalBarrier.Orange)]
             new_logic = merge_requirements(region_logic, loc_logic)
             paths = [k for k, v in groupby(paths)]
             self.location_logic[location.player][location] = (new_logic, paths)
@@ -198,17 +209,20 @@ class WorldAnalyzer(object):
         return valid_logic
 
     def traverse_world(self, queue, rrp, bc, player):
+        p_flag = self.world.progressive[player]
         # run BFS on all connections, and keep track of those blocked by missing items
-        while len(queue) > 0:
+        while not queue.empty():
 
-            connection, record = queue.popleft()
-            crystal_state, logic, path = record
+            visitor = queue.get()
+            connection, crystal_state = connection_key = visitor.conn, visitor.cs
+            logic, path = visitor.logic, visitor.path
             new_region = connection.connected_region
-            if not self.should_visit(new_region, rrp, crystal_state, logic):
-                bc.pop(connection, None)
-            elif self.should_defer(logic):
-                requirements = connection.access_rule.get_requirements(self)
-                queue.append((connection, (crystal_state, requirements, path)))
+            if not self.should_visit(new_region, rrp, visitor):
+                bc.pop(connection_key, None)
+            # check for reachability?
+            # elif self.should_defer(logic):
+            #     requirements = connection.access_rule.get_requirements(p_flag)
+            #     queue.append((connection, (crystal_state, requirements, path)))
             else:
                 if new_region.type == RegionType.Dungeon:
                     new_crystal_state = crystal_state
@@ -217,55 +231,74 @@ class WorldAnalyzer(object):
                         if door is not None and door.crystal == CrystalBarrier.Either:
                             new_crystal_state = CrystalBarrier.Either
                             break
-                    if new_region in rrp:
-                        new_crystal_state |= rrp[new_region][0]
-
                     self.assign_rrp(rrp, new_region, new_crystal_state, logic, path)
+                    combined_logic = rrp[(new_region, new_crystal_state)][0]
+                    bc.pop(connection_key, None)
                     for conn in new_region.exits:
-                        new_logic = merge_requirements(logic, conn.access_rule.get_requirements(self))
+                        new_logic = merge_requirements(combined_logic, conn.access_rule.get_requirements(p_flag))
                         new_path = list(path) + [conn]
                         door = conn.door
-                        if new_crystal_state == CrystalBarrier.Either:
-                            bc.pop(conn, None)
                         if door is not None and not door.blocked:
-                            door_crystal_state = door.crystal if door.crystal else new_crystal_state
-                            packet = (door_crystal_state, new_logic, new_path)
-                            bc[conn] = packet
-                            queue.append((conn, packet))
+                            if not door.crystal or new_crystal_state == CrystalBarrier.Either or new_crystal_state == door.crystal:
+                                door_crystal_state = door.crystal if door.crystal else new_crystal_state
+                                packet = (new_logic, new_path)
+                                bc_key = (conn, door_crystal_state)
+                                bc[bc_key] = packet
+                                queue.put(Visitor(conn, door_crystal_state, new_logic, new_path))
                         elif door is None:
                             # note: no door in dungeon indicates what exactly? (always traversable)?
-                            packet = (new_crystal_state, new_logic, new_path)
-                            queue.append((conn, packet))
+                            bc_key = (conn, new_crystal_state)
+                            packet = (new_logic, new_path)
+                            bc[bc_key] = packet
+                            queue.put(Visitor(conn, new_crystal_state, new_logic, new_path))
                 else:
                     self.assign_rrp(rrp, new_region, CrystalBarrier.Orange, logic, path)
-                    bc.pop(connection, None)
+                    combined_logic = rrp[(new_region, CrystalBarrier.Orange)][0]
+                    bc.pop(connection_key, None)
                     for conn in new_region.exits:
-                        new_logic = merge_requirements(logic, conn.access_rule.get_requirements(self))
-                        packet = (CrystalBarrier.Orange, new_logic, list(path) + [conn])
-                        bc[conn] = packet
-                        queue.append((conn, packet))
+                        new_logic = merge_requirements(combined_logic, conn.access_rule.get_requirements(p_flag))
+                        new_path = list(path) + [conn]
+                        packet = (new_logic, new_path)
+                        bc_key = (conn, CrystalBarrier.Orange)
+                        bc[bc_key] = packet
+                        queue.put(Visitor(conn, CrystalBarrier.Orange, new_logic, new_path))
 
                 # Retry connections if the new region can unblock them
-                if new_region.name in indirect_connections:
-                    new_entrance = self.world.get_entrance(indirect_connections[new_region.name], player)
-                    if new_entrance in bc and new_entrance not in queue and new_entrance.parent_region in rrp:
-                        for i in range(0, len(rrp[new_entrance.parent_region][1])):
-                            trace = rrp[new_entrance.parent_region]
-                            new_logic = merge_requirements(trace[1][i], new_entrance.access_rule.get_requirements(self))
-                            packet = (trace[0], new_logic, trace[2][i])
-                            queue.append((new_entrance, packet))
+                # if new_region.name in indirect_connections:
+                #     new_entrance = self.world.get_entrance(indirect_connections[new_region.name], player)
+                #     bc_key = (new_entrance, CrystalBarrier.Orange)
+                #     rrp_key = (new_entrance.parent_region, CrystalBarrier.Orange)
+                #     if bc_key in bc and bc_key not in queue and rrp_key in rrp:
+                #         for i in range(0, len(rrp[rrp_key][0])):
+                #             trace = rrp[rrp_key]
+                #             new_logic = merge_requirements(trace[0][i],
+                #                                            new_entrance.access_rule.get_requirements(p_flag))
+                #             packet = (new_logic, trace[1][i])
+                #             queue.append((self.calc_priority(packet), (bc_key, packet)))
 
-    def should_visit(self, new_region, rrp, crystal_state, logic):
-        if not new_region:
+    def should_visit(self, new_region, rrp, visitor):
+        if not new_region or visitor.impossible:
             return False
-        if new_region not in rrp:
+        if visitor.crystal_check and visitor.cs != CrystalBarrier.Either:
+            any_valid = False
+            for req_set in visitor.logic:
+                may_pass = True
+                for req in req_set.get_values():
+                    if req.req_type == ReqType.Reachable and req.crystal != CrystalBarrier.Null:
+                        if visitor.conn.parent_region.name == req.item and visitor.cs != req.crystal:
+                            may_pass = False
+                            break
+                if may_pass:
+                    any_valid = True
+                    break
+            if not any_valid:
+                return False
+        rrp_key = (new_region, visitor.cs)
+        if rrp_key not in rrp:
             return True
-        record = rrp[new_region]
-        visited_logic = record[1]
-        logic_is_different = self.is_logic_different(logic, visited_logic)
-        if new_region.type != RegionType.Dungeon and logic_is_different:
-            return True
-        return (record[0] & crystal_state) != crystal_state or logic_is_different
+        record = rrp[rrp_key]
+        visited_logic = record[0]
+        return self.is_logic_different(visitor.logic, visited_logic)
 
     @staticmethod
     def should_defer(logic):
@@ -283,8 +316,7 @@ class WorldAnalyzer(object):
                 current_state = [True] * len(current_logic)
                 for i, current in enumerate(current_logic):
                     for oldie in old_logic:
-                        logic_diff = oldie - current
-                        if len(logic_diff) == 0:
+                        if not oldie.different(current):
                             current_state[i] = False
                             break
                     if current_state[i]:
@@ -292,53 +324,52 @@ class WorldAnalyzer(object):
                 return False
             else:
                 for oldie in old_logic:
-                    logic_diff = oldie - current_logic
-                    if len(logic_diff) == 0:
+                    if not oldie.different(current_logic):
                         return False
                 return True
         elif isinstance(current_logic, list):
             for current in current_logic:
-                logic_diff = old_logic - current
-                if len(logic_diff) > 0:
+                if old_logic.different(current):
                     return True
             return False
         else:
-            logic_diff = old_logic - current_logic
-            return len(logic_diff) > 0
+            return old_logic.different(current_logic)
 
     @staticmethod
     def assign_rrp(rrp, new_region, barrier, logic, path):
-        record = rrp[new_region] if new_region in rrp else (barrier, [], [])
-        rrp[new_region] = WorldAnalyzer.combine_logic(record, barrier, logic, path)
+        key = (new_region, barrier)
+        record = rrp[key] if key in rrp else ([], [])
+        rrp[key] = WorldAnalyzer.combine_logic(record, logic, path)
 
     @staticmethod
-    def combine_logic(record, barrier, logic, path):
+    def combine_logic(record, logic, path):
         logic_to_delete, logic_to_append = [], []
-        for visited_logic in record[1]:
+        for visited_logic in record[0]:
             equal = visited_logic in logic if isinstance(logic, list) else visited_logic == logic
             if not equal and not WorldAnalyzer.is_logic_different(visited_logic, logic):
                 logic_to_delete.append(visited_logic)
         if isinstance(logic, list):
             for logic_item in logic:
-                if WorldAnalyzer.is_logic_different(logic_item, record[1]):
+                if WorldAnalyzer.is_logic_different(logic_item, record[0]):
                     logic_to_append.append(logic_item)
-        elif WorldAnalyzer.is_logic_different(logic, record[1]):
+        elif WorldAnalyzer.is_logic_different(logic, record[0]):
             logic_to_append.append(logic)
         for deletion in logic_to_delete:
-            idx = record[1].index(deletion)
+            idx = record[0].index(deletion)
+            record[0].pop(idx)
             record[1].pop(idx)
-            record[2].pop(idx)
         for logic_item in logic_to_append:
-            record[1].append(logic_item)
-            record[2].append(path)
-        return barrier, record[1], record[2]
+            record[0].append(logic_item)
+            record[1].append(path)
+        return record[0], record[1]
 
     @staticmethod
     def print_rrp(rrp):
         logger = logging.getLogger('')
         logger.debug('RRP Checking')
-        for region, packet in rrp.items():
-            new_crystal_state, logic, path = packet
+        for key, packet in rrp.items():
+            region, new_crystal_state = key
+            logic, path = packet
             logger.debug(f'\nRegion: {region.name} (CS: {str(new_crystal_state)})')
             for i in range(0, len(logic)):
                 logger.debug(f'{logic[i]}')
@@ -398,6 +429,42 @@ class WorldAnalyzer(object):
             valid_logic = self.check_validity(clean_logic, item_logic)
             clean_options.append(valid_logic if len(valid_logic) > 1 else valid_logic[0])
         item_logic.logic_options = clean_options
+
+
+class Visitor(object):
+    def __init__(self, conn, cs, logic, path):
+        self.conn = conn
+        self.cs = cs
+        self.logic = logic
+        self.path = path
+        self.crystal_check = False
+        self.impossible = False
+        self.priority = self.calc_priority()
+
+    def __eq__(self, other):
+        return self.priority == other.priority
+
+    def __lt__(self, other):
+        return self.priority < other.priority
+
+    def calc_priority(self):
+        value = 0
+        bump_value = False
+        for req_set in self.logic:
+            for req in req_set.get_values():
+                if req.req_type == ReqType.Reachable:
+                    bump_value = True
+                    if req.crystal != CrystalBarrier.Null:
+                        self.crystal_check = True
+                if req.item == 'Impossible':
+                    self.impossible = True
+        if bump_value:
+            value += 1000
+        value += max([len(x.get_values()) for x in self.logic])
+        return value
+
+    def __str__(self):
+        return self.conn.name
 
 
 class ItemLogic(object):

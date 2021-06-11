@@ -2672,72 +2672,42 @@ rule_prints = {
 }
 
 
-def conjunction_requirements(rule, state):
-    results = Counter()
+def conjunction_requirements(rule, f):
+    combined = [ReqSet()]
     for r in rule.sub_rules:
-        result = r.get_requirements(state)
-        results = merge_requirements(results, result)
-    return results
+        result = r.get_requirements(f)
+        combined = merge_requirements(combined, result)
+    return combined
 
 
-def disjunction_requirements(rule, state):
+def disjunction_requirements(rule, f):
     results = []
     for r in rule.sub_rules:
-        result = r.get_requirements(state)
-        if isinstance(result, list):
-            results.extend(result)
-        else:
-            results.append(result)
+        result = r.get_requirements(f)
+        results.extend(result)
     return results
-
-
-def reachability_requirements(rule, state):
-    region, location = None, None
-    world = state.world
-    if rule.resolution_hint == 'Location':
-        location = world.get_location(rule.principal, rule.player)
-        region = location.parent_region
-    elif rule.resolution_hint == 'Entrance':
-        region = world.get_entrance(rule.principal, rule.player).parent_region
-    elif rule.resolution_hint == 'Region':
-        region = world.get_region(rule.principal, rule.player)
-    if region and region in state.reachable_regions[rule.player]:
-        requirements = []
-        for req in state.reachable_regions[rule.player][region][1]:
-            if isinstance(req, list):
-                requirements.extend(req)
-            else:
-                requirements.append(req)
-        if location:
-            requirements = merge_requirements(requirements, location.access_rule.get_requirements(state))
-        return requirements
-    return Counter({'Unreachable': 1})
 
 
 avail_crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']
 
 
 def crystal_requirements(rule):
-    combinations = itertools.combinations(avail_crystals, rule.principal)
-    num_combos = ncr(len(avail_crystals), rule.principal)
-    if num_combos == 1:
-        return Counter(next(combinations))
-    else:
-        counter_list = []
-        for combo in combinations:
-            counter_list.append(Counter(combo))
-        return counter_list
+    crystal_rules = map(lambda c: Requirement(ReqType.Item, c, rule.player, rule), avail_crystals)
+    combinations = itertools.combinations(crystal_rules, rule.principal)
+    counter_list = []
+    for combo in combinations:
+        counter_list.append(ReqSet(combo))
+    return counter_list
 
 
-# todo: potion shop req
 # todo: 1/4 magic
-def magic_requirements(rule, state):
+def magic_requirements(rule):
     if rule.principal <= 8:
-        return Counter()
+        return [set()]
     bottle_val = 1.0
-    if state.world.difficulty_adjustments[rule.player] == 'expert' and not rule.flag:
+    if rule.resolution_hint == 'expert' and not rule.flag:
         bottle_val = 0.25
-    elif state.world.difficulty_adjustments[rule.player] == 'hard' and not rule.flag:
+    elif rule.resolution_hint == 'hard' and not rule.flag:
         bottle_val = 0.5
     base, min_bot, reqs = 8, None, []
     for i in range(1, 5):
@@ -2745,9 +2715,11 @@ def magic_requirements(rule, state):
             min_bot = i
             break
     if min_bot:
-        reqs.append(Counter({'Bottle': min_bot}))
+        for region in rule.locations:
+            reqs.append(ReqSet([Requirement(ReqType.Item, 'Bottle', rule.player, rule, min_bot),
+                                Requirement(ReqType.Reachable, region, rule.player, rule)]))
     if rule.principal <= 16:
-        reqs.append(Counter({'Magic Upgrade (1/2)': 1}))
+        reqs.append(ReqSet([Requirement(ReqType.Item, 'Magic Upgrade (1/2)', rule.player, rule, 1)]))
         return reqs
     else:
         base, min_bot = 16, 4
@@ -2756,27 +2728,179 @@ def magic_requirements(rule, state):
                 min_bot = i
                 break
         if min_bot:
-            reqs.append(Counter({'Magic Upgrade (1/2)': 1, 'Bottle': min_bot}))
+            for region in rule.locations:
+                reqs.append(ReqSet([Requirement(ReqType.Item, 'Magic Upgrade (1/2)', rule.player, rule, 1),
+                                    Requirement(ReqType.Item, 'Bottle', rule.player, rule, min_bot),
+                                    Requirement(ReqType.Reachable, region, rule.player, rule)]))
         return reqs
+
+
+def static_req(rule):
+    return [ReqSet()] if rule.principal else [ReqSet([Requirement(ReqType.Item, 'Impossible', rule.player, rule)])]
+
+
+def barrier_req(rule):
+    return [ReqSet([Requirement(ReqType.Reachable, rule.principal, rule.player, rule, crystal=rule.barrier)])]
+
+
+def empty_req():
+    return [ReqSet()]
+
+
+def location_check(rule):
+    return [ReqSet([Requirement(ReqType.Placement, rule.principal, rule.player, rule, locations=rule.locations)])]
+
+
+def unlimited_buys(rule):
+    requirements = []
+    for region in rule.locations:
+        requirements.append(ReqSet([Requirement(ReqType.Reachable, region, rule.player, rule)]))
+    return requirements
+
+
+def small_key_reqs(rule):
+    requirements = []
+    door_name, dungeon = rule.principal
+    key_name = dungeon_keys[dungeon]
+    for rule_type, number in rule.resolution_hint.new_rules.items():
+        if rule_type == KeyRuleType.WorstCase:
+            requirements.append(ReqSet([Requirement(ReqType.Item, key_name, rule.player, rule, number)]))
+        elif rule_type == KeyRuleType.AllowSmall:
+            small_loc = rule.resolution_hint.small_location.name
+            requirements.append(ReqSet([
+                Requirement(ReqType.Placement, key_name, rule.player, rule, locations=[small_loc]),
+                Requirement(ReqType.Item, key_name, rule.player, rule, number)]))
+        elif isinstance(rule_type, tuple):
+            lock, lock_item = rule_type
+            locs = [x.name for x in rule.resolution_hint.alternate_big_key_loc]
+            requirements.append(ReqSet([
+                Requirement(ReqType.Placement, lock_item, rule.player, rule, locations=locs),
+                Requirement(ReqType.Item, key_name, rule.player, rule, number)]))
+    return requirements
 
 
 rule_requirements = {
     RuleType.Conjunction: conjunction_requirements,
     RuleType.Disjunction: disjunction_requirements,
-    RuleType.Item: lambda rule, s: Counter({rule.principal: rule.count}),
-    RuleType.Reachability: reachability_requirements,
-    RuleType.Static: lambda rule, s: Counter(),
-    RuleType.Crystal: lambda rule, s: crystal_requirements(rule),  # lambda rule, s: Counter({'Crystal', rule.count}),
-    RuleType.Bottle: lambda rule, s: Counter({'Bottle': 1}),
-    RuleType.Barrier: lambda rule, s: Counter(),
-    RuleType.Hearts: lambda rule, s: Counter(),
-    RuleType.Unlimited: lambda rule, s: Counter(),
-    RuleType.ExtendMagic: magic_requirements,
-    RuleType.Boss: lambda rule, s: rule.principal.defeat_rule.get_requirements(s),
-    RuleType.Negate: lambda rule, s: Counter(),
-    RuleType.LocationCheck: lambda rule, s: Counter(),
-    RuleType.SmallKeyDoor: lambda rule, s: Counter({rule.principal[0]: 1})
+    RuleType.Item: lambda rule, f: [ReqSet([Requirement(ReqType.Item, rule.principal, rule.player, rule, rule.count)])],
+    RuleType.Reachability: lambda rule, f: [ReqSet([Requirement(ReqType.Reachable, rule.principal, rule.player, rule)])],
+    RuleType.Static: lambda rule, f: static_req(rule),
+    RuleType.Crystal: lambda rule, f: crystal_requirements(rule),
+    RuleType.Bottle: lambda rule, f: [ReqSet([Requirement(ReqType.Item, 'Bottle', rule.player, rule, 1)])],
+    RuleType.Barrier: lambda rule, f: barrier_req(rule),
+    RuleType.Hearts: lambda rule, f: empty_req(),  # todo: the one heart container
+    RuleType.Unlimited: lambda rule, f: unlimited_buys(rule),
+    RuleType.ExtendMagic: lambda rule, f: magic_requirements(rule),
+    RuleType.Boss: lambda rule, f: rule.principal.defeat_rule.get_requirements(f),
+    RuleType.Negate: lambda rule, f: empty_req(),  # ignore these and just don't flood the key too early
+    RuleType.LocationCheck: lambda rule, f: location_check(rule),
+    RuleType.SmallKeyDoor: lambda rule, f: small_key_reqs(rule)
 }
+
+
+@unique
+class ReqType(Enum):
+    Item = 0
+    Reachable = 1
+    Placement = 2
+
+
+class ReqSet(object):
+
+    def __init__(self, requirements=None):
+        if requirements is None:
+            requirements = []
+        self.keyed = OrderedDict()
+        for r in requirements:
+            self.keyed[r.simple_key()] = r
+
+    def append(self, req):
+        self.keyed[req.simple_key()] = req
+
+    def get_values(self):
+        return self.keyed.values()
+
+    def merge(self, other):
+        new_set = ReqSet(self.get_values())
+        for r in other.get_values():
+            key = r.simple_key()
+            if key in new_set.keyed:
+                new_set.keyed[key] = max(r, new_set.keyed[key], key=lambda r: r.amount)
+            else:
+                new_set.keyed[key] = r
+        return new_set
+
+    def redundant(self, other):
+        union = set(self.keyed.keys()) | set(other.keyed.keys())
+        for key in union:
+            if key not in self.keyed:
+                return False
+            elif key in other.keyed and self.keyed[key].amount < other.keyed[key].amount:
+                return False
+        return True
+
+    def different(self, other):
+        for key in self.keyed.keys():
+            if key not in other.keyed:
+                return True
+            if key in other.keyed and self.keyed[key].amount > other.keyed[key].amount:
+                return True
+        return False
+
+    def __eq__(self, other):
+        union = set(self.keyed.keys()) | set(other.keyed.keys())
+        for key in union:
+            if key not in self.keyed or key not in other.keyed:
+                return False
+            if self.keyed[key].amount != other.keyed[key].amount:
+                return False
+        return True
+
+    def __str__(self):
+        return str(self.__unicode__())
+
+    def __unicode__(self):
+        return " and ".join([str(x) for x in self.keyed.values()])
+
+
+class Requirement(object):
+
+    def __init__(self, req_type, item, player, rule, amount=1, crystal=CrystalBarrier.Null, locations=()):
+        self.req_type = req_type
+        self.item = item
+        self.player = player
+        self.rule = rule
+        self.amount = amount
+        self.crystal = crystal
+        self.locations = tuple(locations)
+
+    def simple_key(self):
+        return self.req_type, self.item, self.player, self.crystal, self.locations
+
+    def key(self):
+        return self.req_type, self.item, self.player, self.amount, self.crystal, self.locations
+
+    def __eq__(self, other):
+        if isinstance(other, Requirement):
+            return self.key() == other.key()
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(self.key())
+
+    def __str__(self):
+        return str(self.__unicode__())
+
+    def __unicode__(self):
+        if self.req_type == ReqType.Item:
+            return f'has {self.item}' if self.amount == 1 else f'has {self.amount} {self.item}(s)'
+        elif self.req_type == ReqType.Reachable:
+            if self.crystal == CrystalBarrier.Null:
+                return f'canReach {self.item}'
+            else:
+                return f'canReach {self.item} @ {self.crystal.name}'
+        elif self.req_type == ReqType.Placement:
+            return f'{self.item} located @ {",".join(self.locations)}'
 
 
 class Rule(object):
@@ -2795,8 +2919,9 @@ class Rule(object):
     def eval(self, state):
         return rule_evaluations[self.rule_type](self, state)
 
-    def get_requirements(self, state):
-        return standardize_requirements(rule_requirements[self.rule_type](self, state))
+    def get_requirements(self, progressive_flag=True):
+        reqs = rule_requirements[self.rule_type](self, progressive_flag)
+        return standardize_requirements(reqs, progressive_flag)
 
     def __str__(self):
         return str(self.__unicode__())
@@ -2853,7 +2978,7 @@ class RuleFactory(object):
     def reach(spot, resolution_hint, player):
         rule = Rule(RuleType.Reachability)
         rule.principal = spot
-        rule.resolution_hint = resolution_hint
+        rule.resolution_hint = resolution_hint  # type of place that it is: region, entrance, location
         rule.player = player
         return rule
 
@@ -2886,17 +3011,20 @@ class RuleFactory(object):
         return rule
 
     @staticmethod
-    def unlimited(item, player):
+    def unlimited(item, player, shop_regions):
         rule = Rule(RuleType.Unlimited)
         rule.principal = item
         rule.player = player
+        rule.locations = shop_regions  # list of regions where said item can be bought
         return rule
 
     @staticmethod
-    def extend_magic(player, magic, flag):
+    def extend_magic(player, magic, difficulty, magic_potion_regions, flag):
         rule = Rule(RuleType.ExtendMagic)
         rule.principal = magic
         rule.player = player
+        rule.resolution_hint = difficulty  # world difficulty setting
+        rule.locations = magic_potion_regions  # list of regions where blue/green can be bought
         rule.flag = flag
         return rule
 
@@ -2921,10 +3049,11 @@ class RuleFactory(object):
         return rule
 
     @staticmethod
-    def small_key_door(door_name, dungeon, player):
+    def small_key_door(door_name, dungeon, player, door_rules):
         rule = Rule(RuleType.SmallKeyDoor)
         rule.principal = (door_name, dungeon)
         rule.player = player
+        rule.resolution_hint = door_rules  # door_rule object from KeyDoorShuffle
         return rule
 
 
