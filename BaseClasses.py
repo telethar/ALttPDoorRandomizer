@@ -2518,14 +2518,14 @@ dungeon_relevant_progression = {
     'Zelda Delivered'}
 
 @unique
-class KeyRuleType(Enum):
+class KeyRuleType(FastEnum):
     WorstCase = 0
     AllowSmall = 1
     Lock = 2
 
 
 @unique
-class RuleType(Enum):
+class RuleType(FastEnum):
     Conjunction = 0
     Disjunction = 1
     Item = 2
@@ -2799,7 +2799,7 @@ rule_requirements = {
 
 
 @unique
-class ReqType(Enum):
+class ReqType(FastEnum):
     Item = 0
     Reachable = 1
     Placement = 2
@@ -2831,11 +2831,10 @@ class ReqSet(object):
         return new_set
 
     def redundant(self, other):
-        union = set(self.keyed.keys()) | set(other.keyed.keys())
-        for key in union:
-            if key not in self.keyed:
+        for k, req in other.keyed.items():
+            if k not in self.keyed:
                 return False
-            elif key in other.keyed and self.keyed[key].amount < other.keyed[key].amount:
+            elif self.keyed[k].amount < req.amount:
                 return False
         return True
 
@@ -2847,12 +2846,20 @@ class ReqSet(object):
                 return True
         return False
 
+    def find_item(self, item_name):
+        for key, req in self.keyed.items():
+            if req.req_type == ReqType.Item and req.item == item_name:
+                return req
+        return None
+
     def __eq__(self, other):
-        union = set(self.keyed.keys()) | set(other.keyed.keys())
-        for key in union:
-            if key not in self.keyed or key not in other.keyed:
+        for key, req in self.keyed.items():
+            if key not in other.keyed:
                 return False
-            if self.keyed[key].amount != other.keyed[key].amount:
+            if req.amount != other.keyed[key].amount:
+                return False
+        for key in other.keyed:
+            if key not in self.keyed:
                 return False
         return True
 
@@ -2916,12 +2923,16 @@ class Rule(object):
         self.locations = []
         self.count = 1
 
+        self.std_req = None
+
     def eval(self, state):
         return rule_evaluations[self.rule_type](self, state)
 
     def get_requirements(self, progressive_flag=True):
-        reqs = rule_requirements[self.rule_type](self, progressive_flag)
-        return standardize_requirements(reqs, progressive_flag)
+        if not self.std_req:
+            reqs = rule_requirements[self.rule_type](self, progressive_flag)
+            self.std_req = standardize_requirements(reqs, progressive_flag)
+        return self.std_req
 
     def __str__(self):
         return str(self.__unicode__())

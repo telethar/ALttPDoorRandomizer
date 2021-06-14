@@ -22,6 +22,8 @@ class WorldAnalyzer(object):
         self.logic_lookup = dict()
         self.reverse_lookup = dict()
 
+        self.reverse_loc = dict()
+
     def analyze(self, player):
         rrp = self.reachable_regions[player]
         bc = self.blocked_connections[player]
@@ -65,19 +67,25 @@ class WorldAnalyzer(object):
             name, player = key
             self.logic_lookup[key] = ItemLogic(name, player, amount)
 
+        # todo: clean up some reachable criteria, namely the Crystal Barriers at this point
+        # maybe some region or entrance reachables as well
+
         for location in self.world.get_locations():
-            loc_logic = location.access_rule.get_requirements(self)
+            loc_logic = location.access_rule.get_requirements(self.world.progressive[location.player])
             rrp = self.reachable_regions[location.player]
             if location.parent_region.type == RegionType.Dungeon:
                 region_logic, paths = None, None
                 for cs in [CrystalBarrier.Orange, CrystalBarrier.Blue, CrystalBarrier.Either]:
                     if (location.parent_region, cs) in rrp:
-                        if region_logic is None:  # todo: or more simple
+                        if region_logic is None:
                             region_logic, paths = rrp[(location.parent_region, cs)]
+                        else: # todo: or more simple # similar to find_logic_for_region
+                            pass  # which one do we prefer, the easiest one to get here
             else:
                 region_logic, paths = rrp[(location.parent_region, CrystalBarrier.Orange)]
             new_logic = merge_requirements(region_logic, loc_logic)
             paths = [k for k, v in groupby(paths)]
+            new_logic = self.clean_up_logic(new_logic)
             self.location_logic[location.player][location] = (new_logic, paths)
             self.track_locks(location)
 
@@ -86,15 +94,15 @@ class WorldAnalyzer(object):
         # deferred: heart containers and poh? - are we going for health requirements some day?
         return item.advancement or (item.type is not None and item.type in ['BigKey', 'SmallKey']) or (item.type is None and item.priority)
 
-    # todo: multiworld
+    # todo: test multiworld
     def track_locks(self, location):
         (new_logic, paths) = self.location_logic[location.player][location]
         if location.item and self.is_interesting_item(location.item):
-            if len(new_logic) == 0:
+            if len(new_logic) == 0:  # todo: comment out this block
                 item_name = 'Bottle' if location.item.name.startswith('Bottle') else location.item.name
                 item_logic = self.logic_lookup[(item_name, location.item.player)]
                 item_logic.locations.append(location)
-                item_logic.logic_options.append(Counter())  # no requirements
+                item_logic.logic_options.append(ReqSet())  # no requirements
                 return
 
             key, complete_logic, valid_logic = self.calculate_complete_and_valid_logic(
@@ -125,11 +133,12 @@ class WorldAnalyzer(object):
                             if isinstance(logic, list):
                                 sub_options = []
                                 for sub_logic in logic:
-                                    if key[0] in sub_logic:
-                                        complete_valid, sub_merged = item_logic.get_option_subset(sub_logic[key[0]]), []
+                                    req = sub_logic.find_item(key[0])  # todo: match on player?
+                                    if req:
+                                        complete_valid, sub_merged = item_logic.get_option_subset(req.amount), []
                                         for cv in complete_valid:
-                                            sub_merge = merge_requirements(sub_logic, cv)
-                                            (sub_merged.extend if isinstance(sub_merge, list) else sub_merged.append)(sub_merge)
+                                            sub_merge = merge_requirements([sub_logic], cv)
+                                            sub_merged.extend(sub_merge)
                                         sub_options.extend(sub_merged)
                                         # self.record_reverse_refs(sub_merged, old_logic.player, ref)
                                     else:
@@ -155,26 +164,24 @@ class WorldAnalyzer(object):
                 self.record_reverse_refs(lgc, location.player, key)
 
     def calculate_complete_and_valid_logic(self, new_logic, location_player, name, player):
-        if not isinstance(new_logic, list):
-            new_logic = [new_logic]
+        assert isinstance(new_logic, list)
         complete_logic = []
         for i, lgc in enumerate(new_logic):
             # update logic from the lookup - (makes a copy?)
-            new_lgc = [Counter(x) for x in lgc] if isinstance(lgc, list) else Counter(lgc)
-            for item, cnt in lgc.items():
-                if (item, location_player) in self.logic_lookup:
-                    item_logic = self.logic_lookup[(item, location_player)]
+            new_lgc = [ReqSet(lgc.get_values())]
+            for req in lgc.get_values():
+                if req.req_type == ReqType.Item and (req.item, location_player) in self.logic_lookup:
+                    item_logic = self.logic_lookup[(req.item, location_player)]
                     if item_logic.complete():
-                        combined, subsets = [], item_logic.get_option_subset(cnt)
+                        combined, subsets = [], item_logic.get_option_subset(req.amount)
                         for subset in subsets:
                             merged = merge_requirements(new_lgc, subset)
-                            (combined.extend if isinstance(merged, list) else combined.append)(merged)
+                            combined.extend(merged)
                         new_lgc = combined
-            (complete_logic.extend if isinstance(new_lgc, list) else complete_logic.append)(new_lgc)
+            complete_logic.extend(new_lgc)
 
         complete_logic = reduce_requirements(complete_logic)
-        if not isinstance(complete_logic, list):
-            complete_logic = [complete_logic]
+        assert isinstance(complete_logic, list)
         item_name = 'Bottle' if name.startswith('Bottle') else name
         item_player = player
         key = (item_name, item_player)
@@ -190,28 +197,36 @@ class WorldAnalyzer(object):
             self.record_single_reverse_refs(key, logic, logic_player)
 
     def record_single_reverse_refs(self, key, lgc, logic_player):
-        for item, cnt in lgc.items():
-            if (item, logic_player) not in self.reverse_lookup:
-                self.reverse_lookup[(item, logic_player)] = set()
-            refs = self.reverse_lookup[(item, logic_player)]
-            refs.add(key)
+        for req in lgc.get_values():
+            if req.req_type == ReqType.Item:
+                if (req.item, logic_player) not in self.reverse_lookup:
+                    self.reverse_lookup[(req.item, logic_player)] = set()
+                self.reverse_lookup[(req.item, logic_player)].add(key)
+
+    def record_reverse_loc_item(self, req, location, player):
+        if (req.item, req.player) not in self.reverse_loc:
+            self.reverse_loc[(req.item, req.player)] = set()
+        self.reverse_lookup[(req.item, req.player)].add((location, player))
 
     def check_validity(self, complete_logic, item_logic):
         valid_logic = []
-        for potential_logic in complete_logic:
-            if item_logic.name not in potential_logic:
-                valid_logic.append(potential_logic)
+        for potential_req in complete_logic:
+            item_req = potential_req.find_item(item_logic.name)
+            if item_req is None:
+                valid_logic.append(potential_req)
             else:
-                needed = potential_logic[item_logic.name]
+                needed = item_req.amount
                 total = self.logic_lookup[(item_logic.name, item_logic.player)].total_in_pool
                 if total - needed > 0:
-                    valid_logic.append(potential_logic)
+                    valid_logic.append(potential_req)
         return valid_logic
 
     def traverse_world(self, queue, rrp, bc, player):
         p_flag = self.world.progressive[player]
         # run BFS on all connections, and keep track of those blocked by missing items
+        q_itr = 0
         while not queue.empty():
+            q_itr += 1
 
             visitor = queue.get()
             connection, crystal_state = connection_key = visitor.conn, visitor.cs
@@ -275,6 +290,7 @@ class WorldAnalyzer(object):
                 #                                            new_entrance.access_rule.get_requirements(p_flag))
                 #             packet = (new_logic, trace[1][i])
                 #             queue.append((self.calc_priority(packet), (bc_key, packet)))
+        logging.getLogger('').debug(f'Total iterations: {q_itr}')
 
     def should_visit(self, new_region, rrp, visitor):
         if not new_region or visitor.impossible:
@@ -403,6 +419,65 @@ class WorldAnalyzer(object):
                         logger.debug(f'{logic_option[j]}')
                 else:
                     logger.debug(f'{logic_option}')
+
+    def clean_up_location_logic(self, logic, location, player):
+        clean_lgc = []
+        for req_set in logic:
+            clean_set = [ReqSet()]
+            for req in req_set.get_values():
+                if req.req_type == ReqType.Item:
+                    for s in clean_set:
+                        s.append(s)
+                    if (req.item, req.player) in self.logic_lookup:
+                        item_logic = self.logic_lookup[(req.item, location_player)]
+                        if item_logic.complete():
+                            combined, subsets = [], item_logic.get_option_subset(req.amount)
+                            for subset in subsets:
+                                merged = merge_requirements(clean_set, subset)
+                                combined.extend(merged)
+                            clean_set = combined
+                    self.record_reverse_loc_item(req, location, player)
+                elif req.req_type == ReqType.Reachable:
+                    if req.crystal != CrystalBarrier.Null:
+                        rrp_key = (req.item, req.crystal)
+                        if rrp_key in self.reachable_regions[req.player]:
+                            (cb_logic, paths) = self.reachable_regions[req.player][rrp_key]
+                            clean_set = merge_requirements(clean_set, cb_logic)
+                        else:
+                            raise Exception(f'Can\'t reach a crystal requirement: {req}')
+                    elif req.rule.resolution_hint == 'region':
+                        region = self.world.get_region(req.item, req.player)
+                        region_logic = self.find_logic_for_region(region, req.player)
+                        if region_logic is None:
+                            raise Exception(f'Can\t reach a region: {req}')
+                        clean_set = merge_requirements(clean_set, region_logic)
+                    elif req.rule.resolution_hint == 'entrance':
+                        entrance = self.world.get_entrance(req.item, req.player)
+                        region_logic = self.find_logic_for_region(entrance.parent_region, req.player)
+                        if region_logic is None:
+                            raise Exception(f'Can\t reach a region: {req}')
+                        e_logic = entrance.access_rule.get_requirements(self.world.progressive[req.player])
+                        e_logic = merge_requirements(region_logic, e_logic)
+                        clean_set = merge_requirements(clean_set, e_logic)
+                    elif req.rule.resolution_hint == 'location':
+                        # have we calculated that yet? if not, then what?
+                        pass
+                    else:
+                        pass  # what is this thing? raise Exception()
+                else:
+                    for s in clean_set:
+                        s.append(s)
+            clean_lgc.extend(clean_set)
+        return reduce_requirements(clean_lgc)
+
+    def find_logic_for_region(self, region, player):
+        options = []
+        for barrier in CrystalBarrier:
+            if (region, barrier) in self.reachable_regions[player]:
+                options.extend(self.reachable_regions[player][(region, barrier)][0])
+        if len(options) == 0:
+            return None
+        return reduce_requirements(options)
 
     def clean_up_complete(self, key, player):
         item_logic = self.logic_lookup[key]
