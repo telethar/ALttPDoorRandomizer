@@ -470,6 +470,17 @@ class CollectionState(object):
         for item in parent.precollected_items:
             self.collect(item, True)
 
+    def copy(self):
+        ret = CollectionState(self.world)
+        ret.prog_items = self.prog_items.copy()
+        ret.reachable_regions = {player: copy.copy(self.reachable_regions[player]) for player in range(1, self.world.players + 1)}
+        ret.blocked_connections = {player: copy.copy(self.blocked_connections[player]) for player in range(1, self.world.players + 1)}
+        ret.events = copy.copy(self.events)
+        ret.path = copy.copy(self.path)
+        ret.locations_checked = copy.copy(self.locations_checked)
+        ret.stale = {player: self.stale[player] for player in range(1, self.world.players + 1)}
+        return ret
+
     def update_reachable_regions(self, player):
         self.stale[player] = False
         rrp = self.reachable_regions[player]

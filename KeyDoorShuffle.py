@@ -54,6 +54,8 @@ class KeyLogic(object):
         self.location_rules = {}
         self.outside_keys = 0
         self.dungeon = dungeon_name
+        self.sm_doors = {}
+        self.key_spheres = None
 
     def check_placement(self, unplaced_keys, big_key_loc=None):
         for rule in self.placement_rules:
@@ -64,6 +66,16 @@ class KeyLogic(object):
                     if rule_a.contradicts(rule_b, unplaced_keys, big_key_loc):
                         return False
         return True
+
+    def reset(self):
+        self.door_rules.clear()
+        self.bk_restricted.clear()
+        self.bk_locked.clear()
+        self.sm_restricted.clear()
+        self.bk_doors.clear()
+        self.bk_chests.clear()
+        self.placement_rules.clear()
+        self.sm_doors.clear()
 
 
 class DoorRules(object):
@@ -209,8 +221,19 @@ def calc_max_chests(builder, key_layout, world, player):
 
 
 def analyze_dungeon(key_layout, world, player):
+    key_layout.key_logic.reset()
     key_layout.key_counters = create_key_counters(key_layout, world, player)
     key_logic = key_layout.key_logic
+    for door in key_layout.proposal:
+        if isinstance(door, tuple):
+            key_logic.sm_doors[door[0]] = door[1]
+            key_logic.sm_doors[door[1]] = door[0]
+        else:
+            if door.dest and door.type != DoorType.SpiralStairs:
+                key_logic.sm_doors[door] = door.dest
+                key_logic.sm_doors[door.dest] = door
+            else:
+                key_logic.sm_doors[door] = None
 
     find_bk_locked_sections(key_layout, world, player)
     key_logic.bk_chests.update(find_big_chest_locations(key_layout.all_chest_locations))

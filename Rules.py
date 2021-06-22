@@ -1,9 +1,13 @@
 import collections
+import copy
 import logging
-from collections import deque
+from collections import deque, defaultdict, Counter
 
 import OverworldGlitchRules
-from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier
+from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier, indirect_connections
+from BaseClasses import flooded_keys
+from Dungeons import dungeon_keys
+from DungeonGenerator import dungeon_portals, dungeon_drops
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
 
@@ -556,6 +560,9 @@ def global_rules(world, player):
     set_rule(world.get_location('Ganon', player), lambda state: state.has_beam_sword(player) and state.has_fire_source(player) and state.has_crystals(world.crystals_needed_for_ganon[player], player)
                                                                 and (state.has('Tempered Sword', player) or state.has('Golden Sword', player) or (state.has('Silver Arrows', player) and state.can_shoot_arrows(player)) or state.has('Lamp', player) or state.can_extend_magic(player, 12)))  # need to light torch a sufficient amount of times
     set_rule(world.get_entrance('Ganon Drop', player), lambda state: state.has_beam_sword(player))  # need to damage ganon to get tiles to drop
+
+    setup_key_spheres(world, player)
+
 
 def bomb_rules(world, player):
     bonkable_doors = ['Two Brothers House Exit (West)', 'Two Brothers House Exit (East)'] # Technically this is incorrectly defined, but functionally the same as what is intended.
@@ -1935,13 +1942,13 @@ bunny_impassible_doors = {
 def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     for d_name, d_logic in key_logic.items():
-        for door_name, keys in d_logic.door_rules.items():
-            spot = world.get_entrance(door_name, player)
-            if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
-                rule = create_advanced_key_rule(d_logic, player, keys)
-                if keys.opposite:
-                    rule = or_rule(rule, create_advanced_key_rule(d_logic, player, keys.opposite))
-                add_rule(spot, rule)
+        # for door_name, keys in d_logic.door_rules.items():
+        #     spot = world.get_entrance(door_name, player)
+        #     if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
+        #         rule = create_advanced_key_rule(d_logic, player, keys)
+        #         if keys.opposite:
+        #             rule = or_rule(rule, create_advanced_key_rule(d_logic, player, keys.opposite))
+        #         add_rule(spot, rule)
 
         for location in d_logic.bk_restricted:
             if not location.forced_item:
@@ -1957,6 +1964,375 @@ def add_key_logic_rules(world, player):
             for door in layout.flat_prop:
                 if world.mode[player] != 'standard' or not retro_in_hc(door.entrance):
                     add_rule(door.entrance, create_key_rule('Small Key (Universal)', player, 1))
+
+
+# todo: standard considerations
+# todo: retro considerations - stardard + retro: hc mostly
+# todo: 100% Item logic (key for a key logic)
+# todo: big key "discounts"
+
+def setup_key_spheres(world, player):
+    all_state_base = None
+    for dungeon, builder in world.dungeon_layouts[player].items():
+        if world.key_logic[player][dungeon].key_spheres is None:
+            world.key_logic[player][dungeon].key_spheres = {}
+            visited_regions = set()
+            if not all_state_base:
+                all_state_base = base_state(world, player)
+            key_explorer = KeyExplorer(world, player, dungeon, all_state_base)
+            start_regions = []
+            for portal in dungeon_portals[dungeon]:
+                portal_region = world.get_portal(portal, player).door.dest
+                if is_region_accessible(portal_region, world, player):
+                    start_regions.append(portal_region)
+            if dungeon in dungeon_drops:
+                for drop in dungeon_drops[dungeon]:
+                    if drop == 'Sewers Rath Path':
+                        drop = 'Sewer Drop'
+                    drop_region = world.get_region(drop, player)
+                    if is_region_accessible(drop_region, world, player):
+                        start_regions.append(drop_region)
+            # todo: may need to consider standard exceptions for Hyrule Castle - not all entrances reachable
+            key_explorer.start_regions = start_regions
+            number = builder.key_doors_num if builder.key_doors_num else len(builder.key_door_proposal)
+            for keys in range(0, number + 1):
+                key_explorer.keys = keys
+                key_explorer.sweep_for_events()
+                sphere_regions = set()
+                for region in key_explorer.reachable_regions:
+                    if region.dungeon and region.dungeon.name == dungeon and region not in visited_regions:
+                        sphere_regions.add(region)
+                        visited_regions.add(region)
+                world.key_logic[player][dungeon].key_spheres[keys] = sphere_regions
+    for dungeon, key_logic in world.key_logic[player].items():
+        small_name = dungeon_keys[dungeon]
+        for key_num, regions in key_logic.key_spheres.items():
+            if key_num == 0:
+                continue
+            for region in regions:
+                for location in region.locations:
+                    add_rule(location, create_key_rule(small_name, player, key_num))
+
+
+def is_region_accessible(region, world, player):
+    for pos_ent in region.entrances:
+        if pos_ent.parent_region != RegionType.Dungeon:
+            return pos_ent.parent_region not in world.inaccessible_regions[player]
+    return None
+
+
+def base_state(world, player):
+    ret = CollectionState(world)
+    for item in world.itempool:
+        if item.player == player and not item.smallkey:
+            ret.collect(item, True)
+
+    locations = world.get_filled_locations()
+    new_locations = True
+    checked_locations = 0
+    while new_locations:
+        reachable_events = [location for location in locations if location.event
+                            and not location.item.smallkey
+                            and location.can_reach(ret)]
+        reachable_events = ret._do_not_flood_the_keys(reachable_events)
+        for event in reachable_events:
+            if (event.name, event.player) not in ret.events:
+                ret.events.append((event.name, event.player))
+                ret.collect(event.item, True, event)
+        new_locations = len(reachable_events) > checked_locations
+        checked_locations = len(reachable_events)
+    return ret
+
+
+class KeyExplorer(object):
+
+    def __init__(self, world, player, dungeon, state, skip_init=False):
+        self.world = world
+        self.player = player
+        self.dungeon = dungeon
+        self.state = state
+        self.keys = 0
+        self.start_regions = None
+        if not skip_init:
+            self.reachable_regions = {}
+            self.blocked_connections = {}
+            self.events = []
+            self.path = {}
+            self.locations_checked = set()
+            # reached vs. opened in the counter
+            self.door_counter = (Counter(), Counter())
+            self.reached_doors = set()
+            self.opened_doors = set()
+            self.dungeons_to_check = defaultdict(dict)
+
+    def copy(self):
+        ret = KeyExplorer(self.world, self.player, self.dungeon, self.state.copy(), skip_init=True)
+        ret.reachable_regions = copy.copy(self.reachable_regions)
+        ret.blocked_connections = copy.copy(self.blocked_connections)
+        ret.events = copy.copy(self.events)
+        ret.path = copy.copy(self.path)
+        ret.locations_checked = copy.copy(self.locations_checked)
+
+        ret.door_counter = copy.copy(self.door_counter[0]), copy.copy(self.door_counter[1])
+        ret.reached_doors = copy.copy(self.reached_doors)
+        ret.opened_doors = copy.copy(self.opened_doors)
+        ret.dungeons_to_check = defaultdict(dict, {d: copy.copy(self.dungeons_to_check[d])
+                                                   for d in self.dungeons_to_check})
+        return ret
+
+    def sweep_for_events(self, locations=None):
+        # this may need improvement
+        if locations is None:
+            locations = self.world.get_filled_locations()
+        new_locations = True
+        checked_locations = 0
+        while new_locations:
+            self.update_reachable_regions(self.start_regions)
+            reachable_events = [location for location in locations if location.event
+                                and location.parent_region in self.reachable_regions
+                                and location.access_rule(self.state)]
+            reachable_events = self._do_not_flood_the_keys(reachable_events)
+            for event in reachable_events:
+                if (event.name, event.player) not in self.events:
+                    self.events.append((event.name, event.player))
+                    self.locations_checked.add(event)
+                    self.state.collect(event.item, True, event)
+            new_locations = len(reachable_events) > checked_locations
+            checked_locations = len(reachable_events)
+
+    def sweep_for_events_once(self, locations=None):
+        if locations is None:
+            locations = self.world.get_filled_locations()
+        checked_locations = set([l for l in locations if l in self.locations_checked])
+        reachable_events = [location for location in locations if location.event
+                            and location.parent_region in self.reachable_regions
+                            and location.access_rule(self.state)]
+        reachable_events = self._do_not_flood_the_keys(reachable_events)
+        for event in reachable_events:
+            if event not in checked_locations:
+                self.events.append((event.name, event.player))
+                self.locations_checked.add(event)
+                self.state.collect(event.item, True, event)
+        return len(reachable_events) > len(checked_locations)
+
+    def update_reachable_regions(self, start_regions):
+        rrp = self.reachable_regions
+        bc = self.blocked_connections
+
+        for start in start_regions:
+            start = self.world.get_region(start, self.player)
+            if not start in rrp:
+                rrp[start] = CrystalBarrier.Orange
+                for conn in start.exits:
+                    bc[conn] = CrystalBarrier.Orange
+
+        queue = deque(self.blocked_connections.items())
+
+        self.traverse_world(queue, rrp, bc)
+        unresolved_events = [x for y in self.reachable_regions for x in y.locations
+                             if x.event and x.item and x.item.advancement and not x.item.smallkey
+                             and x not in self.locations_checked and x.access_rule(self.state)]
+        if len(unresolved_events) == 0:
+            self.check_key_doors_in_dungeons()
+
+    def traverse_world(self, queue, rrp, bc):
+        # run BFS on all connections, and keep track of those blocked by missing items
+        while len(queue) > 0:
+            connection, crystal_state = queue.popleft()
+            new_region = connection.connected_region
+            if KeyExplorer.is_small_door(connection) and connection.door.name not in self.opened_doors and not self.world.retro[self.player]:  # todo: retro
+                door = connection.door
+                dungeon_name = connection.parent_region.dungeon.name  # todo: universal
+                key_logic = self.world.key_logic[self.player][dungeon_name]
+                if door.name not in self.reached_doors:
+                    self.door_counter[0][dungeon_name] += 1
+                    self.reached_doors.add(door.name)
+                    if key_logic.sm_doors[door]:
+                        self.reached_doors.add(key_logic.sm_doors[door].name)
+                checklist = self.dungeons_to_check[dungeon_name]
+                checklist[connection.name] = connection, crystal_state
+            if not self.should_visit(new_region, rrp, crystal_state):
+                bc.pop(connection, None)
+            elif connection.can_reach(self.state) and (not KeyExplorer.is_small_door(connection) or
+                                                       connection.door.name in self.opened_doors):
+                bc.pop(connection, None)
+                if new_region.type == RegionType.Dungeon:
+                    new_crystal_state = crystal_state
+                    for conn in new_region.exits:
+                        door = conn.door
+                        if door is not None and door.crystal == CrystalBarrier.Either and door.entrance.can_reach(self.state):
+                            new_crystal_state = CrystalBarrier.Either
+                            break
+                    if new_region in rrp:
+                        new_crystal_state |= rrp[new_region]
+
+                    rrp[new_region] = new_crystal_state
+                    for conn in new_region.exits:
+                        door = conn.door
+                        if door is not None and not door.blocked:
+                            if not door.crystal or new_crystal_state == CrystalBarrier.Either or new_crystal_state == door.crystal:
+                                door_crystal_state = door.crystal if door.crystal else new_crystal_state
+                                bc[conn] = door_crystal_state
+                                queue.append((conn, door_crystal_state))
+                        elif door is None:
+                            # note: no door in dungeon indicates what exactly? (always traversable)?
+                            queue.append((conn, new_crystal_state))
+                else:
+                    new_crystal_state = CrystalBarrier.Orange
+                    rrp[new_region] = new_crystal_state
+                    bc.pop(connection, None)
+                    for conn in new_region.exits:
+                        bc[conn] = new_crystal_state
+                        queue.append((conn, new_crystal_state))
+
+                self.path[new_region] = (new_region.name, self.path.get(connection, None))
+
+    def should_visit(self, new_region, rrp, crystal_state):
+        if not new_region:
+            return False
+        if not self.possibly_connected_to_dungeon(new_region):
+            return False
+        if new_region not in rrp:
+            return True
+        if new_region.type != RegionType.Dungeon:
+            return False
+        return (rrp[new_region] & crystal_state) != crystal_state
+
+    @staticmethod
+    def is_small_door(connection):
+        return connection and connection.door and connection.door.smallKey
+
+    def possibly_connected_to_dungeon(self, new_region):
+        if new_region.dungeon:
+            return new_region.dungeon.name == self.dungeon
+        else:
+            return new_region.name in self.world.inaccessible_regions[self.player]
+
+    def check_key_doors_in_dungeons(self):
+        for dungeon_name, checklist in self.dungeons_to_check.items():
+            init_door_candidates = self.should_explore_child_state(self, dungeon_name)
+            # todo: universal
+            remaining_keys = self.keys - self.door_counter[1][dungeon_name]
+            if not init_door_candidates or remaining_keys == 0:
+                continue
+            dungeon_doors = {x.name for x in self.world.key_logic[self.player][dungeon_name].sm_doors.keys()}
+
+            def valid_d_door(x):
+                return x in dungeon_doors
+
+            child_states = deque()
+            child_states.append(self)
+            visited_opened_doors = set()
+            visited_opened_doors.add(frozenset(self.opened_doors))
+            terminal_states, done, common_regions, common_bc, common_doors = [], False, {}, {}, set()
+            while not done:
+                terminal_states.clear()
+                while len(child_states) > 0:
+                    next_child = child_states.popleft()
+                    door_candidates = self.should_explore_child_state(next_child, dungeon_name)
+                    if door_candidates:
+                        for chosen_door in door_candidates:
+                            child_state = next_child.copy()
+                            child_queue = deque()
+                            child_state.door_counter[1][dungeon_name] += 1
+                            if isinstance(chosen_door, tuple):
+                                child_state.opened_doors.add(chosen_door[0])
+                                child_state.opened_doors.add(chosen_door[1])
+                                if chosen_door[0] in checklist:
+                                    child_queue.append(checklist[chosen_door[0]])
+                                if chosen_door[1] in checklist:
+                                    child_queue.append(checklist[chosen_door[1]])
+                            else:
+                                child_state.opened_doors.add(chosen_door)
+                                if chosen_door in checklist:
+                                    child_queue.append(checklist[chosen_door])
+                            if child_state.opened_doors not in visited_opened_doors:
+                                done = False
+                                while not done:
+                                    rrp_ = child_state.reachable_regions
+                                    bc_ = child_state.blocked_connections
+                                    child_state.traverse_world(child_queue, rrp_, bc_)
+                                    new_events = child_state.sweep_for_events_once()
+                                    if new_events:
+                                        for conn in bc_:
+                                            if conn.parent_region.dungeon and conn.parent_region.dungeon.name == dungeon_name:
+                                                child_queue.append((conn, bc_[conn]))
+                                    done = not new_events
+                                visited_opened_doors.add(frozenset(child_state.opened_doors))
+                                child_states.append(child_state)
+                    else:
+                        terminal_states.append(next_child)
+                common_regions, common_doors, first, rrp = {}, set(), True, self.reachable_regions
+                for term_state in terminal_states:
+                    t_rrp = term_state.reachable_regions
+                    if first:
+                        first = False
+                        common_regions = {x: y for x, y in t_rrp.items() if x not in rrp or y != rrp[x]}
+                        common_doors = {x for x in term_state.opened_doors - self.opened_doors if valid_d_door(x)}
+                    else:
+                        cm_rrp = {x: y for x, y in t_rrp.items() if x not in rrp or y != rrp[x]}
+                        common_regions = {k: self.comb_crys(v, cm_rrp[k]) for k, v in common_regions.items()
+                                          if k in cm_rrp and self.crys_agree(v, cm_rrp[k])}
+                        common_doors &= {x for x in term_state.opened_doors - self.opened_doors if valid_d_door(x)}
+                done = len(child_states) == 0
+
+            terminal_queue = deque()
+            for door in common_doors:
+                self.opened_doors.add(door)
+                if door in checklist:
+                    terminal_queue.append(checklist[door])
+                if self.find_door_pair(dungeon_name, door) not in self.opened_doors:
+                    self.door_counter[1][dungeon_name] += 1
+            rrp_ = self.reachable_regions
+            bc_ = self.blocked_connections
+            self.traverse_world(terminal_queue, rrp_, bc_)
+            rrp = self.reachable_regions
+            missing_regions = {x: y for x, y in common_regions.items() if x not in rrp}
+            for k in missing_regions:
+                rrp[k] = missing_regions[k]
+
+    @staticmethod
+    def comb_crys(a, b):
+        return a if a == b or a != CrystalBarrier.Either else b
+
+    @staticmethod
+    def crys_agree(a, b):
+        return a == b or a == CrystalBarrier.Either or b == CrystalBarrier.Either
+
+    def find_door_pair(self, dungeon_name, name):
+        for door in self.world.key_logic[self.player][dungeon_name].sm_doors.keys():
+            if door.name == name:
+                paired_door = self.world.key_logic[self.player][dungeon_name].sm_doors[door]
+                return paired_door.name if paired_door else None
+        return None
+
+    def should_explore_child_state(self, state, dungeon_name):
+        remaining_keys = self.keys - state.door_counter[1][dungeon_name]
+        unopened_doors = state.door_counter[0][dungeon_name] - state.door_counter[1][dungeon_name]
+        if remaining_keys > 0 and unopened_doors > 0:
+            key_logic = state.world.key_logic[self.player][dungeon_name]   # todo: universal
+            door_candidates, skip = [], set()
+            for door, paired in key_logic.sm_doors.items():
+                if door.name in state.reached_doors and door.name not in state.opened_doors:
+                    if door.name not in skip:
+                        if paired:
+                            door_candidates.append((door.name, paired.name))
+                            skip.add(paired.name)
+                        else:
+                            door_candidates.append(door.name)
+            return door_candidates
+        return None
+
+    def _do_not_flood_the_keys(self, reachable_events):
+        adjusted_checks = list(reachable_events)
+        for event in reachable_events:
+            if event.name in flooded_keys.keys():
+                flood_location = self.world.get_location(flooded_keys[event.name], event.player)
+                if flood_location.item and flood_location not in self.locations_checked:
+                    adjusted_checks.remove(event)
+        if len(adjusted_checks) < len(reachable_events):
+            return adjusted_checks
+        return reachable_events
 
 
 def retro_in_hc(spot):
