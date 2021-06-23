@@ -19,7 +19,8 @@ from KeyDoorShuffle import count_locations_exclude_logic
 from Regions import location_table, shop_to_location_table, retro_shops
 from RoomData import DoorKind
 from Text import MultiByteTextMapper, CompressedTextMapper, text_addresses, Credits, TextTable
-from Text import Uncle_texts, Ganon1_texts, TavernMan_texts, Sahasrahla2_texts, Triforce_texts, Blind_texts, BombShop2_texts, junk_texts
+from Text import Uncle_texts, Ganon1_texts, Ganon_Phase_3_No_Silvers_texts, TavernMan_texts, Sahasrahla2_texts
+from Text import Triforce_texts, Blind_texts, BombShop2_texts, junk_texts
 from Text import KingsReturn_texts, Sanctuary_texts, Kakariko_texts, Blacksmiths_texts, DeathMountain_texts, LostWoods_texts, WishingWell_texts, DesertPalace_texts, MountainTower_texts, LinksHouse_texts, Lumberjacks_texts, SickKid_texts, FluteBoy_texts, Zora_texts, MagicShop_texts, Sahasrahla_names
 from Utils import output_path, local_path, int16_as_bytes, int32_as_bytes, snes_to_pc
 from Items import ItemFactory
@@ -27,7 +28,7 @@ from EntranceShuffle import door_addresses, exit_ids
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '47e937d11855bc775587fe2a7acfa3a3'
+RANDOMIZERBASEHASH = '712324ad3ca7bff751d9f62812a2c3b6'
 
 
 class JsonRom(object):
@@ -1638,6 +1639,14 @@ def hud_format_text(text):
 
 def apply_rom_settings(rom, beep, color, quickswap, fastmenu, disable_music, sprite,
                        ow_palettes, uw_palettes, reduce_flashing):
+
+    if not os.path.exists("data/sprites/official/001.link.1.zspr"):
+        dump_zspr(rom.orig_buffer[0x80000:0x87000], rom.orig_buffer[0xdd308:0xdd380],
+                  rom.orig_buffer[0xdedf5:0xdedf9], "data/sprites/official/001.link.1.zspr", "Nintendo", "Link")
+
+    # todo: implement a flag for msu resume delay
+    rom.write_bytes(0x18021D, [0, 0])  # default to off for now
+
     if sprite and not isinstance(sprite, Sprite):
         sprite = Sprite(sprite) if os.path.isfile(sprite) else get_sprite_from_name(sprite)
 
@@ -1735,6 +1744,61 @@ def apply_rom_settings(rom, beep, color, quickswap, fastmenu, disable_music, spr
     if isinstance(rom, LocalRom):
         rom.write_crc()
 
+
+# .zspr file dumping logic copied with permission from SpriteSomething:
+# https://github.com/Artheau/SpriteSomething/blob/master/source/meta/classes/spritelib.py#L443 (thanks miketrethewey!)
+def dump_zspr(basesprite, basepalette, baseglove, outfilename, author_name, sprite_name):
+    palettes = basepalette
+    # Add glove data
+    palettes.extend(baseglove)
+    HEADER_STRING = b"ZSPR"
+    VERSION = 0x01
+    SPRITE_TYPE = 0x01  # this format has "1" for the player sprite
+    RESERVED_BYTES = b'\x00\x00\x00\x00\x00\x00'
+    QUAD_BYTE_NULL_CHAR = b'\x00\x00\x00\x00'
+    DOUBLE_BYTE_NULL_CHAR = b'\x00\x00'
+    SINGLE_BYTE_NULL_CHAR = b'\x00'
+
+    write_buffer = bytearray()
+
+    write_buffer.extend(HEADER_STRING)
+    write_buffer.extend(struct.pack('B', VERSION)) # as_u8
+    checksum_start = len(write_buffer)
+    write_buffer.extend(QUAD_BYTE_NULL_CHAR)  # checksum
+    sprite_sheet_pointer = len(write_buffer)
+    write_buffer.extend(QUAD_BYTE_NULL_CHAR)
+    write_buffer.extend(struct.pack('<H', len(basesprite)))  # as_u16
+    palettes_pointer = len(write_buffer)
+    write_buffer.extend(QUAD_BYTE_NULL_CHAR)
+    write_buffer.extend(struct.pack('<H', len(palettes)))  # as_u16
+    write_buffer.extend(struct.pack('<H', SPRITE_TYPE))  # as_u16
+    write_buffer.extend(RESERVED_BYTES)
+    # sprite.name
+    write_buffer.extend(sprite_name.encode('utf-16-le'))
+    write_buffer.extend(DOUBLE_BYTE_NULL_CHAR)
+    # author.name
+    write_buffer.extend(author_name.encode('utf-16-le'))
+    write_buffer.extend(DOUBLE_BYTE_NULL_CHAR)
+    # author.name-short
+    write_buffer.extend(author_name.encode('ascii'))
+    write_buffer.extend(SINGLE_BYTE_NULL_CHAR)
+    write_buffer[sprite_sheet_pointer:sprite_sheet_pointer +
+                                      4] = struct.pack('<L', len(write_buffer)) # as_u32
+    write_buffer.extend(basesprite)
+    write_buffer[palettes_pointer:palettes_pointer +
+                                  4] = struct.pack('<L', len(write_buffer)) # as_u32
+    write_buffer.extend(palettes)
+
+    checksum = (sum(write_buffer) + 0xFF + 0xFF) % 0x10000
+    checksum_complement = 0xFFFF - checksum
+
+    write_buffer[checksum_start:checksum_start +
+                                2] = struct.pack('<H', checksum) # as_u16
+    write_buffer[checksum_start + 2:checksum_start +
+                                    4] = struct.pack('<H', checksum_complement) # as_u16
+
+    with open('%s' % outfilename, "wb") as zspr_file:
+        zspr_file.write(write_buffer)
 
 def write_sprite(rom, sprite):
     if not sprite.valid:
@@ -2070,24 +2134,30 @@ def write_strings(rom, world, player, team):
 
     # We still need the older hints of course. Those are done here.
 
+    no_silver_text = Ganon_Phase_3_No_Silvers_texts[random.randint(0, len(Ganon_Phase_3_No_Silvers_texts) - 1)]
 
     silverarrows = world.find_items('Silver Arrows', player)
     random.shuffle(silverarrows)
-    silverarrow_hint = (' %s?' % hint_text(silverarrows[0]).replace('Ganon\'s', 'my')) if silverarrows else '?\nI think not!'
-    tt['ganon_phase_3_no_silvers'] = 'Did you find the silver arrows%s' % silverarrow_hint
-    tt['ganon_phase_3_no_silvers_alt'] = 'Did you find the silver arrows%s' % silverarrow_hint
+    if silverarrows:
+        hint_phrase = hint_text(silverarrows[0]).replace("Ganon's", "my")
+        silverarrow_hint = f'Did you find the silver arrows {hint_phrase}?'
+    else:
+        silverarrow_hint = no_silver_text
+    tt['ganon_phase_3_no_silvers'] = silverarrow_hint
+    tt['ganon_phase_3_no_silvers_alt'] = silverarrow_hint
 
     prog_bow_locs = world.find_items('Progressive Bow', player)
     distinguished_prog_bow_loc = next((location for location in prog_bow_locs if location.item.code == 0x65), None)
     progressive_silvers = world.difficulty_requirements[player].progressive_bow_limit >= 2 or world.swords[player] == 'swordless'
     if distinguished_prog_bow_loc:
         prog_bow_locs.remove(distinguished_prog_bow_loc)
-        silverarrow_hint = (' %s?' % hint_text(distinguished_prog_bow_loc).replace('Ganon\'s', 'my')) if progressive_silvers else '?\nI think not!'
-        tt['ganon_phase_3_no_silvers'] = 'Did you find the silver arrows%s' % silverarrow_hint
-
+        hint_phrase = hint_text(distinguished_prog_bow_loc).replace("Ganon's", "my")
+        silverarrow_hint = f'Did you find the silver arrows {hint_phrase}?' if progressive_silvers else no_silver_text
+        tt['ganon_phase_3_no_silvers'] = silverarrow_hint
     if any(prog_bow_locs):
-        silverarrow_hint = (' %s?' % hint_text(random.choice(prog_bow_locs)).replace('Ganon\'s', 'my')) if progressive_silvers else '?\nI think not!'
-        tt['ganon_phase_3_no_silvers_alt'] = 'Did you find the silver arrows%s' % silverarrow_hint
+        hint_phrase = hint_text(random.choice(prog_bow_locs)).replace("Ganon's", "my")
+        silverarrow_hint = f'Did you find the silver arrows {hint_phrase}?' if progressive_silvers else no_silver_text
+        tt['ganon_phase_3_no_silvers_alt'] = silverarrow_hint
 
     crystal5 = world.find_items('Crystal 5', player)[0]
     crystal6 = world.find_items('Crystal 6', player)[0]
