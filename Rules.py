@@ -2021,7 +2021,7 @@ def setup_key_spheres(world, player):
 def is_region_accessible(region, world, player):
     for pos_ent in region.entrances:
         if pos_ent.parent_region != RegionType.Dungeon:
-            return pos_ent.parent_region not in world.inaccessible_regions[player]
+            return pos_ent.parent_region.name not in world.inaccessible_regions[player]
     return None
 
 
@@ -2030,6 +2030,14 @@ def base_state(world, player):
     for item in world.itempool:
         if item.player == player and not item.smallkey:
             ret.collect(item, True)
+    key_list = []
+    player_dungeons = [x for x in world.dungeons if x.player == player]
+    for dungeon in player_dungeons:
+        if dungeon.big_key is not None:
+            key_list += [dungeon.big_key.name]
+    from Items import ItemFactory
+    for item in ItemFactory(key_list, player):
+        ret.collect(item, True)
 
     locations = world.get_filled_locations()
     new_locations = True
@@ -2287,9 +2295,18 @@ class KeyExplorer(object):
                     terminal_queue.append(checklist[door])
                 if self.find_door_pair(dungeon_name, door) not in self.opened_doors:
                     self.door_counter[1][dungeon_name] += 1
-            rrp_ = self.reachable_regions
-            bc_ = self.blocked_connections
-            self.traverse_world(terminal_queue, rrp_, bc_)
+            done = False
+            while not done:
+                rrp_ = self.reachable_regions
+                bc_ = self.blocked_connections
+                self.traverse_world(terminal_queue, rrp_, bc_)
+                new_events = self.sweep_for_events_once()
+                if new_events:
+                    for conn in bc_:
+                        if conn.parent_region.dungeon and conn.parent_region.dungeon.name == dungeon_name:
+                            terminal_queue.append((conn, bc_[conn]))
+                done = not new_events
+
             rrp = self.reachable_regions
             missing_regions = {x: y for x, y in common_regions.items() if x not in rrp}
             for k in missing_regions:
