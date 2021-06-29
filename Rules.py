@@ -1939,13 +1939,13 @@ bunny_impassible_doors = {
 def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     for d_name, d_logic in key_logic.items():
-        for door_name, keys in d_logic.door_rules.items():
-            spot = world.get_entrance(door_name, player)
-            if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
-                rule = create_advanced_key_rule(d_logic, player, keys)
-                if keys.opposite:
-                    rule = or_rule(rule, create_advanced_key_rule(d_logic, player, keys.opposite))
-                add_rule(spot, rule)
+        # for door_name, keys in d_logic.door_rules.items():
+        #     spot = world.get_entrance(door_name, player)
+        #     if not world.retro[player] or world.mode[player] != 'standard' or not retro_in_hc(spot):
+        #         rule = create_advanced_key_rule(d_logic, player, keys)
+        #         if keys.opposite:
+        #             rule = or_rule(rule, create_advanced_key_rule(d_logic, player, keys.opposite))
+        #         add_rule(spot, rule)
 
         for location in d_logic.bk_restricted:
             if not location.forced_item:
