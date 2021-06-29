@@ -172,7 +172,7 @@ def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = 
         new_state = base_state.copy()
         for item in itempool:
             new_state.collect(item, True)
-        new_state.sweep_for_events()
+        new_state.sweep_and_re_key_doors()
         return new_state
 
     unplaced_items = []
