@@ -287,6 +287,10 @@
     "randomizer.item.sortingalgo.vt26": "VT8.26",
     "randomizer.item.sortingalgo.balanced": "Balanced",
 
+    "randomizer.item.restrict_boss_items": "Forbidden Boss Items",
+    "randomizer.item.restrict_boss_items.none": "None",
+    "randomizer.item.restrict_boss_items.mapcompass": "Map & Compass",
+    "randomizer.item.restrict_boss_items.dungeon": "Map & Compass & Keys",
 
     "bottom.content.worlds": "Worlds",
     "bottom.content.names": "Player names",

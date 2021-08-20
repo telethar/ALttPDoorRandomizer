@@ -226,7 +226,8 @@ def gen_dungeon_info(name, available_sectors, entrance_regions, all_regions, pro
         return name == 'Skull Woods 2' and d.name == 'Skull Pinball WS'
     original_state = extend_reachable_state_improved(entrance_regions, start, proposed_map, all_regions,
                                                      valid_doors, bk_flag, world, player, exception)
-    dungeon['Origin'] = create_graph_piece_from_state(None, original_state, original_state, proposed_map, exception)
+    dungeon['Origin'] = create_graph_piece_from_state(None, original_state, original_state, proposed_map, exception,
+                                                      world, player)
     either_crystal = True  # if all hooks from the origin are either, explore all bits with either
     for hook, crystal in dungeon['Origin'].hooks.items():
         if crystal != CrystalBarrier.Either:
@@ -247,7 +248,7 @@ def gen_dungeon_info(name, available_sectors, entrance_regions, all_regions, pro
                 o_state = extend_reachable_state_improved([parent], init_state, proposed_map, all_regions,
                                                           valid_doors, bk_flag, world, player, exception)
                 o_state_cache[door.name] = o_state
-                piece = create_graph_piece_from_state(door, o_state, o_state, proposed_map, exception)
+                piece = create_graph_piece_from_state(door, o_state, o_state, proposed_map, exception, world, player)
                 dungeon[door.name] = piece
     check_blue_states(hanger_set, dungeon, o_state_cache, proposed_map, all_regions, valid_doors,
                       group_flags, door_map, world, player, exception)
@@ -347,7 +348,7 @@ def explore_blue_state(door, dungeon, o_state, proposed_map, all_regions, valid_
     blue_start.big_key_special = o_state.big_key_special
     b_state = extend_reachable_state_improved([parent], blue_start, proposed_map, all_regions, valid_doors, bk_flag,
                                               world, player, exception)
-    dungeon[door.name] = create_graph_piece_from_state(door, o_state, b_state, proposed_map, exception)
+    dungeon[door.name] = create_graph_piece_from_state(door, o_state, b_state, proposed_map, exception, world, player)
 
 
 def make_a_choice(dungeon, hangers, avail_hooks, prev_choices, name):
@@ -639,7 +640,7 @@ def stonewall_valid(stonewall):
     return True
 
 
-def create_graph_piece_from_state(door, o_state, b_state, proposed_map, exception):
+def create_graph_piece_from_state(door, o_state, b_state, proposed_map, exception, world, player):
     # todo: info about dungeon events - not sure about that
     graph_piece = GraphPiece()
     all_unattached = {}
@@ -671,16 +672,14 @@ def create_graph_piece_from_state(door, o_state, b_state, proposed_map, exceptio
     graph_piece.visited_regions.update(o_state.visited_orange)
     graph_piece.visited_regions.update(b_state.visited_blue)
     graph_piece.visited_regions.update(b_state.visited_orange)
-    graph_piece.possible_bk_locations.update(filter_for_potential_bk_locations(o_state.bk_found))
-    graph_piece.possible_bk_locations.update(filter_for_potential_bk_locations(b_state.bk_found))
+    graph_piece.possible_bk_locations.update(filter_for_potential_bk_locations(o_state.bk_found, world, player))
+    graph_piece.possible_bk_locations.update(filter_for_potential_bk_locations(b_state.bk_found, world, player))
     graph_piece.pinball_used = o_state.pinball_used or b_state.pinball_used
     return graph_piece
 
 
-def filter_for_potential_bk_locations(locations):
-    return [x for x in locations if
-            '- Big Chest' not in x.name and '- Prize' not in x.name and x.name not in dungeon_events
-            and  not x.forced_item and x.name not in ['Agahnim 1', 'Agahnim 2']]
+def filter_for_potential_bk_locations(locations, world, player):
+    return count_locations_exclude_big_chest(locations, world, player)
 
 
 type_map = {
@@ -1023,12 +1022,8 @@ class ExplorationState(object):
             return self.crystal == CrystalBarrier.Either or door.crystal == self.crystal
         return True
 
-    def count_locations_exclude_specials(self):
-        cnt = 0
-        for loc in self.found_locations:
-            if '- Big Chest' not in loc.name and '- Prize' not in loc.name and loc.name not in dungeon_events and not loc.forced_item:
-                cnt += 1
-        return cnt
+    def count_locations_exclude_specials(self, world, player):
+        return count_locations_exclude_big_chest(self.found_locations, world, player)
 
     def validate(self, door, region, world, player):
         return self.can_traverse(door) and not self.visited(region) and valid_region_to_explore(region, self.dungeon,
@@ -1069,6 +1064,32 @@ class ExplorationState(object):
         return 2
 
 
+def count_locations_exclude_big_chest(locations, world, player):
+    cnt = 0
+    for loc in locations:
+        if ('- Big Chest' not in loc.name and not loc.forced_item and not reserved_location(loc, world, player)
+           and not prize_or_event(loc) and not blind_boss_unavail(loc, locations, world, player)):
+            cnt += 1
+    return cnt
+
+
+def prize_or_event(loc):
+    return loc.name in dungeon_events or '- Prize' in loc.name or loc.name in ['Agahnim 1', 'Agahnim 2']
+
+
+def reserved_location(loc, world, player):
+    return loc.name in world.item_pool_config.reserved_locations[player]
+
+
+def blind_boss_unavail(loc, locations, world, player):
+    if loc.name == "Thieves' Town - Boss":
+        return (loc.parent_region.dungeon.boss.name == 'Blind' and
+                (not any(x for x in locations if x.name == 'Suspicious Maiden') or
+                 (world.get_region('Thieves Attic Window', player).dungeon.name == 'Thieves Town' and
+                  not any(x for x in locations if x.name == 'Attic Cracked Floor'))))
+    return False
+
+
 class ExplorableDoor(object):
 
     def __init__(self, door, crystal, flag):
@@ -1092,7 +1113,8 @@ def extend_reachable_state_improved(search_regions, state, proposed_map, all_reg
         explorable_door = local_state.next_avail_door()
         if explorable_door.door.bigKey:
             if bk_flag:
-                big_not_found = not special_big_key_found(local_state) if local_state.big_key_special else local_state.count_locations_exclude_specials() == 0
+                big_not_found = (not special_big_key_found(local_state) if local_state.big_key_special
+                                 else local_state.count_locations_exclude_specials(world, player) == 0)
                 if big_not_found:
                     continue  # we can't open this door
         if explorable_door.door in proposed_map:

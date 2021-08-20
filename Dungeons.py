@@ -117,6 +117,7 @@ def fill_dungeons(world):
 def get_dungeon_item_pool(world):
     return [item for dungeon in world.dungeons for item in dungeon.all_items]
 
+
 def fill_dungeons_restrictive(world, shuffled_locations):
     all_state_base = world.get_all_state()
 
@@ -137,10 +138,7 @@ def fill_dungeons_restrictive(world, shuffled_locations):
         elif (item.map and world.mapshuffle[item.player]) or (item.compass and world.compassshuffle[item.player]):
             item.priority = True
 
-    dungeon_items = [item for item in get_dungeon_item_pool(world) if ((item.smallkey and not world.keyshuffle[item.player])
-                                                                       or (item.bigkey and not world.bigkeyshuffle[item.player])
-                                                                       or (item.map and not world.mapshuffle[item.player])
-                                                                       or (item.compass and not world.compassshuffle[item.player]))]
+    dungeon_items = [item for item in get_dungeon_item_pool(world) if item.is_inside_dungeon_item(world)]
 
     # sort in the order Big Key, Small Key, Other before placing dungeon items
     sort_order = {"BigKey": 3, "SmallKey": 2}
@@ -414,7 +412,7 @@ dungeon_prize = {
     'Palace of Darkness': 'Palace of Darkness - Prize',
     'Swamp Palace': 'Swamp Palace - Prize',
     'Skull Woods': 'Skull Woods - Prize',
-    'Thieves Town': 'Thieves Town - Prize',
+    'Thieves Town': "Thieves' Town - Prize",
     'Ice Palace': 'Ice Palace - Prize',
     'Misery Mire': 'Misery Mire - Prize',
     'Turtle Rock': 'Turtle Rock - Prize',

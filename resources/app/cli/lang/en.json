@@ -276,6 +276,13 @@
       "Locations:      You will be able to reach every location in the game.",
       "None:           You will be able to reach enough locations to beat the game."
     ],
+    "restrict_boss_items": [
+      "Select which dungeon are not allowed on bosses (default: %(default)s)",
+      "None:           All items allowed",
+      "Mapcompass:     Map and Compass are required before you defeat the boss.",
+      "Dungeon:        Same as above and keys too cannot be on the boss. Small key shuffle",
+      "                and big key shuffle override this behavior"
+    ],
     "hints": [ "Make telepathic tiles and storytellers give helpful hints. (default: %(default)s)" ],
     "shuffleganon": [
       "Include the Ganon's Tower and Pyramid Hole in the",

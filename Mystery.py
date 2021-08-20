@@ -132,6 +132,7 @@ def roll_settings(weights):
     ret.bigkeyshuffle = get_choice('bigkey_shuffle') == 'on' if 'bigkey_shuffle' in weights else dungeon_items in ['full']
 
     ret.accessibility = get_choice('accessibility')
+    ret.restrict_boss_items = get_choice('restrict_boss_items')
 
     entrance_shuffle = get_choice('entrance_shuffle')
     ret.shuffle = entrance_shuffle if entrance_shuffle != 'none' else 'vanilla'

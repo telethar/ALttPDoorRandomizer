@@ -114,6 +114,7 @@ class World(object):
             set_player_attr('compassshuffle', False)
             set_player_attr('keyshuffle', False)
             set_player_attr('bigkeyshuffle', False)
+            set_player_attr('restrict_boss_items', 'none')
             set_player_attr('bombbag', False)
             set_player_attr('difficulty_requirements', None)
             set_player_attr('boss_shuffle', 'none')
@@ -324,7 +325,7 @@ class World(object):
             elif item.name.startswith('Bottle'):
                 if ret.bottle_count(item.player) < self.difficulty_requirements[item.player].progressive_bottle_limit:
                     ret.prog_items[item.name, item.player] += 1
-            elif item.advancement or item.smallkey or item.bigkey:
+            elif item.advancement or item.smallkey or item.bigkey or item.compass or item.map:
                 ret.prog_items[item.name, item.player] += 1
 
         for item in self.itempool:
@@ -339,6 +340,8 @@ class World(object):
                         key_list += [dungeon.big_key.name]
                     if len(dungeon.small_keys) > 0:
                         key_list += [x.name for x in dungeon.small_keys]
+                    # map/compass may be required now
+                    key_list += [x.name for x in dungeon.dungeon_items]
                 from Items import ItemFactory
                 for item in ItemFactory(key_list, p):
                     soft_collect(item)
@@ -2178,6 +2181,12 @@ class Item(object):
             item_dungeon = 'Hyrule Castle'
         return item_dungeon
 
+    def is_inside_dungeon_item(self, world):
+        return ((self.smallkey and not world.keyshuffle[self.player])
+                or (self.bigkey and not world.bigkeyshuffle[self.player])
+                or (self.compass and not world.compassshuffle[self.player])
+                or (self.map and not world.mapshuffle[self.player]))
+
     def __str__(self):
         return str(self.__unicode__())
 
@@ -2388,6 +2397,7 @@ class Spoiler(object):
                          'weapons': self.world.swords,
                          'goal': self.world.goal,
                          'shuffle': self.world.shuffle,
+                         'linkshuffle': self.world.shufflelinks,
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
                          'item_pool': self.world.difficulty,
@@ -2396,6 +2406,7 @@ class Spoiler(object):
                          'ganon_crystals': self.world.crystals_needed_for_ganon,
                          'open_pyramid': self.world.open_pyramid,
                          'accessibility': self.world.accessibility,
+                         'restricted_boss_items': self.world.restrict_boss_items,
                          'hints': self.world.hints,
                          'mapshuffle': self.world.mapshuffle,
                          'compassshuffle': self.world.compassshuffle,
@@ -2411,6 +2422,7 @@ class Spoiler(object):
                          'experimental': self.world.experimental,
                          'keydropshuffle': self.world.keydropshuffle,
                          'shopsanity': self.world.shopsanity,
+                         'psuedoboots': self.world.pseudoboots,
 						 'triforcegoal': self.world.treasure_hunt_count,
 						 'triforcepool': self.world.treasure_hunt_total,
                          'code': {p: Settings.make_code(self.world, p) for p in range(1, self.world.players + 1)}
@@ -2438,6 +2450,9 @@ class Spoiler(object):
         return json.dumps(out)
 
     def to_file(self, filename):
+        def yn(flag):
+            return 'Yes' if flag else 'No'
+
         self.parse_data()
         with open(filename, 'w') as outfile:
             outfile.write('ALttP Entrance Randomizer Version %s  -  Seed: %s\n\n' % (self.metadata['version'], self.world.seed))
@@ -2462,6 +2477,7 @@ class Spoiler(object):
                 outfile.write('Difficulty:                      %s\n' % self.metadata['item_pool'][player])
                 outfile.write('Item Functionality:              %s\n' % self.metadata['item_functionality'][player])
                 outfile.write('Entrance Shuffle:                %s\n' % self.metadata['shuffle'][player])
+                outfile.write(f"Links House Shuffled:            {self.metadata['linkshuffle'][player]}\n")
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 outfile.write('Intensity:                       %s\n' % self.metadata['intensity'][player])
                 addition = ' (Random)' if self.world.crystals_gt_orig[player] == 'random' else ''
@@ -2470,6 +2486,7 @@ class Spoiler(object):
                 outfile.write('Crystals required for Ganon:     %s\n' % (str(self.metadata['ganon_crystals'][player]) + addition))
                 outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
                 outfile.write('Accessibility:                   %s\n' % self.metadata['accessibility'][player])
+                outfile.write(f"Restricted Boss Items:           {self.metadata['restricted_boss_items'][player]}\n")
                 outfile.write('Map shuffle:                     %s\n' % ('Yes' if self.metadata['mapshuffle'][player] else 'No'))
                 outfile.write('Compass shuffle:                 %s\n' % ('Yes' if self.metadata['compassshuffle'][player] else 'No'))
                 outfile.write('Small Key shuffle:               %s\n' % ('Yes' if self.metadata['keyshuffle'][player] else 'No'))
@@ -2478,12 +2495,13 @@ class Spoiler(object):
                 outfile.write('Enemy shuffle:                   %s\n' % self.metadata['enemy_shuffle'][player])
                 outfile.write('Enemy health:                    %s\n' % self.metadata['enemy_health'][player])
                 outfile.write('Enemy damage:                    %s\n' % self.metadata['enemy_damage'][player])
-                outfile.write('Pot shuffle:                     %s\n' % ('Yes' if self.metadata['potshuffle'][player] else 'No'))
-                outfile.write('Hints:                           %s\n' % ('Yes' if self.metadata['hints'][player] else 'No'))
-                outfile.write('Experimental:                    %s\n' % ('Yes' if self.metadata['experimental'][player] else 'No'))
-                outfile.write('Key Drops shuffled:              %s\n' % ('Yes' if self.metadata['keydropshuffle'][player] else 'No'))
-                outfile.write(f"Shopsanity:                      {'Yes' if self.metadata['shopsanity'][player] else 'No'}\n")
-                outfile.write('Bombbag:                         %s\n' % ('Yes' if self.metadata['bombbag'][player] else 'No'))
+                outfile.write(f"Pot shuffle:                     {yn(self.metadata['potshuffle'][player])}\n")
+                outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
+                outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
+                outfile.write(f"Key Drops shuffled:              {yn(self.metadata['keydropshuffle'][player])}\n")
+                outfile.write(f"Shopsanity:                      {yn(self.metadata['shopsanity'][player])}\n")
+                outfile.write(f"Bombbag:                         {yn(self.metadata['bombbag'][player])}\n")
+                outfile.write(f"Pseudoboots:                     {yn(self.metadata['bombbag'][player])}\n")
             if self.doors:
                 outfile.write('\n\nDoors:\n\n')
                 outfile.write('\n'.join(
@@ -2665,6 +2683,12 @@ enemy_mode = {"none": 0, "shuffled": 1, "random": 2, "chaos": 2, "legacy": 3}
 e_health = {"default": 0, "easy": 1, "normal": 2, "hard": 3, "expert": 4}
 e_dmg = {"default": 0, "shuffled": 1, "random": 2}
 
+# additions
+# shuffle links: 1 bit
+# restrict_boss_mode: 2 bits
+# psuedoboots does not effect code
+# sfx_shuffle and other adjust items does not effect settings code
+
 class Settings(object):
 
     @staticmethod
@@ -2738,7 +2762,6 @@ class Settings(object):
         args.shufflepots[p] = True if settings[7] & 0x4 else False
 
 
-@unique
 class KeyRuleType(FastEnum):
     WorstCase = 0
     AllowSmall = 1
