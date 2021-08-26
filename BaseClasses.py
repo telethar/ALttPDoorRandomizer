@@ -852,7 +852,7 @@ class CollectionState(object):
         reduced = Counter()
         for item, cnt in self.prog_items.items():
             item_name, item_player = item
-            if item_player == player and self.check_if_progressive(item_name):
+            if item_player == player and self.check_if_progressive(item_name, player):
                 if item_name.startswith('Bottle'):  # I think magic requirements can require multiple bottles
                     bottle_count += cnt
                 elif item_name in ['Boss Heart Container', 'Sanctuary Heart Container', 'Piece of Heart']:
@@ -868,8 +868,7 @@ class CollectionState(object):
             reduced[('Heart Container', player)] = 1
         return frozenset(reduced.items())
 
-    @staticmethod
-    def check_if_progressive(item_name):
+    def check_if_progressive(self, item_name, player):
         return (item_name in
                 ['Bow', 'Progressive Bow', 'Progressive Bow (Alt)', 'Book of Mudora', 'Hammer', 'Hookshot',
                  'Magic Mirror', 'Ocarina', 'Pegasus Boots', 'Power Glove', 'Cape', 'Mushroom', 'Shovel',
@@ -881,7 +880,8 @@ class CollectionState(object):
                  'Mirror Shield', 'Progressive Shield', 'Bug Catching Net', 'Cane of Byrna',
                  'Boss Heart Container', 'Sanctuary Heart Container', 'Piece of Heart', 'Magic Upgrade (1/2)',
                  'Magic Upgrade (1/4)']
-            or item_name.startswith(('Bottle', 'Small Key', 'Big Key')))
+            or item_name.startswith(('Bottle', 'Small Key', 'Big Key'))
+            or (self.world.restrict_boss_items[player] != 'none' and item_name.startswith(('Map', 'Compass'))))
 
     def can_reach(self, spot, resolution_hint=None, player=None):
         try:

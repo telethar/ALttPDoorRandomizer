@@ -679,7 +679,8 @@ def create_graph_piece_from_state(door, o_state, b_state, proposed_map, exceptio
 
 
 def filter_for_potential_bk_locations(locations, world, player):
-    return count_locations_exclude_big_chest(locations, world, player)
+    return [x for x in locations if '- Big Chest' not in x.name and not not reserved_location(x, world, player) and
+            not x.forced_item and not prize_or_event(x) and not blind_boss_unavail(x, locations, world, player)]
 
 
 type_map = {
@@ -1078,7 +1079,7 @@ def prize_or_event(loc):
 
 
 def reserved_location(loc, world, player):
-    return loc.name in world.item_pool_config.reserved_locations[player]
+    return hasattr(world, 'item_pool_config') and loc.name in world.item_pool_config.reserved_locations[player]
 
 
 def blind_boss_unavail(loc, locations, world, player):
