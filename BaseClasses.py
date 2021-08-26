@@ -17,6 +17,7 @@ from Utils import int16_as_bytes
 from Tables import normal_offset_table, spiral_offset_table, multiply_lookup, divisor_lookup
 from RoomData import Room
 
+
 class World(object):
 
     def __init__(self, players, shuffle, doorShuffle, logic, mode, swords, difficulty, difficulty_adjustments,
@@ -212,6 +213,11 @@ class World(object):
                         self._location_cache[(location, player)] = r_location
                         return r_location
         raise RuntimeError('No such location %s for player %d' % (location, player))
+
+    def get_location_unsafe(self, location, player):
+        if (location, player) in self._location_cache:
+            return self._location_cache[(location, player)]
+        return None
 
     def get_dungeon(self, dungeonname, player):
         if isinstance(dungeonname, Dungeon):
@@ -1452,6 +1458,10 @@ class Dungeon(object):
         return self.world.get_name_string_for_object(self) if self.world else f'{self.name} (Player {self.player})'
 
 
+class FillError(RuntimeError):
+    pass
+
+
 @unique
 class DoorType(Enum):
     Normal = 1
@@ -1842,6 +1852,8 @@ class Sector(object):
         self.destination_entrance = False
         self.equations = None
         self.item_logic = set()
+        self.chest_location_set = set()
+
 
     def region_set(self):
         if self.r_name_set is None:
@@ -2084,6 +2096,7 @@ class Location(object):
         self.recursion_count = 0
         self.staleness_count = 0
         self.locked = False
+        self.real = not crystal
         self.always_allow = lambda item, state: False
         self.access_rule = lambda state: True
         self.item_rule = lambda item: True

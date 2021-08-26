@@ -1198,6 +1198,8 @@ class DungeonBuilder(object):
         self.sectors = []
         self.location_cnt = 0
         self.key_drop_cnt = 0
+        self.dungeon_items = None  # during fill how many dungeon items are left
+        self.free_items = None  # during fill how many dungeon items are left
         self.bk_required = False
         self.bk_provided = False
         self.c_switch_required = False
@@ -1359,7 +1361,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player,
                 polarized_sectors[sector] = None
         if bow_sectors:
             assign_bow_sectors(dungeon_map, bow_sectors, global_pole)
-        assign_location_sectors(dungeon_map, free_location_sectors, global_pole)
+        assign_location_sectors(dungeon_map, free_location_sectors, global_pole, world, player)
         leftover = assign_crystal_switch_sectors(dungeon_map, crystal_switches, crystal_barriers, global_pole)
         ensure_crystal_switches_reachable(dungeon_map, leftover, polarized_sectors, crystal_barriers, global_pole)
         for sector in leftover:
@@ -1510,6 +1512,7 @@ def define_sector_features(sectors):
                     sector.bk_provided = True
                 elif loc.name not in dungeon_events and not loc.forced_item:
                     sector.chest_locations += 1
+                    sector.chest_location_set.add(loc.name)
                     if '- Big Chest' in loc.name or loc.name in ["Hyrule Castle - Zelda's Chest",
                                                                  "Thieves' Town - Blind's Cell"]:
                         sector.bk_required = True
@@ -1590,19 +1593,26 @@ def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
         assign_sector(sector_list[i], builder, bow_sectors, global_pole)
 
 
-def assign_location_sectors(dungeon_map, free_location_sectors, global_pole):
+def assign_location_sectors(dungeon_map, free_location_sectors, global_pole, world, player):
     valid = False
     choices = None
     sector_list = list(free_location_sectors)
     random.shuffle(sector_list)
+    orig_location_set = build_orig_location_set(dungeon_map)
+    num_dungeon_items = requested_dungeon_items(world, player)
     while not valid:
         choices, d_idx, totals = weighted_random_locations(dungeon_map, sector_list)
+        location_set = {x: set(y) for x, y in orig_location_set.items()}
         for i, sector in enumerate(sector_list):
-            choice = d_idx[choices[i].name]
+            d_name = choices[i].name
+            choice = d_idx[d_name]
             totals[choice] += sector.chest_locations
+            location_set[d_name].update(sector.chest_location_set)
         valid = True
         for d_name, idx in d_idx.items():
-            if totals[idx] < 5:  # min locations for dungeons is 5 (bk exception)
+            free_items = count_reserved_locations(world, player, location_set[d_name])
+            target = max(free_items, 2) + num_dungeon_items
+            if totals[idx] < target:
                 valid = False
                 break
     for i, choice in enumerate(choices):
@@ -1631,6 +1641,30 @@ def weighted_random_locations(dungeon_map, free_location_sectors):
 
     choices = random.choices(population, weights, k=len(free_location_sectors))
     return choices, d_idx, totals
+
+
+def build_orig_location_set(dungeon_map):
+    orig_locations = {}
+    for name, builder in dungeon_map.items():
+        orig_locations[name] = set().union(*(s.chest_location_set for s in builder.sectors))
+    return orig_locations
+
+
+def requested_dungeon_items(world, player):
+    num = 0
+    if not world.bigkeyshuffle[player]:
+        num += 1
+    if not world.compassshuffle[player]:
+        num += 1
+    if not world.mapshuffle[player]:
+        num += 1
+    return num
+
+
+def count_reserved_locations(world, player, proposed_set):
+    if world.item_pool_config:
+        return len([x for x in proposed_set if x in world.item_pool_config.reserved_locations[player]])
+    return 2
 
 
 def assign_crystal_switch_sectors(dungeon_map, crystal_switches, crystal_barriers, global_pole, assign_one=False):

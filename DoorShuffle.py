@@ -46,8 +46,7 @@ def link_doors(world, player):
             world.swamp_patch_required[player] = orig_swamp_patch
 
 
-def link_doors_main(world, player):
-
+def link_doors_prep(world, player):
     # Drop-down connections & push blocks
     for exitName, regionName in logical_connections:
         connect_simple_door(world, exitName, regionName, player)
@@ -99,6 +98,7 @@ def link_doors_main(world, player):
             analyze_portals(world, player)
         for portal in world.dungeon_portals[player]:
             connect_portal(portal, world, player)
+
     if not world.doorShuffle[player] == 'vanilla':
         fix_big_key_doors_with_ugly_smalls(world, player)
     else:
@@ -119,11 +119,14 @@ def link_doors_main(world, player):
         for ent, ext in default_one_way_connections:
             connect_one_way(world, ent, ext, player)
         vanilla_key_logic(world, player)
-    elif world.doorShuffle[player] == 'basic':
+
+
+def link_doors_main(world, player):
+    if world.doorShuffle[player] == 'basic':
         within_dungeon(world, player)
     elif world.doorShuffle[player] == 'crossed':
         cross_dungeon(world, player)
-    else:
+    elif world.doorShuffle[player] != 'vanilla':
         logging.getLogger('').error('Invalid door shuffle setting: %s' % world.doorShuffle[player])
         raise Exception('Invalid door shuffle setting: %s' % world.doorShuffle[player])
 
@@ -214,9 +217,31 @@ def vanilla_key_logic(world, player):
             world.key_logic[player] = {}
         analyze_dungeon(key_layout, world, player)
         world.key_logic[player][builder.name] = key_layout.key_logic
+        world.key_layout[player][builder.name] = key_layout
         log_key_logic(builder.name, key_layout.key_logic)
     # if world.shuffle[player] == 'vanilla' and world.accessibility[player] == 'items' and not world.retro[player] and not world.keydropshuffle[player]:
     #     validate_vanilla_key_logic(world, player)
+
+
+def validate_vanilla_reservation(dungeon, world, player):
+    return validate_key_layout(world.key_layout[player][dungeon.name], world, player)
+    # if not hasattr(world, 'builder_cache'):
+    #     world.builder_cache = {}
+    # if (dungeon.name, player) not in world.builder_cache:
+    #     sector = Sector()
+    #     sector.name = dungeon.name
+    #     sector.regions.extend(convert_regions(dungeon.regions, world, player))
+    #     builder = simple_dungeon_builder(sector.name, [sector])
+    #     builder.master_sector = sector
+    #
+    #     origin_list = find_accessible_entrances(world, player, builder)
+    #     start_regions = convert_regions(origin_list, world, player)
+    #     doors = convert_key_doors(default_small_key_doors[builder.name], world, player)
+    #     key_layout = build_key_layout(builder, start_regions, doors, world, player)
+    #     world.builder_cache[(dungeon.name, player)] = key_layout
+    # else:
+    #     key_layout = world.builder_cache[(dungeon.name, player)]
+    # return validate_key_layout(key_layout, world, player)
 
 
 # some useful functions

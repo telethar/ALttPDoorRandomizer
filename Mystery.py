@@ -71,6 +71,8 @@ def main():
     if args.enemizercli:
         erargs.enemizercli = args.enemizercli
 
+    mw_settings = {'algorithm': False}
+
     settings_cache = {k: (roll_settings(v) if args.samesettings else None) for k, v in weights_cache.items()}
 
     for player in range(1, args.multi + 1):
@@ -79,7 +81,12 @@ def main():
             settings = settings_cache[path] if settings_cache[path] else roll_settings(weights_cache[path])
             for k, v in vars(settings).items():
                 if v is not None:
-                    getattr(erargs, k)[player] = v
+                    if k == 'algorithm':  # multiworld wide parameters
+                        if not mw_settings[k]:  # only use the first roll
+                            setattr(erargs, k, v)
+                            mw_settings[k] = True
+                    else:
+                        getattr(erargs, k)[player] = v
         else:
             raise RuntimeError(f'No weights specified for player {player}')
 
@@ -115,6 +122,8 @@ def roll_settings(weights):
         return choice
 
     ret = argparse.Namespace()
+
+    ret.algorithm = get_choice('algorithm')
 
     glitches_required = get_choice('glitches_required')
     if glitches_required not in ['none', 'no_logic']:
