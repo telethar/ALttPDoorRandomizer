@@ -78,6 +78,7 @@ class World(object):
         self._room_cache = {}
         self.dungeon_layouts = {}
         self.inaccessible_regions = {}
+        self.enabled_entrances = {}
         self.key_logic = {}
         self.pool_adjustment = {}
         self.key_layout = defaultdict(dict)
@@ -143,6 +144,7 @@ class World(object):
             set_player_attr('force_fix', {'gt': False, 'sw': False, 'pod': False, 'tr': False})
 
             set_player_attr('exp_cache', defaultdict(dict))
+            set_player_attr('enabled_entrances', {})
 
     def get_name_string_for_object(self, obj):
         return obj.name if self.players == 1 else f'{obj.name} ({self.get_player_names(obj.player)})'
@@ -1171,6 +1173,8 @@ class CollectionState(object):
     def collect(self, item, event=False, location=None):
         if location:
             self.locations_checked.add(location)
+        if not item:
+            return
         changed = False
         if item.name.startswith('Progressive '):
             if 'Sword' in item.name:
