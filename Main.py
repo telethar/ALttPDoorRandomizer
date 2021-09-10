@@ -30,7 +30,7 @@ from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config
 
-__version__ = '0.5.1.0-u'
+__version__ = '0.5.1.1-u'
 
 from source.classes.BabelFish import BabelFish
 
