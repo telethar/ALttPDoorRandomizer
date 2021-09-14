@@ -20,6 +20,7 @@ def create_item_pool_config(world):
                     d_name = "Thieves' Town" if dungeon.startswith('Thieves') else dungeon
                     config.reserved_locations[player].add(f'{d_name} - Boss')
     for dungeon in world.dungeons:
-        for item in dungeon.all_items:
-            if item.map or item.compass:
-                item.advancement = True
+        if world.restrict_boss_items[dungeon.player] != 'none':
+            for item in dungeon.all_items:
+                if item.map or item.compass:
+                    item.advancement = True
