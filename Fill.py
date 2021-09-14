@@ -167,7 +167,7 @@ def valid_key_placement(item, location, itempool, world):
         cr_count = world.crystals_needed_for_gt[location.player]
         return key_logic.check_placement(unplaced_keys, location if item.bigkey else None, prize_loc, cr_count)
     else:
-        return item.is_inside_dungeon_item(world)
+        return not item.is_inside_dungeon_item(world)  # todo: big deal for ambrosia to fix this
 
 
 def valid_reserved_placement(item, location, world):
