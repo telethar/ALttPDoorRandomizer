@@ -207,12 +207,10 @@ def main(args, seed=None, fish=None):
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.items"))
 
-    if args.algorithm in ['balanced', 'dungeon_bias', 'entangled']:
+    if args.algorithm != 'equitable':
         shuffled_locations = world.get_unfilled_locations()
         random.shuffle(shuffled_locations)
         fill_dungeons_restrictive(world, shuffled_locations)
-    elif args.algorithm == 'equitable':
-        promote_dungeon_items(world)
     else:
         promote_dungeon_items(world)
 

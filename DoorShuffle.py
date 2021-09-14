@@ -44,6 +44,7 @@ def link_doors(world, player):
             reset_rooms(world, player)
             world.get_door("Skull Pinball WS", player).no_exit()
             world.swamp_patch_required[player] = orig_swamp_patch
+            link_doors_prep(world, player)
 
 
 def link_doors_prep(world, player):
