@@ -14,7 +14,7 @@ from RoomData import DoorKind, PairedDoor, reset_rooms
 from DungeonGenerator import ExplorationState, convert_regions, generate_dungeon, pre_validate, determine_required_paths, drop_entrances
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
 from DungeonGenerator import dungeon_portals, dungeon_drops, GenerationException
-from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout
+from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout, determine_prize_lock
 from Utils import ncr, kth_combination
 
 
@@ -1358,10 +1358,8 @@ def combine_layouts(recombinant_builders, dungeon_builders, entrances_map):
                 if recombine.master_sector is None:
                     recombine.master_sector = builder.master_sector
                     recombine.master_sector.name = recombine.name
-                    recombine.pre_open_stonewalls = builder.pre_open_stonewalls
                 else:
                     recombine.master_sector.regions.extend(builder.master_sector.regions)
-                    recombine.pre_open_stonewalls.update(builder.pre_open_stonewalls)
         recombine.layout_starts = list(entrances_map[recombine.name])
         dungeon_builders[recombine.name] = recombine
 
@@ -1465,6 +1463,7 @@ def find_valid_combination(builder, start_regions, world, player, drop_keys=True
     start_regions = [x for x in start_regions if x not in excluded.keys()]
 
     key_layout = build_key_layout(builder, start_regions, proposal, world, player)
+    determine_prize_lock(key_layout, world, player)
     while not validate_key_layout(key_layout, world, player):
         itr += 1
         stop_early = False
@@ -2043,8 +2042,8 @@ class DROptions(Flag):
     Debug = 0x08
     # Rails = 0x10  # Unused bit now
     OriginalPalettes = 0x20
-    Open_PoD_Wall = 0x40  # If on, pre opens the PoD wall, no bow required
-    Open_Desert_Wall = 0x80  # If on, pre opens the desert wall, no fire required
+    # Open_PoD_Wall = 0x40  # No longer pre-opening pod wall - unused
+    # Open_Desert_Wall = 0x80  # No longer pre-opening desert wall - unused
     Hide_Total = 0x100
     DarkWorld_Spawns = 0x200
 

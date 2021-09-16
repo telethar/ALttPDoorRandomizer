@@ -10,6 +10,7 @@ import time
 import zlib
 
 from BaseClasses import World, CollectionState, Item, Region, Location, Shop, Entrance, Settings
+from Bosses import place_bosses
 from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
@@ -30,7 +31,7 @@ from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config
 
-__version__ = '0.5.1.1-u'
+__version__ = '1.0.0.1-u'
 
 from source.classes.BabelFish import BabelFish
 
@@ -149,6 +150,7 @@ def main(args, seed=None, fish=None):
         create_rooms(world, player)
         create_dungeons(world, player)
         adjust_locations(world, player)
+        place_bosses(world, player)
     create_item_pool_config(world)
 
     if any(world.potshuffle.values()):
