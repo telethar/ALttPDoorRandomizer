@@ -232,7 +232,7 @@ def massage_item_pool(world):
         player_pool[item.player].append(item)
     for dungeon in world.dungeons:
         for item in dungeon.all_items:
-            if (not item.compass and not item.map) or item not in player_pool[item.player]:
+            if item.is_inside_dungeon_item(world):
                 player_pool[item.player].append(item)
     player_locations = defaultdict(list)
     for player in player_pool:
