@@ -102,11 +102,10 @@
     "choices": [
       "balanced",
       "equitable",
-      "vanilla_bias",
-      "major_bias",
-      "dungeon_bias",
-      "cluster_bias",
-      "entangled"
+      "vanilla_fill",
+      "major_only",
+      "dungeon_only",
+      "district"
     ]
   },
   "shuffle": {

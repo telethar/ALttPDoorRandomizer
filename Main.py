@@ -29,7 +29,7 @@ from Fill import sell_potions, sell_keys, balance_multiworld_progression, balanc
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
 
-from source.item.BiasedFill import create_item_pool_config, massage_item_pool
+from source.item.BiasedFill import create_item_pool_config, massage_item_pool, district_item_pool_config
 
 
 __version__ = '1.0.0.1-u'
@@ -199,6 +199,7 @@ def main(args, seed=None, fish=None):
         else:
             lock_shop_locations(world, player)
 
+    district_item_pool_config(world)
     massage_item_pool(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 

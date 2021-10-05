@@ -17,7 +17,8 @@ except ImportError:
 
 from BaseClasses import CollectionState, ShopType, Region, Location, Door, DoorType, RegionType, PotItem
 from DoorShuffle import compass_data, DROptions, boss_indicator
-from Dungeons import dungeon_music_addresses
+from Dungeons import dungeon_music_addresses, dungeon_table
+from DungeonGenerator import dungeon_portals
 from Regions import location_table, shop_to_location_table, retro_shops
 from RoomData import DoorKind
 from Text import MultiByteTextMapper, CompressedTextMapper, text_addresses, Credits, TextTable
@@ -32,7 +33,7 @@ from source.classes.SFX import randomize_sfx
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '11f4f494e999a919aafd7d2624e67679'
+RANDOMIZERBASEHASH = 'f2791b1fb0776849bd4a0851b75fca26'
 
 
 class JsonRom(object):
@@ -2051,6 +2052,7 @@ def write_strings(rom, world, player, team):
                 else:
                     entrances_to_hint.update({'Pyramid Ledge': 'The pyramid ledge'})
         hint_count = 4 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 0
+        hint_count -= 2 if world.algorithm == 'district' and world.shuffle[player] not in ['simple', 'restricted'] else 0
         for entrance in all_entrances:
             if entrance.name in entrances_to_hint:
                 if hint_count > 0:
@@ -2142,11 +2144,35 @@ def write_strings(rom, world, player, team):
             else:
                 tt[hint_locations.pop(0)] = this_hint
 
-        # All remaining hint slots are filled with junk hints. It is done this way to ensure the same junk hint isn't selected twice.
-        junk_hints = junk_texts.copy()
-        random.shuffle(junk_hints)
-        for location in hint_locations:
-            tt[location] = junk_hints.pop(0)
+        if world.shuffle[player] in ['full', 'crossed', 'insanity']:
+            # 3 hints for dungeons - todo: replace with overworld map code
+            hint_count = 3
+            dungeon_candidates = list(dungeon_table.keys())
+            dungeon_choices = random.choices(dungeon_candidates, k=hint_count)
+            for c in dungeon_choices:
+                portal_name = random.choice(dungeon_portals[c])
+                portal_region = world.get_portal(portal_name, player).door.entrance.connected_region
+                entrance = next(ent for ent in portal_region.entrances
+                                if ent.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld])
+                district =next(d for d in world.districts[player].values() if entrance.name in d.entrances)
+                this_hint = f'The entrance to {c} can be found in {district.name}'
+                tt[hint_locations.pop(0)] = this_hint
+
+        if world.algorithm == 'district':
+            hint_candidates = []
+            for name, district in world.districts[player].items():
+                if name not in world.item_pool_config.recorded_choices and not district.sphere_one:
+                    hint_candidates.append(f'{name} is a foolish choice')
+            random.shuffle(hint_candidates)
+            for location in hint_locations:
+                tt[location] = hint_candidates.pop(0)
+        else:
+            # All remaining hint slots are filled with junk hints. It is done this way to ensure the same junk hint
+            # isn't selected twice.
+            junk_hints = junk_texts.copy()
+            random.shuffle(junk_hints)
+            for location in hint_locations:
+                tt[location] = junk_hints.pop(0)
 
     # We still need the older hints of course. Those are done here.
 

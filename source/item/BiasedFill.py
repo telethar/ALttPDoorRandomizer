@@ -3,6 +3,7 @@ import logging
 from math import ceil
 from collections import defaultdict
 
+from source.item.District import resolve_districts
 from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
@@ -16,6 +17,8 @@ class ItemPoolConfig(object):
         self.item_pool = None
         self.placeholders = None
         self.reserved_locations = defaultdict(set)
+
+        self.recorded_choices = []
 
 
 class LocationGroup(object):
@@ -57,7 +60,7 @@ def create_item_pool_config(world):
             for item in dungeon.all_items:
                 if item.map or item.compass:
                     item.advancement = True
-    if world.algorithm == 'vanilla_bias':
+    if world.algorithm == 'vanilla_fill':
         config.static_placement = {}
         config.location_groups = {}
         for player in range(1, world.players + 1):
@@ -78,7 +81,7 @@ def create_item_pool_config(world):
                 LocationGroup('bkgt').locs(mode_grouping['GT Trash'])]
             for loc_name in mode_grouping['Big Chests'] + mode_grouping['Heart Containers']:
                 config.reserved_locations[player].add(loc_name)
-    elif world.algorithm == 'major_bias':
+    elif world.algorithm == 'major_only':
         config.location_groups = [
             LocationGroup('MajorItems'),
             LocationGroup('Backup')
@@ -111,7 +114,7 @@ def create_item_pool_config(world):
             backup = (mode_grouping['Heart Pieces'] + mode_grouping['Dungeon Trash'] + mode_grouping['Shops']
                       + mode_grouping['Overworld Trash'] + mode_grouping['GT Trash'] + mode_grouping['RetroShops'])
             config.location_groups[1].locations = set(backup)
-    elif world.algorithm == 'dungeon_bias':
+    elif world.algorithm == 'dungeon_only':
         config.location_groups = [
             LocationGroup('Dungeons'),
             LocationGroup('Backup')
@@ -202,6 +205,74 @@ def create_item_pool_config(world):
                         chosen_locations[choice].add(player)
             ttl_locations += len(chosen_locations[choice])
         config.placeholders = ttl_locations - item_cnt
+        config.location_groups[0].locations = chosen_locations
+
+
+def district_item_pool_config(world):
+    resolve_districts(world)
+    if world.algorithm == 'district':
+        config = world.item_pool_config
+        config.location_groups = [
+            LocationGroup('Districts'),
+        ]
+        item_cnt = 0
+        config.item_pool = {}
+        for player in range(1, world.players + 1):
+            config.item_pool[player] = determine_major_items(world, player)
+            item_cnt += count_major_items(world, player)
+        # set district choices
+        district_choices = {}
+        for p in range(1, world.players + 1):
+            for name, district in world.districts[p].items():
+                adjustment = 0
+                if district.dungeon:
+                    adjustment = len([i for i in world.get_dungeon(name, p).all_items
+                                      if i.is_inside_dungeon_item(world)])
+                dist_len = len(district.locations) - adjustment
+                if name not in district_choices:
+                    district_choices[name] = (district.sphere_one, dist_len)
+                else:
+                    so, amt = district_choices[name]
+                    district_choices[name] = (so or district.sphere_one, amt + dist_len)
+
+        chosen_locations = defaultdict(set)
+        location_cnt = 0
+
+        # choose a sphere one district
+        sphere_one_choices = [d for d, info in district_choices.items() if info[0]]
+        sphere_one = random.choice(sphere_one_choices)
+        so, amt = district_choices[sphere_one]
+        location_cnt += amt
+        for player in range(1, world.players + 1):
+            for location in world.districts[player][sphere_one].locations:
+                chosen_locations[location].add(player)
+        del district_choices[sphere_one]
+        config.recorded_choices.append(sphere_one)
+
+        scale_factors = defaultdict(int)
+        scale_total = 0
+        for p in range(1, world.players + 1):
+            ent = 'Inverted Ganons Tower' if world.mode[p] == 'inverted' else 'Ganons Tower'
+            dungeon = world.get_entrance(ent, p).connected_region.dungeon
+            if dungeon:
+                scale = world.crystals_needed_for_gt[p]
+                scale_total += scale
+                scale_factors[dungeon.name] += scale
+        scale_total = max(1, scale_total)
+        scale_divisors = defaultdict(lambda: 1)
+        scale_divisors.update(scale_factors)
+
+        while location_cnt < item_cnt:
+            weights = [scale_total / scale_divisors[d] for d in district_choices.keys()]
+            choice = random.choices(list(district_choices.keys()), weights=weights, k=1)[0]
+            so, amt = district_choices[choice]
+            location_cnt += amt
+            for player in range(1, world.players + 1):
+                for location in world.districts[player][choice].locations:
+                    chosen_locations[location].add(player)
+            del district_choices[choice]
+            config.recorded_choices.append(choice)
+        config.placeholders = location_cnt - item_cnt
         config.location_groups[0].locations = chosen_locations
 
 
@@ -390,6 +461,8 @@ def calc_dungeon_limits(world, player):
 
 def determine_major_items(world, player):
     major_item_set = set(major_items)
+    if world.progressive == 'off':
+        pass  # now what?
     if world.bigkeyshuffle[player]:
         major_item_set.update({x for x, y in item_table.items() if y[2] == 'BigKey'})
     if world.keyshuffle[player]:
@@ -412,16 +485,18 @@ def determine_major_items(world, player):
 
 
 def classify_major_items(world):
-    if world.algorithm in ['major_bias', 'dungeon_bias', 'cluster_bias'] or (world.algorithm == 'entangled'
-                                                                             and world.players > 1):
+    if world.algorithm in ['major_only', 'dungeon_only', 'district']:
         config = world.item_pool_config
         for item in world.itempool:
             if item.name in config.item_pool[item.player]:
-                if not item.advancement or not item.priority:
+                if not item.advancement and not item.priority:
                     if item.smallkey or item.bigkey:
                         item.advancement = True
                     else:
                         item.priority = True
+            else:
+                if item.priority:
+                    item.priority = False
 
 
 def figure_out_clustered_choices(world):
@@ -488,13 +563,15 @@ def vanilla_fallback(item_to_place, locations, world):
     return []
 
 
-def filter_locations(item_to_place, locations, world):
-    if world.algorithm == 'vanilla_bias':
+def filter_locations(item_to_place, locations, world, vanilla_skip=False):
+    if world.algorithm == 'vanilla_fill':
         config, filtered = world.item_pool_config, []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
         if item_name in config.static_placement[item_to_place.player]:
             restricted = config.static_placement[item_to_place.player][item_name]
             filtered = [l for l in locations if l.player == item_to_place.player and l.name in restricted]
+        if vanilla_skip and len(filtered) == 0:
+            return filtered
         i = 0
         while len(filtered) <= 0:
             if i >= len(config.location_groups[item_to_place.player]):
@@ -503,7 +580,7 @@ def filter_locations(item_to_place, locations, world):
             filtered = [l for l in locations if l.player == item_to_place.player and l.name in restricted]
             i += 1
         return filtered
-    if world.algorithm in ['major_bias', 'dungeon_bias']:
+    if world.algorithm in ['major_only', 'dungeon_only']:
         config = world.item_pool_config
         if item_to_place.name in config.item_pool[item_to_place.player]:
             restricted = config.location_groups[0].locations
@@ -513,7 +590,7 @@ def filter_locations(item_to_place, locations, world):
                 filtered = [l for l in locations if l.name in restricted]
                 # bias toward certain location in overflow? (thinking about this for major_bias)
             return filtered if len(filtered) > 0 else locations
-    if (world.algorithm == 'entangled' and world.players > 1) or world.algorithm == 'cluster_bias':
+    if (world.algorithm == 'entangled' and world.players > 1) or world.algorithm == 'district':
         config = world.item_pool_config
         if item_to_place == 'Placeholder' or item_to_place.name in config.item_pool[item_to_place.player]:
             restricted = config.location_groups[0].locations
@@ -835,7 +912,7 @@ major_items = {'Bombos', 'Book of Mudora', 'Cane of Somaria', 'Ether', 'Fire Rod
                'Bug Catching Net', 'Cane of Byrna', 'Blue Boomerang', 'Red Boomerang', 'Progressive Glove',
                'Power Glove', 'Titans Mitts', 'Bottle', 'Bottle (Red Potion)', 'Bottle (Green Potion)', 'Magic Mirror',
                'Bottle (Blue Potion)', 'Bottle (Fairy)', 'Bottle (Bee)', 'Bottle (Good Bee)', 'Magic Upgrade (1/2)',
-               'Sanctuary Heart Container', 'Boss Heart Container', 'Progressive Shield', 'Blue Shield', 'Red Shield',
+               'Sanctuary Heart Container', 'Boss Heart Container', 'Progressive Shield',
                'Mirror Shield', 'Progressive Armor', 'Blue Mail', 'Red Mail', 'Progressive Sword', 'Fighter Sword',
                'Master Sword', 'Tempered Sword', 'Golden Sword', 'Bow', 'Silver Arrows', 'Triforce Piece', 'Moon Pearl',
                'Progressive Bow', 'Progressive Bow (Alt)'}

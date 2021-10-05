@@ -118,10 +118,10 @@
       "options": [
         "balanced",
         "equitable",
-        "vanilla_bias",
-        "major_bias",
-        "dungeon_bias",
-        "cluster_bias"
+        "vanilla_fill",
+        "major_only",
+        "dungeon_only",
+        "district"
       ]
     },
     "restrict_boss_items": {
