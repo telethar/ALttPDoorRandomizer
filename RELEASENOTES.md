@@ -1,20 +1,51 @@
-# New Features
+# Volatile Notes
 
-## Shuffle SFX
+## New Features
+
+### Overworld Map shows dungeon location
+
+Option to move indicators on overworld map to reference dungeon location. The non-default options include indicators for Hyrule Castle, Agahnim's Tower, and Ganon's Tower.
+
+CLI ```--overworld_map```
+
+#### Options
+
+##### default
+
+Status quo. Showing only the prize markers on the vanilla dungeon locations.
+
+##### compass
+
+The compass item controls whether the marker is moved to the dungeons locations. If you possess the compass but not the map, only a glowing X will be present regardless of dungeon prize type, if you only possess the map, the prizes will be shown in predicable locations at the bottom of the overworld map instead of the vanilla location. Light world dungeons on the light world map and dark world dungeons on the dark world map. If you posses both map and compass, then the prize of the dungeon and the location will be on the map.
+
+If you do not shuffle the compass or map outside of the dungeon, the non-shuffled items are not needed to display the information. If a dungeon does not have a map or compass, it is not needed for the information. Talking to the bomb shop or Sahasrahla furnishes you with complete information as well as map information.
+
+##### map
+
+The map item plays double duty in this mode and only possession of the map will show both prize and location of the dungeon. If you do not shuffle maps or the dungeon does not have a map, the information will be displayed without needing to find any items.
+
+# Unstable Notes
+
+## New Features
+
+### Shuffle SFX
 
 Shuffles a large portion of the sounds effects. Can be used with the adjuster.
 
 CLI: ```--shuffle_sfx```
  
-## Bomb Logic 
+### Bomb Logic 
 
 When enabling this option, you do not start with bomb capacity but rather you must find 1 of 2 bomb bags. (They are represented by the +10 capacity item.) Bomb capacity upgrades are otherwise unavailable.
  
 CLI: ```--bombbag```
 
 
-# Bug Fixes and Notes.
+## Bug Fixes and Notes.
 
+* 0.5.1.4
+	* Revert quadrant glitch fix for baserom
+	* Fix for inverted
 * 0.5.1.3
 	* Certain lobbies forbidden in standard when rupee bow is enabled
 	* PoD EG disarmed when mirroring (except in nologic)
