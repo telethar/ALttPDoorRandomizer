@@ -318,6 +318,13 @@
     "action": "store_true",
     "type": "bool"
   },
+  "overworld_map": {
+    "choices": [
+      "default",
+      "compass",
+      "map"
+    ]
+  },
   "pseudoboots": {
     "action": "store_true",
     "type": "bool"

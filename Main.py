@@ -104,6 +104,7 @@ def main(args, seed=None, fish=None):
     world.treasure_hunt_total = args.triforce_pool.copy()
     world.shufflelinks = args.shufflelinks.copy()
     world.pseudoboots = args.pseudoboots.copy()
+    world.overworld_map = args.overworld_map.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
 

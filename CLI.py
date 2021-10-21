@@ -96,7 +96,7 @@ def parse_cli(argv, no_defaults=False):
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
-                         'bombbag',
+                         'bombbag', 'overworld_map',
                          'triforce_pool_min', 'triforce_pool_max', 'triforce_goal_min', 'triforce_goal_max',
                          'triforce_min_difference', 'triforce_goal', 'triforce_pool', 'shufflelinks', 'pseudoboots',
                          'retro', 'accessibility', 'hints', 'beemizer', 'experimental', 'dungeon_counters',
@@ -146,6 +146,7 @@ def parse_settings():
         "shuffleganon": True,
         "shuffle": "vanilla",
         "shufflelinks": False,
+        "overworld_map": "default",
         "pseudoboots": False,
 
         "shufflepots": False,

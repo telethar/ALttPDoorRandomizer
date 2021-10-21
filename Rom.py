@@ -16,8 +16,8 @@ except ImportError:
     raise Exception('Could not load BPS module')
 
 from BaseClasses import CollectionState, ShopType, Region, Location, Door, DoorType, RegionType, PotItem
-from DoorShuffle import compass_data, DROptions, boss_indicator
-from Dungeons import dungeon_music_addresses
+from DoorShuffle import compass_data, DROptions, boss_indicator, dungeon_portals
+from Dungeons import dungeon_music_addresses, dungeon_table
 from Regions import location_table, shop_to_location_table, retro_shops
 from RoomData import DoorKind
 from Text import MultiByteTextMapper, CompressedTextMapper, text_addresses, Credits, TextTable
@@ -26,13 +26,13 @@ from Text import Triforce_texts, Blind_texts, BombShop2_texts, junk_texts
 from Text import KingsReturn_texts, Sanctuary_texts, Kakariko_texts, Blacksmiths_texts, DeathMountain_texts, LostWoods_texts, WishingWell_texts, DesertPalace_texts, MountainTower_texts, LinksHouse_texts, Lumberjacks_texts, SickKid_texts, FluteBoy_texts, Zora_texts, MagicShop_texts, Sahasrahla_names
 from Utils import output_path, local_path, int16_as_bytes, int32_as_bytes, snes_to_pc
 from Items import ItemFactory
-from EntranceShuffle import door_addresses, exit_ids
+from EntranceShuffle import door_addresses, exit_ids, ow_prize_table
 
 from source.classes.SFX import randomize_sfx
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '1c59cec98ba4555db8eed1d2dea76497'
+RANDOMIZERBASEHASH = '7ec52e136e8c73a9e093a4baa43fc2d2'
 
 
 class JsonRom(object):
@@ -1401,14 +1401,48 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x18003B, 0x01 if world.mapshuffle[player] else 0x00)  # maps showing crystals on overworld
 
     # compasses showing dungeon count
+    compass_mode = 0x00
     if world.clock_mode != 'none' or world.dungeon_counters[player] == 'off':
-        rom.write_byte(0x18003C, 0x00)  # Currently must be off if timer is on, because they use same HUD location
-    elif world.dungeon_counters[player] == 'on':
-        rom.write_byte(0x18003C, 0x02)  # always on
-    elif world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dungeon_counters[player] == 'pickup':
-        rom.write_byte(0x18003C, 0x01)  # show on pickup
-    else:
+        compass_mode = 0x00  # Currently must be off if timer is on, because they use same HUD location
         rom.write_byte(0x18003C, 0x00)
+    elif world.dungeon_counters[player] == 'on':
+        compass_mode = 0x02  # always on
+    elif world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dungeon_counters[player] == 'pickup':
+        compass_mode = 0x01  # show on pickup
+    if world.shuffle[player] != 'vanilla' and world.overworld_map[player] != 'default':
+        compass_mode |= 0x80  # turn on locating dungeons
+        x_map_position_generic = [0x3c0, 0xbc0, 0x7c0, 0x1c0, 0x5c0, 0xdc0, 0x7c0, 0xbc0, 0x9c0, 0x3c0]
+        for idx, x_map in enumerate(x_map_position_generic):
+            rom.write_bytes(0x53df6+idx*2, int16_as_bytes(x_map))
+            rom.write_bytes(0x53e16+idx*2, int16_as_bytes(0xFC0))
+        if world.compassshuffle[player] and world.overworld_map[player] == 'compass':
+            compass_mode |= 0x40  # compasses are wild
+        for dungeon, portal_list in dungeon_portals.items():
+            ow_map_index = dungeon_table[dungeon].map_index
+            if len(portal_list) == 1:
+                portal_idx = 0
+            else:
+                if world.doorShuffle[player] == 'crossed':
+                    # the random choice excludes sanctuary
+                    portal_idx = next((i for i, elem in enumerate(portal_list)
+                                       if world.get_portal(elem, player).chosen), random.choice([1, 2, 3]))
+                else:
+                    portal_idx = {'Hyrule Castle': 0, 'Desert Palace': 0, 'Skull Woods': 3, 'Turtle Rock': 3}[dungeon]
+            portal = world.get_portal(portal_list[portal_idx], player)
+            entrance = portal.find_portal_entrance()
+            world_indicator = 0x01 if entrance.parent_region.type == RegionType.DarkWorld else 0x00
+            coords = ow_prize_table[entrance.name]
+            # figure out compass entrances and what world (light/dark)
+            rom.write_bytes(0x53E36+ow_map_index*2, int16_as_bytes(coords[0]))
+            rom.write_bytes(0x53E56+ow_map_index*2, int16_as_bytes(coords[1]))
+            rom.write_byte(0x53EA6+ow_map_index, world_indicator)
+            # in crossed doors - flip the compass exists flags
+            if world.doorShuffle[player] == 'crossed':
+                exists_flag = any(x for x in world.get_dungeon(dungeon, player).dungeon_items if x.type == 'Compass')
+                rom.write_byte(0x53E96+ow_map_index, 0x1 if exists_flag else 0x0)
+
+
+    rom.write_byte(0x18003C, compass_mode)
 
      # Bitfield - enable free items to show up in menu
      #

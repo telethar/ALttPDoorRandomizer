@@ -1278,6 +1278,7 @@ def refine_boss_exits(world, player):
             if 0 < len(filtered) < len(reachable_portals):
                 reachable_portals = filtered
             chosen_one = random.choice(reachable_portals) if len(reachable_portals) > 1 else reachable_portals[0]
+            chosen_one.chosen = True
             if chosen_one != current_boss:
                 chosen_one.change_boss_exit(current_boss.boss_exit_idx)
                 current_boss.change_boss_exit(-1)

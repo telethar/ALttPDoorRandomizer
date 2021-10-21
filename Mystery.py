@@ -135,6 +135,8 @@ def roll_settings(weights):
 
     entrance_shuffle = get_choice('entrance_shuffle')
     ret.shuffle = entrance_shuffle if entrance_shuffle != 'none' else 'vanilla'
+    overworld_map = get_choice('overworld_map')
+    ret.overworld_map = overworld_map if overworld_map != 'default' else 'default'
     door_shuffle = get_choice('door_shuffle')
     ret.door_shuffle = door_shuffle if door_shuffle != 'none' else 'vanilla'
     ret.intensity = get_choice('intensity')

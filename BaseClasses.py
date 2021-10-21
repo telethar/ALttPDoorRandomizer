@@ -1957,6 +1957,12 @@ class Portal(object):
         self.dependent = None
         self.deadEnd = False
         self.light_world = False
+        self.chosen = False
+
+    def find_portal_entrance(self):
+        p_region = self.door.entrance.connected_region
+        return next((x for x in p_region.entrances
+                     if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]), None)
 
     def change_boss_exit(self, exit_idx):
         self.default = False

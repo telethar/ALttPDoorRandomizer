@@ -378,8 +378,8 @@ flexible_starts = {
 
 class DungeonInfo:
 
-    def __init__(self, free, keys, bk, map, compass, bk_drop, drops, prize=None):
-                 # todo reduce static maps  ideas: prize, bk_name, sm_name, cmp_name, map_name):
+    def __init__(self, free, keys, bk, map, compass, bk_drop, drops, prize, midx):
+         # todo reduce static maps  ideas: prize, bk_name, sm_name, cmp_name, map_name):
         self.free_items = free
         self.key_num = keys
         self.bk_present = bk
@@ -389,21 +389,23 @@ class DungeonInfo:
         self.key_drops = drops
         self.prize = prize
 
+        self.map_index = midx
+
 
 dungeon_table = {
-    'Hyrule Castle': DungeonInfo(6, 1, False, True, False, True, 3, None),
-    'Eastern Palace': DungeonInfo(3, 0, True, True, True, False, 2, 'Eastern Palace - Prize'),
-    'Desert Palace': DungeonInfo(2, 1, True, True, True, False, 3, 'Desert Palace - Prize'),
-    'Tower of Hera': DungeonInfo(2, 1, True, True, True, False, 0, 'Tower of Hera - Prize'),
-    'Agahnims Tower': DungeonInfo(0, 2, False, False, False, False, 2, None),
-    'Palace of Darkness': DungeonInfo(5, 6, True, True, True, False, 0, 'Palace of Darkness - Prize'),
-    'Swamp Palace': DungeonInfo(6, 1, True, True, True, False, 5, 'Swamp Palace - Prize'),
-    'Skull Woods': DungeonInfo(2, 3, True, True, True, False, 2, 'Skull Woods - Prize'),
-    'Thieves Town': DungeonInfo(4, 1, True, True, True, False, 2, "Thieves' Town - Prize"),
-    'Ice Palace': DungeonInfo(3, 2, True, True, True, False, 4, 'Ice Palace - Prize'),
-    'Misery Mire': DungeonInfo(2, 3, True, True, True, False, 3, 'Misery Mire - Prize'),
-    'Turtle Rock': DungeonInfo(5, 4, True, True, True, False, 2, 'Turtle Rock - Prize'),
-    'Ganons Tower': DungeonInfo(20, 4, True, True, True, False, 4, None),
+    'Hyrule Castle': DungeonInfo(6, 1, False, True, False, True, 3, None, 0xc),
+    'Eastern Palace': DungeonInfo(3, 0, True, True, True, False, 2, 'Eastern Palace - Prize', 0x0),
+    'Desert Palace': DungeonInfo(2, 1, True, True, True, False, 3, 'Desert Palace - Prize', 0x2),
+    'Tower of Hera': DungeonInfo(2, 1, True, True, True, False, 0, 'Tower of Hera - Prize', 0x1),
+    'Agahnims Tower': DungeonInfo(0, 2, False, False, False, False, 2, None, 0xb),
+    'Palace of Darkness': DungeonInfo(5, 6, True, True, True, False, 0, 'Palace of Darkness - Prize', 0x3),
+    'Swamp Palace': DungeonInfo(6, 1, True, True, True, False, 5, 'Swamp Palace - Prize', 0x9),
+    'Skull Woods': DungeonInfo(2, 3, True, True, True, False, 2, 'Skull Woods - Prize', 0x4),
+    'Thieves Town': DungeonInfo(4, 1, True, True, True, False, 2, "Thieves' Town - Prize", 0x6),
+    'Ice Palace': DungeonInfo(3, 2, True, True, True, False, 4, 'Ice Palace - Prize', 0x8),
+    'Misery Mire': DungeonInfo(2, 3, True, True, True, False, 3, 'Misery Mire - Prize', 0x7),
+    'Turtle Rock': DungeonInfo(5, 4, True, True, True, False, 2, 'Turtle Rock - Prize', 0x5),
+    'Ganons Tower': DungeonInfo(20, 4, True, True, True, False, 4, None, 0xa),
 }
 
 
