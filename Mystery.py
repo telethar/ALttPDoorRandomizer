@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--names', default='')
     parser.add_argument('--teams', default=1, type=lambda value: max(int(value), 1))
     parser.add_argument('--create_spoiler', action='store_true')
+    parser.add_argument('--suppress_rom', action='store_true')
     parser.add_argument('--rom')
     parser.add_argument('--enemizercli')
     parser.add_argument('--outputpath')
@@ -61,6 +62,7 @@ def main():
     erargs.seed = seed
     erargs.names = args.names
     erargs.create_spoiler = args.create_spoiler
+    erargs.suppress_rom = args.suppress_rom
     erargs.race = True
     erargs.outputname = seedname
     erargs.outputpath = args.outputpath
