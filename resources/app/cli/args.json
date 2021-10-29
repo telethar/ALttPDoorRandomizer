@@ -254,6 +254,13 @@
       "none"
     ]
   },
+  "restrict_boss_items": {
+    "choices": [
+      "none",
+      "mapcompass",
+      "dungeon"
+    ]
+  },
   "hints": {
     "action": "store_true",
     "type": "bool"

@@ -124,6 +124,15 @@
         "vt26",
         "balanced"
       ]
+    },
+    "restrict_boss_items": {
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "mapcompass",
+        "dungeon"
+      ]
     }
   }
 }

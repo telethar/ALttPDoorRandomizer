@@ -72,7 +72,8 @@ SETTINGSTOPROCESS = {
       "progressives": "progressive",
       "accessibility": "accessibility",
       "sortingalgo": "algorithm",
-      "beemizer": "beemizer"
+      "beemizer": "beemizer",
+      "restrict_boss_items": "restrict_boss_items"
     },
     "entrance": {
       "openpyramid": "openpyramid",

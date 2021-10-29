@@ -237,7 +237,10 @@ def fill_restrictive(world, base_state, locations, itempool, keys_in_itempool = 
 
 
 def valid_key_placement(item, location, itempool, world):
-    if (not item.smallkey and not item.bigkey) or item.player != location.player or world.retro[item.player] or world.logic[item.player] == 'nologic':
+    if not valid_reserved_placement(item, location, world):
+        return False
+    if ((not item.smallkey and not item.bigkey) or item.player != location.player
+       or world.retro[item.player] or world.logic[item.player] == 'nologic'):
         return True
     dungeon = location.parent_region.dungeon
     if dungeon:
@@ -251,9 +254,13 @@ def valid_key_placement(item, location, itempool, world):
         cr_count = world.crystals_needed_for_gt[location.player]
         return key_logic.check_placement(unplaced_keys, location if item.bigkey else None, prize_loc, cr_count)
     else:
-        inside_dungeon_item = ((item.smallkey and not world.keyshuffle[item.player])
-                               or (item.bigkey and not world.bigkeyshuffle[item.player]))
-        return not inside_dungeon_item
+        return not item.is_inside_dungeon_item(world)  # todo: big deal for ambrosia to fix this
+
+
+def valid_reserved_placement(item, location, world):
+    if item.player == location.player and item.is_inside_dungeon_item(world):
+        return location.name not in world.item_pool_config.reserved_locations[location.player]
+    return True
 
 
 def track_outside_keys(item, location, world):

@@ -29,6 +29,8 @@ from Fill import sell_potions, sell_keys, balance_multiworld_progression, balanc
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
 
+from source.item.FillUtil import create_item_pool_config
+
 __version__ = '1.0.1.0-v'
 
 from source.classes.BabelFish import BabelFish
@@ -105,6 +107,7 @@ def main(args, seed=None, fish=None):
     world.shufflelinks = args.shufflelinks.copy()
     world.pseudoboots = args.pseudoboots.copy()
     world.overworld_map = args.overworld_map.copy()
+    world.restrict_boss_items = args.restrict_boss_items.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
 
@@ -149,6 +152,7 @@ def main(args, seed=None, fish=None):
         create_dungeons(world, player)
         adjust_locations(world, player)
         place_bosses(world, player)
+    create_item_pool_config(world)
 
     if any(world.potshuffle.values()):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
