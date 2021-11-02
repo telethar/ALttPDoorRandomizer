@@ -24,6 +24,26 @@ If you do not shuffle the compass or map outside of the dungeon, the non-shuffle
 
 The map item plays double duty in this mode and only possession of the map will show both prize and location of the dungeon. If you do not shuffle maps or the dungeon does not have a map, the information will be displayed without needing to find any items.
 
+## Restricted Dungeon Items on Bosses
+
+You may now restrict the items that can appear on the boss, like the popular ambrosia preset does.
+
+CLI: ```--restrict_boss_items <option>```
+
+#### Options
+
+##### none
+
+As before, the boss may have any item including any dungeon item that could occur there.
+
+##### mapcompass
+
+The map and compass are logically required to defeat a boss. This prevents both of those from appearing on the dungeon boss. Note that this does affect item placement logic and the placement algorithm as maps and compasses are considered as required items to beat a boss.
+
+##### dungeon
+
+Same as above but both small keys and bigs keys of the dungeon are not allowed on a boss. (Note: this does not affect universal keys as they are not dungeon-specific)
+
 # Unstable Notes
 
 ## New Features
