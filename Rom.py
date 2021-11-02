@@ -2088,6 +2088,7 @@ def write_strings(rom, world, player, team):
                 else:
                     entrances_to_hint.update({'Pyramid Ledge': 'The pyramid ledge'})
         hint_count = 4 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 0
+        hint_count -= 2 if world.algorithm == 'district' and world.shuffle[player] not in ['simple', 'restricted'] else 0
         for entrance in all_entrances:
             if entrance.name in entrances_to_hint:
                 if hint_count > 0:
@@ -2179,11 +2180,22 @@ def write_strings(rom, world, player, team):
             else:
                 tt[hint_locations.pop(0)] = this_hint
 
-        # All remaining hint slots are filled with junk hints. It is done this way to ensure the same junk hint isn't selected twice.
-        junk_hints = junk_texts.copy()
-        random.shuffle(junk_hints)
-        for location in hint_locations:
-            tt[location] = junk_hints.pop(0)
+        if world.algorithm == 'district':
+            hint_candidates = []
+            for name, district in world.districts[player].items():
+                if name not in world.item_pool_config.recorded_choices and not district.sphere_one:
+                    hint_candidates.append(f'{name} is a foolish choice')
+            random.shuffle(hint_candidates)
+            foolish_choice_hints = min(len(hint_candidates), len(hint_locations))
+            for i in range(0, foolish_choice_hints):
+                tt[hint_locations.pop(0)] = hint_candidates.pop(0)
+        if len(hint_locations) > 0:
+            # All remaining hint slots are filled with junk hints. It is done this way to ensure the same junk hint
+            # isn't selected twice.
+            junk_hints = junk_texts.copy()
+            random.shuffle(junk_hints)
+            for location in hint_locations:
+                tt[location] = junk_hints.pop(0)
 
     # We still need the older hints of course. Those are done here.
 
@@ -2341,7 +2353,7 @@ def set_inverted_mode(world, player, rom):
     write_int16(rom, snes_to_pc(0x02E8D5), 0x07C8)
     write_int16(rom, snes_to_pc(0x02E8F7), 0x01F8)
     rom.write_byte(snes_to_pc(0x08D40C), 0xD0)  # morph proof
-    rom.write_byte(snes_to_pc(0x1BC428), 0x00)  # remove diggable light world portals 
+    rom.write_byte(snes_to_pc(0x1BC428), 0x00)  # remove diggable light world portals
     rom.write_byte(snes_to_pc(0x1BC43A), 0x00)
     rom.write_byte(snes_to_pc(0x1BC590), 0x00)
     rom.write_byte(snes_to_pc(0x1BC5A1), 0x00)

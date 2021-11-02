@@ -283,13 +283,12 @@
     "randomizer.item.accessibility.none": "Beatable",
 
     "randomizer.item.sortingalgo": "Item Sorting",
-    "randomizer.item.sortingalgo.freshness": "Freshness",
-    "randomizer.item.sortingalgo.flood": "Flood",
-    "randomizer.item.sortingalgo.vt21": "VT8.21",
-    "randomizer.item.sortingalgo.vt22": "VT8.22",
-    "randomizer.item.sortingalgo.vt25": "VT8.25",
-    "randomizer.item.sortingalgo.vt26": "VT8.26",
     "randomizer.item.sortingalgo.balanced": "Balanced",
+    "randomizer.item.sortingalgo.equitable": "Equitable",
+    "randomizer.item.sortingalgo.vanilla_fill": "Vanilla Fill",
+    "randomizer.item.sortingalgo.major_only": "Major Location Restriction",
+    "randomizer.item.sortingalgo.dungeon_only": "Dungeon Restriction",
+    "randomizer.item.sortingalgo.district": "District Restriction",
 
     "randomizer.item.restrict_boss_items": "Forbidden Boss Items",
     "randomizer.item.restrict_boss_items.none": "None",

@@ -1,8 +1,5 @@
-import RaceRandom as random
-
 from BaseClasses import Dungeon
 from Bosses import BossFactory
-from Fill import fill_restrictive
 from Items import ItemFactory
 
 
@@ -35,117 +32,6 @@ def create_dungeons(world, player):
     GT.bosses['top'] = BossFactory('Moldorm', player)
 
     world.dungeons += [ES, EP, DP, ToH, AT, PoD, TT, SW, SP, IP, MM, TR, GT]
-
-def fill_dungeons(world):
-    freebes = ['Ganons Tower - Map Chest', 'Palace of Darkness - Harmless Hellway', 'Palace of Darkness - Big Key Chest', 'Turtle Rock - Big Key Chest']
-
-    all_state_base = world.get_all_state()
-
-    for player in range(1, world.players + 1):
-        pinball_room = world.get_location('Skull Woods - Pinball Room', player)
-        if world.retro[player]:
-            world.push_item(pinball_room, ItemFactory('Small Key (Universal)', player), False)
-        else:
-            world.push_item(pinball_room, ItemFactory('Small Key (Skull Woods)', player), False)
-        pinball_room.event = True
-        pinball_room.locked = True
-
-    dungeons = [(list(dungeon.regions), dungeon.big_key, list(dungeon.small_keys), list(dungeon.dungeon_items)) for dungeon in world.dungeons]
-
-    loopcnt = 0
-    while dungeons:
-        loopcnt += 1
-        dungeon_regions, big_key, small_keys, dungeon_items = dungeons.pop(0)
-        # this is what we need to fill
-        dungeon_locations = [location for location in world.get_unfilled_locations() if location.parent_region.name in dungeon_regions]
-        random.shuffle(dungeon_locations)
-
-        all_state = all_state_base.copy()
-
-        # first place big key
-        if big_key is not None:
-            bk_location = None
-            for location in dungeon_locations:
-                if location.item_rule(big_key):
-                    bk_location = location
-                    break
-
-            if bk_location is None:
-                raise RuntimeError('No suitable location for %s' % big_key)
-
-            world.push_item(bk_location, big_key, False)
-            bk_location.event = True
-            bk_location.locked = True
-            dungeon_locations.remove(bk_location)
-            big_key = None
-
-        # next place small keys
-        while small_keys:
-            small_key = small_keys.pop()
-            all_state.sweep_for_events()
-            sk_location = None
-            for location in dungeon_locations:
-                if location.name in freebes or (location.can_reach(all_state) and location.item_rule(small_key)):
-                    sk_location = location
-                    break
-
-            if sk_location is None:
-                # need to retry this later
-                small_keys.append(small_key)
-                dungeons.append((dungeon_regions, big_key, small_keys, dungeon_items))
-                # infinite regression protection
-                if loopcnt < (30 * world.players):
-                    break
-                else:
-                    raise RuntimeError('No suitable location for %s' % small_key)
-
-            world.push_item(sk_location, small_key, False)
-            sk_location.event = True
-            sk_location.locked = True
-            dungeon_locations.remove(sk_location)
-
-        if small_keys:
-            # key placement not finished, loop again
-            continue
-
-        # next place dungeon items
-        for dungeon_item in dungeon_items:
-            di_location = dungeon_locations.pop()
-            world.push_item(di_location, dungeon_item, False)
-
-
-def get_dungeon_item_pool(world):
-    return [item for dungeon in world.dungeons for item in dungeon.all_items]
-
-
-def fill_dungeons_restrictive(world, shuffled_locations):
-    all_state_base = world.get_all_state()
-
-    # for player in range(1, world.players + 1):
-    #     pinball_room = world.get_location('Skull Woods - Pinball Room', player)
-    #     if world.retro[player]:
-    #         world.push_item(pinball_room, ItemFactory('Small Key (Universal)', player), False)
-    #     else:
-    #         world.push_item(pinball_room, ItemFactory('Small Key (Skull Woods)', player), False)
-    #     pinball_room.event = True
-    #     pinball_room.locked = True
-    #     shuffled_locations.remove(pinball_room)
-
-    # with shuffled dungeon items they are distributed as part of the normal item pool
-    for item in world.get_items():
-        if (item.smallkey and world.keyshuffle[item.player]) or (item.bigkey and world.bigkeyshuffle[item.player]):
-            item.advancement = True
-        elif (item.map and world.mapshuffle[item.player]) or (item.compass and world.compassshuffle[item.player]):
-            item.priority = True
-
-    dungeon_items = [item for item in get_dungeon_item_pool(world) if item.is_inside_dungeon_item(world)]
-
-    # sort in the order Big Key, Small Key, Other before placing dungeon items
-    sort_order = {"BigKey": 3, "SmallKey": 2}
-    dungeon_items.sort(key=lambda item: sort_order.get(item.type, 1))
-
-    fill_restrictive(world, all_state_base, shuffled_locations, dungeon_items,
-                     keys_in_itempool={player: not world.keyshuffle[player] for player in range(1, world.players+1)}, single_player_placement=True)
 
 
 dungeon_music_addresses = {'Eastern Palace - Prize': [0x1559A],

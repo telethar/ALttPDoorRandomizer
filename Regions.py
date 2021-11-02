@@ -999,6 +999,14 @@ def adjust_locations(world, player):
                 world.get_location(location, player).address = 0x400000 + index
                 # player address? it is in the shop table
                 index += 1
+    # unreal events:
+    for l in ['Ganon', 'Agahnim 1', 'Agahnim 2', 'Dark Blacksmith Ruins', 'Frog', 'Missing Smith', 'Floodgate',
+              'Trench 1 Switch', 'Trench 2 Switch', 'Swamp Drain', 'Attic Cracked Floor', 'Suspicious Maiden',
+              'Revealing Light', 'Ice Block Drop', 'Zelda Pickup', 'Zelda Drop Off']:
+        location = world.get_location_unsafe(l, player)
+        if location:
+            location.real = False
+
 
 
 # (type, room_id, shopkeeper, custom, locked, [items])

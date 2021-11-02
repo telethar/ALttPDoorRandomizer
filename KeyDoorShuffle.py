@@ -187,6 +187,8 @@ class PlacementRule(object):
             return True
         available_keys = outside_keys
         empty_chests = 0
+        # todo: sometimes we need an extra empty chest to accomodate the big key too
+        # dungeon bias seed 563518200 for example
         threshold = self.needed_keys_wo_bk if bk_blocked else self.needed_keys_w_bk
         for loc in check_locations:
             if not loc.item:
