@@ -71,9 +71,34 @@ def create_item_pool_config(world):
                         config.static_placement[player][item].extend(locs)
                     else:
                         config.static_placement[player][item] = list(locs)
-            # todo: shopsanity...
-            # todo: retro (universal keys...)
-            # retro + shops
+            if world.shopsanity[player]:
+                for item, locs in shop_vanilla_mapping.items():
+                    if item in config.static_placement[player]:
+                        config.static_placement[player][item].extend(locs)
+                    else:
+                        config.static_placement[player][item] = list(locs)
+            if world.retro[player]:
+                for item, locs in retro_vanilla_mapping.items():
+                    if item in config.static_placement[player]:
+                        config.static_placement[player][item].extend(locs)
+                    else:
+                        config.static_placement[player][item] = list(locs)
+                # universal keys
+                universal_key_locations = []
+                for item, locs in vanilla_mapping.items():
+                    if 'Small Key' in item:
+                        universal_key_locations.extend(locs)
+                if world.keydropshuffle[player]:
+                    for item, locs in keydrop_vanilla_mapping.items():
+                        if 'Small Key' in item:
+                            universal_key_locations.extend(locs)
+                if world.shopsanity[player]:
+                    single_arrow_placement = list(shop_vanilla_mapping['Red Potion'])
+                    single_arrow_placement.append('Red Shield Shop - Right')
+                    config.static_placement[player]['Single Arrow'] = single_arrow_placement
+                    universal_key_locations.extend(shop_vanilla_mapping['Small Heart'])
+                    universal_key_locations.extend(shop_vanilla_mapping['Blue Shield'])
+                config.static_placement[player]['Small Key (Universal)'] = universal_key_locations
             config.location_groups[player] = [
                 LocationGroup('Major').locs(mode_grouping['Overworld Major'] + mode_grouping['Big Chests'] + mode_grouping['Heart Containers']),
                 LocationGroup('bkhp').locs(mode_grouping['Heart Pieces']),
@@ -93,7 +118,7 @@ def create_item_pool_config(world):
             if world.bigkeyshuffle[player]:
                 groups.locations.extend(mode_grouping['Big Keys'])
                 if world.keydropshuffle[player]:
-                    groups.locations.append(mode_grouping['Big Key Drops'])
+                    groups.locations.extend(mode_grouping['Big Key Drops'])
             if world.keyshuffle[player]:
                 groups.locations.extend(mode_grouping['Small Keys'])
                 if world.keydropshuffle[player]:
@@ -107,10 +132,11 @@ def create_item_pool_config(world):
                 groups.locations.append('Capacity Upgrade - Right')
             if world.retro[player]:
                 if world.shopsanity[player]:
-                    pass  # todo: 5 locations for single arrow representation?
+                    groups.locations.extend(retro_vanilla_mapping['Heart Container'])
+                    groups.locations.append('Old Man Sword Cave Item 1')
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(groups.locations)
-            config.reserved_locations[player].add(groups.locations)
+            config.reserved_locations[player].update(groups.locations)
             backup = (mode_grouping['Heart Pieces'] + mode_grouping['Dungeon Trash'] + mode_grouping['Shops']
                       + mode_grouping['Overworld Trash'] + mode_grouping['GT Trash'] + mode_grouping['RetroShops'])
             config.location_groups[1].locations = set(backup)
@@ -130,82 +156,6 @@ def create_item_pool_config(world):
             backup = (mode_grouping['Heart Pieces'] + mode_grouping['Overworld Major']
                       + mode_grouping['Overworld Trash'] + mode_grouping['Shops'] + mode_grouping['RetroShops'])
             config.location_groups[1].locations = set(backup)
-    elif world.algorithm == 'cluster_bias':
-        config.location_groups = [
-            LocationGroup('Clusters'),
-        ]
-        item_cnt = defaultdict(int)
-        config.item_pool = {}
-        for player in range(1, world.players + 1):
-            config.item_pool[player] = determine_major_items(world, player)
-            item_cnt[player] += count_major_items(world, player)
-        # set cluster choices
-        cluster_choices = figure_out_clustered_choices(world)
-
-        chosen_locations = defaultdict(set)
-        placeholder_cnt = 0
-        for player in range(1, world.players + 1):
-            number_of_clusters = ceil(item_cnt[player] / 13)
-            location_cnt = 0
-            while item_cnt[player] > location_cnt:
-                chosen_clusters = random.sample(cluster_choices[player], number_of_clusters)
-                for loc_group in chosen_clusters:
-                    for location in loc_group.locations:
-                        if not location_prefilled(location, world, player):
-                            world.item_pool_config.reserved_locations[player].add(location)
-                            chosen_locations[location].add(player)
-                            location_cnt += 1
-                cluster_choices[player] = [x for x in cluster_choices[player] if x not in chosen_clusters]
-                number_of_clusters = 1
-            placeholder_cnt += location_cnt - item_cnt[player]
-        config.placeholders = placeholder_cnt
-        config.location_groups[0].locations = chosen_locations
-    elif world.algorithm == 'entangled' and world.players > 1:
-        config.location_groups = [
-            LocationGroup('Entangled'),
-        ]
-        item_cnt = 0
-        config.item_pool = {}
-        limits = {}
-        for player in range(1, world.players + 1):
-            config.item_pool[player] = determine_major_items(world, player)
-            item_cnt += count_major_items(world, player)
-            limits[player] = calc_dungeon_limits(world, player)
-        c_set = {}
-        for location in world.get_locations():
-            if location.real and not location.forced_item:
-                c_set[location.name] = None
-        # todo: retroshop locations are created later, so count them here?
-        ttl_locations, candidates = 0, list(c_set.keys())
-        chosen_locations = defaultdict(set)
-        random.shuffle(candidates)
-        while ttl_locations < item_cnt:
-            choice = candidates.pop()
-            dungeon = world.get_location(choice, 1).parent_region.dungeon
-            if dungeon:
-                for player in range(1, world.players + 1):
-                    location = world.get_location(choice, player)
-                    if location.real and not location.forced_item:
-                        if isinstance(limits[player], int):
-                            if limits[player] > 0:
-                                config.reserved_locations[player].add(choice)
-                                limits[player] -= 1
-                                chosen_locations[choice].add(player)
-                        else:
-                            previous = previously_reserved(location, world, player)
-                            if limits[player][dungeon.name] > 0 or previous:
-                                if validate_reservation(location, dungeon, world, player):
-                                    if not previous:
-                                        limits[player][dungeon.name] -= 1
-                                    chosen_locations[choice].add(player)
-            else:  # not dungeon restricted
-                for player in range(1, world.players + 1):
-                    location = world.get_location(choice, player)
-                    if location.real and not location.forced_item:
-                        chosen_locations[choice].add(player)
-            ttl_locations += len(chosen_locations[choice])
-        config.placeholders = ttl_locations - item_cnt
-        config.location_groups[0].locations = chosen_locations
 
 
 def district_item_pool_config(world):
@@ -499,63 +449,6 @@ def classify_major_items(world):
                     item.priority = False
 
 
-def figure_out_clustered_choices(world):
-    cluster_candidates = {}
-    for player in range(1, world.players + 1):
-        cluster_candidates[player] = [LocationGroup(x.name).locs(x.locations) for x in clustered_groups]
-        backups = list(reversed(leftovers))
-        if world.bigkeyshuffle[player]:
-            bk_grp = LocationGroup('BigKeys').locs(mode_grouping['Big Keys'])
-            if world.keydropshuffle[player]:
-                bk_grp.locations.append(mode_grouping['Big Key Drops'])
-            for i in range(13-len(bk_grp.locations)):
-                bk_grp.locations.append(backups.pop())
-            cluster_candidates[player].append(bk_grp)
-        if world.compassshuffle[player]:
-            cmp_grp = LocationGroup('Compasses').locs(mode_grouping['Compasses'])
-            if len(cmp_grp.locations) + len(backups) >= 13:
-                for i in range(13-len(cmp_grp.locations)):
-                    cmp_grp.locations.append(backups.pop())
-                cluster_candidates[player].append(cmp_grp)
-            else:
-                backups.extend(reversed(cmp_grp.locations))
-        if world.mapshuffle[player]:
-            mp_grp = LocationGroup('Maps').locs(mode_grouping['Maps'])
-            if len(mp_grp.locations) + len(backups) >= 13:
-                for i in range(13-len(mp_grp.locations)):
-                    mp_grp.locations.append(backups.pop())
-                cluster_candidates[player].append(mp_grp)
-            else:
-                backups.extend(reversed(mp_grp.locations))
-        if world.shopsanity[player]:
-            cluster_candidates[player].append(LocationGroup('Shopsanity1').locs(other_clusters['Shopsanity1']))
-            cluster_candidates[player].append(LocationGroup('Shopsanity2').locs(other_clusters['Shopsanity2']))
-            extras = list(other_clusters['ShopsanityLeft'])
-            if world.retro[player]:
-                extras.extend(mode_grouping['RetroShops'])
-            if len(extras)+len(backups) >= 13:
-                for i in range(13-len(extras)):
-                    extras.append(backups.pop())
-                cluster_candidates[player].append(LocationGroup('ShopExtra').locs(extras))
-            else:
-                backups.extend(reversed(extras))
-        if world.keyshuffle[player] or world.retro[player]:
-            cluster_candidates[player].append(LocationGroup('SmallKey1').locs(other_clusters['SmallKey1']))
-            cluster_candidates[player].append(LocationGroup('SmallKey2').locs(other_clusters['SmallKey2']))
-            extras = list(other_clusters['SmallKeyLeft'])
-            if world.keydropshuffle[player]:
-                cluster_candidates[player].append(LocationGroup('KeyDrop1').locs(other_clusters['KeyDrop1']))
-                cluster_candidates[player].append(LocationGroup('KeyDrop2').locs(other_clusters['KeyDrop2']))
-                extras.extend(other_clusters['KeyDropLeft'])
-            if len(extras)+len(backups) >= 13:
-                for i in range(13-len(extras)):
-                    extras.append(backups.pop())
-                cluster_candidates[player].append(LocationGroup('SmallKeyExtra').locs(extras))
-            else:
-                backups.extend(reversed(extras))
-        return cluster_candidates
-
-
 def vanilla_fallback(item_to_place, locations, world):
     if item_to_place.is_inside_dungeon_item(world):
         return [x for x in locations if x.name in vanilla_fallback_dungeon_set
@@ -590,7 +483,7 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False):
                 filtered = [l for l in locations if l.name in restricted]
                 # bias toward certain location in overflow? (thinking about this for major_bias)
             return filtered if len(filtered) > 0 else locations
-    if (world.algorithm == 'entangled' and world.players > 1) or world.algorithm == 'district':
+    if world.algorithm == 'district':
         config = world.item_pool_config
         if item_to_place == 'Placeholder' or item_to_place.name in config.item_pool[item_to_place.player]:
             restricted = config.location_groups[0].locations
@@ -780,6 +673,32 @@ keydrop_vanilla_mapping = {
                                  'Ganons Tower - Conveyor Star Pits Pot Key', 'Ganons Tower - Mini Helmasuar Key Drop'],
 }
 
+shop_vanilla_mapping = {
+    'Red Potion': ['Dark Death Mountain Shop - Left', 'Dark Lake Hylia Shop - Left', 'Dark Lumberjack Shop - Left',
+                   'Village of Outcasts Shop - Left', 'Dark Potion Shop - Left', 'Paradox Shop - Left',
+                   'Kakariko Shop - Left', 'Lake Hylia Shop - Left', 'Potion Shop - Left'],
+    'Small Heart': ['Dark Death Mountain Shop - Middle', 'Paradox Shop - Middle', 'Kakariko Shop - Middle',
+                    'Lake Hylia Shop - Middle'],
+    'Bombs (10)': ['Dark Death Mountain Shop - Right', 'Dark Lake Hylia Shop - Right', 'Dark Lumberjack Shop - Right',
+                   'Village of Outcasts Shop - Right', 'Dark Potion Shop - Right', 'Paradox Shop - Right',
+                   'Kakariko Shop - Right', 'Lake Hylia Shop - Right'],
+    'Blue Shield': ['Dark Lake Hylia Shop - Middle', 'Dark Lumberjack Shop - Middle',
+                    'Village of Outcasts Shop - Middle', 'Dark Potion Shop - Middle'],
+    'Red Shield': ['Red Shield Shop - Left'],
+    'Bee': ['Red Shield Shop - Middle'],
+    'Arrows (10)': ['Red Shield Shop - Right'],
+    'Bomb Upgrade (+5)': ['Capacity Upgrade - Left'],
+    'Arrow Upgrade (+5)': ['Capacity Upgrade - Right'],
+    'Blue Potion': ['Potion Shop - Right'],
+    'Green Potion': ['Potion Shop - Middle'],
+}
+
+retro_vanilla_mapping = {
+    'Heart Container': ['Take-Any #1 Item 1', 'Take-Any #2 Item 1', 'Take-Any #3 Item 1', 'Take-Any #4 Item 1'],
+    'Blue Potion': ['Take-Any #1 Item 2', 'Take-Any #2 Item 2', 'Take-Any #3 Item 2', 'Take-Any #4 Item 2'],
+    'Progressive Sword': ['Old Man Sword Cave Item 1']
+}
+
 mode_grouping = {
     'Overworld Major': [
         "Link's Uncle", 'King Zora', "Link's House", 'Sahasrahla', 'Ice Rod Cave', 'Library',
@@ -916,122 +835,6 @@ major_items = {'Bombos', 'Book of Mudora', 'Cane of Somaria', 'Ether', 'Fire Rod
                'Mirror Shield', 'Progressive Armor', 'Blue Mail', 'Red Mail', 'Progressive Sword', 'Fighter Sword',
                'Master Sword', 'Tempered Sword', 'Golden Sword', 'Bow', 'Silver Arrows', 'Triforce Piece', 'Moon Pearl',
                'Progressive Bow', 'Progressive Bow (Alt)'}
-
-
-clustered_groups = [
-    LocationGroup("MajorRoute1").locs([
-        'Ice Rod Cave', 'Library', 'Old Man', 'Magic Bat', 'Ether Tablet', 'Hobo', 'Purple Chest', 'Spike Cave',
-        'Sahasrahla', 'Superbunny Cave - Bottom', 'Superbunny Cave - Top',
-        'Ganons Tower - Randomizer Room - Bottom Left', 'Ganons Tower - Randomizer Room - Bottom Right'
-    ]),
-    LocationGroup("MajorRoute2").locs([
-        'Mushroom', 'Secret Passage', 'Bottle Merchant', 'Flute Spot', 'Catfish', 'Stumpy', 'Waterfall Fairy - Left',
-        'Waterfall Fairy - Right', 'Master Sword Pedestal', "Thieves' Town - Attic", 'Sewers - Secret Room - Right',
-        'Sewers - Secret Room - Left', 'Sewers - Secret Room - Middle'
-    ]),
-    LocationGroup("MajorRoute3").locs([
-        'Kakariko Tavern', 'Sick Kid', 'King Zora', 'Potion Shop', 'Bombos Tablet', "King's Tomb", 'Blacksmith',
-        'Pyramid Fairy - Left', 'Pyramid Fairy - Right', 'Hookshot Cave - Top Right', 'Hookshot Cave - Top Left',
-        'Hookshot Cave - Bottom Right', 'Hookshot Cave - Bottom Left'
-    ]),
-    LocationGroup("Dungeon Major").locs([
-        'Eastern Palace - Big Chest', 'Desert Palace - Big Chest', 'Tower of Hera - Big Chest',
-        'Palace of Darkness - Big Chest', 'Swamp Palace - Big Chest', 'Skull Woods - Big Chest',
-        "Thieves' Town - Big Chest", 'Misery Mire - Big Chest', 'Hyrule Castle - Boomerang Chest',
-        'Ice Palace - Big Chest', 'Turtle Rock - Big Chest', 'Ganons Tower - Big Chest', "Link's Uncle"]),
-    LocationGroup("Dungeon Heart").locs([
-        'Sanctuary', 'Eastern Palace - Boss', 'Desert Palace - Boss', 'Tower of Hera - Boss',
-        'Palace of Darkness - Boss', 'Swamp Palace - Boss', 'Skull Woods - Boss', "Thieves' Town - Boss",
-        'Ice Palace - Boss', 'Misery Mire - Boss', 'Turtle Rock - Boss', "Link's House",
-        'Ganons Tower - Validation Chest']),
-    LocationGroup("HeartPieces1").locs([
-        'Kakariko Well - Top', 'Lost Woods Hideout', 'Maze Race', 'Lumberjack Tree', 'Bonk Rock Cave', 'Graveyard Cave',
-        'Checkerboard Cave', "Zora's Ledge", 'Digging Game', 'Desert Ledge', 'Bumper Cave Ledge', 'Floating Island',
-        'Swamp Palace - Waterfall Room']),
-    LocationGroup("HeartPieces2").locs([
-        "Blind's Hideout - Top", 'Sunken Treasure', "Aginah's Cave", 'Mimic Cave', 'Spectacle Rock Cave', 'Cave 45',
-        'Spectacle Rock', 'Lake Hylia Island', 'Chest Game', 'Mire Shed - Right', 'Pyramid', 'Peg Cave',
-        'Eastern Palace - Cannonball Chest']),
-    LocationGroup("BlindHope").locs([
-        "Blind's Hideout - Left", "Blind's Hideout - Right", "Blind's Hideout - Far Left",
-        "Blind's Hideout - Far Right", 'Floodgate Chest', 'Spiral Cave', 'Palace of Darkness - Dark Maze - Bottom',
-        'Palace of Darkness - Dark Maze - Top', 'Swamp Palace - Flooded Room - Left',
-        'Swamp Palace - Flooded Room - Right', "Thieves' Town - Ambush Chest", 'Ganons Tower - Hope Room - Left',
-        'Ganons Tower - Hope Room - Right']),
-    LocationGroup('WellHype').locs([
-        'Kakariko Well - Left', 'Kakariko Well - Middle', 'Kakariko Well - Right', 'Kakariko Well - Bottom',
-        'Paradox Cave Upper - Left', 'Paradox Cave Upper - Right', 'Hype Cave - Top', 'Hype Cave - Middle Right',
-        'Hype Cave - Middle Left', 'Hype Cave - Bottom', 'Hype Cave - Generous Guy',
-        'Ganons Tower - DMs Room - Bottom Left', 'Ganons Tower - DMs Room - Bottom Right',
-    ]),
-    LocationGroup('MiniMoldormLasers').locs([
-        'Mini Moldorm Cave - Left', 'Mini Moldorm Cave - Right', 'Mini Moldorm Cave - Generous Guy',
-        'Mini Moldorm Cave - Far Left', 'Mini Moldorm Cave - Far Right', 'Chicken House', 'Brewery',
-        'Palace of Darkness - Dark Basement - Left', 'Ice Palace - Freezor Chest', 'Swamp Palace - West Chest',
-        'Turtle Rock - Eye Bridge - Bottom Right', 'Turtle Rock - Eye Bridge - Top Left',
-        'Turtle Rock - Eye Bridge - Top Right',
-    ]),
-    LocationGroup('ParadoxCloset').locs([
-        "Sahasrahla's Hut - Left", "Sahasrahla's Hut - Right", "Sahasrahla's Hut - Middle",
-        'Paradox Cave Lower - Far Left', 'Paradox Cave Lower - Left', 'Paradox Cave Lower - Right',
-        'Paradox Cave Lower - Far Right', 'Paradox Cave Lower - Middle', "Hyrule Castle - Zelda's Chest",
-        'C-Shaped House', 'Mire Shed - Left', 'Ganons Tower - Compass Room - Bottom Right',
-        'Ganons Tower - Compass Room - Bottom Left',
-    ])
-]
-
-other_clusters = {
-    'SmallKey1': [
-        'Sewers - Dark Cross', 'Tower of Hera - Basement Cage', 'Palace of Darkness - Shooter Room',
-        'Palace of Darkness - The Arena - Bridge', 'Palace of Darkness - Stalfos Basement',
-        'Palace of Darkness - Dark Basement - Right', "Thieves' Town - Blind's Cell", 'Skull Woods - Bridge Room',
-        'Ice Palace - Iced T Room', 'Misery Mire - Main Lobby', 'Misery Mire - Bridge Chest',
-        'Misery Mire - Spike Chest', "Ganons Tower - Bob's Torch"],
-    'SmallKey2': [
-        'Desert Palace - Torch', 'Castle Tower - Room 03', 'Castle Tower - Dark Maze',
-        'Palace of Darkness - The Arena - Ledge', 'Palace of Darkness - Harmless Hellway', 'Swamp Palace - Entrance',
-        'Skull Woods - Pot Prison', 'Skull Woods - Pinball Room', 'Ice Palace - Spike Room',
-        'Turtle Rock - Roller Room - Right', 'Turtle Rock - Chain Chomps', 'Turtle Rock - Crystaroller Room',
-        'Turtle Rock - Eye Bridge - Bottom Left'],
-    'SmallKeyLeft': [
-        'Ganons Tower - Tile Room', 'Ganons Tower - Firesnake Room', 'Ganons Tower - Pre-Moldorm Chest'],
-    'KeyDrop1': [
-        'Hyrule Castle - Map Guard Key Drop', 'Hyrule Castle - Boomerang Guard Key Drop',
-        'Hyrule Castle - Key Rat Key Drop', 'Swamp Palace - Hookshot Pot Key', 'Swamp Palace - Trench 2 Pot Key',
-        'Swamp Palace - Waterway Pot Key', 'Skull Woods - West Lobby Pot Key', 'Skull Woods - Spike Corner Key Drop',
-        'Ice Palace - Jelly Key Drop', 'Ice Palace - Conveyor Key Drop', 'Misery Mire - Spikes Pot Key',
-        'Misery Mire - Fishbone Pot Key', 'Misery Mire - Conveyor Crystal Key Drop'],
-    'KeyDrop2': [
-        'Eastern Palace - Dark Square Pot Key', 'Eastern Palace - Dark Eyegore Key Drop',
-        'Desert Palace - Desert Tiles 1 Pot Key', 'Desert Palace - Beamos Hall Pot Key',
-        'Desert Palace - Desert Tiles 2 Pot Key', 'Swamp Palace - Pot Row Pot Key', 'Swamp Palace - Trench 1 Pot Key',
-        "Thieves' Town - Hallway Pot Key", "Thieves' Town - Spike Switch Pot Key", 'Ice Palace - Hammer Block Key Drop',
-        'Ice Palace - Many Pots Pot Key', 'Turtle Rock - Pokey 1 Key Drop', 'Turtle Rock - Pokey 2 Key Drop'],
-    'KeyDropLeft': [
-        'Castle Tower - Dark Archer Key Drop', 'Castle Tower - Circle of Pots Key Drop',
-        'Ganons Tower - Conveyor Cross Pot Key', 'Ganons Tower - Double Switch Pot Key',
-        'Ganons Tower - Conveyor Star Pits Pot Key', 'Ganons Tower - Mini Helmasuar Key Drop'],
-    'Shopsanity1': [
-        'Dark Lumberjack Shop - Left', 'Dark Lumberjack Shop - Middle', 'Dark Lumberjack Shop - Right',
-        'Dark Lake Hylia Shop - Left', 'Dark Lake Hylia Shop - Middle', 'Dark Lake Hylia Shop - Right',
-        'Paradox Shop - Left', 'Paradox Shop - Middle', 'Paradox Shop - Right',
-        'Kakariko Shop - Left', 'Kakariko Shop - Middle', 'Kakariko Shop - Right', 'Capacity Upgrade - Left'],
-    'Shopsanity2': [
-        'Red Shield Shop - Left', 'Red Shield Shop - Middle', 'Red Shield Shop - Right',
-        'Village of Outcasts Shop - Left', 'Village of Outcasts Shop - Middle', 'Village of Outcasts Shop - Right',
-        'Dark Potion Shop - Left', 'Dark Potion Shop - Middle', 'Dark Potion Shop - Right',
-        'Lake Hylia Shop - Left', 'Lake Hylia Shop - Middle', 'Lake Hylia Shop - Right', 'Capacity Upgrade - Right',
-    ],
-    'ShopsanityLeft': ['Potion Shop - Left', 'Potion Shop - Middle', 'Potion Shop - Right']
-}
-
-leftovers = [
-    'Ganons Tower - DMs Room - Top Right', 'Ganons Tower - DMs Room - Top Left',
-    'Ganons Tower - Compass Room - Top Right', 'Ganons Tower - Randomizer Room - Top Left',
-    'Ganons Tower - Randomizer Room - Top Right',"Ganons Tower - Bob's Chest", 'Ganons Tower - Big Key Room - Left',
-    'Ganons Tower - Big Key Room - Right', 'Ganons Tower - Mini Helmasaur Room - Left',
-    'Ganons Tower - Mini Helmasaur Room - Right',
-]
 
 vanilla_swords = {"Link's Uncle", 'Master Sword Pedestal', 'Blacksmith', 'Pyramid Fairy - Left'}
 

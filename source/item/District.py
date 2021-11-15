@@ -102,6 +102,8 @@ def create_district_helper(world, player):
         south_dw_entrances.append('Inverted Links House')
         voo_north_entrances.remove('Dark Sanctuary')
         voo_north_entrances.append('Inverted Dark Sanctuary')
+        voo_north_entrances.remove('Bumper Cave (Top)')
+        nw_lw_entrances.append('Bumper Cave (Top)')
         ddm_entrances.remove('Ganons Tower')
         central_lw_entrances.append('Inverted Ganons Tower')
         central_lw_entrances.remove('Agahnims Tower')

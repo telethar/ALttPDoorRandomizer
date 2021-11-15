@@ -2088,7 +2088,7 @@ def write_strings(rom, world, player, team):
                 else:
                     entrances_to_hint.update({'Pyramid Ledge': 'The pyramid ledge'})
         hint_count = 4 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 0
-        hint_count -= 2 if world.algorithm == 'district' and world.shuffle[player] not in ['simple', 'restricted'] else 0
+        hint_count -= 2 if world.shuffle[player] not in ['simple', 'restricted'] else 0
         for entrance in all_entrances:
             if entrance.name in entrances_to_hint:
                 if hint_count > 0:
@@ -2180,6 +2180,20 @@ def write_strings(rom, world, player, team):
             else:
                 tt[hint_locations.pop(0)] = this_hint
 
+        if world.algorithm != 'district':
+            hint_candidates = []
+            for name, district in world.districts[player].items():
+                foolish = True
+                for loc_name in district.locations:
+                    location = world.get_location(loc_name, player)
+                    if location.item.advancement:
+                        foolish = False
+                        break
+                if foolish:
+                    hint_candidates.append(f'{name} is a foolish choice')
+            foolish_choice_hints = min(len(hint_candidates), len(hint_locations))
+            for i in range(0, foolish_choice_hints):
+                tt[hint_locations.pop(0)] = hint_candidates.pop(0)
         if world.algorithm == 'district':
             hint_candidates = []
             for name, district in world.districts[player].items():

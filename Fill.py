@@ -6,7 +6,7 @@ import logging
 from BaseClasses import CollectionState, FillError
 from Items import ItemFactory
 from Regions import shop_to_location_table, retro_shops
-from source.item.BiasedFill import filter_locations, classify_major_items, replace_trash_item, vanilla_fallback
+from source.item.FillUtil import filter_locations, classify_major_items, replace_trash_item, vanilla_fallback
 
 
 def get_dungeon_item_pool(world):
@@ -362,8 +362,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     for player in range(1, world.players + 1):
         if not gftower_trash or not world.ganonstower_vanilla[player] or world.doorShuffle[player] == 'crossed' or world.logic[player] in ['owglitches', 'nologic']:
             continue
-
-        gftower_trash_count = (random.randint(15, 50) if world.goal[player] == 'triforcehunt' else random.randint(0, 15))
+        max_trash = 8 if world.algorithm == 'dungeon_only' else 15
+        gftower_trash_count = (random.randint(15, 50) if world.goal[player] == 'triforcehunt' else random.randint(0, max_trash))
 
         gtower_locations = [location for location in fill_locations if 'Ganons Tower' in location.name and location.player == player]
         random.shuffle(gtower_locations)
@@ -496,7 +496,7 @@ def sell_potions(world, player):
             loc_choices += [world.get_location(loc, player) for loc in shop_to_location_table[shop.region.name]]
     locations = [loc for loc in loc_choices if not loc.item]
     for potion in ['Green Potion', 'Blue Potion', 'Red Potion']:
-        location = random.choice(locations)
+        location = random.choice(filter_locations(ItemFactory(potion, player), locations, world))
         locations.remove(location)
         p_item = next(item for item in world.itempool if item.name == potion and item.player == player)
         world.push_item(location, p_item, collect=False)
@@ -507,7 +507,9 @@ def sell_keys(world, player):
     # exclude the old man or take any caves because free keys are too good
     shop_names = {shop.region.name: shop for shop in world.shops[player] if shop.region.name in shop_to_location_table}
     choices = [(world.get_location(loc, player), shop) for shop in shop_names for loc in shop_to_location_table[shop]]
-    locations = [(loc, shop) for loc, shop in choices if not loc.item]
+    locations = [l for l, shop in choices]
+    locations = filter_locations(ItemFactory('Small Key (Universal)', player), locations, world)
+    locations = [(loc, shop) for loc, shop in choices if not loc.item and loc in locations]
     location, shop = random.choice(locations)
     universal_key = next(i for i in world.itempool if i.name == 'Small Key (Universal)' and i.player == player)
     world.push_item(location, universal_key, collect=False)

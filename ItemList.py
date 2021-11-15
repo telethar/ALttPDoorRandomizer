@@ -9,7 +9,7 @@ from Regions import shop_to_location_table, retro_shops, shop_table_by_location
 from Fill import FillError, fill_restrictive, fast_fill, get_dungeon_item_pool
 from Items import ItemFactory
 
-from source.item.BiasedFill import trash_items
+from source.item.FillUtil import trash_items
 
 import source.classes.constants as CONST
 
