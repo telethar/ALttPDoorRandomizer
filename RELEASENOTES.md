@@ -13,25 +13,25 @@ The "Item Sorting" option or ```--algorithm``` has been updated with new placeme
 
 ### Balanced 
 
-This one stays the same as before as is recommended for the most random distribution of items.
+This one stays the same as before and is recommended for the most random distribution of items.
 
 ### Equitable
 
-This one is currently under development and may not fill correctly. It is a new method that should allow item and key logic ot interact. (Vanilla key placement in PoD is theoretically possible, but isn't yet.
+This one is currently under development and may not fill correctly. It is a new method that should allow item and key logic to interact. (Vanilla key placement in PoD is theoretically possible, but isn't yet.)
 
 ### Vanilla Fill 
 
-This fill attempts to place all items in their vanilla locations when possible. Obviously shuffling entrances or the dungeon interiors will often prevent items from being placed in their vanilla location. If the vanilla fill is not possible, then other locations are tried in sequence preferring "major" locations (see below), then heart piece locations, then the rest except for GT locations which are preferred last.
+This fill attempts to place all items in their vanilla locations when possible. Obviously shuffling entrances or the dungeon interiors will often prevent items from being placed in their vanilla location. If the vanilla fill is not possible, then other locations are tried in sequence preferring "major" locations (see below), then heart piece locations, then the rest except for GT locations which are preferred last. Note the PoD small key that is normally found in the dark maze in vanilla is move to Harmless Hellway due to the placement algorithm limitation.
 
 ### Major Location Restriction
 
-This fill attempts to place major items in major locations. Major locations are where the major items are found in the vanilla game. This includes the spot next to Uncle in the Sewers, and the Boomerang chest in Hyrule Castle. Note the PoD small key that is normally found in the dark maze in vanilla is move to Harmless Hellway due to the placement algorithm limitation.
+This fill attempts to place major items in major locations. Major locations are where the major items are found in the vanilla game. This includes the spot next to Uncle in the Sewers, and the Boomerang chest in Hyrule Castle.
 
-This pool is expanded to where dungeon items are locations if those dungeon items are shuffled. The Capacity Fairy locations are included if Shopsanity is on. If retro is enabled in addition to shopsanity, then the Old Man Sword Cave and one location in each retro cave is included. Key drop locations can be included if small or big key shuffle is on. This gives a very good balance between overworld and underworld location though the dungeons one will be on bosses and in big chests. Seed do become more linear but usually easier to figure out.
+This location pool is expanded to where dungeon items are locations if those dungeon items are shuffled. The Capacity Fairy locations are included if Shopsanity is on. If retro is enabled in addition to shopsanity, then the Old Man Sword Cave and one location in each retro cave is included. Key drop locations can be included if small or big key shuffle is on. This gives a very good balance between overworld and underworld locations though the dungeons ones will be on bosses and in big chests generally. Seeds do become more linear but usually easier to figure out.
 
 ### Dungeon Restriction
 
-The fill attempt to place all major items in dungeons. It will overflow to the overworld if there are more items than locations (e.g. Triforce hunt.) This fill does attempt to run the GT trash fill when possible. Seeds are typically very linear but tend to be more difficult.
+The fill attempts to place all major items in dungeons. It will overflow to the overworld if there are more items than locations (e.g. Triforce hunt.) This fill does attempt to run the GT trash fill when possible. Seeds are typically very linear but tend to be more difficult.
 
 ### District Restriction
  
@@ -55,7 +55,7 @@ Dark world:
 * The Mire
 * Dark Death Mountain
 
-These districts are chosen at random and then filled with major items. If a location is part of a chosen district but there are no more major items to place. A single green rupee is used to indicate that as a placeholder. All other single green rupee are changed to be a blue rupee in order to not give a false positive.
+These districts are chosen at random and then filled with major items. If a location is part of a chosen district, but there are no more major items to place, a single green rupee is placed in the extra to indicate that as a placeholder. All other single green rupees are changed to be a blue rupee in order to not give false positives.
 
 In entrance shuffle, what is shuffled to the entrances is considered instead of where the interior was originally. For example, if Blind's Hut is shuffled to the Dam, then the 5 chests in Blind's Hut are part of Central Hyrule instead of Kakariko.
 
@@ -69,7 +69,7 @@ In multiworld, the districts chosen apply to all players.
 
 ## New Hints
 
-Based on the district algorithm above (whether it is enabled or not) New hints can appear stating that a district or dungeon is considered a "foolish" choice. The means there are no advancement items in that district (or that the district was not chosen if the district restriction is in place).
+Based on the district algorithm above (whether it is enabled or not,) new hints can appear stating that a district or dungeon is considered a "foolish" choice. The means there are no advancement items in that district (or that the district was not chosen if the district restriction is used).
 
 
 ### Overworld Map shows dungeon location
