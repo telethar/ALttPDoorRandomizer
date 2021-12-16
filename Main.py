@@ -157,7 +157,7 @@ def main(args, seed=None, fish=None):
     if any(world.potshuffle.values()):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
-            if world.potshuffle[player]:
+            if world.potshuffle[player] and world.keydropshuffle[player] != 'potsanity':
                 shuffle_pots(world, player)
 
     logger.info(world.fish.translate("cli","cli","shuffling.world"))

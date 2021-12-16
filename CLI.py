@@ -158,7 +158,7 @@ def parse_settings():
         "enemizercli": os.path.join(".", "EnemizerCLI", "EnemizerCLI.Core"),
 
         "shopsanity": False,
-        "keydropshuffle": False,
+        "keydropshuffle": 'none',
         "mapshuffle": False,
         "compassshuffle": False,
         "keyshuffle": False,

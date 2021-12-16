@@ -65,8 +65,11 @@
     "type": "bool"
   },
   "keydropshuffle" : {
-    "action": "store_true",
-    "type": "bool"
+    "choices": [
+      "none",
+      "keydrops",
+      "potsanity"
+    ]
   },
   "mixed_travel" : {
     "choices": [

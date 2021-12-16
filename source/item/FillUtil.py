@@ -65,7 +65,7 @@ def create_item_pool_config(world):
         config.location_groups = {}
         for player in range(1, world.players + 1):
             config.static_placement[player] = vanilla_mapping.copy()
-            if world.keydropshuffle[player]:
+            if world.keydropshuffle[player] != 'none':
                 for item, locs in keydrop_vanilla_mapping.items():
                     if item in config.static_placement[player]:
                         config.static_placement[player][item].extend(locs)
@@ -88,7 +88,7 @@ def create_item_pool_config(world):
                 for item, locs in vanilla_mapping.items():
                     if 'Small Key' in item:
                         universal_key_locations.extend(locs)
-                if world.keydropshuffle[player]:
+                if world.keydropshuffle[player] != 'none':
                     for item, locs in keydrop_vanilla_mapping.items():
                         if 'Small Key' in item:
                             universal_key_locations.extend(locs)
@@ -117,11 +117,11 @@ def create_item_pool_config(world):
             groups = LocationGroup('Major').locs(init_set)
             if world.bigkeyshuffle[player]:
                 groups.locations.extend(mode_grouping['Big Keys'])
-                if world.keydropshuffle[player]:
+                if world.keydropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Big Key Drops'])
             if world.keyshuffle[player]:
                 groups.locations.extend(mode_grouping['Small Keys'])
-                if world.keydropshuffle[player]:
+                if world.keydropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Key Drops'])
             if world.compassshuffle[player]:
                 groups.locations.extend(mode_grouping['Compasses'])
@@ -322,13 +322,13 @@ def count_major_items(world, player):
     major_item_set = 52
     if world.bigkeyshuffle[player]:
         major_item_set += 11
-        if world.keydropshuffle[player]:
+        if world.keydropshuffle[player] != 'none':
             major_item_set += 1
         if world.doorShuffle[player] == 'crossed':
             major_item_set += 1
     if world.keyshuffle[player]:
         major_item_set += 29
-        if world.keydropshuffle[player]:
+        if world.keydropshuffle[player] != 'none':
             major_item_set += 32
     if world.compassshuffle[player]:
         major_item_set += 11
@@ -381,11 +381,11 @@ def calc_dungeon_limits(world, player):
                     val -= 1
             if b:
                 val += 1 if info.bk_present else 0
-                if k:
+                if k != 'none':
                     val += 1 if info.bk_drops else 0
             if s or r:
                 val += info.key_num
-                if k:
+                if k != 'none':
                     val += info.key_drops
             if c:
                 val += 1 if info.compass_present else 0
@@ -396,11 +396,11 @@ def calc_dungeon_limits(world, player):
         limits = 60
         if world.bigkeyshuffle[player]:
             limits += 11
-            if world.keydropshuffle[player]:
+            if world.keydropshuffle[player] != 'none':
                 limits += 1
         if world.keyshuffle[player] or world.retro[player]:
             limits += 29
-            if world.keydropshuffle[player]:
+            if world.keydropshuffle[player] != 'none':
                 limits += 32
         if world.compassshuffle[player]:
             limits += 11
@@ -847,11 +847,15 @@ trash_items = {
 
     'Small Heart': 2,
     'Bee': 2,
+    'Arrows (5)': 2,
+    'Chicken': 2,
 
     'Bombs (3)': 3,
     'Arrows (10)': 3,
     'Bombs (10)': 3,
+    'Small Magic': 3,
 
+    'Big Magic': 4,
     'Red Potion': 4,
     'Blue Shield': 4,
     'Rupees (50)': 4,

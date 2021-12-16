@@ -378,7 +378,7 @@ def choose_portals(world, player):
     if world.doorShuffle[player] in ['basic', 'crossed']:
         cross_flag = world.doorShuffle[player] == 'crossed'
         # key drops allow the big key in the right place in Desert Tiles 2
-        bk_shuffle = world.bigkeyshuffle[player] or world.keydropshuffle[player]
+        bk_shuffle = world.bigkeyshuffle[player] or world.keydropshuffle[player] != 'none'
         std_flag = world.mode[player] == 'standard'
         # roast incognito doors
         world.get_room(0x60, player).delete(5)
@@ -994,7 +994,7 @@ def cross_dungeon(world, player):
 
     assign_cross_keys(dungeon_builders, world, player)
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
-    if world.keydropshuffle[player]:
+    if world.keydropshuffle[player] != 'none':
         target_items = 35 if world.retro[player] else 96
     else:
         target_items = 34 if world.retro[player] else 63
@@ -1055,7 +1055,7 @@ def assign_cross_keys(dungeon_builders, world, player):
     logging.getLogger('').info(world.fish.translate("cli", "cli", "shuffling.keydoors"))
     start = time.process_time()
     if world.retro[player]:
-        remaining = 61 if world.keydropshuffle[player] else 29
+        remaining = 61 if world.keydropshuffle[player] != 'none' else 29
     else:
         remaining = len(list(x for dgn in world.dungeons if dgn.player == player for x in dgn.small_keys))
     total_keys = remaining

@@ -3,7 +3,8 @@ import logging
 from collections import deque
 
 import OverworldGlitchRules
-from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier, KeyRuleType
+from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier, KeyRuleType, LocationType
+from BaseClasses import PotFlags
 from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
@@ -33,6 +34,7 @@ def set_rules(world, player):
         raise NotImplementedError('Not implemented yet')
 
     bomb_rules(world, player)
+    pot_rules(world, player)
 
     if world.logic[player] == 'noglitches':
         no_glitches_rules(world, player)
@@ -584,18 +586,19 @@ def global_rules(world, player):
 
 
 def bomb_rules(world, player):
+    # todo: kak well, pod hint (bonkable pots), hookshot pot, spike cave pots
     bonkable_doors = ['Two Brothers House Exit (West)', 'Two Brothers House Exit (East)'] # Technically this is incorrectly defined, but functionally the same as what is intended.
     bombable_doors = ['Ice Rod Cave', 'Light World Bomb Hut', 'Light World Death Mountain Shop', 'Mini Moldorm Cave',
-                      'Hookshot Cave Back to Middle', 'Hookshot Cave Front to Middle', 'Hookshot Cave Middle to Front','Hookshot Cave Middle to Back',
-                      'Dark Lake Hylia Ledge Fairy', 'Hype Cave', 'Brewery']
+                      'Hookshot Cave Back to Middle', 'Hookshot Cave Front to Middle', 'Hookshot Cave Middle to Front',
+                      'Hookshot Cave Middle to Back', 'Dark Lake Hylia Ledge Fairy', 'Hype Cave', 'Brewery',
+                      'Paradox Cave Chest Area NE', 'Blinds Hideout N', 'Kakariko Well (top to back)']
     for entrance in bonkable_doors:
         add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
     for entrance in bombable_doors:
         add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player)) 
 
     bonkable_items = ['Sahasrahla\'s Hut - Left', 'Sahasrahla\'s Hut - Middle', 'Sahasrahla\'s Hut - Right']
-    bombable_items = ['Blind\'s Hideout - Top', 'Kakariko Well - Top', 'Chicken House', 'Aginah\'s Cave', 'Graveyard Cave',
-                      'Paradox Cave Upper - Left', 'Paradox Cave Upper - Right',
+    bombable_items = ['Chicken House', 'Aginah\'s Cave', 'Graveyard Cave',
                       'Hype Cave - Top', 'Hype Cave - Middle Right', 'Hype Cave - Middle Left', 'Hype Cave - Bottom']
     for location in bonkable_items:
         add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
@@ -693,6 +696,35 @@ def bomb_rules(world, player):
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
             elif door.kind(world) in [DoorKind.Bombable]:
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player))
+
+
+def pot_rules(world, player):
+    if world.keydropshuffle[player] == 'potsanity':
+        blocks = [l for l in world.get_locations() if l.type == LocationType.Pot and l.pot.flags & PotFlags.Block]
+        for block_pot in blocks:
+            add_rule(block_pot, lambda state: state.can_lift_rocks(player))
+        # todo : hera 5f - crystal config
+        for l in world.get_region('Hookshot Fairy', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.has('Hookshot', player))
+        for l in world.get_region('Spike Cave', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player) and
+                         ((state.has('Cape', player) and state.can_extend_magic(player, 16, True)) or
+                         (state.has('Cane of Byrna', player) and
+                          (state.can_extend_magic(player, 12, True) or
+                          (state.world.can_take_damage and (state.has_Boots(player) or state.has_hearts(player, 4)))))))
+        for l in world.get_region('Dark Desert Hint', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.can_use_bombs(player))
+        for l in world.get_region('Palace of Darkness Hint', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
+        for l in world.get_region('Dark Lake Hylia Ledge Spike Cave', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player))
+
+
 
 def default_rules(world, player):
     # overworld requirements
@@ -1070,6 +1102,10 @@ def add_conditional_lamps(world, player):
         'Sewers Rope Room': {'sewer': True, 'entrances': ['Sewers Rope Room Up Stairs', 'Sewers Rope Room North Stairs'], 'locations': []},
         'Sewers Water': {'sewer': True, 'entrances': ['Sewers Water S', 'Sewers Water W'], 'locations': []},
         'Sewers Key Rat': {'sewer': True, 'entrances': ['Sewers Key Rat E', 'Sewers Key Rat Key Door N'], 'locations': ['Hyrule Castle - Key Rat Key Drop']},
+        'Old Man Cave': {'sewer': False, 'entrances': ['Old Man Cave Exit (East)']},
+        'Old Man House Back': {'sewer': False, 'entrances': ['Old Man House Back to Front', 'Old Man House Exit (Top)']},
+        'Death Mountain Return Cave (left)': {'sewer': False, 'entrances': ['Death Mountain Return Cave E', 'Death Mountain Return Cave Exit (West)']},
+        'Death Mountain Return Cave (right)': {'sewer': False, 'entrances': ['Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave W']},
     }
 
     dark_debug_set = set()
@@ -1086,17 +1122,12 @@ def add_conditional_lamps(world, player):
             dark_debug_set.add(region)
             for ent in info['entrances']:
                 add_conditional_lamp(ent, region, 'Entrance')
-            for loc in info['locations']:
+            r = world.get_region(region, player)
+            for loc in r.locations:
                 add_conditional_lamp(loc, region, 'Location')
     logging.getLogger('').debug('Non Dark Regions: ' + ', '.join(set(dark_rooms.keys()).difference(dark_debug_set)))
 
-    add_conditional_lamp('Old Man', 'Old Man Cave', 'Location')
-    add_conditional_lamp('Old Man Cave Exit (East)', 'Old Man Cave', 'Entrance')
-    add_conditional_lamp('Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave', 'Entrance')
-    add_conditional_lamp('Death Mountain Return Cave Exit (West)', 'Death Mountain Return Cave', 'Entrance')
     add_conditional_lamp('Old Man House Front to Back', 'Old Man House', 'Entrance')
-    add_conditional_lamp('Old Man House Back to Front', 'Old Man House', 'Entrance')
-
 
 def open_rules(world, player):
     # softlock protection as you can reach the sewers small key door with a guard drop key

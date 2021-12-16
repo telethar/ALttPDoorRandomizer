@@ -3,7 +3,7 @@ import collections
 import itertools
 import logging
 
-from BaseClasses import CollectionState, FillError
+from BaseClasses import CollectionState, FillError, LocationType
 from Items import ItemFactory
 from Regions import shop_to_location_table, retro_shops
 from source.item.FillUtil import filter_locations, classify_major_items, replace_trash_item, vanilla_fallback
@@ -350,6 +350,24 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
 
     # get items to distribute
     classify_major_items(world)
+    # handle pot shuffle
+    pots_used = False
+    pot_item_pool = collections.defaultdict(list)
+    for item in world.itempool:
+        if item.name in ['Chicken', 'Big Magic']:  # can only fill these in that players world
+            pot_item_pool[item.player].append(item)
+    for player, pot_pool in pot_item_pool.items():
+        if pot_pool:
+            for pot_item in pot_pool:
+                world.itempool.remove(pot_item)
+            pot_locations = [location for location in fill_locations
+                             if location.type == LocationType.Pot and location.player == player]
+            fast_fill_helper(world, pot_pool, pot_locations)
+            pots_used = True
+    if pots_used:
+        fill_locations = world.get_unfilled_locations()
+        random.shuffle(fill_locations)
+
     random.shuffle(world.itempool)
     progitempool = [item for item in world.itempool if item.advancement]
     prioitempool = [item for item in world.itempool if not item.advancement and item.priority]
@@ -424,6 +442,23 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     unfilled = [location.name for location in fill_locations]
     if unplaced or unfilled:
         logging.warning('Unplaced items: %s - Unfilled Locations: %s', unplaced, unfilled)
+
+    # convert Arrows 5 and Nothing when necessary
+    invalid_locations = [loc for loc in world.get_locations() if loc.item.name in {'Arrows (5)', 'Nothing'} and
+                         (loc.type != LocationType.Pot or loc.item.player != loc.player)]
+    for i_loc in invalid_locations:
+        i_loc.item = ItemFactory(invalid_location_replacement[i_loc.item.name], i_loc.item.player)
+
+
+invalid_location_replacement = {'Arrows (5)': 'Arrows (10)', 'Nothing':  'Rupees (5)'}
+
+
+def fast_fill_helper(world, item_pool, fill_locations):
+    if world.algorithm == 'vanilla_fill':
+        fast_vanilla_fill(world, item_pool, fill_locations)
+    else:
+        fast_fill(world, item_pool, fill_locations)
+    # todo: other fast fill methods?
 
 
 def fast_fill(world, item_pool, fill_locations):

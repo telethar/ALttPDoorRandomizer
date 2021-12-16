@@ -139,7 +139,7 @@ class World(object):
             set_player_attr('pseudoboots', False)
 
             set_player_attr('shopsanity', False)
-            set_player_attr('keydropshuffle', False)
+            set_player_attr('keydropshuffle', 'none')
             set_player_attr('mixed_travel', 'prevent')
             set_player_attr('standardize_palettes', 'standardize')
             set_player_attr('force_fix', {'gt': False, 'sw': False, 'pod': False, 'tr': False})
@@ -2119,6 +2119,7 @@ class Location(object):
         self.item_rule = lambda item: True
         self.player = player
         self.skip = False
+        self.type = LocationType.Normal if not crystal else LocationType.Prize
 
     def can_fill(self, state, item, check_access=True):
         return self.always_allow(state, item) or (self.parent_region.can_fill(item) and self.item_rule(item) and (not check_access or self.can_reach(state)))
@@ -2156,6 +2157,15 @@ class Location(object):
 
     def __hash__(self):
         return hash((self.name, self.player))
+
+
+class LocationType(FastEnum):
+    Normal = 0
+    Prize = 1
+    Logical = 2
+    Shop = 3
+    Pot = 4
+    Drop = 5
 
 
 class Item(object):
@@ -2519,6 +2529,7 @@ class Spoiler(object):
                 outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'])}\n")
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 outfile.write('Intensity:                       %s\n' % self.metadata['intensity'][player])
+                outfile.write(f"Drop Shuffle Mode:               {self.metadata['keydropshuffle'][player]}\n")
                 addition = ' (Random)' if self.world.crystals_gt_orig[player] == 'random' else ''
                 outfile.write('Crystals required for GT:        %s\n' % (str(self.metadata['gt_crystals'][player]) + addition))
                 addition = ' (Random)' if self.world.crystals_ganon_orig[player] == 'random' else ''
@@ -2537,7 +2548,6 @@ class Spoiler(object):
                 outfile.write(f"Pot shuffle:                     {yn(self.metadata['potshuffle'][player])}\n")
                 outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
                 outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
-                outfile.write(f"Key Drops shuffled:              {yn(self.metadata['keydropshuffle'][player])}\n")
                 outfile.write(f"Shopsanity:                      {yn(self.metadata['shopsanity'][player])}\n")
                 outfile.write(f"Bombbag:                         {yn(self.metadata['bombbag'][player])}\n")
                 outfile.write(f"Pseudoboots:                     {yn(self.metadata['pseudoboots'][player])}\n")
@@ -2681,6 +2691,8 @@ class PotFlags(FastEnum):
     Normal = 0x0
     NoSwitch = 0x1  # A switch should never go here
     SwitchLogicChange = 0x2  # A switch can go here, but requires a logic change
+    Block = 0x4  # This is actually a block
+    LowerRegion = 0x8  # This is a pot in the lower region
 
 
 class Pot(object):
@@ -2690,6 +2702,23 @@ class Pot(object):
         self.item = item
         self.room = room
         self.flags = flags
+        self.indicator = None  # 0x80 for standing item, 0xC0 multiworld item
+        self.standing_item_code = None  # standing item code if nay
+
+    def copy(self):
+        return Pot(self.x, self.y, self.item, self.room, self.flags)
+
+    def empty(self):
+        return self.item == PotItem.Nothing and self.indicator is None
+
+    def pot_data(self):
+        high_byte = self.y
+        if self.flags & PotFlags.LowerRegion:
+            high_byte |= 0x20
+        if self.indicator:
+            high_byte |= self.indicator
+        item = self.item if not self.indicator else self.standing_item_code
+        return [self.x, high_byte, item]
 
 
 # byte 0: DDDE EEEE (DR, ER)
@@ -2708,6 +2737,7 @@ diff_mode = {"normal": 0, "hard": 1, "expert": 2}
 func_mode = {"normal": 0, "hard": 1, "expert": 2}
 
 # byte 3: SKMM PIII (shop, keydrop, mixed, palettes, intensity)
+# todo keydrop is not longer a switch
 mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 # intensity is 3 bits (reserves 4-7 levels)
 

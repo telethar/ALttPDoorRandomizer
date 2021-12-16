@@ -173,7 +173,7 @@ def roll_settings(weights):
     ret.shufflelinks = get_choice('shufflelinks') == 'on'
     ret.pseudoboots = get_choice('pseudoboots') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
-    ret.keydropshuffle = get_choice('keydropshuffle') == 'on'
+    ret.keydropshuffle = get_choice('keydropshuffle')
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
     ret.standardize_palettes = get_choice('standardize_palettes') if 'standardize_palettes' in weights else 'standardize'
 

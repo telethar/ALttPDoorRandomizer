@@ -53,7 +53,10 @@
     "randomizer.dungeon.compassshuffle": "Compasses",
     "randomizer.dungeon.smallkeyshuffle": "Small Keys",
     "randomizer.dungeon.bigkeyshuffle": "Big Keys",
-    "randomizer.dungeon.keydropshuffle": "Key Drops (pots and enemies)",
+    "randomizer.dungeon.keydropshuffle": "Drops and Pots",
+    "randomizer.dungeon.keydropshuffle.none": "None",
+    "randomizer.dungeon.keydropshuffle.keydrops": "Only Key Drops",
+    "randomizer.dungeon.keydropshuffle.potsanity": "All Pots and Key Drops",
 
     "randomizer.dungeon.dungeondoorshuffle": "Dungeon Door Shuffle",
     "randomizer.dungeon.dungeondoorshuffle.vanilla": "Vanilla",
