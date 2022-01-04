@@ -726,7 +726,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'TR Crystal Maze Interior', 'Turtle Rock', None, ['TR Crystal Maze Interior to End Barrier - Blue', 'TR Crystal Maze Interior to Start Barrier - Blue', 'TR Crystal Maze Interior to Start Bypass', 'TR Crystal Maze Interior to End Bypass']),
         create_dungeon_region(player, 'TR Crystal Maze End', 'Turtle Rock', None, ['TR Crystal Maze North Stairs', 'TR Crystal Maze End to Interior Barrier - Blue', 'TR Crystal Maze End to Ranged Crystal']),
         create_dungeon_region(player, 'TR Crystal Maze End - Ranged Crystal', 'Turtle Rock', None, ['TR Crystal Maze End Ranged Crystal Exit']),
-        create_dungeon_region(player, 'TR Final Abyss', 'Turtle Rock', None, ['TR Final Abyss South Stairs', 'TR Final Abyss NW']),
+        create_dungeon_region(player, 'TR Final Abyss Balcony', 'Turtle Rock', None, ['TR Final Abyss South Stairs', 'TR Final Abyss Balcony Path']),
+        create_dungeon_region(player, 'TR Final Abyss Ledge', 'Turtle Rock', None, ['TR Final Abyss NW', 'TR Final Abyss Ledge Path']),
         create_dungeon_region(player, 'TR Boss', 'Turtle Rock', ['Turtle Rock - Boss', 'Turtle Rock - Prize'], ['TR Boss SW']),
 
         # gt
@@ -981,49 +982,53 @@ def create_shops(world, player):
 
 
 def adjust_locations(world, player):
-    if world.keydropshuffle[player] != 'none':
-        world.pot_contents[player] = PotSecretTable()
-        for location in key_drop_data.keys():
-            loc = world.get_location(location, player)
+    # handle pots
+    world.pot_contents[player] = PotSecretTable()
+    for location, datum in key_drop_data.items():
+        loc = world.get_location(location, player)
+        if 'Drop' == datum[0]:
+            loc.type = LocationType.Drop
+            snes_address, room = datum[1]
+            loc.address = snes_address
+        else:
+            loc.type = LocationType.Pot
+            pot = next(p for p in vanilla_pots[datum[1]] if p.item == PotItem.Key).copy()
+            loc.pot = pot
+            world.pot_contents[player].room_map[datum[1]].append(pot)
+        if world.keydropshuffle[player] == 'none':
+            loc.skip = True
+        else:
             key_item = loc.item
             key_item.location = None
 
             loc.forced_item = None
             loc.item = None
             loc.event = False
-            datum = key_drop_data[location]
-            # todo: set type of location
-            if 'Drop' == datum[0]:
-                loc.type = LocationType.Drop
-                snes_address, room = datum[1]
-                loc.address = snes_address
-            else:
-                loc.type = LocationType.Pot
-                pot = next(p for p in vanilla_pots[datum[1]] if p.item == PotItem.Key).copy()
-                loc.pot = pot
-                world.pot_contents[player].room_map[datum[1]].append(pot)
             item_dungeon = key_item.dungeon
             dungeon = world.get_dungeon(item_dungeon, player)
             if key_item.smallkey and not world.retro[player]:
                 dungeon.small_keys.append(key_item)
             elif key_item.bigkey:
                 dungeon.big_key = key_item
-        if world.keydropshuffle[player] == 'potsanity':
-            for super_tile, pot_list in vanilla_pots.items():
-                for pot_index, pot_orig in enumerate(pot_list):
-                    pot = pot_orig.copy()
-                    if pot.item in [PotItem.Hole, PotItem.Switch]:
-                        world.pot_contents[player].room_map[super_tile].append(pot)
-                    elif pot.item != PotItem.Key:
-                        parent = world.get_region(pot.room, player)
-                        descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
-                        pot_location = Location(player, f'{pot.room} {descriptor}', player, hint_text='in a pot',
-                                                parent=parent)
-                        world.dynamic_locations.append(pot_location)
-                        pot_location.pot = pot
-                        world.pot_contents[player].room_map[super_tile].append(pot)
-                        pot_location.type = LocationType.Pot
-                        parent.locations.append(pot_location)
+    for super_tile, pot_list in vanilla_pots.items():
+        for pot_index, pot_orig in enumerate(pot_list):
+            pot = pot_orig.copy()
+            if pot.item != PotItem.Key:
+                world.pot_contents[player].room_map[super_tile].append(pot)
+            if world.keydropshuffle[player] == 'potsanity':
+                if (pot.item not in [PotItem.Key, PotItem.Hole]
+                   and (pot.item != PotItem.Switch or world.potshuffle[player])):
+                    parent = world.get_region(pot.room, player)
+                    descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+                    # todo: better hints
+                    hint_text = 'under a block' if pot.flags & PotFlags.Block else 'in a pot'
+                    pot_location = Location(player, f'{pot.room} {descriptor}', player, hint_text=hint_text,
+                                            parent=parent)
+                    world.dynamic_locations.append(pot_location)
+                    pot_location.pot = pot
+
+                    pot_location.type = LocationType.Pot
+                    parent.locations.append(pot_location)
     if world.shopsanity[player]:
         index = 0
         for shop, location_list in shop_to_location_table.items():
@@ -1041,6 +1046,8 @@ def adjust_locations(world, player):
         if location:
             location.type = LocationType.Logical
             location.real = False
+            if l not in ['Ganon', 'Agahnim 1', 'Agahnim 2']:
+                location.skip = True
 
 
 

@@ -35,7 +35,7 @@ from source.classes.SFX import randomize_sfx
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '3ee527f67af25e860ffd4364d2369f0e'
+RANDOMIZERBASEHASH = 'c1b18f6455af56b738d4fe8f266ef055'
 
 
 class JsonRom(object):
@@ -731,10 +731,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         dr_flags |= DROptions.Fix_EG
 
     my_locations = world.get_filled_locations(player)
-    valid_locations = [l for l in my_locations if ((l.type == LocationType.Pot and l.pot.indicator)
+    valid_locations = [l for l in my_locations if ((l.type == LocationType.Pot and not l.forced_item)
                                                    or (l.type == LocationType.Drop and not l.forced_item)
                                                    or (l.type == LocationType.Normal and not l.forced_item)
                                                    or (l.type == LocationType.Shop and world.shopsanity[player]))]
+    valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
     if world.doorShuffle[player] == 'crossed' or world.keydropshuffle[player] != 'none':
@@ -742,7 +743,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
         rom.write_byte(0x1597b, sanctuary.dungeon.dungeon_id*2)
-        update_compasses(rom, valid_locations, world, player)
+        update_compasses(rom, valid_loc_by_dungeon, world, player)
 
     def should_be_bunny(region, mode):
         if mode != 'inverted':
@@ -774,10 +775,14 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             else:
                 rom.write_byte(0x13f020+offset, layout.max_chests + layout.max_drops)  # not currently used
                 rom.write_byte(0x13f030+offset, layout.max_chests)
+            # todo: fix these for pot shuffle
             builder = world.dungeon_layouts[player][name]
-            rom.write_byte(0x13f080+offset, builder.location_cnt % 10)
-            rom.write_byte(0x13f090+offset, builder.location_cnt // 10)
-            rom.write_byte(0x13f0a0+offset, builder.location_cnt)
+            valid_cnt = len(valid_loc_by_dungeon[name])
+            if valid_cnt > 99:
+                logging.getLogger('').warning(f'{name} exceeds 99 in locations ({valid_cnt})')
+            rom.write_byte(0x13f080+offset, valid_cnt % 10)
+            rom.write_byte(0x13f090+offset, valid_cnt // 10)
+            rom.write_byte(0x13f0a0+offset, valid_cnt)
             bk_status = 1 if builder.bk_required else 0
             bk_status = 2 if builder.bk_provided else bk_status
             rom.write_byte(0x13f040+offset*2, bk_status)
@@ -865,19 +870,25 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.keydropshuffle[player] != 'none':
         rom.write_byte(0x142A50, 1)
         rom.write_byte(0x142A51, 1)
-    rom.write_byte(0x142A52, 216-credits_total) # todo: this is now a delta
+        if world.keydropshuffle[player] == 'potsanity':
+            rom.write_bytes(0x04DFD8, [0x18, 0x0B, 0x1C])
+            rom.write_byte(0x04E002, 0xFF)
+    rom.write_byte(0x142A52, credits_total - 216)  # todo: this is now a delta
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
         # collection rate address (hi):
         cr_address = 0x238057
         cr_pc = cr_address - 0x120000  # convert to pc
+        first_top, first_bot = credits_digit((credits_total // 100) % 10)
         mid_top, mid_bot = credits_digit((credits_total // 10) % 10)
         last_top, last_bot = credits_digit(credits_total % 10)
         # top half
+        rom.write_byte(cr_pc, first_top)
         rom.write_byte(cr_pc+0x1, mid_top)
         rom.write_byte(cr_pc+0x2, last_top)
         # bottom half
+        rom.write_byte(cr_pc+0x1e, first_bot)
         rom.write_byte(cr_pc+0x1f, mid_bot)
         rom.write_byte(cr_pc+0x20, last_bot)
 
@@ -1441,7 +1452,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     elif world.dungeon_counters[player] == 'on':
         compass_mode = 0x02  # always on
     elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla'
-          or world.dungeon_counters[player] == 'pickup' or world.keydropshuffle != 'none'):
+          or world.dungeon_counters[player] == 'pickup' or world.keydropshuffle[player] != 'none'):
         compass_mode = 0x01  # show on pickup
     if world.shuffle[player] != 'vanilla' and world.overworld_map[player] != 'default':
         compass_mode |= 0x80  # turn on locating dungeons
@@ -2615,11 +2626,15 @@ def patch_shuffled_dark_sanc(world, rom, player):
     rom.write_bytes(0x180262, [unknown_1, unknown_2, 0x00])
 
 
-def update_compasses(rom, valid_locations, world, player):
+def valid_dungeon_locations(valid_locations):
     dungeon_locations = collections.defaultdict(set)
     for l in valid_locations:
         if l.parent_region.dungeon:
             dungeon_locations[l.parent_region.dungeon.name].add(l)
+    return dungeon_locations
+
+
+def update_compasses(rom, dungeon_locations, world, player):
     layouts = world.dungeon_layouts[player]
     provided_dungeon = False
     for name, builder in layouts.items():

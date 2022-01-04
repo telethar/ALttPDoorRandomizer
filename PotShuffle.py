@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from BaseClasses import PotItem, Pot, PotFlags, CrystalBarrier
+from BaseClasses import PotItem, Pot, PotFlags, CrystalBarrier, LocationType
 from Utils import int16_as_bytes, pc_to_snes
 
 movable_switch_rooms = defaultdict(lambda: [],
@@ -79,8 +79,10 @@ vanilla_pots = {
     61: [Pot(76, 12, PotItem.Bomb, 'GT Mini Helmasaur Room'), Pot(112, 12, PotItem.Bomb, 'GT Mini Helmasaur Room'), Pot(24, 22, PotItem.Heart, 'GT Crystal Inner Circle'), Pot(40, 22, PotItem.FiveArrows, 'GT Crystal Inner Circle'),
          Pot(32, 24, PotItem.Heart, 'GT Crystal Inner Circle'), Pot(20, 26, PotItem.FiveRupees, 'GT Crystal Inner Circle'), Pot(36, 26, PotItem.BigMagic, 'GT Crystal Inner Circle')],
     62: [Pot(96, 6, PotItem.Bomb, 'Ice Stalfos Hint'), Pot(100, 6, PotItem.SmallMagic, 'Ice Stalfos Hint'), Pot(88, 10, PotItem.Heart, 'Ice Stalfos Hint'), Pot(92, 10, PotItem.SmallMagic, 'Ice Stalfos Hint')],
-    0x3F: [Pot(12, 25, PotItem.OneRupee, 'Ice Hammer Block'), Pot(20, 25, PotItem.OneRupee, 'Ice Hammer Block'), Pot(12, 26, PotItem.Bomb, 'Ice Hammer Block'), Pot(20, 26, PotItem.Bomb, 'Ice Hammer Block'),
-           Pot(12, 27, PotItem.Switch, 'Ice Hammer Block'), Pot(20, 27, PotItem.Heart, 'Ice Hammer Block'), Pot(28, 23, PotItem.Key, 'Ice Hammer Block')],
+    0x3F: [Pot(12, 25, PotItem.OneRupee, 'Ice Hammer Block'), Pot(20, 25, PotItem.OneRupee, 'Ice Hammer Block'),
+           Pot(12, 26, PotItem.Bomb, 'Ice Hammer Block'), Pot(20, 26, PotItem.Bomb, 'Ice Hammer Block'),
+           Pot(12, 27, PotItem.Switch, 'Ice Hammer Block'), Pot(20, 27, PotItem.Heart, 'Ice Hammer Block'),
+           Pot(28, 23, PotItem.Key, 'Ice Hammer Block')],
     0x41: [Pot(100, 10, PotItem.Heart, 'Sewers Behind Tapestry'), Pot(52, 15, PotItem.OneRupee, 'Sewers Behind Tapestry'), Pot(52, 16, PotItem.SmallMagic, 'Sewers Behind Tapestry'), Pot(148, 22, PotItem.SmallMagic, 'Sewers Behind Tapestry')],
     0x43: [Pot(66, 4, PotItem.FiveArrows, 'Desert Wall Slide'), Pot(78, 4, PotItem.SmallMagic, 'Desert Wall Slide'), Pot(66, 9, PotItem.Heart, 'Desert Wall Slide'), Pot(78, 9, PotItem.Heart, 'Desert Wall Slide'),
            Pot(112, 28, PotItem.Nothing, 'Desert Tiles 2'), Pot(76, 28, PotItem.Nothing, 'Desert Tiles 2'), Pot(76, 20, PotItem.Nothing, 'Desert Tiles 2'), Pot(112, 20, PotItem.Key, 'Desert Tiles 2')],
@@ -191,7 +193,7 @@ vanilla_pots = {
     145: [Pot(84, 4, PotItem.Heart, 'Mire Falling Foes'), Pot(104, 4, PotItem.SmallMagic, 'Mire Falling Foes')],
     146: [Pot(86, 23, PotItem.Nothing, 'Mire Tall Dark and Roomy'), Pot(92, 23, PotItem.Nothing, 'Mire Tall Dark and Roomy'), Pot(98, 23, PotItem.Nothing, 'Mire Tall Dark and Roomy'), Pot(104, 23, PotItem.Nothing, 'Mire Tall Dark and Roomy')],
     0x93: [Pot(28, 7, PotItem.Switch, 'Mire Dark Shooters'),
-           Pot(0x9C, 0x17, PotItem.Switch, 'Mire Block X', PotFlags.Block),
+           Pot(0x9C, 0x17, PotItem.Nothing, 'Mire Block X', PotFlags.Block),
            Pot(96, 7, PotItem.Heart, 'Mire Dark Shooters', PotFlags.NoSwitch)],
     0x96: [Pot(14, 18, PotItem.Nothing, 'GT Torch Cross'),
            Pot(32, 5, PotItem.Nothing, 'GT Torch Cross'),
@@ -243,13 +245,13 @@ vanilla_pots = {
            Pot(48, 0xA, PotItem.Nothing, 'Mire BK Door Room', PotFlags.LowerRegion),
            Pot(76, 0xA, PotItem.Nothing, 'Mire BK Door Room', PotFlags.LowerRegion)],
     0xB3: [Pot(12, 20, PotItem.Key, 'Mire Spikes'), Pot(48, 20, PotItem.SmallMagic, 'Mire Spikes'), Pot(48, 28, PotItem.Switch, 'Mire Spikes')],
-    180: [Pot(44, 28, PotItem.BigMagic, 'TR Final Abyss'), Pot(48, 28, PotItem.Heart, 'TR Final Abyss')],
-    181: [Pot(112, 4, PotItem.FiveRupees, 'TR Dark Ride'), Pot(112, 15, PotItem.Heart, 'TR Dark Ride'), Pot(76, 16, PotItem.Switch, 'TR Dark Ride'), Pot(112, 16, PotItem.BigMagic, 'TR Dark Ride'), Pot(112, 17, PotItem.Heart, 'TR Dark Ride'),
-          Pot(112, 28, PotItem.Bomb, 'TR Dark Ride')],
-    182: [Pot(94, 9, PotItem.BigMagic, 'TR Refill')],
-    183: [Pot(30, 5, PotItem.SmallMagic, 'TR Roller Room')],
-    184: [Pot(96, 13, PotItem.Switch, 'Eastern Big Key'), Pot(88, 16, PotItem.Heart, 'Eastern Big Key'), Pot(104, 16, PotItem.Heart, 'Eastern Big Key')],
-    185: [Pot(92, 18, PotItem.OneRupee, 'Eastern Cannonball'), Pot(96, 18, PotItem.FiveRupees, 'Eastern Cannonball'), Pot(104, 18, PotItem.FiveRupees, 'Eastern Cannonball'), Pot(108, 18, PotItem.OneRupee, 'Eastern Cannonball')],
+    0xB4: [Pot(44, 28, PotItem.BigMagic, 'TR Final Abyss Balcony'), Pot(48, 28, PotItem.Heart, 'TR Final Abyss Balcony')],
+    0xB5: [Pot(112, 4, PotItem.FiveRupees, 'TR Dark Ride'), Pot(112, 15, PotItem.Heart, 'TR Dark Ride'), Pot(76, 16, PotItem.Switch, 'TR Dark Ride'), Pot(112, 16, PotItem.BigMagic, 'TR Dark Ride'), Pot(112, 17, PotItem.Heart, 'TR Dark Ride'),
+           Pot(112, 28, PotItem.Bomb, 'TR Dark Ride')],
+    0xB6: [Pot(94, 9, PotItem.BigMagic, 'TR Refill')],
+    0xB7: [Pot(30, 5, PotItem.SmallMagic, 'TR Roller Room')],
+    0xB8: [Pot(96, 13, PotItem.Switch, 'Eastern Big Key'), Pot(88, 16, PotItem.Heart, 'Eastern Big Key'), Pot(104, 16, PotItem.Heart, 'Eastern Big Key')],
+    0xB9: [Pot(92, 18, PotItem.OneRupee, 'Eastern Cannonball'), Pot(96, 18, PotItem.FiveRupees, 'Eastern Cannonball'), Pot(104, 18, PotItem.FiveRupees, 'Eastern Cannonball'), Pot(108, 18, PotItem.OneRupee, 'Eastern Cannonball')],
     0xBA: [Pot(100, 8, PotItem.Nothing, 'Eastern Dark Pots'), Pot(88, 8, PotItem.Nothing, 'Eastern Dark Pots'), Pot(94, 4, PotItem.OneRupee, 'Eastern Dark Pots'), Pot(76, 6, PotItem.Heart, 'Eastern Dark Pots'),
           Pot(112, 6, PotItem.Key, 'Eastern Dark Pots'), Pot(76, 10, PotItem.Heart, 'Eastern Dark Pots'), Pot(112, 10, PotItem.SmallMagic, 'Eastern Dark Pots'), Pot(94, 12, PotItem.OneRupee, 'Eastern Dark Pots')],
     0xBC: [Pot(86, 4, PotItem.Heart, 'Thieves Hallway'), Pot(102, 4, PotItem.Key, 'Thieves Hallway'), Pot(138, 3, PotItem.Bomb, 'Thieves Conveyor Maze'), Pot(178, 3, PotItem.Switch, 'Thieves Conveyor Maze'),
@@ -271,8 +273,10 @@ vanilla_pots = {
     201: [Pot(30, 22, PotItem.OneRupee, 'Eastern Lobby'), Pot(94, 22, PotItem.OneRupee, 'Eastern Lobby'), Pot(60, 22, PotItem.Switch, 'Eastern Lobby')],
     203: [Pot(80, 4, PotItem.Nothing, 'Thieves Ambush'), Pot(80, 28, PotItem.Nothing, 'Thieves Ambush'), Pot(88, 16, PotItem.Heart, 'Thieves Ambush'), Pot(88, 28, PotItem.FiveRupees, 'Thieves Ambush')],
     204: [Pot(36, 4, PotItem.FiveRupees, 'Thieves Rail Ledge'), Pot(36, 28, PotItem.FiveRupees, 'Thieves Rail Ledge'), Pot(112, 4, PotItem.Heart, 'Thieves BK Corner'), Pot(112, 28, PotItem.Bomb, 'Thieves BK Corner')],
-    206: [Pot(76, 8, PotItem.SmallMagic, 'Ice Antechamber'), Pot(80, 8, PotItem.SmallMagic, 'Ice Antechamber'), Pot(108, 12, PotItem.Bomb, 'Ice Antechamber'), Pot(112, 12, PotItem.FiveArrows, 'Ice Antechamber'),
-          Pot(204, 11, PotItem.Hole, 'Ice Antechamber')], # Pot(0x6c, 8, PotItem.Nothing, 'Ice Antechamber', PotFlags.Block) this one has jellies
+    0xCE: [Pot(76, 8, PotItem.SmallMagic, 'Ice Antechamber'), Pot(80, 8, PotItem.SmallMagic, 'Ice Antechamber'),
+           Pot(108, 12, PotItem.Bomb, 'Ice Antechamber'), Pot(112, 12, PotItem.FiveArrows, 'Ice Antechamber'),
+           Pot(204, 11, PotItem.Hole, 'Ice Antechamber'),
+           Pot(0x6c, 8, PotItem.Nothing, 'Ice Antechamber', PotFlags.Block)],
     208: [Pot(158, 5, PotItem.SmallMagic, 'Tower Dark Maze'), Pot(140, 11, PotItem.OneRupee, 'Tower Dark Maze'), Pot(42, 13, PotItem.SmallMagic, 'Tower Dark Maze'), Pot(48, 16, PotItem.Heart, 'Tower Dark Maze'),
           Pot(176, 20, PotItem.OneRupee, 'Tower Dark Maze'), Pot(146, 23, PotItem.FiveRupees, 'Tower Dark Maze'), Pot(12, 28, PotItem.Heart, 'Tower Dark Maze')],
     209: [Pot(48, 4, PotItem.BigMagic, 'Mire Conveyor Barrier'), Pot(168, 7, PotItem.OneRupee, 'Mire Conveyor Barrier'), Pot(76, 4, PotItem.OneRupee, 'Mire Neglected Room'), Pot(112, 4, PotItem.FiveArrows, 'Mire Neglected Room'),
@@ -350,8 +354,8 @@ def shuffle_pots(world, player):
 
     new_pot_contents = PotSecretTable()
 
-    for supertile in vanilla_pots:
-        old_pots = vanilla_pots[supertile]
+    for super_tile in vanilla_pots:
+        old_pots = vanilla_pots[super_tile]
         new_pots = [Pot(pot.x, pot.y, PotItem.Nothing, pot.room, pot.flags) for pot in old_pots]
         # sort in the order Hole, Switch, Key, Other, Nothing
         sort_order = {PotItem.Hole: 4, PotItem.Switch: 3, PotItem.Key: 2, PotItem.Nothing: 0}
@@ -401,9 +405,52 @@ def shuffle_pots(world, player):
                 else:
                     raise Exception("Switch location in room %s requires logic change" % new_pot.room)
 
-        new_pot_contents.room_map[supertile] = new_pots
+        new_pot_contents.room_map[super_tile] = new_pots
 
     world.pot_contents[player] = new_pot_contents
+
+
+def shuffle_pot_switches(world, player):
+    import RaceRandom as random
+
+    for super_tile in vanilla_pots:
+        old_pots = vanilla_pots[super_tile]
+        new_pots = world.pot_contents[player].room_map[super_tile]
+        # sort in the order Hole, Switch, Key, Other, Nothing
+        sort_order = {PotItem.Hole: 4, PotItem.Switch: 3, PotItem.Key: 2, PotItem.Nothing: 0}
+        old_pots = sorted(old_pots, key=lambda pot: sort_order.get(pot.item, 1), reverse=True)
+
+        for old_pot in old_pots:
+            if old_pot.item != PotItem.Switch:
+                break
+            else:
+                available_pots = [pot for pot in new_pots if (pot.room == old_pot.room or pot.room in movable_switch_rooms[old_pot.room]) and not (pot.flags & PotFlags.NoSwitch)]
+
+            new_pot = random.choice(available_pots)
+            new_pot.item, old_pot.item = old_pot.item, new_pot.item
+            if world.retro[player] and new_pot.item == PotItem.FiveArrows:
+                new_pot.item = PotItem.FiveRupees
+
+            if new_pot.item == PotItem.Switch and (new_pot.flags & PotFlags.SwitchLogicChange):
+                if new_pot.room == 'PoD Basement Ledge':
+                    basement = world.get_region(old_pot.room, player)
+                    ledge = world.get_region(new_pot.room, player)
+                    ledge.locations.append(basement.locations.pop())
+                elif new_pot.room == 'Swamp Push Statue':
+                    from Rules import set_rule
+                    set_rule(world.get_entrance('Swamp Push Statue NE', player), lambda state: state.has('Cane of Somaria', player))
+                    world.get_door('Swamp Push Statue NW', player).blocked = True
+                elif new_pot.room == 'Thieves Attic Hint':
+                    # Rule is created based on barrier
+                    world.get_door('Thieves Attic ES', player).barrier(CrystalBarrier.Orange)
+                else:
+                    raise Exception("Switch location in room %s requires logic change" % new_pot.room)
+    for location in world.get_locations():
+        if location.player == player and location.type == LocationType.Pot and location.pot.item == PotItem.Switch:
+            location.real = False
+            world.dynamic_locations.remove(location)
+            location.parent.locations.remove(location)
+    world.clear_location_cache()
 
 
 key_drop_data = {
@@ -459,9 +506,8 @@ class PotSecretTable(object):
                 data_address = pc_to_snes(data_pointer) & 0xFFFF
                 rom.write_bytes(pointer_address + room * 2, int16_as_bytes(data_address))
                 for pot in self.room_map[room]:
-                    if not pot.empty():
-                        rom.write_bytes(data_pointer + list_idx * 3, pot.pot_data())
-                        list_idx += 1
+                    rom.write_bytes(data_pointer + list_idx * 3, pot.pot_data())
+                    list_idx += 1
                 rom.write_bytes(data_pointer + list_idx * 3, [0xFF, 0xFF])
                 data_pointer += 3 * list_idx + 2
             else:
@@ -472,7 +518,7 @@ class PotSecretTable(object):
         size = 0x128 * 2
         for room in range(0, 0x128):
             if room in self.room_map:
-                pot_list = [p for p in self.room_map[room] if not p.empty()]
+                pot_list = [p for p in self.room_map[room]]
                 if pot_list:
                     size += len(pot_list) * 3 + 2
         return size

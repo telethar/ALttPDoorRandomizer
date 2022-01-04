@@ -170,15 +170,17 @@ mire_regions = [
 tr_regions = [
     'TR Main Lobby', 'TR Lobby Ledge', 'TR Compass Room', 'TR Hub', 'TR Torches Ledge', 'TR Torches', 'TR Roller Room',
     'TR Tile Room', 'TR Refill', 'TR Pokey 1', 'TR Chain Chomps Top', 'TR Chain Chomps Top - Crystal',
-    'TR Chain Chomps Bottom', 'TR Chain Chomps Bottom - Ranged Crystal', 'TR Pipe Pit', 'TR Pipe Ledge', 'TR Lava Dual Pipes',
-    'TR Lava Island', 'TR Lava Escape', 'TR Pokey 2 Top', 'TR Pokey 2 Top - Crystal', 'TR Pokey 2 Bottom', 'TR Pokey 2 Bottom - Ranged Crystal',
-    'TR Twin Pokeys', 'TR Hallway', 'TR Dodgers', 'TR Big View','TR Big Chest', 'TR Big Chest Entrance',
-    'TR Lazy Eyes', 'TR Dash Room', 'TR Tongue Pull', 'TR Rupees', 'TR Crystaroller Bottom',
-    'TR Crystaroller Middle', 'TR Crystaroller Top', 'TR Crystaroller Top - Crystal', 'TR Crystaroller Chest',
-    'TR Crystaroller Middle - Ranged Crystal', 'TR Crystaroller Bottom - Ranged Crystal', 'TR Dark Ride', 'TR Dash Bridge', 'TR Eye Bridge',
+    'TR Chain Chomps Bottom', 'TR Chain Chomps Bottom - Ranged Crystal', 'TR Pipe Pit', 'TR Pipe Ledge',
+    'TR Lava Dual Pipes', 'TR Lava Island', 'TR Lava Escape', 'TR Pokey 2 Top', 'TR Pokey 2 Top - Crystal',
+    'TR Pokey 2 Bottom', 'TR Pokey 2 Bottom - Ranged Crystal', 'TR Twin Pokeys', 'TR Hallway', 'TR Dodgers',
+    'TR Big View','TR Big Chest', 'TR Big Chest Entrance', 'TR Lazy Eyes', 'TR Dash Room', 'TR Tongue Pull',
+    'TR Rupees', 'TR Crystaroller Bottom', 'TR Crystaroller Middle', 'TR Crystaroller Top',
+    'TR Crystaroller Top - Crystal', 'TR Crystaroller Chest', 'TR Crystaroller Middle - Ranged Crystal',
+    'TR Crystaroller Bottom - Ranged Crystal', 'TR Dark Ride', 'TR Dash Bridge', 'TR Eye Bridge',
     'TR Crystal Maze Start', 'TR Crystal Maze Start - Crystal', 'TR Crystal Maze Interior', 'TR Crystal Maze End',
-    'TR Crystal Maze End - Ranged Crystal', 'TR Final Abyss', 'TR Boss', 'Turtle Rock Main Portal',
-    'Turtle Rock Lazy Eyes Portal', 'Turtle Rock Chest Portal', 'Turtle Rock Eye Bridge Portal'
+    'TR Crystal Maze End - Ranged Crystal', 'TR Final Abyss Balcony', 'TR Final Abyss Ledge', 'TR Boss',
+    'Turtle Rock Main Portal', 'Turtle Rock Lazy Eyes Portal', 'Turtle Rock Chest Portal',
+    'Turtle Rock Eye Bridge Portal'
 ]
 
 gt_regions = [

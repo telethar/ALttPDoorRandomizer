@@ -7,6 +7,7 @@ from BaseClasses import CollectionState, FillError, LocationType
 from Items import ItemFactory
 from Regions import shop_to_location_table, retro_shops
 from source.item.FillUtil import filter_locations, classify_major_items, replace_trash_item, vanilla_fallback
+from source.item.FillUtil import filter_pot_locations
 
 
 def get_dungeon_item_pool(world):
@@ -362,6 +363,7 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
                 world.itempool.remove(pot_item)
             pot_locations = [location for location in fill_locations
                              if location.type == LocationType.Pot and location.player == player]
+            pot_locations = filter_pot_locations(pot_locations, world)
             fast_fill_helper(world, pot_pool, pot_locations)
             pots_used = True
     if pots_used:

@@ -1326,7 +1326,17 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player,
                 polarized_sectors[sector] = None
         if bow_sectors:
             assign_bow_sectors(dungeon_map, bow_sectors, global_pole)
-        assign_location_sectors(dungeon_map, free_location_sectors, global_pole, world, player)
+        leftover = assign_location_sectors_minimal(dungeon_map, free_location_sectors, global_pole, world, player)
+        free_location_sectors = scatter_extra_location_sectors(dungeon_map, leftover, global_pole)
+        for sector in free_location_sectors:
+            if sector.c_switch:
+                crystal_switches[sector] = None
+            elif sector.blue_barrier:
+                crystal_barriers[sector] = None
+            elif sector.polarity().is_neutral():
+                neutral_sectors[sector] = None
+            else:
+                polarized_sectors[sector] = None
         leftover = assign_crystal_switch_sectors(dungeon_map, crystal_switches, crystal_barriers, global_pole)
         ensure_crystal_switches_reachable(dungeon_map, leftover, polarized_sectors, crystal_barriers, global_pole)
         for sector in leftover:
@@ -1558,33 +1568,85 @@ def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
         assign_sector(sector_list[i], builder, bow_sectors, global_pole)
 
 
-def assign_location_sectors(dungeon_map, free_location_sectors, global_pole, world, player):
+def scatter_extra_location_sectors(dungeon_map, free_location_sectors, global_pole):
+    population = [n for n in dungeon_map.keys()]
+    k = round(len(free_location_sectors) * .50)
     valid = False
     choices = None
+    candidates = []
+    sector_list = list(free_location_sectors)
+    while not valid:
+        candidates = random.sample(sector_list, k=k)
+        choices = random.choices(population, k=len(candidates))
+        sector_dict = defaultdict(list)
+        for i, choice in enumerate(choices):
+            builder = dungeon_map[choice]
+            sector_dict[builder].append(candidates[i])
+        valid = global_pole.is_valid_multi_choice_2(dungeon_map, dungeon_map.values(), sector_dict)
+    for i, choice in enumerate(choices):
+        builder = dungeon_map[choice]
+        assign_sector(candidates[i], builder, free_location_sectors, global_pole)
+    return free_location_sectors
+
+
+def assign_location_sectors_minimal(dungeon_map, free_location_sectors, global_pole, world, player):
+    valid = False
+    choices = defaultdict(list)
     sector_list = list(free_location_sectors)
     random.shuffle(sector_list)
     orig_location_set = build_orig_location_set(dungeon_map)
     num_dungeon_items = requested_dungeon_items(world, player)
+    d_idx = {builder.name: i for i, builder in enumerate(dungeon_map.values())}
+    next_sector = sector_list.pop()
     while not valid:
-        choices, d_idx, totals = weighted_random_locations(dungeon_map, sector_list)
-        location_set = {x: set(y) for x, y in orig_location_set.items()}
-        for i, sector in enumerate(sector_list):
-            d_name = choices[i].name
-            choice = d_idx[d_name]
-            totals[choice] += sector.chest_locations
-            location_set[d_name].update(sector.chest_location_set)
-        valid = True
-        for d_name, idx in d_idx.items():
-            free_items = count_reserved_locations(world, player, location_set[d_name])
-            target = max(free_items, 2) + num_dungeon_items
-            if totals[idx] < target:
-                valid = False
-                break
-    for i, choice in enumerate(choices):
-        builder = dungeon_map[choice.name]
-        assign_sector(sector_list[i], builder, free_location_sectors, global_pole)
+        choice, totals, location_set = weighted_random_location(dungeon_map, choices, orig_location_set, world, player)
+        if not choice:
+            break
+        choices[choice].append(next_sector)
+        if global_pole.is_valid_multi_choice_2(dungeon_map,  dungeon_map.values(), choices):
+            idx = d_idx[choice.name]
+            totals[idx] += next_sector.chest_locations
+            location_set[choice.name].update(next_sector.chest_location_set)
+            valid = True
+            for d_name, idx in d_idx.items():
+                free_items = count_reserved_locations(world, player, location_set[d_name])
+                target = max(free_items, 2) + num_dungeon_items
+                if totals[idx] < target:
+                    valid = False
+                    break
+            if not valid:
+                if len(sector_list) == 0:
+                    choices = defaultdict(list)
+                    sector_list = list(free_location_sectors)
+                else:
+                    next_sector = sector_list.pop()
+        else:
+            choices[choice].remove(next_sector)
+    for builder, choice_list in choices.items():
+        for choice in choice_list:
+            assign_sector(choice, builder, free_location_sectors, global_pole)
+    return free_location_sectors
 
 
+def weighted_random_location(dungeon_map, choices, orig_location_set, world, player):
+    population = []
+    totals = []
+    location_set = {x: set(y) for x, y in orig_location_set.items()}
+    num_dungeon_items = requested_dungeon_items(world, player)
+    for i, dungeon_builder in enumerate(dungeon_map.values()):
+        ttl = dungeon_builder.location_cnt + sum(sector.chest_locations for sector in choices[dungeon_builder])
+        totals.append(ttl)
+        builder_set = location_set[dungeon_builder.name]
+        builder_set.update(set().union(*(s.chest_location_set for s in choices[dungeon_builder])))
+        free_items = count_reserved_locations(world, player, builder_set)
+        target = max(free_items, 2) + num_dungeon_items
+        if ttl < target:
+            population.append(dungeon_builder)
+    choice = random.choice(population) if len(population) > 0 else None
+    return choice, totals, location_set
+
+
+# deprecated
 def weighted_random_locations(dungeon_map, free_location_sectors):
     population = []
     ttl_assigned = 0

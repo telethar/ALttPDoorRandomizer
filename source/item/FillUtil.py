@@ -492,6 +492,19 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False):
     return locations
 
 
+def filter_pot_locations(locations, world):
+    if world.algorithm == 'district':
+        config = world.item_pool_config
+        restricted = config.location_groups[0].locations
+        filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
+        return filtered if len(filtered) > 0 else locations
+    if world.algorithm == 'vanilla_fill':
+        # todo: vanilla pot location stuff
+        pass
+    return locations
+
+
+
 vanilla_mapping = {
     'Green Pendant': ['Eastern Palace - Prize'],
     'Red Pendant': ['Desert Palace - Prize', 'Tower of Hera - Prize'],

@@ -2302,6 +2302,8 @@ logical_connections = [
     ('TR Crystal Maze End to Interior Barrier - Blue', 'TR Crystal Maze Interior'),
     ('TR Crystal Maze End to Ranged Crystal', 'TR Crystal Maze End - Ranged Crystal'),
     ('TR Crystal Maze End Ranged Crystal Exit', 'TR Crystal Maze End'),
+    ('TR Final Abyss Balcony Path', 'TR Final Abyss Ledge'),
+    ('TR Final Abyss Ledge Path', 'TR Final Abyss Balcony'),
 
     ('GT Blocked Stairs Block Path', 'GT Big Chest'),
     ('GT Speed Torch South Path', 'GT Speed Torch'),
