@@ -35,7 +35,7 @@ from source.classes.SFX import randomize_sfx
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'c1b18f6455af56b738d4fe8f266ef055'
+RANDOMIZERBASEHASH = '6c43ba88d17005bd1237fe1a62597705'
 
 
 class JsonRom(object):
@@ -336,6 +336,7 @@ def patch_enemizer(world, player, rom, local_rom, enemizercli, random_sprite_on_
         rom.write_bytes(0xEA081, [0x5c, 0x00, 0x80, 0xb7, 0xc9, 0x6, 0xf0, 0x24,
                                   0xad, 0x3, 0x4, 0x29, 0x20, 0xf0, 0x1d])
         rom.write_byte(0x200101, 0)  # Do not close boss room door on entry.
+        rom.write_byte(0x1B0101, 0)  # Do not close boss room door on entry. (for Ijwu's enemizer)
 
     if random_sprite_on_hit:
         _populate_sprite_table()
@@ -1545,6 +1546,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x1800A3, 0x01)  # enable correct world setting behaviour after agahnim kills
     rom.write_byte(0x1800A4, 0x01 if world.logic[player] != 'nologic' else 0x00)  # enable POD EG fix
     rom.write_byte(0x180042, 0x01 if world.save_and_quit_from_boss else 0x00)  # Allow Save and Quit after boss kill
+    rom.write_byte(0x180358, 0x01 if world.logic[player] == 'nologic' else 0x00)
 
     # remove shield from uncle
     rom.write_bytes(0x6D253, [0x00, 0x00, 0xf6, 0xff, 0x00, 0x0E])
