@@ -345,7 +345,7 @@ def count_major_items(world, player):
     if world.goal == 'triforcehunt':
         major_item_set += world.triforce_pool[player]
     if world.bombbag[player]:
-        major_item_set += world.triforce_pool[player]
+        major_item_set += 2
     if world.swords[player] != "random":
         if world.swords[player] == 'assured':
             major_item_set -= 1
