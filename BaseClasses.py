@@ -2120,6 +2120,7 @@ class Location(object):
         self.player = player
         self.skip = False
         self.type = LocationType.Normal if not crystal else LocationType.Prize
+        self.pot = None
 
     def can_fill(self, state, item, check_access=True):
         return self.always_allow(state, item) or (self.parent_region.can_fill(item) and self.item_rule(item) and (not check_access or self.can_reach(state)))

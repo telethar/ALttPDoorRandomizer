@@ -28,10 +28,10 @@ from Text import LostWoods_texts, WishingWell_texts, DesertPalace_texts, Mountai
 from Text import Lumberjacks_texts, SickKid_texts, FluteBoy_texts, Zora_texts, MagicShop_texts, Sahasrahla_names
 from Utils import output_path, local_path, int16_as_bytes, int32_as_bytes, snes_to_pc
 from Items import ItemFactory
-from ItemList import valid_pot_items
 from EntranceShuffle import door_addresses, exit_ids, ow_prize_table
 
 from source.classes.SFX import randomize_sfx
+from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
@@ -585,6 +585,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if location.type == LocationType.Pot:
             if location.item.name in valid_pot_items and location.item.player == player:
                 location.pot.item = valid_pot_items[location.item.name]
+                location.forced_item = True
             else:
                 code = handle_native_dungeon(location, itemid)
                 standing_item_flag = 0x80
@@ -776,7 +777,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             else:
                 rom.write_byte(0x13f020+offset, layout.max_chests + layout.max_drops)  # not currently used
                 rom.write_byte(0x13f030+offset, layout.max_chests)
-            # todo: fix these for pot shuffle
             builder = world.dungeon_layouts[player][name]
             valid_cnt = len(valid_loc_by_dungeon[name])
             if valid_cnt > 99:

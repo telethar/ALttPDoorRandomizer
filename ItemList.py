@@ -10,7 +10,7 @@ from Fill import FillError, fill_restrictive, fast_fill, get_dungeon_item_pool
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
-from source.item.FillUtil import trash_items
+from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST
 
@@ -750,21 +750,6 @@ shop_transfer = {'Red Potion': 'Rupees (50)', 'Bee': 'Rupees (5)', 'Blue Potion'
 
 rupee_chart = {'Rupee (1)': 1, 'Rupees (5)': 5, 'Rupees (20)': 20, 'Rupees (50)': 50,
                'Rupees (100)': 100, 'Rupees (300)': 300}
-
-
-pot_items = {
-    PotItem.Nothing: 'Nothing',
-    PotItem.Bomb: 'Single Bomb',
-    PotItem.FiveArrows: 'Arrows (5)',  # convert to 10
-    PotItem.OneRupee: 'Rupee (1)',
-    PotItem.FiveRupees: 'Rupees (5)',
-    PotItem.Heart: 'Small Heart',
-    PotItem.BigMagic: 'Big Magic',  # fast fill
-    PotItem.SmallMagic: 'Small Magic',
-    PotItem.Chicken: 'Chicken'   # fast fill
-}
-
-valid_pot_items = {y: x for x, y in pot_items.items()}
 
 
 def add_pot_contents(world, player):

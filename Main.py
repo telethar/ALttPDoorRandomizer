@@ -406,8 +406,6 @@ def copy_world(world):
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()
 
-    ret.exp_cache = world.exp_cache.copy()
-
     for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':
             create_regions(ret, player)
@@ -419,6 +417,9 @@ def copy_world(world):
         create_dungeons(ret, player)
         if world.logic[player] in ('owglitches', 'nologic'):
             create_owg_connections(ret, player)
+
+    # there are region references here they must be migrated to preserve integrity
+    # ret.exp_cache = world.exp_cache.copy()
 
     copy_dynamic_regions_and_locations(world, ret)
     for player in range(1, world.players + 1):
@@ -468,6 +469,7 @@ def copy_world(world):
         new_location.access_rule = lambda state: True
         new_location.item_rule = lambda state: True
         new_location.forced_item = location.forced_item
+        new_location.pot = location.pot
 
     # copy remaining itempool. No item in itempool should have an assigned location
     for item in world.itempool:

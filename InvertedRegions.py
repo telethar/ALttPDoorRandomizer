@@ -2,7 +2,6 @@ import collections
 from BaseClasses import RegionType
 from Regions import create_lw_region, create_dw_region, create_cave_region, create_dungeon_region, create_menu_region
 
-# todo: shopsanity locations
 def create_inverted_regions(world, player):
 
     world.regions += [
@@ -201,8 +200,10 @@ def create_inverted_regions(world, player):
         create_cave_region(player, 'Superbunny Cave (Top)', 'a connector', ['Superbunny Cave - Top', 'Superbunny Cave - Bottom'], ['Superbunny Cave Exit (Top)']),
         create_cave_region(player, 'Superbunny Cave (Bottom)', 'a connector', None, ['Superbunny Cave Climb', 'Superbunny Cave Exit (Bottom)']),
         create_cave_region(player, 'Spike Cave', 'Spike Cave', ['Spike Cave']),
-        create_cave_region(player, 'Hookshot Cave (Front)', 'a connector', ['Hookshot Cave - Top Right', 'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Right', 'Hookshot Cave - Bottom Left'],
-                           ['Hookshot Cave Front to Middle', 'Hookshot Cave Front Exit']),
+        create_cave_region(player, 'Hookshot Cave (Front)', 'a connector', None,
+                           ['Hookshot Cave Front to Middle', 'Hookshot Cave Front Exit', 'Hookshot Cave Bonk Path', 'Hookshot Cave Hook Path']),
+        create_cave_region(player, 'Hookshot Cave (Bonk Islands)', 'a connector', ['Hookshot Cave - Bottom Right']),
+        create_cave_region(player, 'Hookshot Cave (Hook Islands)', 'a connector', ['Hookshot Cave - Top Right', 'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Left']),
         create_cave_region(player, 'Hookshot Cave (Back)', 'a connector', None, ['Hookshot Cave Back to Middle', 'Hookshot Cave Back Exit']),
         create_cave_region(player, 'Hookshot Cave (Middle)', 'a connector', None, ['Hookshot Cave Middle to Back', 'Hookshot Cave Middle to Front']),
 

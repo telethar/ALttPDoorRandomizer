@@ -1,12 +1,13 @@
 import RaceRandom as random
 import logging
-from math import ceil
 from collections import defaultdict
 
 from source.item.District import resolve_districts
+from BaseClasses import PotItem, PotFlags
 from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
+from PotShuffle import vanilla_pots
 
 
 class ItemPoolConfig(object):
@@ -71,6 +72,17 @@ def create_item_pool_config(world):
                         config.static_placement[player][item].extend(locs)
                     else:
                         config.static_placement[player][item] = list(locs)
+                if world.keydropshuffle[player] == 'potsanity':
+                    for super_tile, pot_list in vanilla_pots.items():
+                        for pot_index, pot in enumerate(pot_list):
+                            if pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]:
+                                item = pot_items[pot.item]
+                                descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+                                location = f'{pot.room} {descriptor}'
+                                if item in config.static_placement[player]:
+                                    config.static_placement[player][item].append(location)
+                                else:
+                                    config.static_placement[player][item] = list([location])
             if world.shopsanity[player]:
                 for item, locs in shop_vanilla_mapping.items():
                     if item in config.static_placement[player]:
@@ -499,8 +511,8 @@ def filter_pot_locations(locations, world):
         filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
         return filtered if len(filtered) > 0 else locations
     if world.algorithm == 'vanilla_fill':
-        # todo: vanilla pot location stuff
-        pass
+        filtered = [l for l in locations if l.pot and l.pot.item in [PotItem.Chicken, PotItem.BigMagic]]
+        return filtered if len(filtered) > 0 else locations
     return locations
 
 
@@ -683,7 +695,7 @@ keydrop_vanilla_mapping = {
                                 'Misery Mire - Fishbone Pot Key', 'Misery Mire - Conveyor Crystal Key Drop'],
     'Small Key (Turtle Rock)': ['Turtle Rock - Pokey 1 Key Drop', 'Turtle Rock - Pokey 2 Key Drop'],
     'Small Key (Ganons Tower)': ['Ganons Tower - Conveyor Cross Pot Key', 'Ganons Tower - Double Switch Pot Key',
-                                 'Ganons Tower - Conveyor Star Pits Pot Key', 'Ganons Tower - Mini Helmasuar Key Drop'],
+                                 'Ganons Tower - Conveyor Star Pits Pot Key', 'Ganons Tower - Mini Helmasaur Key Drop'],
 }
 
 shop_vanilla_mapping = {
@@ -877,3 +889,17 @@ trash_items = {
 
     'Piece of Heart': 17
 }
+
+pot_items = {
+    PotItem.Nothing: 'Nothing',
+    PotItem.Bomb: 'Single Bomb',
+    PotItem.FiveArrows: 'Arrows (5)',  # convert to 10
+    PotItem.OneRupee: 'Rupee (1)',
+    PotItem.FiveRupees: 'Rupees (5)',
+    PotItem.Heart: 'Small Heart',
+    PotItem.BigMagic: 'Big Magic',  # fast fill
+    PotItem.SmallMagic: 'Small Magic',
+    PotItem.Chicken: 'Chicken'   # fast fill
+}
+
+valid_pot_items = {y: x for x, y in pot_items.items()}
