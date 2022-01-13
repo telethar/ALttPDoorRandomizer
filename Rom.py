@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '6c43ba88d17005bd1237fe1a62597705'
+RANDOMIZERBASEHASH = '8d13470d5a3127c6705846674cfb6209'
 
 
 class JsonRom(object):
@@ -874,7 +874,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if world.keydropshuffle[player] == 'potsanity':
             rom.write_bytes(0x04DFD8, [0x18, 0x0B, 0x1C])
             rom.write_byte(0x04E002, 0xFF)
-    rom.write_byte(0x142A52, credits_total - 216)  # todo: this is now a delta
+    # write_int16(0x142A52, credits_total - 216)  # todo: this is now a delta
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
