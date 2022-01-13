@@ -1222,7 +1222,6 @@ def standard_rules(world, player):
     for location in ['Mushroom', 'Bottle Merchant', 'Flute Spot', 'Sunken Treasure', 'Purple Chest', 'Maze Race']:
         add_rule(world.get_location(location, player), lambda state: state.has('Zelda Delivered', player))
 
-    # Bonk Fairy (Light) is a notable omission in ER shuffles/Retro
     for entrance in ['Blinds Hideout', 'Zoras River', 'Kings Grave Outer Rocks', 'Dam', 'Tavern North', 'Chicken House',
                      'Aginahs Cave', 'Sahasrahlas Hut', 'Kakariko Well Drop', 'Kakariko Well Cave', 'Blacksmiths Hut',
                      'Bat Cave Drop Ledge', 'Bat Cave Cave', 'Sick Kids House', 'Hobo Bridge',

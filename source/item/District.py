@@ -39,7 +39,7 @@ def create_district_helper(world, player):
                      'Two Brothers House (East)', 'Two Brothers House (West)', 'Blinds Hideout', 'Chicken House',
                      'Blacksmiths Hut', 'Sick Kids House', 'Snitch Lady (East)', 'Snitch Lady (West)',
                      'Bush Covered House', 'Tavern (Front)', 'Light World Bomb Hut', 'Kakariko Shop', 'Library',
-                     'Kakariko Gamble Game', 'Kakariko Well Drop', 'Bat Cave Drop']
+                     'Kakariko Gamble Game', 'Kakariko Well Drop', 'Bat Cave Drop', 'Tavern North']
     nw_lw_entrances = ['North Fairy Cave', 'Lost Woods Hideout Stump', 'Lumberjack Tree Cave', 'Sanctuary',
                        'Old Man Cave (West)', 'Death Mountain Return Cave (West)', 'Kings Grave', 'Lost Woods Gamble',
                        'Fortune Teller (Light)', 'Bonk Rock Cave', 'Lumberjack House', 'North Fairy Cave Drop',

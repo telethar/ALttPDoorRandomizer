@@ -169,7 +169,7 @@ def district_item_pool_config(world):
         config.item_pool = {}
         for player in range(1, world.players + 1):
             config.item_pool[player] = determine_major_items(world, player)
-            item_cnt += count_major_items(world, player)
+            item_cnt += count_major_items(config, world, player)
         # set district choices
         district_choices = {}
         for p in range(1, world.players + 1):
@@ -318,52 +318,8 @@ def validate_reservation(location, dungeon, world, player):
     return False
 
 
-def count_major_items(world, player):
-    major_item_set = 52
-    if world.bigkeyshuffle[player]:
-        major_item_set += 11
-        if world.keydropshuffle[player]:
-            major_item_set += 1
-        if world.doorShuffle[player] == 'crossed':
-            major_item_set += 1
-    if world.keyshuffle[player]:
-        major_item_set += 29
-        if world.keydropshuffle[player]:
-            major_item_set += 32
-    if world.compassshuffle[player]:
-        major_item_set += 11
-        if world.doorShuffle[player] == 'crossed':
-            major_item_set += 2
-    if world.mapshuffle[player]:
-        major_item_set += 12
-        if world.doorShuffle[player] == 'crossed':
-            major_item_set += 1
-    if world.shopsanity[player]:
-        major_item_set += 2
-        if world.retro[player]:
-            major_item_set += 5  # the single arrow quiver
-    if world.goal == 'triforcehunt':
-        major_item_set += world.triforce_pool[player]
-    if world.bombbag[player]:
-        major_item_set += 2
-    if world.swords[player] != "random":
-        if world.swords[player] == 'assured':
-            major_item_set -= 1
-        if world.swords[player] in ['vanilla', 'swordless']:
-            major_item_set -= 4
-    if world.retro[player]:
-        if world.shopsanity[player]:
-            major_item_set -= 1  # sword in old man cave
-        if world.keyshuffle[player]:
-            major_item_set -= 29
-        # universal keys
-        major_item_set += 19 if world.difficulty[player] == 'normal' else 14
-        if world.mode[player] == 'standard' and world.doorShuffle[player] == 'vanilla':
-            major_item_set -= 1  # a key in escape
-        if world.doorShuffle[player] != 'vanilla':
-            major_item_set += 10  # tries to add up to 10 more universal keys for door rando
-    # todo: starting equipment?
-    return major_item_set
+def count_major_items(config, world, player):
+    return sum(1 for x in world.itempool if x.name in config.item_pool[player] and x.player == player)
 
 
 def calc_dungeon_limits(world, player):
@@ -847,6 +803,9 @@ trash_items = {
 
     'Small Heart': 2,
     'Bee': 2,
+    'Arrows (5)': 2,
+    'Chicken': 2,
+    'Single Bomb': 2,
 
     'Bombs (3)': 3,
     'Arrows (10)': 3,
