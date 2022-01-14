@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import copy
 from itertools import zip_longest
 import json
@@ -32,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 
 
-__version__ = '1.0.3.0-v'
+__version__ = '1.0.0.0-u'
 
 from source.classes.BabelFish import BabelFish
 
