@@ -58,15 +58,15 @@ def create_regions(world, player):
         create_cave_region(player, 'Chicken House', 'a house with a chest', ['Chicken House']),
         create_cave_region(player, 'Aginahs Cave', 'a cave with a chest', ['Aginah\'s Cave']),
         create_cave_region(player, 'Sahasrahlas Hut', 'Sahasrahla', ['Sahasrahla\'s Hut - Left', 'Sahasrahla\'s Hut - Middle', 'Sahasrahla\'s Hut - Right', 'Sahasrahla']),
-        create_cave_region(player, 'Kakariko Well (top)', 'a drop\'s exit',
+        create_cave_region(player, 'Kakariko Well (top)', 'a drop',
                            ['Kakariko Well - Left', 'Kakariko Well - Middle', 'Kakariko Well - Right',
                             'Kakariko Well - Bottom'],
                            ['Kakariko Well (top to bottom)', 'Kakariko Well (top to back)']),
-        create_cave_region(player, 'Kakariko Well (back)', 'a drop\'s exit', ['Kakariko Well - Top']),
+        create_cave_region(player, 'Kakariko Well (back)', 'a drop', ['Kakariko Well - Top']),
         create_cave_region(player, 'Kakariko Well (bottom)', 'a drop\'s exit', None, ['Kakariko Well Exit']),
         create_cave_region(player, 'Blacksmiths Hut', 'the smith', ['Blacksmith', 'Missing Smith']),
         create_lw_region(player, 'Bat Cave Drop Ledge', None, ['Bat Cave Drop']),
-        create_cave_region(player, 'Bat Cave (right)', 'a drop\'s exit', ['Magic Bat'], ['Bat Cave Door']),
+        create_cave_region(player, 'Bat Cave (right)', 'a drop', ['Magic Bat'], ['Bat Cave Door']),
         create_cave_region(player, 'Bat Cave (left)', 'a drop\'s exit', None, ['Bat Cave Exit']),
         create_cave_region(player, 'Sick Kids House', 'the sick kid', ['Sick Kid']),
         create_lw_region(player, 'Hobo Bridge', ['Hobo']),
@@ -993,16 +993,19 @@ def adjust_locations(world, player):
     world.pot_contents[player] = PotSecretTable()
     for location, datum in key_drop_data.items():
         loc = world.get_location(location, player)
-        if 'Drop' == datum[0]:
+        drop_location = 'Drop' == datum[0]
+        if drop_location:
             loc.type = LocationType.Drop
-            snes_address, room = datum[1]
+            snes_address, room, sprite_idx = datum[1]
             loc.address = snes_address
         else:
             loc.type = LocationType.Pot
-            pot = next(p for p in vanilla_pots[datum[1]] if p.item == PotItem.Key).copy()
+            pot, pot_index = next((p, i) for i, p in enumerate(vanilla_pots[datum[1]]) if p.item == PotItem.Key)
+            pot = pot.copy()
+            loc.address = pot_address(pot_index, datum[1])
             loc.pot = pot
-            world.pot_contents[player].room_map[datum[1]].append(pot)
-        if world.keydropshuffle[player] == 'none':
+        if (not world.dropshuffle[player] and drop_location)\
+           or (not drop_location and world.pottery[player] == 'none'):
             loc.skip = True
         else:
             key_item = loc.item
@@ -1019,23 +1022,14 @@ def adjust_locations(world, player):
                 dungeon.big_key = key_item
     for super_tile, pot_list in vanilla_pots.items():
         for pot_index, pot_orig in enumerate(pot_list):
-            pot = pot_orig.copy()
-            if pot.item != PotItem.Key:
-                world.pot_contents[player].room_map[super_tile].append(pot)
-            if world.keydropshuffle[player] == 'potsanity':
-                if (pot.item not in [PotItem.Key, PotItem.Hole]
-                   and (pot.item != PotItem.Switch or world.potshuffle[player])):
-                    parent = world.get_region(pot.room, player)
-                    descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
-                    # todo: better hints
-                    hint_text = 'under a block' if pot.flags & PotFlags.Block else 'in a pot'
-                    pot_location = Location(player, f'{pot.room} {descriptor}', player, hint_text=hint_text,
-                                            parent=parent)
-                    world.dynamic_locations.append(pot_location)
-                    pot_location.pot = pot
-
-                    pot_location.type = LocationType.Pot
-                    parent.locations.append(pot_location)
+            if pot_orig.item == PotItem.Key:
+                loc = next(location for location, datum in key_drop_data.items() if datum[1] == super_tile)
+                pot = world.get_location(loc, player).pot
+            else:
+                pot = pot_orig.copy()
+            world.pot_contents[player].room_map[super_tile].append(pot)
+            if world.pottery[player] == 'lottery':
+                create_pot_location(pot, pot_index, super_tile, world, player)
     if world.shopsanity[player]:
         index = 0
         for shop, location_list in shop_to_location_table.items():
@@ -1056,6 +1050,28 @@ def adjust_locations(world, player):
             if l not in ['Ganon', 'Agahnim 1', 'Agahnim 2']:
                 location.skip = True
 
+
+def create_pot_location(pot, pot_index, super_tile, world, player):
+    if (pot.item not in [PotItem.Key, PotItem.Hole]
+       and (pot.item != PotItem.Switch or world.potshuffle[player])):
+        address = pot_address(pot_index, super_tile)
+        parent = world.get_region(pot.room, player)
+        descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+        hint_text = ('under a block' if pot.flags & PotFlags.Block else 'in a pot')
+        modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
+                                            'a bounty of five items', 'the sick kid', 'Sahasrahla'}
+        hint_text = f'{hint_text} {"in" if modifier else "near"} {parent.hint_text}'
+        pot_location = Location(player, f'{pot.room} {descriptor}', address, hint_text=hint_text,
+                                parent=parent)
+        world.dynamic_locations.append(pot_location)
+        pot_location.pot = pot
+
+        pot_location.type = LocationType.Pot
+        parent.locations.append(pot_location)
+
+
+def pot_address(pot_index, super_tile):
+    return 0x7f6600 + super_tile * 2 + (pot_index << 24)
 
 
 # (type, room_id, shopkeeper, custom, locked, [items])
@@ -1401,8 +1417,6 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   }
 
 lookup_id_to_name = {data[0]: name for name, data in location_table.items() if type(data[0]) == int}
-lookup_id_to_name = {**lookup_id_to_name, **{data[1]: name for name, data in key_drop_data.items()}}
 lookup_id_to_name.update(shop_table_by_location_id)
 lookup_name_to_id = {name: data[0] for name, data in location_table.items() if type(data[0]) == int}
-lookup_name_to_id = {**lookup_name_to_id, **{name: data[1] for name, data in key_drop_data.items()}}
 lookup_name_to_id.update(shop_table_by_location)

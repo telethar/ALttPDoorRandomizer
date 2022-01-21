@@ -389,12 +389,15 @@ def generate_itempool(world, player):
 
     if world.retro[player]:
         set_up_take_anys(world, player)
-        if world.keydropshuffle[player] != 'none':
-            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 32
+        if world.dropshuffle[player]:
+            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
+        if world.pottery[player] != 'none':
+            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
+
 
     create_dynamic_shop_locations(world, player)
 
-    if world.keydropshuffle[player] == 'potsanity':
+    if world.pottery[player] == 'lottery':
         add_pot_contents(world, player)
 
 

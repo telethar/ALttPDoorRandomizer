@@ -6,6 +6,7 @@ from enum import unique, Flag
 from typing import DefaultDict, Dict, List
 
 from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
+from BaseClasses import PotFlags, LocationType
 from Doors import reset_portals
 from Dungeons import dungeon_regions, region_starts, standard_starts, split_region_starts
 from Dungeons import dungeon_bigs, dungeon_hints
@@ -378,7 +379,7 @@ def choose_portals(world, player):
     if world.doorShuffle[player] in ['basic', 'crossed']:
         cross_flag = world.doorShuffle[player] == 'crossed'
         # key drops allow the big key in the right place in Desert Tiles 2
-        bk_shuffle = world.bigkeyshuffle[player] or world.keydropshuffle[player] != 'none'
+        bk_shuffle = world.bigkeyshuffle[player] or world.dropshuffle[player]
         std_flag = world.mode[player] == 'standard'
         # roast incognito doors
         world.get_room(0x60, player).delete(5)
@@ -994,10 +995,15 @@ def cross_dungeon(world, player):
 
     assign_cross_keys(dungeon_builders, world, player)
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
-    if world.keydropshuffle[player] != 'none':
-        target_items = 35 if world.retro[player] else 96
+    target_items = 34
+    if world.retro[player]:
+        target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
     else:
-        target_items = 34 if world.retro[player] else 63
+        target_items += 29  # small keys in chests
+        if world.dropshuffle[player]:
+            target_items += 14  # 13 dropped smalls + 1 big
+        if world.pottery[player] != 'none':
+            target_items += 19  # 19 pot keys
     d_items = target_items - all_dungeon_items_cnt
     world.pool_adjustment[player] = d_items
     smooth_door_pairs(world, player)
@@ -1055,7 +1061,11 @@ def assign_cross_keys(dungeon_builders, world, player):
     logging.getLogger('').info(world.fish.translate("cli", "cli", "shuffling.keydoors"))
     start = time.process_time()
     if world.retro[player]:
-        remaining = 61 if world.keydropshuffle[player] != 'none' else 29
+        remaining = 29
+        if world.dropshuffle[player]:
+            remaining += 13
+        if world.pottery[player] in ['keys', 'lottery']:
+            remaining += 19
     else:
         remaining = len(list(x for dgn in world.dungeons if dgn.player == player for x in dgn.small_keys))
     total_keys = remaining
@@ -1073,7 +1083,6 @@ def assign_cross_keys(dungeon_builders, world, player):
         builder.key_doors_num = max(0, len(builder.candidates) - builder.key_drop_cnt)
         total_candidates += builder.key_doors_num
         start_regions_map[name] = start_regions
-
 
     # Step 2: Initial Key Number Assignment & Calculate Flexibility
     for name, builder in dungeon_builders.items():
@@ -1251,7 +1260,13 @@ def refine_hints(dungeon_builders):
         for region in builder.master_sector.regions:
             for location in region.locations:
                 if not location.event and '- Boss' not in location.name and '- Prize' not in location.name and location.name != 'Sanctuary':
-                    location.hint_text = dungeon_hints[name]
+                    if location.type == LocationType.Pot and location.pot:
+                        hint_text = ('under a block' if location.pot.flags & PotFlags.Block else 'in a pot')
+                        location.hint_text = f'{hint_text} {dungeon_hints[name]}'
+                    elif location.type == LocationType.Drop:
+                        location.hint_text = f'dropped {dungeon_hints[name]}'
+                    else:
+                        location.hint_text = dungeon_hints[name]
 
 
 def refine_boss_exits(world, player):
@@ -3015,7 +3030,8 @@ palette_map = {
     'Tower of Hera': (0x6, None),
     'Thieves Town': (0x17, None),  # the attic uses 0x23
     'Turtle Rock': (0x18, 0x19, 'TR Boss SW'),
-    'Ganons Tower': (0x28, 0x1b, 'GT Agahnim 2 SW'),  # other palettes: 0x1a (other) 0x24 (Gauntlet - Lanmo) 0x25 (conveyor-torch-wizzrode moldorm pit f5?)
+    'Ganons Tower': (0x28, 0x1b, 'GT Agahnim 2 SW'),
+    # other palettes: 0x1a (other) 0x24 (Gauntlet - Lanmo) 0x25 (conveyor-torch-wizzrobe moldorm pit f5?)
 }
 
 # implications:

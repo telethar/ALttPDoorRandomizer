@@ -254,11 +254,13 @@
     "keyshuffle": [ "Small Keys are no longer restricted to their dungeons, but can be anywhere. (default: %(default)s)" ],
     "bigkeyshuffle": [ "Big Keys are no longer restricted to their dungeons, but can be anywhere. (default: %(default)s)" ],
     "shopsanity": ["Shop contents are shuffle in the main item pool and other items can take their place. (default: %(default)s)"],
-    "keydropshuffle": [ "Key Drops (Pots and Enemies) are shuffled and other items can take their place:",
-      "None:      No pots or enemies are included",
-      "Keydrops:  Only key drops are included",
-      "Potsanity: All key drops and all normal pots are included"
+    "dropshuffle": [ "Keys dropped by enemies are shuffled and other items can take their place. (default: %(default)s)"],
+    "pottery": [ "Controls how items under pots are shuffled and if other items can take their place:",
+      "None:      No pots are changed",
+      "Keys:      Key pots are included in the location pool and other items can take their place",
+      "Lottery:   All pots are part of the location pool"
     ],
+    "shufflepots": [ "Pots and switches are shuffled on the supertile (legacy potshuffle) (default: %(default)s)"],
     "mixed_travel": [
       "How to handle potential traversal between dungeon in Crossed door shuffle",
       "Prevent:   Rails are placed to prevent bombs jump and hovering from changing dungeon except with glitched logic settings",

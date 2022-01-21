@@ -53,10 +53,13 @@
     "randomizer.dungeon.compassshuffle": "Compasses",
     "randomizer.dungeon.smallkeyshuffle": "Small Keys",
     "randomizer.dungeon.bigkeyshuffle": "Big Keys",
-    "randomizer.dungeon.keydropshuffle": "Drops and Pots",
-    "randomizer.dungeon.keydropshuffle.none": "None",
-    "randomizer.dungeon.keydropshuffle.keydrops": "Only Key Drops",
-    "randomizer.dungeon.keydropshuffle.potsanity": "All Pots and Key Drops",
+    "randomizer.dungeon.keydropshuffle": "Drop and Pot Keys",
+    "randomizer.dungeon.dropshuffle": "Shuffle Key Drops",
+    "randomizer.dungeon.potshuffle": "Pot Shuffle (Legacy)",
+    "randomizer.dungeon.pottery": "Pottery",
+    "randomizer.dungeon.pottery.none": "None",
+    "randomizer.dungeon.pottery.keys": "Key Pots",
+    "randomizer.dungeon.pottery.lottery": "Lottery (All Pots and Large Blocks)",
 
     "randomizer.dungeon.dungeondoorshuffle": "Dungeon Door Shuffle",
     "randomizer.dungeon.dungeondoorshuffle.vanilla": "Vanilla",
@@ -69,7 +72,6 @@
     "randomizer.dungeon.dungeonintensity.3": "3: Dungeon Lobbies",
     "randomizer.dungeon.dungeonintensity.random": "Random",
 
-    "randomizer.dungeon.potshuffle": "Pot Shuffle",
     "randomizer.dungeon.experimental": "Enable Experimental Features",
 
     "randomizer.dungeon.dungeon_counters": "Dungeon Chest Counters",

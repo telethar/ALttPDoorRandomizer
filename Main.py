@@ -97,10 +97,11 @@ def main(args, seed=None, fish=None):
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
-    world.potshuffle = args.shufflepots.copy()
     world.fish = fish
     world.shopsanity = args.shopsanity.copy()
-    world.keydropshuffle = args.keydropshuffle.copy()
+    world.dropshuffle = args.dropshuffle.copy()
+    world.pottery = args.pottery.copy()
+    world.potshuffle = args.shufflepots.copy()
     world.mixed_travel = args.mixed_travel.copy()
     world.standardize_palettes = args.standardize_palettes.copy()
     world.treasure_hunt_count = args.triforce_goal.copy()
@@ -158,7 +159,7 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
             if world.potshuffle[player]:
-                if world.keydropshuffle[player] != 'potsanity':
+                if world.pottery[player] != 'lottery':
                     shuffle_pots(world, player)
                 else:
                     shuffle_pot_switches(world, player)
@@ -401,7 +402,9 @@ def copy_world(world):
     ret.intensity = world.intensity.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
-    ret.keydropshuffle = world.keydropshuffle.copy()
+    ret.dropshuffle = world.dropshuffle.copy()
+    ret.pottery = world.pottery.copy()
+    ret.potshuffle = world.potshuffle.copy()
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()

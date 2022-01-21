@@ -711,7 +711,7 @@ def bomb_rules(world, player):
 
 
 def pot_rules(world, player):
-    if world.keydropshuffle[player] == 'potsanity':
+    if world.pottery[player] == 'lottery':
         blocks = [l for l in world.get_locations() if l.type == LocationType.Pot and l.pot.flags & PotFlags.Block]
         for block_pot in blocks:
             add_rule(block_pot, lambda state: state.can_lift_rocks(player))

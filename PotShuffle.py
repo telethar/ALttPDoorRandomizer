@@ -91,7 +91,7 @@ vanilla_pots = {
     0x3F: [Pot(12, 25, PotItem.OneRupee, 'Ice Hammer Block'), Pot(20, 25, PotItem.OneRupee, 'Ice Hammer Block'),
            Pot(12, 26, PotItem.Bomb, 'Ice Hammer Block'), Pot(20, 26, PotItem.Bomb, 'Ice Hammer Block'),
            Pot(12, 27, PotItem.Switch, 'Ice Hammer Block'), Pot(20, 27, PotItem.Heart, 'Ice Hammer Block'),
-           Pot(28, 23, PotItem.Key, 'Ice Hammer Block')],
+           Pot(28, 23, PotItem.Key, 'Ice Hammer Block', PotFlags.Block)],
     0x41: [Pot(100, 10, PotItem.Heart, 'Sewers Behind Tapestry'), Pot(52, 15, PotItem.OneRupee, 'Sewers Behind Tapestry'), Pot(52, 16, PotItem.SmallMagic, 'Sewers Behind Tapestry'), Pot(148, 22, PotItem.SmallMagic, 'Sewers Behind Tapestry')],
     0x43: [Pot(66, 4, PotItem.FiveArrows, 'Desert Wall Slide'), Pot(78, 4, PotItem.SmallMagic, 'Desert Wall Slide'), Pot(66, 9, PotItem.Heart, 'Desert Wall Slide'), Pot(78, 9, PotItem.Heart, 'Desert Wall Slide'),
            Pot(112, 28, PotItem.Nothing, 'Desert Tiles 2'), Pot(76, 28, PotItem.Nothing, 'Desert Tiles 2'), Pot(76, 20, PotItem.Nothing, 'Desert Tiles 2'), Pot(112, 20, PotItem.Key, 'Desert Tiles 2')],
@@ -467,45 +467,46 @@ def shuffle_pot_switches(world, player):
 
 
 key_drop_data = {
-    'Hyrule Castle - Map Guard Key Drop': ['Drop', (0x09E20C, 0x72), 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Boomerang Guard Key Drop': ['Drop', (0x09E204, 0x71), 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Key Rat Key Drop': ['Drop', (0x09DB80, 0x21), 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Big Key Drop': ['Drop', (0x09E327, 0x80), 'in Hyrule Castle', 'Big Key (Escape)'],
-    'Eastern Palace - Dark Square Pot Key': ['Pot', 0xBA, 'in Eastern Palace', 'Small Key (Eastern Palace)'],
-    'Eastern Palace - Dark Eyegore Key Drop': ['Drop', (0x09E4F8, 0x99), 'in Eastern Palace', 'Small Key (Eastern Palace)'],
-    'Desert Palace - Desert Tiles 1 Pot Key': ['Pot', 0x63, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Desert Palace - Beamos Hall Pot Key': ['Pot', 0x53, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Desert Palace - Desert Tiles 2 Pot Key': ['Pot', 0x43, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Castle Tower - Dark Archer Key Drop': ['Drop', (0x09E7C9, 0xC0), 'in Castle Tower', 'Small Key (Agahnims Tower)'],
-    'Castle Tower - Circle of Pots Key Drop': ['Drop', (0x09E688, 0xB0), 'in Castle Tower', 'Small Key (Agahnims Tower)'],
-    'Swamp Palace - Pot Row Pot Key': ['Pot', 0x38, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Trench 1 Pot Key': ['Pot', 0x37, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Hookshot Pot Key': ['Pot', 0x36, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Trench 2 Pot Key': ['Pot', 0x35, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Waterway Pot Key': ['Pot', 0x16, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Skull Woods - West Lobby Pot Key': ['Pot', 0x56, 'in Skull Woods', 'Small Key (Skull Woods)'],
-    'Skull Woods - Spike Corner Key Drop': ['Drop', (0x09DD74, 0x39), 'near Mothula', 'Small Key (Skull Woods)'],
-    "Thieves' Town - Hallway Pot Key": ['Pot', 0xBC, "in Thieves' Town", 'Small Key (Thieves Town)'],
-    "Thieves' Town - Spike Switch Pot Key": ['Pot', 0xAB, "in Thieves' Town", 'Small Key (Thieves Town)'],
-    'Ice Palace - Jelly Key Drop': ['Drop', (0x09DA21, 0xE), 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Conveyor Key Drop': ['Drop', (0x09DE08, 0x3E), 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Hammer Block Key Drop': ['Pot', 0x3F, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Many Pots Pot Key': ['Pot', 0x9F, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Misery Mire - Spikes Pot Key': ['Pot', 0xB3, 'in Misery Mire', 'Small Key (Misery Mire)'],
-    'Misery Mire - Fishbone Pot Key': ['Pot', 0xA1, 'in forgotten Mire', 'Small Key (Misery Mire)'],
-    'Misery Mire - Conveyor Crystal Key Drop': ['Drop', (0x09E7FB, 0xC1), 'in Misery Mire', 'Small Key (Misery Mire)'],
-    'Turtle Rock - Pokey 1 Key Drop': ['Drop', (0x09E70D, 0xB6), 'in Turtle Rock', 'Small Key (Turtle Rock)'],
-    'Turtle Rock - Pokey 2 Key Drop': ['Drop', (0x09DA5D, 0x13), 'in Turtle Rock', 'Small Key (Turtle Rock)'],
-    'Ganons Tower - Conveyor Cross Pot Key': ['Pot', 0x8B, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Double Switch Pot Key': ['Pot', 0x9B, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Conveyor Star Pits Pot Key': ['Pot', 0x7B, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Mini Helmasaur Key Drop': ['Drop', (0x09DDC4, 0x3D), "atop Ganon's Tower", 'Small Key (Ganons Tower)']
+    'Hyrule Castle - Map Guard Key Drop': ['Drop', (0x09E20C, 0x72, 0), 'dropped in Hyrule Castle', 'Small Key (Escape)'],
+    'Hyrule Castle - Boomerang Guard Key Drop': ['Drop', (0x09E204, 0x71, 1), 'dropped in Hyrule Castle', 'Small Key (Escape)'],
+    'Hyrule Castle - Key Rat Key Drop': ['Drop', (0x09DB80, 0x21, 0), 'dropped in Hyrule Castle', 'Small Key (Escape)'],
+    'Hyrule Castle - Big Key Drop': ['Drop', (0x09E327, 0x80, 2), 'dropped in Hyrule Castle', 'Big Key (Escape)'],
+    'Eastern Palace - Dark Square Pot Key': ['Pot', 0xBA, 'in a pot in Eastern Palace', 'Small Key (Eastern Palace)'],
+    'Eastern Palace - Dark Eyegore Key Drop': ['Drop', (0x09E4F8, 0x99, 3), 'dropped in Eastern Palace', 'Small Key (Eastern Palace)'],
+    'Desert Palace - Desert Tiles 1 Pot Key': ['Pot', 0x63, 'in a pot in Desert Palace', 'Small Key (Desert Palace)'],
+    'Desert Palace - Beamos Hall Pot Key': ['Pot', 0x53, 'in a pot in Desert Palace', 'Small Key (Desert Palace)'],
+    'Desert Palace - Desert Tiles 2 Pot Key': ['Pot', 0x43, 'in a pot in Desert Palace', 'Small Key (Desert Palace)'],
+    'Castle Tower - Dark Archer Key Drop': ['Drop', (0x09E7C9, 0xC0, 3), 'dropped in Castle Tower', 'Small Key (Agahnims Tower)'],
+    'Castle Tower - Circle of Pots Key Drop': ['Drop', (0x09E688, 0xB0, 10), 'dropped in Castle Tower', 'Small Key (Agahnims Tower)'],
+    'Swamp Palace - Pot Row Pot Key': ['Pot', 0x38, 'in a pot in Swamp Palace', 'Small Key (Swamp Palace)'],
+    'Swamp Palace - Trench 1 Pot Key': ['Pot', 0x37, 'in a pot in Swamp Palace', 'Small Key (Swamp Palace)'],
+    'Swamp Palace - Hookshot Pot Key': ['Pot', 0x36, 'in a pot in Swamp Palace', 'Small Key (Swamp Palace)'],
+    'Swamp Palace - Trench 2 Pot Key': ['Pot', 0x35, 'in a pot in Swamp Palace', 'Small Key (Swamp Palace)'],
+    'Swamp Palace - Waterway Pot Key': ['Pot', 0x16, 'in a pot in Swamp Palace', 'Small Key (Swamp Palace)'],
+    'Skull Woods - West Lobby Pot Key': ['Pot', 0x56, 'in a pot in Skull Woods', 'Small Key (Skull Woods)'],
+    'Skull Woods - Spike Corner Key Drop': ['Drop', (0x09DD74, 0x39, 1), 'dropped near Mothula', 'Small Key (Skull Woods)'],
+    "Thieves' Town - Hallway Pot Key": ['Pot', 0xBC, "in a pot in Thieves' Town", 'Small Key (Thieves Town)'],
+    "Thieves' Town - Spike Switch Pot Key": ['Pot', 0xAB, "in a pot in Thieves' Town", 'Small Key (Thieves Town)'],
+    'Ice Palace - Jelly Key Drop': ['Drop', (0x09DA21, 0xE, 3), 'dropped in Ice Palace', 'Small Key (Ice Palace)'],
+    'Ice Palace - Conveyor Key Drop': ['Drop', (0x09DE08, 0x3E, 8), 'dropped in Ice Palace', 'Small Key (Ice Palace)'],
+    'Ice Palace - Hammer Block Key Drop': ['Pot', 0x3F, 'under a block in Ice Palace', 'Small Key (Ice Palace)'],
+    'Ice Palace - Many Pots Pot Key': ['Pot', 0x9F, 'int a pot in Ice Palace', 'Small Key (Ice Palace)'],
+    'Misery Mire - Spikes Pot Key': ['Pot', 0xB3, 'in a pot in Misery Mire', 'Small Key (Misery Mire)'],
+    'Misery Mire - Fishbone Pot Key': ['Pot', 0xA1, 'in a pot in forgotten Mire', 'Small Key (Misery Mire)'],
+    'Misery Mire - Conveyor Crystal Key Drop': ['Drop', (0x09E7FB, 0xC1, 9), 'dropped in Misery Mire', 'Small Key (Misery Mire)'],
+    'Turtle Rock - Pokey 1 Key Drop': ['Drop', (0x09E70D, 0xB6, 5), 'dropped in Turtle Rock', 'Small Key (Turtle Rock)'],
+    'Turtle Rock - Pokey 2 Key Drop': ['Drop', (0x09DA5D, 0x13, 6), 'dropped in Turtle Rock', 'Small Key (Turtle Rock)'],
+    'Ganons Tower - Conveyor Cross Pot Key': ['Pot', 0x8B, "in a pot in Ganon's Tower", 'Small Key (Ganons Tower)'],
+    'Ganons Tower - Double Switch Pot Key': ['Pot', 0x9B, "in a pot in Ganon's Tower", 'Small Key (Ganons Tower)'],
+    'Ganons Tower - Conveyor Star Pits Pot Key': ['Pot', 0x7B, "in a pot in Ganon's Tower", 'Small Key (Ganons Tower)'],
+    'Ganons Tower - Mini Helmasaur Key Drop': ['Drop', (0x09DDC4, 0x3D, 2), "dropped atop Ganon's Tower", 'Small Key (Ganons Tower)']
 }
 
 
 class PotSecretTable(object):
     def __init__(self):
         self.room_map = defaultdict(list)
+        self.multiworld_count = 0
 
     def write_pot_data_to_rom(self, rom):
         pointer_address = 0x140000  # pots currently in bank 28

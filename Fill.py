@@ -7,7 +7,7 @@ from BaseClasses import CollectionState, FillError, LocationType
 from Items import ItemFactory
 from Regions import shop_to_location_table, retro_shops
 from source.item.FillUtil import filter_locations, classify_major_items, replace_trash_item, vanilla_fallback
-from source.item.FillUtil import filter_pot_locations
+from source.item.FillUtil import filter_pot_locations, valid_pot_items
 
 
 def get_dungeon_item_pool(world):
@@ -435,6 +435,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
                 fill_locations.remove(l)
             filtered_fill(world, placeholder_items, placeholder_locations)
 
+    if world.players > 1:
+        fast_fill_pot_for_multiworld(world, restitempool, fill_locations)
     if world.algorithm == 'vanilla_fill':
         fast_vanilla_fill(world, restitempool, fill_locations)
     else:
@@ -445,11 +447,14 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     if unplaced or unfilled:
         logging.warning('Unplaced items: %s - Unfilled Locations: %s', unplaced, unfilled)
 
-    # convert Arrows 5 and Nothing when necessary
-    invalid_locations = [loc for loc in world.get_locations() if loc.item.name in {'Arrows (5)', 'Nothing'} and
-                         (loc.type != LocationType.Pot or loc.item.player != loc.player)]
-    for i_loc in invalid_locations:
-        i_loc.item = ItemFactory(invalid_location_replacement[i_loc.item.name], i_loc.item.player)
+    for loc in world.get_locations():
+        # convert Arrows 5 and Nothing when necessary
+        if (loc.item.name in {'Arrows (5)', 'Nothing'}
+           and (loc.type != LocationType.Pot or loc.item.player != loc.player)):
+            loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.item.player)
+        # don't write out all pots to spoiler
+        if loc.type == LocationType.Pot and loc.item.name in valid_pot_items:
+            loc.skip = True
 
 
 invalid_location_replacement = {'Arrows (5)': 'Arrows (10)', 'Nothing':  'Rupees (5)'}
@@ -468,6 +473,28 @@ def fast_fill(world, item_pool, fill_locations):
         spot_to_fill = fill_locations.pop()
         item_to_place = item_pool.pop()
         world.push_item(spot_to_fill, item_to_place, False)
+
+
+def fast_fill_pot_for_multiworld(world, item_pool, fill_locations):
+    pot_item_pool = collections.defaultdict(list)
+    pot_fill_locations = collections.defaultdict(list)
+    for item in item_pool:
+        if item.name in valid_pot_items:
+            pot_item_pool[item.player].append(item)
+    for loc in fill_locations:
+        if loc.type == LocationType.Pot:
+            pot_fill_locations[loc.player].append(loc)
+    for player in range(1, world.players+1):
+        flex = 256 - world.pot_contents[player].multiworld_count
+        fill_count = len(pot_fill_locations[player]) - flex
+        if fill_count > 0:
+            fill_spots = random.sample(pot_fill_locations[player], fill_count)
+            fill_items = random.sample(pot_item_pool[player], fill_count)
+            for x in fill_items:
+                item_pool.remove(x)
+            for x in fill_spots:
+                fill_locations.remove(x)
+            fast_fill(world, fill_items, fill_spots)
 
 
 def filtered_fill(world, item_pool, fill_locations):

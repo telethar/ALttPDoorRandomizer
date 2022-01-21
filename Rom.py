@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '8d13470d5a3127c6705846674cfb6209'
+RANDOMIZERBASEHASH = 'dea3a3bc1435aa0895181c5d46dc6d43'
 
 
 class JsonRom(object):
@@ -554,7 +554,7 @@ class Sprite(object):
 def handle_native_dungeon(location, itemid):
     # Keys in their native dungeon should use the original item code for keys
     if location.parent_region.dungeon:
-        if location.parent_region.dungeon.is_dungeon_item(location.item):
+        if location.parent_region.dungeon.name == location.item.dungeon:
             if location.item.bigkey:
                 return 0x32
             if location.item.smallkey:
@@ -604,12 +604,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             else:
                 code = 0xF8
             sprite_pointer = snes_to_pc(location.address)
-            if code != 0xE4:
-                rom.write_byte(sprite_pointer, handle_native_dungeon(location, itemid))
-                if code == 0xF9:
-                    rom.write_byte(sprite_pointer+1, location.item.player)
-                else:
-                    rom.write_byte(sprite_pointer+1, 0)
+            rom.write_byte(sprite_pointer, handle_native_dungeon(location, itemid))
+            if code == 0xF9:
+                rom.write_byte(sprite_pointer+1, location.item.player)
+            else:
+                rom.write_byte(sprite_pointer+1, 0)
             rom.write_byte(sprite_pointer+2, code)
             continue
         if location.address is None or (type(location.address) is int and location.address >= 0x400000):
@@ -650,6 +649,13 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if world.pot_contents[player].size() > 0x2800:
             raise Exception('Pot table is too big for current area')
         world.pot_contents[player].write_pot_data_to_rom(rom)
+    # fix for swamp drains if necessary
+    swamp1location = world.get_location('Swamp Palace - Trench 1 Pot Key', player)
+    if not swamp1location.pot.indicator:
+        rom.write_byte(0x142A53, 0)
+    swamp2location = world.get_location('Swamp Palace - Trench 2 Pot Key', player)
+    if not swamp2location.pot.indicator:
+        rom.write_byte(0x142A54, 0)
 
     # patch entrance/exits/holes
     for region in world.regions:
@@ -740,7 +746,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if world.doorShuffle[player] == 'crossed' or world.keydropshuffle[player] != 'none':
+    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player]:
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
@@ -868,13 +874,14 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
 
     credits_total = len(valid_locations)
 
-    if world.keydropshuffle[player] != 'none':
+    if world.dropshuffle[player] or world.pottery[player] != 'none':
         rom.write_byte(0x142A50, 1)
-        rom.write_byte(0x142A51, 1)
-        if world.keydropshuffle[player] == 'potsanity':
-            rom.write_bytes(0x04DFD8, [0x18, 0x0B, 0x1C])
-            rom.write_byte(0x04E002, 0xFF)
-    # write_int16(0x142A52, credits_total - 216)  # todo: this is now a delta
+    multiClientFlags = ((0x1 if world.dropshuffle[player] else 0)
+                        | (0x2 if world.shopsanity[player] else 0)
+                        | (0x4 if world.retro[player] else 0)
+                        | (0x8 if world.pottery[player] in ['keys', 'lottery'] else 0)
+                        | (0x10 if is_mystery else 0))
+    rom.write_byte(0x142A51, multiClientFlags)
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
@@ -1202,7 +1209,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0x180213, [0x00, 0x01])  # Not a Tournament Seed
 
     gametype = 0x04 # item
-    if world.shuffle[player] != 'vanilla' or world.doorShuffle[player] != 'vanilla' or world.keydropshuffle[player] != 'none':
+    if (world.shuffle[player] != 'vanilla' or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
+       or world.pottery[player] != 'none'):
         gametype |= 0x02  # entrance/door
     if enemized:
         gametype |= 0x01  # enemizer
@@ -1452,8 +1460,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x18003C, 0x00)
     elif world.dungeon_counters[player] == 'on':
         compass_mode = 0x02  # always on
-    elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla'
-          or world.dungeon_counters[player] == 'pickup' or world.keydropshuffle[player] != 'none'):
+    elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
+          or world.dungeon_counters[player] == 'pickup' or world.pottery[player] != 'none'):
         compass_mode = 0x01  # show on pickup
     if world.shuffle[player] != 'vanilla' and world.overworld_map[player] != 'default':
         compass_mode |= 0x80  # turn on locating dungeons
@@ -1628,7 +1636,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0xFED31, 0x0E)  # preopen bombable exit
         rom.write_byte(0xFEE41, 0x0E)  # preopen bombable exit
 
-    if world.doorShuffle[player] != 'vanilla' or world.keydropshuffle[player] != 'none':
+    if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
+       or world.pottery[player] != 'none'):
         for room in world.rooms:
             if room.player == player and room.modified:
                 rom.write_bytes(room.address(), room.rom_data())

@@ -2,6 +2,38 @@
 
 ## New Features
 
+## Pottery Lottery and Key Drop Shuffle Changes
+
+### Pottery
+
+New pottery option that control which pots are in the locations pool:
+
+* None: No pots are in the pool, like normal randomizer
+* Key Pots: The pots that have keys are in the pool. This is about half of the old keydropshuffle option
+* Lottery: All pots and large blocks are in the pool
+
+By default, switches remain in their vanilla location (unless you turn on the legacy option below)
+
+CLI `--pottery <option>` from `none, keys, lottery`
+
+Note for multiworld: due to the design of the pottery lottery, only 256 items for other players can be under pots in your world.
+
+### Shuffle key drops
+
+Enemies that drop keys can have their drop shuffled into the pool. This is the other half of the keydropshuffle option.
+
+CLI `--dropshuffle`
+
+#### Legacy options
+
+"Drop and Pot Keys" or `--keydropshuffle` is still availabe for use. This simply sets the pottery to keys and turns dropshuffle on as well to have the same behavior as the 
+
+The old "Pot Shuffle" option is available under "Shuffle Pot Switches" or `--shuffleswitches` and works the same by shuffling all pots on a supertile. It works with the lottery option as well to move the switches while having every pot in the pool. I have no justification for the name change on the CLI/Mystery, it just kind of happened and I was too lazy to change it back.
+
+#### Tracking Notes
+
+The sram locations for pots and sprite drops have been moved, please reach out for assistance or investigate the rom changes.
+
 ## Restricted Item Placement Algorithm
 
 
