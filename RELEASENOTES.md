@@ -24,9 +24,9 @@ CLI `--dropshuffle`
 
 #### Legacy options
 
-"Drop and Pot Keys" or `--keydropshuffle` is still availabe for use. This simply sets the pottery to keys and turns dropshuffle on as well to have the same behavior as the 
+"Drop and Pot Keys" or `--keydropshuffle` is still availabe for use. This simply sets the pottery to keys and turns dropshuffle on as well to have the same behavior as the old setting.
 
-The old "Pot Shuffle" option is available under "Shuffle Pot Switches" or `--shuffleswitches` and works the same by shuffling all pots on a supertile. It works with the lottery option as well to move the switches while having every pot in the pool. I have no justification for the name change on the CLI/Mystery, it just kind of happened and I was too lazy to change it back.
+The old "Pot Shuffle" option is still available under "Pot Shuffle (Legacy)" or `--shufflepots` and works the same by shuffling all pots on a supertile. It works with the lottery option as well to move the switches while having every pot in the pool.
 
 #### Tracking Notes
 
