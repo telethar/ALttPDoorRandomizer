@@ -13,7 +13,7 @@ from Bosses import place_bosses
 from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
-from PotShuffle import shuffle_pots
+from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_world_regions, create_dungeon_regions, adjust_locations
 from InvertedRegions import create_inverted_regions, mark_dark_world_regions
 from EntranceShuffle import link_entrances, link_inverted_entrances
@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 
 
-__version__ = '1.0.0.1-u'
+__version__ = '1.0.1.0-v'
 
 from source.classes.BabelFish import BabelFish
 
@@ -96,10 +96,11 @@ def main(args, seed=None, fish=None):
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
-    world.potshuffle = args.shufflepots.copy()
     world.fish = fish
     world.shopsanity = args.shopsanity.copy()
-    world.keydropshuffle = args.keydropshuffle.copy()
+    world.dropshuffle = args.dropshuffle.copy()
+    world.pottery = args.pottery.copy()
+    world.potshuffle = args.shufflepots.copy()
     world.mixed_travel = args.mixed_travel.copy()
     world.standardize_palettes = args.standardize_palettes.copy()
     world.treasure_hunt_count = args.triforce_goal.copy()
@@ -157,7 +158,10 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
             if world.potshuffle[player]:
-                shuffle_pots(world, player)
+                if world.pottery[player] != 'lottery':
+                    shuffle_pots(world, player)
+                else:
+                    shuffle_pot_switches(world, player)
 
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
@@ -397,12 +401,12 @@ def copy_world(world):
     ret.intensity = world.intensity.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
-    ret.keydropshuffle = world.keydropshuffle.copy()
+    ret.dropshuffle = world.dropshuffle.copy()
+    ret.pottery = world.pottery.copy()
+    ret.potshuffle = world.potshuffle.copy()
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()
-
-    ret.exp_cache = world.exp_cache.copy()
 
     for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':
@@ -415,6 +419,9 @@ def copy_world(world):
         create_dungeons(ret, player)
         if world.logic[player] in ('owglitches', 'nologic'):
             create_owg_connections(ret, player)
+
+    # there are region references here they must be migrated to preserve integrity
+    # ret.exp_cache = world.exp_cache.copy()
 
     copy_dynamic_regions_and_locations(world, ret)
     for player in range(1, world.players + 1):
@@ -464,6 +471,7 @@ def copy_world(world):
         new_location.access_rule = lambda state: True
         new_location.item_rule = lambda state: True
         new_location.forced_item = location.forced_item
+        new_location.pot = location.pot
 
     # copy remaining itempool. No item in itempool should have an assigned location
     for item in world.itempool:

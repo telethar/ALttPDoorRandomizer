@@ -84,7 +84,7 @@ hera_regions = [
     'Hera Back - Ranged Crystal', 'Hera Basement Cage', 'Hera Basement Cage - Crystal', 'Hera Tile Room',
     'Hera Tridorm', 'Hera Tridorm - Crystal', 'Hera Torches', 'Hera Beetles', 'Hera Startile Corner',
     'Hera Startile Wide', 'Hera Startile Wide - Crystal', 'Hera 4F', 'Hera Big Chest Landing', 'Hera 5F',
-    'Hera Fairies', 'Hera Boss', 'Hera Portal'
+    'Hera 5F Pot Block', 'Hera Fairies', 'Hera Boss', 'Hera Portal'
 ]
 
 tower_regions = [
@@ -110,15 +110,15 @@ pod_regions = [
 swamp_regions = [
     'Swamp Lobby', 'Swamp Entrance', 'Swamp Pot Row', 'Swamp Map Ledge', 'Swamp Trench 1 Approach',
     'Swamp Trench 1 Nexus', 'Swamp Trench 1 Alcove', 'Swamp Trench 1 Key Ledge', 'Swamp Trench 1 Departure',
-    'Swamp Hammer Switch', 'Swamp Hub', 'Swamp Hub Dead Ledge', 'Swamp Hub North Ledge', 'Swamp Donut Top',
-    'Swamp Donut Bottom', 'Swamp Compass Donut', 'Swamp Crystal Switch Outer', 'Swamp Crystal Switch Outer - Ranged Crystal',
-    'Swamp Crystal Switch Inner', 'Swamp Crystal Switch Inner - Crystal', 'Swamp Shortcut', 'Swamp Trench 2 Pots',
-    'Swamp Trench 2 Blocks', 'Swamp Trench 2 Alcove', 'Swamp Trench 2 Departure', 'Swamp Big Key Ledge',
-    'Swamp West Shallows', 'Swamp West Block Path', 'Swamp West Ledge', 'Swamp Barrier Ledge', 'Swamp Barrier',
-    'Swamp Attic', 'Swamp Push Statue', 'Swamp Shooters', 'Swamp Left Elbow', 'Swamp Right Elbow', 'Swamp Drain Left',
-    'Swamp Drain Right', 'Swamp Flooded Room', 'Swamp Flooded Spot', 'Swamp Basement Shallows', 'Swamp Waterfall Room',
-    'Swamp Refill', 'Swamp Behind Waterfall', 'Swamp C', 'Swamp Waterway', 'Swamp I', 'Swamp T', 'Swamp Boss',
-    'Swamp Portal'
+    'Swamp Hammer Switch', 'Swamp Hub', 'Swamp Hub Side Ledges', 'Swamp Hub Dead Ledge', 'Swamp Hub North Ledge',
+    'Swamp Donut Top', 'Swamp Donut Bottom', 'Swamp Compass Donut', 'Swamp Crystal Switch Outer',
+    'Swamp Crystal Switch Outer - Ranged Crystal', 'Swamp Crystal Switch Inner', 'Swamp Crystal Switch Inner - Crystal',
+    'Swamp Shortcut', 'Swamp Trench 2 Pots', 'Swamp Trench 2 Blocks', 'Swamp Trench 2 Alcove',
+    'Swamp Trench 2 Departure', 'Swamp Big Key Ledge', 'Swamp West Shallows', 'Swamp West Block Path',
+    'Swamp West Ledge', 'Swamp Barrier Ledge', 'Swamp Barrier', 'Swamp Attic', 'Swamp Push Statue', 'Swamp Shooters',
+    'Swamp Left Elbow', 'Swamp Right Elbow', 'Swamp Drain Left', 'Swamp Drain Right', 'Swamp Flooded Room',
+    'Swamp Flooded Spot', 'Swamp Basement Shallows', 'Swamp Waterfall Room', 'Swamp Refill', 'Swamp Behind Waterfall',
+    'Swamp C', 'Swamp Waterway', 'Swamp I', 'Swamp T', 'Swamp Boss', 'Swamp Portal'
 ]
 
 skull_regions = [
@@ -135,10 +135,10 @@ thieves_regions = [
     'Thieves Big Chest Nook', 'Thieves Hallway', 'Thieves Boss', 'Thieves Pot Alcove Mid', 'Thieves Pot Alcove Bottom',
     'Thieves Pot Alcove Top', 'Thieves Conveyor Maze', 'Thieves Spike Track', 'Thieves Hellway',
     'Thieves Hellway N Crystal', 'Thieves Hellway S Crystal', 'Thieves Triple Bypass', 'Thieves Spike Switch',
-    'Thieves Attic', 'Thieves Attic Hint', 'Thieves Cricket Hall Left', 'Thieves Cricket Hall Right',
-    'Thieves Attic Window', 'Thieves Basement Block', 'Thieves Blocked Entry', 'Thieves Lonely Zazak',
-    "Thieves Blind's Cell", "Thieves Blind's Cell Interior", 'Thieves Conveyor Bridge', 'Thieves Conveyor Block',
-    'Thieves Big Chest Room', 'Thieves Trap', 'Thieves Town Portal'
+    'Thieves Attic', 'Thieves Attic Hint', 'Thieves Attic Switch', 'Thieves Cricket Hall Left',
+    'Thieves Cricket Hall Right', 'Thieves Attic Window', 'Thieves Basement Block', 'Thieves Blocked Entry',
+    'Thieves Lonely Zazak', "Thieves Blind's Cell", "Thieves Blind's Cell Interior", 'Thieves Conveyor Bridge',
+    'Thieves Conveyor Block', 'Thieves Big Chest Room', 'Thieves Trap', 'Thieves Town Portal'
 ]
 
 ice_regions = [
@@ -170,27 +170,29 @@ mire_regions = [
 tr_regions = [
     'TR Main Lobby', 'TR Lobby Ledge', 'TR Compass Room', 'TR Hub', 'TR Torches Ledge', 'TR Torches', 'TR Roller Room',
     'TR Tile Room', 'TR Refill', 'TR Pokey 1', 'TR Chain Chomps Top', 'TR Chain Chomps Top - Crystal',
-    'TR Chain Chomps Bottom', 'TR Chain Chomps Bottom - Ranged Crystal', 'TR Pipe Pit', 'TR Pipe Ledge', 'TR Lava Dual Pipes',
-    'TR Lava Island', 'TR Lava Escape', 'TR Pokey 2 Top', 'TR Pokey 2 Top - Crystal', 'TR Pokey 2 Bottom', 'TR Pokey 2 Bottom - Ranged Crystal',
-    'TR Twin Pokeys', 'TR Hallway', 'TR Dodgers', 'TR Big View','TR Big Chest', 'TR Big Chest Entrance',
-    'TR Lazy Eyes', 'TR Dash Room', 'TR Tongue Pull', 'TR Rupees', 'TR Crystaroller Bottom',
-    'TR Crystaroller Middle', 'TR Crystaroller Top', 'TR Crystaroller Top - Crystal', 'TR Crystaroller Chest',
-    'TR Crystaroller Middle - Ranged Crystal', 'TR Crystaroller Bottom - Ranged Crystal', 'TR Dark Ride', 'TR Dash Bridge', 'TR Eye Bridge',
+    'TR Chain Chomps Bottom', 'TR Chain Chomps Bottom - Ranged Crystal', 'TR Pipe Pit', 'TR Pipe Ledge',
+    'TR Lava Dual Pipes', 'TR Lava Island', 'TR Lava Escape', 'TR Pokey 2 Top', 'TR Pokey 2 Top - Crystal',
+    'TR Pokey 2 Bottom', 'TR Pokey 2 Bottom - Ranged Crystal', 'TR Twin Pokeys', 'TR Hallway', 'TR Dodgers',
+    'TR Big View','TR Big Chest', 'TR Big Chest Entrance', 'TR Lazy Eyes', 'TR Dash Room', 'TR Tongue Pull',
+    'TR Rupees', 'TR Crystaroller Bottom', 'TR Crystaroller Middle', 'TR Crystaroller Top',
+    'TR Crystaroller Top - Crystal', 'TR Crystaroller Chest', 'TR Crystaroller Middle - Ranged Crystal',
+    'TR Crystaroller Bottom - Ranged Crystal', 'TR Dark Ride', 'TR Dash Bridge', 'TR Eye Bridge',
     'TR Crystal Maze Start', 'TR Crystal Maze Start - Crystal', 'TR Crystal Maze Interior', 'TR Crystal Maze End',
-    'TR Crystal Maze End - Ranged Crystal', 'TR Final Abyss', 'TR Boss', 'Turtle Rock Main Portal',
-    'Turtle Rock Lazy Eyes Portal', 'Turtle Rock Chest Portal', 'Turtle Rock Eye Bridge Portal'
+    'TR Crystal Maze End - Ranged Crystal', 'TR Final Abyss Balcony', 'TR Final Abyss Ledge', 'TR Boss',
+    'Turtle Rock Main Portal', 'Turtle Rock Lazy Eyes Portal', 'Turtle Rock Chest Portal',
+    'Turtle Rock Eye Bridge Portal'
 ]
 
 gt_regions = [
     'GT Lobby', 'GT Bob\'s Torch', 'GT Hope Room', 'GT Big Chest', 'GT Blocked Stairs', 'GT Bob\'s Room',
     'GT Tile Room', 'GT Speed Torch', 'GT Speed Torch Upper', 'GT Pots n Blocks', 'GT Crystal Conveyor',
     'GT Crystal Conveyor Corner', 'GT Crystal Conveyor Left', 'GT Crystal Conveyor - Ranged Crystal',
-    'GT Crystal Conveyor Corner - Ranged Crystal',
-    'GT Compass Room', 'GT Invisible Bridges', 'GT Invisible Catwalk', 'GT Conveyor Cross', 'GT Hookshot East Platform',
-    'GT Hookshot North Platform', 'GT Hookshot South Platform', 'GT Hookshot South Entry', 'GT Hookshot South Entry - Ranged Crystal', 'GT Map Room',
+    'GT Crystal Conveyor Corner - Ranged Crystal', 'GT Compass Room', 'GT Invisible Bridges', 'GT Invisible Catwalk',
+    'GT Conveyor Cross', 'GT Hookshot East Platform', 'GT Hookshot Mid Platform', 'GT Hookshot North Platform',
+    'GT Hookshot South Platform', 'GT Hookshot South Entry', 'GT Hookshot South Entry - Ranged Crystal', 'GT Map Room',
     'GT Double Switch Entry', 'GT Double Switch Pot Corners - Ranged Switches', 'GT Double Switch Pot Corners',
-    'GT Double Switch Left', 'GT Double Switch Left - Crystal',
-    'GT Double Switch Entry - Ranged Switches', 'GT Double Switch Exit', 'GT Spike Crystal Left',
+    'GT Double Switch Left', 'GT Double Switch Left - Crystal', 'GT Double Switch Entry - Ranged Switches',
+    'GT Double Switch Exit', 'GT Spike Crystal Left',
     'GT Spike Crystal Right', 'GT Warp Maze - Left Section', 'GT Warp Maze - Mid Section',
     'GT Warp Maze - Right Section', 'GT Warp Maze - Pit Section', 'GT Warp Maze - Pit Exit Warp Spot',
     'GT Warp Maze Exit Section', 'GT Firesnake Room', 'GT Firesnake Room Ledge', 'GT Warp Maze - Rail Choice',

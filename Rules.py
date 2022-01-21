@@ -3,7 +3,8 @@ import logging
 from collections import deque
 
 import OverworldGlitchRules
-from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier, KeyRuleType
+from BaseClasses import CollectionState, RegionType, DoorType, Entrance, CrystalBarrier, KeyRuleType, LocationType
+from BaseClasses import PotFlags
 from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
@@ -33,6 +34,7 @@ def set_rules(world, player):
         raise NotImplementedError('Not implemented yet')
 
     bomb_rules(world, player)
+    pot_rules(world, player)
 
     if world.logic[player] == 'noglitches':
         no_glitches_rules(world, player)
@@ -180,6 +182,9 @@ def global_rules(world, player):
     set_rule(world.get_location('Hookshot Cave - Bottom Right', player), lambda state: state.has('Hookshot', player) or state.has('Pegasus Boots', player))
     set_rule(world.get_location('Hookshot Cave - Bottom Left', player), lambda state: state.has('Hookshot', player))
 
+    set_rule(world.get_entrance('Hookshot Cave Bonk Path', player), lambda state: state.has('Hookshot', player) or state.has('Pegasus Boots', player))
+    set_rule(world.get_entrance('Hookshot Cave Hook Path', player), lambda state: state.has('Hookshot', player))
+
     # Start of door rando rules
     # TODO: Do these need to flag off when door rando is off? - some of them, yes
 
@@ -244,6 +249,7 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Swamp Trench 1 Departure Key', player), lambda state: state.has('Flippers', player) and state.has('Trench 1 Filled', player))
     set_rule(world.get_location('Trench 1 Switch', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Swamp Hub Hook Path', player), lambda state: state.has('Hookshot', player))
+    set_rule(world.get_entrance('Swamp Hub Side Hook Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_location('Swamp Palace - Hookshot Pot Key', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Swamp Trench 2 Pots Dry', player), lambda state: not state.has('Trench 2 Filled', player))
     set_rule(world.get_entrance('Swamp Trench 2 Pots Wet', player), lambda state: state.has('Flippers', player) and state.has('Trench 2 Filled', player))
@@ -280,8 +286,8 @@ def global_rules(world, player):
     # for location in ['Thieves\' Town - Blind\'s Cell', 'Thieves\' Town - Boss']:
     #     forbid_item(world.get_location(location, player), 'Big Key (Thieves Town)', player)
     # forbid_item(world.get_location('Thieves\' Town - Blind\'s Cell', player), 'Big Key (Thieves Town)', player)
-    for location in ['Suspicious Maiden', 'Thieves\' Town - Blind\'s Cell']:
-        set_rule(world.get_location(location, player), lambda state: state.has('Big Key (Thieves Town)', player))
+    # for location in ['Suspicious Maiden', 'Thieves\' Town - Blind\'s Cell']:
+    #     set_rule(world.get_location(location, player), lambda state: state.has('Big Key (Thieves Town)', player))
     set_rule(world.get_location('Revealing Light', player), lambda state: state.has('Shining Light', player) and state.has('Maiden Rescued', player))
     set_rule(world.get_location('Thieves\' Town - Boss', player), lambda state: state.has('Maiden Unmasked', player) and world.get_location('Thieves\' Town - Boss', player).parent_region.dungeon.boss.can_defeat(state))
     set_rule(world.get_location('Thieves\' Town - Prize', player), lambda state: state.has('Maiden Unmasked', player) and world.get_location('Thieves\' Town - Prize', player).parent_region.dungeon.boss.can_defeat(state))
@@ -313,6 +319,9 @@ def global_rules(world, player):
              state.has('Hammer', player) or state.has('Cane of Somaria', player) or state.can_shoot_arrows(player))  # need to defeat wizzrobes, bombs don't work ...
             # byrna could work with sufficient magic
     set_rule(world.get_location('Misery Mire - Spike Chest', player), lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
+    loc = world.get_location('Misery Mire - Spikes Pot Key', player)
+    if loc.pot.x == 48 and loc.pot.y == 28:  # pot shuffled to spike area
+        set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
     set_rule(world.get_entrance('Mire Left Bridge Hook Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Mire Tile Room NW', player), lambda state: state.has_fire_source(player))
     set_rule(world.get_entrance('Mire Attic Hint Hole', player), lambda state: state.has_fire_source(player))
@@ -334,8 +343,10 @@ def global_rules(world, player):
     set_rule(world.get_entrance('TR Big Chest Gap', player), lambda state: state.has('Cane of Somaria', player) or state.has_Boots(player))
     set_rule(world.get_entrance('TR Dark Ride Up Stairs', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Dark Ride SW', player), lambda state: state.has('Cane of Somaria', player))
-    set_rule(world.get_entrance('TR Final Abyss South Stairs', player), lambda state: state.has('Cane of Somaria', player))
-    set_rule(world.get_entrance('TR Final Abyss NW', player), lambda state: state.has('Cane of Somaria', player))
+    for location in world.get_region('TR Dark Ride', player).locations:
+        set_rule(location, lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Final Abyss Balcony Path', player), lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Final Abyss Ledge Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_location('Turtle Rock - Eye Bridge - Bottom Left', player), lambda state: state.has('Cane of Byrna', player) or state.has('Cape', player) or state.has('Mirror Shield', player))
     set_rule(world.get_location('Turtle Rock - Eye Bridge - Bottom Right', player), lambda state: state.has('Cane of Byrna', player) or state.has('Cape', player) or state.has('Mirror Shield', player))
     set_rule(world.get_location('Turtle Rock - Eye Bridge - Top Left', player), lambda state: state.has('Cane of Byrna', player) or state.has('Cape', player) or state.has('Mirror Shield', player))
@@ -349,12 +360,12 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Conveyor Cross EN', player), lambda state: state.has('Hookshot', player))
     if not world.get_door('GT Speed Torch SE', player).entranceFlag:
         set_rule(world.get_entrance('GT Speed Torch SE', player), lambda state: state.has('Fire Rod', player))
-    set_rule(world.get_entrance('GT Hookshot East-North Path', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_entrance('GT Hookshot South-East Path', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_entrance('GT Hookshot South-North Path', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_entrance('GT Hookshot East-South Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
-    set_rule(world.get_entrance('GT Hookshot North-East Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
-    set_rule(world.get_entrance('GT Hookshot North-South Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
+    set_rule(world.get_entrance('GT Hookshot South-Mid Path', player), lambda state: state.has('Hookshot', player))
+    set_rule(world.get_entrance('GT Hookshot Mid-North Path', player), lambda state: state.has('Hookshot', player))
+    set_rule(world.get_entrance('GT Hookshot East-Mid Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
+    set_rule(world.get_entrance('GT Hookshot North-Mid Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
+    set_rule(world.get_entrance('GT Hookshot Mid-South Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
+    set_rule(world.get_entrance('GT Hookshot Mid-East Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
     set_rule(world.get_entrance('GT Firesnake Room Hook Path', player), lambda state: state.has('Hookshot', player))
 
     # I am tempted to stick an invincibility rule for getting across falling bridge
@@ -391,6 +402,8 @@ def global_rules(world, player):
         set_rule(world.get_entrance('Thieves Attic ES', player), lambda state: state.can_reach_blue(world.get_region('Thieves Attic', player), player))
     else:
         set_rule(world.get_entrance('Thieves Attic ES', player), lambda state: state.can_reach_orange(world.get_region('Thieves Attic', player), player))
+    set_rule(world.get_entrance('Thieves Attic Orange Barrier', player), lambda state: state.can_reach_orange(world.get_region('Thieves Attic', player), player))
+    set_rule(world.get_entrance('Thieves Attic Blue Barrier', player), lambda state: state.can_reach_blue(world.get_region('Thieves Attic', player), player))
 
     set_rule(world.get_entrance('Hera Lobby to Front Barrier - Blue', player), lambda state: state.can_reach_blue(world.get_region('Hera Lobby', player), player))
     set_rule(world.get_entrance('Hera Front to Lobby Barrier - Blue', player), lambda state: state.can_reach_blue(world.get_region('Hera Front', player), player))
@@ -414,6 +427,7 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Hera Basement Cage to Crystal', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('Hera Tridorm to Crystal', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('Hera Startile Wide to Crystal', player), lambda state: state.can_hit_crystal(player))
+    set_rule(world.get_entrance('Hera 5F Orange Path', player), lambda state: state.can_reach_orange(world.get_region('Hera 5F', player), player))
 
     set_rule(world.get_entrance('PoD Arena North to Landing Barrier - Orange', player), lambda state: state.can_reach_orange(world.get_region('PoD Arena North', player), player))
     set_rule(world.get_entrance('PoD Arena Landing to North Barrier - Orange', player), lambda state: state.can_reach_orange(world.get_region('PoD Arena Landing', player), player))
@@ -584,18 +598,20 @@ def global_rules(world, player):
 
 
 def bomb_rules(world, player):
+    # todo: kak well, pod hint (bonkable pots), hookshot pot, spike cave pots
     bonkable_doors = ['Two Brothers House Exit (West)', 'Two Brothers House Exit (East)'] # Technically this is incorrectly defined, but functionally the same as what is intended.
     bombable_doors = ['Ice Rod Cave', 'Light World Bomb Hut', 'Light World Death Mountain Shop', 'Mini Moldorm Cave',
-                      'Hookshot Cave Back to Middle', 'Hookshot Cave Front to Middle', 'Hookshot Cave Middle to Front','Hookshot Cave Middle to Back',
-                      'Dark Lake Hylia Ledge Fairy', 'Hype Cave', 'Brewery', 'Light Hype Fairy']
+                      'Hookshot Cave Back to Middle', 'Hookshot Cave Front to Middle', 'Hookshot Cave Middle to Front',
+                      'Hookshot Cave Middle to Back', 'Dark Lake Hylia Ledge Fairy', 'Hype Cave', 'Brewery',
+                      'Paradox Cave Chest Area NE', 'Blinds Hideout N', 'Kakariko Well (top to back)',
+                      'Light Hype Fairy']
     for entrance in bonkable_doors:
         add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
     for entrance in bombable_doors:
         add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player)) 
 
     bonkable_items = ['Sahasrahla\'s Hut - Left', 'Sahasrahla\'s Hut - Middle', 'Sahasrahla\'s Hut - Right']
-    bombable_items = ['Blind\'s Hideout - Top', 'Kakariko Well - Top', 'Chicken House', 'Aginah\'s Cave', 'Graveyard Cave',
-                      'Paradox Cave Upper - Left', 'Paradox Cave Upper - Right',
+    bombable_items = ['Chicken House', 'Aginah\'s Cave', 'Graveyard Cave',
                       'Hype Cave - Top', 'Hype Cave - Middle Right', 'Hype Cave - Middle Left', 'Hype Cave - Bottom']
     for location in bonkable_items:
         add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
@@ -693,6 +709,37 @@ def bomb_rules(world, player):
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
             elif door.kind(world) in [DoorKind.Bombable]:
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player))
+
+
+def pot_rules(world, player):
+    if world.pottery[player] == 'lottery':
+        blocks = [l for l in world.get_locations() if l.type == LocationType.Pot and l.pot.flags & PotFlags.Block]
+        for block_pot in blocks:
+            add_rule(block_pot, lambda state: state.can_lift_rocks(player))
+        for l in world.get_region('Hookshot Fairy', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.has('Hookshot', player))
+        for l in world.get_region('Spike Cave', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player) and
+                         ((state.has('Cape', player) and state.can_extend_magic(player, 16, True)) or
+                         (state.has('Cane of Byrna', player) and
+                          (state.can_extend_magic(player, 12, True) or
+                          (state.world.can_take_damage and (state.has_Boots(player) or state.has_hearts(player, 4)))))))
+        for l in world.get_region('Dark Desert Hint', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.can_use_bombs(player))
+        for l in world.get_region('Palace of Darkness Hint', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
+        for l in world.get_region('Dark Lake Hylia Ledge Spike Cave', player).locations:
+            if l.type == LocationType.Pot:
+                add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player))
+        loc = world.get_location_unsafe('Mire Spikes Pot #3', player)
+        if loc:
+            set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
+
+
 
 def default_rules(world, player):
     # overworld requirements
@@ -1070,6 +1117,10 @@ def add_conditional_lamps(world, player):
         'Sewers Rope Room': {'sewer': True, 'entrances': ['Sewers Rope Room Up Stairs', 'Sewers Rope Room North Stairs'], 'locations': []},
         'Sewers Water': {'sewer': True, 'entrances': ['Sewers Water S', 'Sewers Water W'], 'locations': []},
         'Sewers Key Rat': {'sewer': True, 'entrances': ['Sewers Key Rat E', 'Sewers Key Rat Key Door N'], 'locations': ['Hyrule Castle - Key Rat Key Drop']},
+        'Old Man Cave': {'sewer': False, 'entrances': ['Old Man Cave Exit (East)']},
+        'Old Man House Back': {'sewer': False, 'entrances': ['Old Man House Back to Front', 'Old Man House Exit (Top)']},
+        'Death Mountain Return Cave (left)': {'sewer': False, 'entrances': ['Death Mountain Return Cave E', 'Death Mountain Return Cave Exit (West)']},
+        'Death Mountain Return Cave (right)': {'sewer': False, 'entrances': ['Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave W']},
     }
 
     dark_debug_set = set()
@@ -1086,17 +1137,12 @@ def add_conditional_lamps(world, player):
             dark_debug_set.add(region)
             for ent in info['entrances']:
                 add_conditional_lamp(ent, region, 'Entrance')
-            for loc in info['locations']:
+            r = world.get_region(region, player)
+            for loc in r.locations:
                 add_conditional_lamp(loc, region, 'Location')
     logging.getLogger('').debug('Non Dark Regions: ' + ', '.join(set(dark_rooms.keys()).difference(dark_debug_set)))
 
-    add_conditional_lamp('Old Man', 'Old Man Cave', 'Location')
-    add_conditional_lamp('Old Man Cave Exit (East)', 'Old Man Cave', 'Entrance')
-    add_conditional_lamp('Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave', 'Entrance')
-    add_conditional_lamp('Death Mountain Return Cave Exit (West)', 'Death Mountain Return Cave', 'Entrance')
     add_conditional_lamp('Old Man House Front to Back', 'Old Man House', 'Entrance')
-    add_conditional_lamp('Old Man House Back to Front', 'Old Man House', 'Entrance')
-
 
 def open_rules(world, player):
     # softlock protection as you can reach the sewers small key door with a guard drop key
@@ -1880,7 +1926,7 @@ bunny_revivable_entrances = {
     "Ice Many Pots", "Mire South Fish", "Mire Right Bridge", "Mire Left Bridge",
     "TR Boss", "Eastern Hint Tile Blocked Path", "Thieves Spike Switch",
     "Thieves Boss", "Mire Spike Barrier", "Mire Cross", "Mire Hidden Shooters",
-    "Mire Spikes", "TR Final Abyss", "TR Dark Ride", "TR Pokey 1", "TR Tile Room",
+    "Mire Spikes", "TR Final Abyss Balcony", "TR Dark Ride", "TR Pokey 1", "TR Tile Room",
     "TR Roller Room", "Eastern Cannonball", "Thieves Hallway", "Ice Switch Room",
     "Mire Tile Room", "Mire Conveyor Crystal", "Mire Hub", "TR Dash Bridge",
     "TR Hub", "Eastern Boss", "Eastern Lobby", "Thieves Ambush",
@@ -1948,11 +1994,11 @@ bunny_impassible_doors = {
     'TR Pokey 2 Bottom to Top Barrier - Blue', 'TR Pokey 2 Top to Bottom Barrier - Blue', 'TR Twin Pokeys SW', 'TR Twin Pokeys EN', 'TR Big Chest Gap',
     'TR Big Chest Entrance Gap', 'TR Lazy Eyes ES', 'TR Tongue Pull WS', 'TR Tongue Pull NE', 'TR Dark Ride Up Stairs',
     'TR Dark Ride SW', 'TR Crystal Maze Start to Interior Barrier - Blue', 'TR Crystal Maze End to Interior Barrier - Blue',
-    'TR Final Abyss South Stairs', 'TR Final Abyss NW', 'GT Hope Room EN', 'GT Blocked Stairs Block Path',
+    'TR Final Abyss Balcony Path', 'TR Final Abyss Ledge Path', 'GT Hope Room EN', 'GT Blocked Stairs Block Path',
     'GT Bob\'s Room Hole', 'GT Speed Torch SE', 'GT Speed Torch South Path', 'GT Speed Torch North Path',
     'GT Crystal Conveyor NE', 'GT Crystal Conveyor WN', 'GT Conveyor Cross EN', 'GT Conveyor Cross WN',
-    'GT Hookshot East-North Path', 'GT Hookshot East-South Path', 'GT Hookshot North-East Path',
-    'GT Hookshot North-South Path', 'GT Hookshot South-East Path', 'GT Hookshot South-North Path',
+    'GT Hookshot East-Mid Path', 'GT Hookshot South-Mid Path', 'GT Hookshot North-Mid Path',
+    'GT Hookshot Mid-South Path', 'GT Hookshot Mid-East Path', 'GT Hookshot Mid-North Path',
     'GT Hookshot Platform Blue Barrier', 'GT Hookshot Entry Blue Barrier', 'GT Double Switch Pot Corners to Exit Barrier - Blue',
     'GT Double Switch Exit to Blue Barrier', 'GT Firesnake Room Hook Path', 'GT Falling Bridge WN', 'GT Falling Bridge WS',
     'GT Ice Armos NE', 'GT Ice Armos WS', 'GT Crystal Paths SW', 'GT Mimics 1 NW', 'GT Mimics 1 ES', 'GT Mimics 2 WS',

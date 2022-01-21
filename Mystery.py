@@ -173,7 +173,9 @@ def roll_settings(weights):
     ret.shufflelinks = get_choice('shufflelinks') == 'on'
     ret.pseudoboots = get_choice('pseudoboots') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
-    ret.keydropshuffle = get_choice('keydropshuffle') == 'on'
+    ret.dropshuffle = get_choice('dropshuffle') == 'on'
+    ret.pottery = get_choice('pottery') if 'pottery' in weights else 'none'
+    ret.shuffleswitches = get_choice('shuffleswitches') == 'on'
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
     ret.standardize_palettes = get_choice('standardize_palettes') if 'standardize_palettes' in weights else 'standardize'
 
@@ -242,8 +244,6 @@ def roll_settings(weights):
     ret.enemy_damage = damage_choice
 
     ret.enemy_health = get_choice('enemy_health')
-
-    ret.shufflepots = get_choice('pot_shuffle') == 'on'
 
     ret.beemizer = get_choice('beemizer') if 'beemizer' in weights else '0'
 

@@ -1,12 +1,13 @@
 import RaceRandom as random
 import logging
-from math import ceil
 from collections import defaultdict
 
 from source.item.District import resolve_districts
+from BaseClasses import PotItem, PotFlags
 from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
+from PotShuffle import vanilla_pots
 
 
 class ItemPoolConfig(object):
@@ -64,34 +65,40 @@ def create_item_pool_config(world):
         config.static_placement = {}
         config.location_groups = {}
         for player in range(1, world.players + 1):
-            config.static_placement[player] = vanilla_mapping.copy()
-            if world.keydropshuffle[player]:
+            config.static_placement[player] = defaultdict(list)
+            config.static_placement[player].update(vanilla_mapping)
+            if world.dropshuffle[player]:
                 for item, locs in keydrop_vanilla_mapping.items():
-                    if item in config.static_placement[player]:
-                        config.static_placement[player][item].extend(locs)
-                    else:
-                        config.static_placement[player][item] = list(locs)
+                    config.static_placement[player][item].extend(locs)
+            if world.pottery[player] != 'none':
+                for item, locs in potkeys_vanilla_mapping.items():
+                    config.static_placement[player][item].extend(locs)
+            if world.pottery[player] == 'lottery':
+                for super_tile, pot_list in vanilla_pots.items():
+                    for pot_index, pot in enumerate(pot_list):
+                        if pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]:
+                            item = pot_items[pot.item]
+                            descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+                            location = f'{pot.room} {descriptor}'
+                            config.static_placement[player][item].append(location)
             if world.shopsanity[player]:
                 for item, locs in shop_vanilla_mapping.items():
-                    if item in config.static_placement[player]:
-                        config.static_placement[player][item].extend(locs)
-                    else:
-                        config.static_placement[player][item] = list(locs)
+                    config.static_placement[player][item].extend(locs)
             if world.retro[player]:
                 for item, locs in retro_vanilla_mapping.items():
-                    if item in config.static_placement[player]:
-                        config.static_placement[player][item].extend(locs)
-                    else:
-                        config.static_placement[player][item] = list(locs)
+                    config.static_placement[player][item].extend(locs)
                 # universal keys
                 universal_key_locations = []
                 for item, locs in vanilla_mapping.items():
                     if 'Small Key' in item:
                         universal_key_locations.extend(locs)
-                if world.keydropshuffle[player]:
+                if world.dropshuffle[player]:
                     for item, locs in keydrop_vanilla_mapping.items():
                         if 'Small Key' in item:
                             universal_key_locations.extend(locs)
+                if world.pottery[player] != 'none':
+                    for item, locs in potkeys_vanilla_mapping.items():
+                        universal_key_locations.extend(locs)
                 if world.shopsanity[player]:
                     single_arrow_placement = list(shop_vanilla_mapping['Red Potion'])
                     single_arrow_placement.append('Red Shield Shop - Right')
@@ -117,11 +124,11 @@ def create_item_pool_config(world):
             groups = LocationGroup('Major').locs(init_set)
             if world.bigkeyshuffle[player]:
                 groups.locations.extend(mode_grouping['Big Keys'])
-                if world.keydropshuffle[player]:
+                if world.keydropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Big Key Drops'])
             if world.keyshuffle[player]:
                 groups.locations.extend(mode_grouping['Small Keys'])
-                if world.keydropshuffle[player]:
+                if world.keydropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Key Drops'])
             if world.compassshuffle[player]:
                 groups.locations.extend(mode_grouping['Compasses'])
@@ -337,11 +344,11 @@ def calc_dungeon_limits(world, player):
                     val -= 1
             if b:
                 val += 1 if info.bk_present else 0
-                if k:
+                if k != 'none':
                     val += 1 if info.bk_drops else 0
             if s or r:
                 val += info.key_num
-                if k:
+                if k != 'none':
                     val += info.key_drops
             if c:
                 val += 1 if info.compass_present else 0
@@ -352,11 +359,11 @@ def calc_dungeon_limits(world, player):
         limits = 60
         if world.bigkeyshuffle[player]:
             limits += 11
-            if world.keydropshuffle[player]:
+            if world.keydropshuffle[player] != 'none':
                 limits += 1
         if world.keyshuffle[player] or world.retro[player]:
             limits += 29
-            if world.keydropshuffle[player]:
+            if world.keydropshuffle[player] != 'none':
                 limits += 32
         if world.compassshuffle[player]:
             limits += 11
@@ -446,6 +453,19 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False):
             filtered = [l for l in locations if l.name in restricted and l.player in restricted[l.name]]
             return filtered if len(filtered) > 0 else locations
     return locations
+
+
+def filter_pot_locations(locations, world):
+    if world.algorithm == 'district':
+        config = world.item_pool_config
+        restricted = config.location_groups[0].locations
+        filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
+        return filtered if len(filtered) > 0 else locations
+    if world.algorithm == 'vanilla_fill':
+        filtered = [l for l in locations if l.pot and l.pot.item in [PotItem.Chicken, PotItem.BigMagic]]
+        return filtered if len(filtered) > 0 else locations
+    return locations
+
 
 
 vanilla_mapping = {
@@ -608,25 +628,31 @@ vanilla_mapping = {
 
 
 keydrop_vanilla_mapping = {
-    'Small Key (Desert Palace)': ['Desert Palace - Desert Tiles 1 Pot Key',
-                                  'Desert Palace - Beamos Hall Pot Key', 'Desert Palace - Desert Tiles 2 Pot Key'],
-    'Small Key (Eastern Palace)': ['Eastern Palace - Dark Square Pot Key', 'Eastern Palace - Dark Eyegore Key Drop'],
+    'Small Key (Eastern Palace)': ['Eastern Palace - Dark Eyegore Key Drop'],
     'Small Key (Escape)': ['Hyrule Castle - Map Guard Key Drop', 'Hyrule Castle - Boomerang Guard Key Drop',
                            'Hyrule Castle - Key Rat Key Drop'],
     'Big Key (Escape)': ['Hyrule Castle - Big Key Drop'],
     'Small Key (Agahnims Tower)': ['Castle Tower - Dark Archer Key Drop', 'Castle Tower - Circle of Pots Key Drop'],
+    'Small Key (Skull Woods)': ['Skull Woods - Spike Corner Key Drop'],
+    'Small Key (Ice Palace)': ['Ice Palace - Jelly Key Drop', 'Ice Palace - Conveyor Key Drop'],
+    'Small Key (Misery Mire)': ['Misery Mire - Conveyor Crystal Key Drop'],
+    'Small Key (Turtle Rock)': ['Turtle Rock - Pokey 1 Key Drop', 'Turtle Rock - Pokey 2 Key Drop'],
+    'Small Key (Ganons Tower)': ['Ganons Tower - Mini Helmasaur Key Drop'],
+}
+
+potkeys_vanilla_mapping = {
+    'Small Key (Desert Palace)': ['Desert Palace - Desert Tiles 1 Pot Key',
+                                  'Desert Palace - Beamos Hall Pot Key', 'Desert Palace - Desert Tiles 2 Pot Key'],
+    'Small Key (Eastern Palace)': ['Eastern Palace - Dark Square Pot Key'],
     'Small Key (Thieves Town)': ["Thieves' Town - Hallway Pot Key", "Thieves' Town - Spike Switch Pot Key"],
-    'Small Key (Skull Woods)': ['Skull Woods - West Lobby Pot Key', 'Skull Woods - Spike Corner Key Drop'],
+    'Small Key (Skull Woods)': ['Skull Woods - West Lobby Pot Key'],
     'Small Key (Swamp Palace)': ['Swamp Palace - Pot Row Pot Key', 'Swamp Palace - Trench 1 Pot Key',
                                  'Swamp Palace - Hookshot Pot Key', 'Swamp Palace - Trench 2 Pot Key',
                                  'Swamp Palace - Waterway Pot Key'],
-    'Small Key (Ice Palace)': ['Ice Palace - Jelly Key Drop', 'Ice Palace - Conveyor Key Drop',
-                               'Ice Palace - Hammer Block Key Drop', 'Ice Palace - Many Pots Pot Key'],
-    'Small Key (Misery Mire)': ['Misery Mire - Spikes Pot Key',
-                                'Misery Mire - Fishbone Pot Key', 'Misery Mire - Conveyor Crystal Key Drop'],
-    'Small Key (Turtle Rock)': ['Turtle Rock - Pokey 1 Key Drop', 'Turtle Rock - Pokey 2 Key Drop'],
+    'Small Key (Ice Palace)': ['Ice Palace - Hammer Block Key Drop', 'Ice Palace - Many Pots Pot Key'],
+    'Small Key (Misery Mire)': ['Misery Mire - Spikes Pot Key', 'Misery Mire - Fishbone Pot Key'],
     'Small Key (Ganons Tower)': ['Ganons Tower - Conveyor Cross Pot Key', 'Ganons Tower - Double Switch Pot Key',
-                                 'Ganons Tower - Conveyor Star Pits Pot Key', 'Ganons Tower - Mini Helmasuar Key Drop'],
+                                 'Ganons Tower - Conveyor Star Pits Pot Key'],
 }
 
 shop_vanilla_mapping = {
@@ -810,7 +836,9 @@ trash_items = {
     'Bombs (3)': 3,
     'Arrows (10)': 3,
     'Bombs (10)': 3,
+    'Small Magic': 3,
 
+    'Big Magic': 4,
     'Red Potion': 4,
     'Blue Shield': 4,
     'Rupees (50)': 4,
@@ -819,3 +847,17 @@ trash_items = {
 
     'Piece of Heart': 17
 }
+
+pot_items = {
+    PotItem.Nothing: 'Nothing',
+    PotItem.Bomb: 'Single Bomb',
+    PotItem.FiveArrows: 'Arrows (5)',  # convert to 10
+    PotItem.OneRupee: 'Rupee (1)',
+    PotItem.FiveRupees: 'Rupees (5)',
+    PotItem.Heart: 'Small Heart',
+    PotItem.BigMagic: 'Big Magic',  # fast fill
+    PotItem.SmallMagic: 'Small Magic',
+    PotItem.Chicken: 'Chicken'   # fast fill
+}
+
+valid_pot_items = {y: x for x, y in pot_items.items()}

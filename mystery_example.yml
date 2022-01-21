@@ -8,8 +8,9 @@
     2: 2
     3: 4
   keydropshuffle:
-    on: 1
-    off: 1
+    none: 1
+    keydrops: 1
+    potsanity: 1
   shopsanity:
     on: 1
     off: 1

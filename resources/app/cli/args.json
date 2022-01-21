@@ -68,6 +68,21 @@
     "action": "store_true",
     "type": "bool"
   },
+  "dropshuffle" : {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "pottery" : {
+    "choices" : [
+      "none",
+      "keys",
+      "lottery"
+    ]
+  },
+  "shufflepots": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "mixed_travel" : {
     "choices": [
       "prevent",
@@ -384,10 +399,6 @@
       "shuffled",
       "random"
     ]
-  },
-  "shufflepots": {
-    "action": "store_true",
-    "type": "bool"
   },
   "remote_items": {
     "action": "store_true",

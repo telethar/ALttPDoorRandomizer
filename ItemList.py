@@ -3,13 +3,14 @@ import logging
 import math
 import RaceRandom as random
 
-from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState
+from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
 from EntranceShuffle import connect_entrance
 from Regions import shop_to_location_table, retro_shops, shop_table_by_location
 from Fill import FillError, fill_restrictive, fast_fill, get_dungeon_item_pool
+from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
-from source.item.FillUtil import trash_items
+from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST
 
@@ -388,10 +389,16 @@ def generate_itempool(world, player):
 
     if world.retro[player]:
         set_up_take_anys(world, player)
-        if world.keydropshuffle[player]:
-            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 32
+        if world.dropshuffle[player]:
+            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
+        if world.pottery[player] != 'none':
+            world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
+
 
     create_dynamic_shop_locations(world, player)
+
+    if world.pottery[player] == 'lottery':
+        add_pot_contents(world, player)
 
 
 take_any_locations = [
@@ -748,6 +755,13 @@ rupee_chart = {'Rupee (1)': 1, 'Rupees (5)': 5, 'Rupees (20)': 20, 'Rupees (50)'
                'Rupees (100)': 100, 'Rupees (300)': 300}
 
 
+def add_pot_contents(world, player):
+    for super_tile, pot_list in vanilla_pots.items():
+        for pot in pot_list:
+            if pot.item not in [PotItem.Hole, PotItem.Key, PotItem.Switch]:
+                world.itempool.append(ItemFactory(pot_items[pot.item], player))
+
+
 def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, retro, bombbag, door_shuffle, logic):
     pool = []
     placed_items = {}
@@ -893,6 +907,7 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
         else:
             pool.extend(['Small Key (Universal)'])
     return (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms)
+
 
 def make_custom_item_pool(progressive, shuffle, difficulty, timer, goal, mode, swords, retro, bombbag, customitemarray):
     if isinstance(customitemarray,dict) and 1 in customitemarray:
