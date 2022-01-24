@@ -140,7 +140,6 @@ class World(object):
             set_player_attr('pseudoboots', False)
 
             set_player_attr('shopsanity', False)
-            set_player_attr('keydropshuffle', 'none')
             set_player_attr('mixed_travel', 'prevent')
             set_player_attr('standardize_palettes', 'standardize')
             set_player_attr('force_fix', {'gt': False, 'sw': False, 'pod': False, 'tr': False})
@@ -2866,7 +2865,7 @@ class Settings(object):
 
         args.enemy_health[p] = r(e_health)[(settings[8] & 0xE0) >> 5]
         args.enemy_damage[p] = r(e_dmg)[(settings[8] & 0x18) >> 3]
-        args.shufflepots[p] = True if settings[7] & 0x4 else False
+        args.shufflepots[p] = True if settings[8] & 0x4 else False
         args.bombbag[p] = True if settings[8] & 0x2 else False
         args.shufflelinks[p] = True if settings[8] & 0x1 else False
         if len(settings) > 9:

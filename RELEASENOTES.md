@@ -146,5 +146,16 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 ## Notes and Bug Fixes
 
+#### Volatile
+
+* 1.0.1.1
+	* Fixed logic for pots in the Ice Hammer Block room (Glove + Hammer required)
+	* Fixed logic for 2 pots in the Ice Antechamber (Glove required)
+	* Fixed retro not saving keys when grabbed from under pots in caves
+	* Fixed GUI not applying Drop shuffle when "Pot and Drops" are marked
+	* Fixed dungeon counts when one of Pottery or Drops are disabled
+	
+#### Unstable
+
 * 1.0.0.1
 	* Add Light Hype Fairy to bombbag mode as needing bombs

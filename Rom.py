@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'dea3a3bc1435aa0895181c5d46dc6d43'
+RANDOMIZERBASEHASH = '83bdcdbe989281b7eb36a10150314997'
 
 
 class JsonRom(object):
@@ -746,7 +746,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player]:
+    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player] or world.pottery[player] != 'none':
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
@@ -875,13 +875,15 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     credits_total = len(valid_locations)
 
     if world.dropshuffle[player] or world.pottery[player] != 'none':
-        rom.write_byte(0x142A50, 1)
+        rom.write_byte(0x142A50, 1)  # StandingItemsOn
     multiClientFlags = ((0x1 if world.dropshuffle[player] else 0)
                         | (0x2 if world.shopsanity[player] else 0)
                         | (0x4 if world.retro[player] else 0)
                         | (0x8 if world.pottery[player] in ['keys', 'lottery'] else 0)
                         | (0x10 if is_mystery else 0))
     rom.write_byte(0x142A51, multiClientFlags)
+    rom.write_byte(0x142A55, ((0x1 if world.pottery[player] != 'none' else 0)  # StandingItemCounterMask
+                              | (0x2 if world.dropshuffle[player] else 0)))
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
