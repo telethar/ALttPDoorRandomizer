@@ -148,6 +148,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.2
+	* Fixed logic for pots in TR Hub and TR Dark Ride
+	* Fix for districting + shopsanity
+	* Hint typo correction
 * 1.0.1.1
 	* Fixed logic for pots in the Ice Hammer Block room (Glove + Hammer required)
 	* Fixed logic for 2 pots in the Ice Antechamber (Glove required)

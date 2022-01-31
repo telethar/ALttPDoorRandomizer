@@ -2283,6 +2283,8 @@ logical_connections = [
 
     ('TR Main Lobby Gap', 'TR Lobby Ledge'),
     ('TR Lobby Ledge Gap', 'TR Main Lobby'),
+    ('TR Hub Path', 'TR Hub Ledges'),
+    ('TR Hub Ledges Path', 'TR Hub'),
     ('TR Pipe Ledge Drop Down', 'TR Pipe Pit'),
     ('TR Big Chest Gap', 'TR Big Chest Entrance'),
     ('TR Big Chest Entrance Gap', 'TR Big Chest'),
@@ -2311,6 +2313,8 @@ logical_connections = [
     ('TR Crystaroller Chest to Middle Barrier - Blue', 'TR Crystaroller Middle'),
     ('TR Crystaroller Middle Ranged Crystal Exit', 'TR Crystaroller Middle'),
     ('TR Crystaroller Bottom Ranged Crystal Exit', 'TR Crystaroller Bottom'),
+    ('TR Dark Ride Path', 'TR Dark Ride Ledges'),
+    ('TR Dark Ride Ledges Path', 'TR Dark Ride'),
     ('TR Crystal Maze Start to Interior Barrier - Blue', 'TR Crystal Maze Interior'),
     ('TR Crystal Maze Start to Crystal', 'TR Crystal Maze Start - Crystal'),
     ('TR Crystal Maze Start Crystal Exit', 'TR Crystal Maze Start'),

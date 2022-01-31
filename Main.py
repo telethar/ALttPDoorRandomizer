@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 
 
-__version__ = '1.0.1.1-v'
+__version__ = '1.0.1.2-v'
 
 from source.classes.BabelFish import BabelFish
 
@@ -195,6 +195,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
+    district_item_pool_config(world)
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
             sell_potions(world, player)
@@ -203,7 +204,6 @@ def main(args, seed=None, fish=None):
         else:
             lock_shop_locations(world, player)
 
-    district_item_pool_config(world)
     massage_item_pool(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 

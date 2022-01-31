@@ -338,11 +338,15 @@ def global_rules(world, player):
     set_rule(world.get_entrance('TR Hub EN', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Hub NW', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Hub NE', player), lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Hub Path', player), lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Hub Ledges Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Torches NW', player), lambda state: state.has('Cane of Somaria', player) and state.has('Fire Rod', player))
     set_rule(world.get_entrance('TR Big Chest Entrance Gap', player), lambda state: state.has('Cane of Somaria', player) or state.has('Hookshot', player))
     set_rule(world.get_entrance('TR Big Chest Gap', player), lambda state: state.has('Cane of Somaria', player) or state.has_Boots(player))
     set_rule(world.get_entrance('TR Dark Ride Up Stairs', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Dark Ride SW', player), lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Dark Ride Path', player), lambda state: state.has('Cane of Somaria', player))
+    set_rule(world.get_entrance('TR Dark Ride Ledges Path', player), lambda state: state.has('Cane of Somaria', player))
     for location in world.get_region('TR Dark Ride', player).locations:
         set_rule(location, lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Final Abyss Balcony Path', player), lambda state: state.has('Cane of Somaria', player))
@@ -1998,10 +2002,12 @@ bunny_impassible_doors = {
     'Mire Cross ES', 'Mire Left Bridge Hook Path', 'Mire Fishbone Blue Barrier',
     'Mire South Fish Blue Barrier', 'Mire Tile Room NW', 'Mire Compass Blue Barrier', 'Mire Attic Hint Hole',
     'Mire Dark Shooters SW', 'Mire Crystal Mid Blue Barrier', 'Mire Crystal Left Blue Barrier', 'TR Main Lobby Gap',
-    'TR Lobby Ledge Gap', 'TR Hub SW', 'TR Hub SE', 'TR Hub ES', 'TR Hub EN', 'TR Hub NW', 'TR Hub NE', 'TR Torches NW',
-    'TR Pokey 2 Bottom to Top Barrier - Blue', 'TR Pokey 2 Top to Bottom Barrier - Blue', 'TR Twin Pokeys SW', 'TR Twin Pokeys EN', 'TR Big Chest Gap',
+    'TR Lobby Ledge Gap', 'TR Hub SW', 'TR Hub SE', 'TR Hub ES', 'TR Hub EN', 'TR Hub NW', 'TR Hub NE', 'TR Hub Path',
+    'TR Hub Ledges Path', 'TR Torches NW', 'TR Pokey 2 Bottom to Top Barrier - Blue',
+    'TR Pokey 2 Top to Bottom Barrier - Blue', 'TR Twin Pokeys SW', 'TR Twin Pokeys EN', 'TR Big Chest Gap',
     'TR Big Chest Entrance Gap', 'TR Lazy Eyes ES', 'TR Tongue Pull WS', 'TR Tongue Pull NE', 'TR Dark Ride Up Stairs',
-    'TR Dark Ride SW', 'TR Crystal Maze Start to Interior Barrier - Blue', 'TR Crystal Maze End to Interior Barrier - Blue',
+    'TR Dark Ride SW', 'TR Dark Ride Path', 'TR Dark Ride Ledges Path',
+    'TR Crystal Maze Start to Interior Barrier - Blue', 'TR Crystal Maze End to Interior Barrier - Blue',
     'TR Final Abyss Balcony Path', 'TR Final Abyss Ledge Path', 'GT Hope Room EN', 'GT Blocked Stairs Block Path',
     'GT Bob\'s Room Hole', 'GT Speed Torch SE', 'GT Speed Torch South Path', 'GT Speed Torch North Path',
     'GT Crystal Conveyor NE', 'GT Crystal Conveyor WN', 'GT Conveyor Cross EN', 'GT Conveyor Cross WN',
