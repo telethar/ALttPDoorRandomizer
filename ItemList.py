@@ -964,7 +964,8 @@ def make_custom_item_pool(progressive, shuffle, difficulty, timer, goal, mode, s
         pool.append(thisbottle)
 
     if customitemarray["triforcepieces"] > 0 or customitemarray["triforcepiecesgoal"] > 0:
-        treasure_hunt_count = max(min(customitemarray["triforcepiecesgoal"], 99), 1) #To display, count must be between 1 and 99.
+        # To display, count must be between 1 and 254 - larger values are not yet supported
+        treasure_hunt_count = max(min(customitemarray["triforcepiecesgoal"], 254), 1)
         treasure_hunt_icon = 'Triforce Piece'
         # Ensure game is always possible to complete here, force sufficient pieces if the player is unwilling.
         if (customitemarray["triforcepieces"] < treasure_hunt_count) and (goal == 'triforcehunt') and (customitemarray["triforce"] == 0):

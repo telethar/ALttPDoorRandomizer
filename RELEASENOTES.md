@@ -45,10 +45,6 @@ The "Item Sorting" option or ```--algorithm``` has been updated with new placeme
 
 This one stays the same as before and is recommended for the most random distribution of items.
 
-### Equitable
-
-This one is currently under development and may not fill correctly. It is a new method that should allow item and key logic to interact. (Vanilla key placement in PoD is theoretically possible, but isn't yet.)
-
 ### Vanilla Fill 
 
 This fill attempts to place all items in their vanilla locations when possible. Obviously shuffling entrances or the dungeon interiors will often prevent items from being placed in their vanilla location. If the vanilla fill is not possible, then other locations are tried in sequence preferring "major" locations (see below), then heart piece locations, then the rest except for GT locations which are preferred last. Note the PoD small key that is normally found in the dark maze in vanilla is move to Harmless Hellway due to the placement algorithm limitation.
@@ -95,7 +91,7 @@ In multiworld, the districts chosen apply to all players.
 
 ### CLI values:
 
-```balanced, equitable, vanilla_fill, major_only, dungeon_only, district```
+```balanced, vanilla_fill, major_only, dungeon_only, district```
 
 ## New Hints
 
@@ -148,6 +144,15 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.3
+	* Fixed inverted generation issues with pottery option
+	* Moved SRAM according to SRAM standard
+	* Removed equitable algorithm
+	* Upped TFH goal limit to 254
+	* Cuccos should no longer cause trap door rooms to not open
+	* Added double click fix for install.py
+	* Fix for pottery item palettes near bonkable torches
+	* Fix for multiworld progression balancing would place Nothing or Arrow items
 * 1.0.1.2
 	* Fixed logic for pots in TR Hub and TR Dark Ride
 	* Fix for districting + shopsanity

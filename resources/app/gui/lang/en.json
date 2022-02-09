@@ -289,7 +289,6 @@
 
     "randomizer.item.sortingalgo": "Item Sorting",
     "randomizer.item.sortingalgo.balanced": "Balanced",
-    "randomizer.item.sortingalgo.equitable": "Equitable",
     "randomizer.item.sortingalgo.vanilla_fill": "Vanilla Fill",
     "randomizer.item.sortingalgo.major_only": "Major Location Restriction",
     "randomizer.item.sortingalgo.dungeon_only": "Dungeon Restriction",

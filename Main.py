@@ -23,7 +23,7 @@ from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons
-from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive
+from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 
 
-__version__ = '1.0.1.2-v'
+__version__ = '1.0.1.3-v'
 
 from source.classes.BabelFish import BabelFish
 
@@ -253,6 +253,7 @@ def main(args, seed=None, fish=None):
             customize_shops(world, player)
     if args.algorithm in ['balanced', 'equitable']:
         balance_money_progression(world)
+    ensure_good_pots(world, True)
 
     outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
 

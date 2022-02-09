@@ -117,6 +117,7 @@ def create_inverted_regions(world, player):
                                                   'Spectacle Rock Cave Peak', 'Spectacle Rock Cave (Bottom)', 'Broken Bridge (West)', 'Death Mountain Mirror Spot']),
         create_cave_region(player, 'Death Mountain Return Cave (left)', 'a connector', None, ['Death Mountain Return Cave Exit (West)', 'Death Mountain Return Cave E']),
         create_cave_region(player, 'Death Mountain Return Cave (right)', 'a connector', None, ['Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave W']),
+        create_lw_region(player, 'Death Mountain Return Ledge', None, ['Death Mountain Return Ledge Drop', 'Death Mountain Return Cave (West)', 'Bumper Cave Ledge Mirror Spot']),
         create_cave_region(player, 'Spectacle Rock Cave (Top)', 'a connector', ['Spectacle Rock Cave'], ['Spectacle Rock Cave Drop', 'Spectacle Rock Cave Exit (Top)']),
         create_cave_region(player, 'Spectacle Rock Cave (Bottom)', 'a connector', None, ['Spectacle Rock Cave Exit']),
         create_cave_region(player, 'Spectacle Rock Cave (Peak)', 'a connector', None, ['Spectacle Rock Cave Peak Drop', 'Spectacle Rock Cave Exit (Peak)']),

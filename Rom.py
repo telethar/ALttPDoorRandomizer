@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '83bdcdbe989281b7eb36a10150314997'
+RANDOMIZERBASEHASH = 'a25e589ca9359e73b0ed94cab8db107d'
 
 
 class JsonRom(object):
@@ -884,6 +884,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x142A51, multiClientFlags)
     rom.write_byte(0x142A55, ((0x1 if world.pottery[player] != 'none' else 0)  # StandingItemCounterMask
                               | (0x2 if world.dropshuffle[player] else 0)))
+    if world.pottery[player] not in ['none', 'keys']:
+        # Cuccos should not prevent kill rooms from opening
+        rom.write_byte(snes_to_pc(0x0DB457), 0x40)
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:

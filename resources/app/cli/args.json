@@ -116,7 +116,6 @@
   "algorithm": {
     "choices": [
       "balanced",
-      "equitable",
       "vanilla_fill",
       "major_only",
       "dungeon_only",

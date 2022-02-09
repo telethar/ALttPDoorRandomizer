@@ -446,15 +446,19 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     unfilled = [location.name for location in fill_locations]
     if unplaced or unfilled:
         logging.warning('Unplaced items: %s - Unfilled Locations: %s', unplaced, unfilled)
+    ensure_good_pots(world)
 
+
+def ensure_good_pots(world, write_skips=False):
     for loc in world.get_locations():
         # convert Arrows 5 and Nothing when necessary
         if (loc.item.name in {'Arrows (5)', 'Nothing'}
            and (loc.type != LocationType.Pot or loc.item.player != loc.player)):
             loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.item.player)
         # don't write out all pots to spoiler
-        if loc.type == LocationType.Pot and loc.item.name in valid_pot_items:
-            loc.skip = True
+        if write_skips:
+            if loc.type == LocationType.Pot and loc.item.name in valid_pot_items:
+                loc.skip = True
 
 
 invalid_location_replacement = {'Arrows (5)': 'Arrows (10)', 'Nothing':  'Rupees (5)'}

@@ -117,7 +117,6 @@
       "default": "balanced",
       "options": [
         "balanced",
-        "equitable",
         "vanilla_fill",
         "major_only",
         "dungeon_only",

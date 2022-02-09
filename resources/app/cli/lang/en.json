@@ -154,8 +154,6 @@
       "balanced:       vt26 derivative that aims to strike a balance between",
       "                the overworld heavy vt25 and the dungeon heavy vt26",
       "                algorithm.",
-      "equitable:      does not place dungeon items first allowing new potential",
-      "                but mixed with the normal advancement pool",
       "restricted placements: these consider all major items to be special and attempts",
       "to place items from fixed to semi-random locations. For purposes of these shuffles, all",
       "Y items, A items, swords (unless vanilla swords), mails, shields, heart containers and",

@@ -1057,7 +1057,11 @@ def create_pot_location(pot, pot_index, super_tile, world, player):
     if (pot.item not in [PotItem.Key, PotItem.Hole]
        and (pot.item != PotItem.Switch or world.potshuffle[player])):
         address = pot_address(pot_index, super_tile)
-        parent = world.get_region(pot.room, player)
+        region = pot.room
+        if world.mode[player] == 'inverted':
+            if region == 'Links House':
+                region = 'Inverted Links House'
+        parent = world.get_region(region, player)
         descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
         hint_text = ('under a block' if pot.flags & PotFlags.Block else 'in a pot')
         modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
@@ -1073,7 +1077,7 @@ def create_pot_location(pot, pot_index, super_tile, world, player):
 
 
 def pot_address(pot_index, super_tile):
-    return 0x7f6600 + super_tile * 2 + (pot_index << 24)
+    return 0x7f6018 + super_tile * 2 + (pot_index << 24)
 
 
 # (type, room_id, shopkeeper, custom, locked, [items])

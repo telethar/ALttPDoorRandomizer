@@ -100,7 +100,7 @@ def create_district_helper(world, player):
         central_lw_entrances.append('Inverted Big Bomb Shop')
         central_lw_entrances.remove('Links House')
         south_dw_entrances.append('Inverted Links House')
-        voo_north_entrances.remove('Dark Sanctuary')
+        voo_north_entrances.remove('Dark Sanctuary Hint')
         voo_north_entrances.append('Inverted Dark Sanctuary')
         voo_north_entrances.remove('Bumper Cave (Top)')
         nw_lw_entrances.append('Bumper Cave (Top)')
