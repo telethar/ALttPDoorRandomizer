@@ -1077,7 +1077,7 @@ def create_pot_location(pot, pot_index, super_tile, world, player):
 
 
 def pot_address(pot_index, super_tile):
-    return 0x7f6018 + super_tile * 2 + (pot_index << 24)
+    return 0x7f6600 + super_tile * 2 + (pot_index << 24)
 
 
 # (type, room_id, shopkeeper, custom, locked, [items])
