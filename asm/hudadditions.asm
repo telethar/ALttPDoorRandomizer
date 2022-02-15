@@ -141,7 +141,7 @@ DrHudDungeonItemsAdditions:
         	iny #2
         	lda.w #$24f5 : sta $1644, y ; blank out map spot
         	lda $7ef368 : and.l $0098c0, x : beq + ; must have map
-				lda #$2826 : sta $1644, y ; check mark
+        		JSR MapIndicatorShort : STA $1644, Y
 			+ iny #2
             cpx #$001a : bne +
 				tya : !add #$003c : tay
@@ -163,6 +163,34 @@ DrHudDungeonItemsAdditions:
     ++
     plp : ply : plx : rtl
 }
+
+MapIndicatorLong:
+	PHX
+		LDA.l OldHudToNewHudTable, X : TAX
+		JSR MapIndicator
+	PLX
+RTL
+
+MapIndicatorShort:
+	PHX
+		TXA : LSR : TAX
+		JSR MapIndicator
+	PLX
+RTS
+
+OldHudToNewHudTable:
+	dw 1, 2, 3, 10, 4, 6, 5, 8, 11, 9, 7, 12, 13
+
+IndicatorCharacters:
+    ;  check      G      P      R      C
+	dw $2426, $2590, $2599, $259B, $258C
+
+MapIndicator:
+	LDA.l CrystalPendantFlags_3, X : AND #$00FF
+	PHX
+		ASL : TAX : LDA.l IndicatorCharacters, X
+	PLX
+RTS
 
 BkStatus:
     lda $7ef366 : and.l $0098c0, x : bne +++ ; has the bk already

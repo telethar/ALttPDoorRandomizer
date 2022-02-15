@@ -144,6 +144,9 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.5
+	* Fix for Hera Basement Cage item inheriting last pot checked
+	* Update indicators on keysanity menu for overworld map option
 * 1.0.1.4
 	* Reverted SRAM change (the underlying refactor isn't done yet)
 * 1.0.1.3

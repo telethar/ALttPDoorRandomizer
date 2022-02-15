@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '749534eb511d0cfeb7c7b5a81803d4bb'
+RANDOMIZERBASEHASH = '20444676b021133e7c8e50ecc152ebd4'
 
 
 class JsonRom(object):
@@ -1500,20 +1500,20 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 exists_flag = any(x for x in world.get_dungeon(dungeon, player).dungeon_items if x.type == 'Compass')
                 rom.write_byte(0x53E96+ow_map_index, 0x1 if exists_flag else 0x0)
 
-
     rom.write_byte(0x18003C, compass_mode)
 
-     # Bitfield - enable free items to show up in menu
-     #
-     # ----dcba
-     # d - Compass
-     # c - Map
-     # b - Big Key
-     # a - Small Key
-     #
+    # Bitfield - enable free items to show up in menu
+    #
+    # ----dcba
+    # d - Compass
+    # c - Map
+    # b - Big Key
+    # a - Small Key
+    #
+    enable_menu_map_check = world.overworld_map[player] != 'default' and world.shuffle[player] != 'none'
     rom.write_byte(0x180045, ((0x01 if world.keyshuffle[player] else 0x00)
                               | (0x02 if world.bigkeyshuffle[player] else 0x00)
-                              | (0x04 if world.mapshuffle[player] else 0x00)
+                              | (0x04 if world.mapshuffle[player] or enable_menu_map_check else 0x00)
                               | (0x08 if world.compassshuffle[player] else 0x00)))  # free roaming items in menu
 
     # Map reveals
