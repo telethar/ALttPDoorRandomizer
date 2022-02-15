@@ -2763,8 +2763,8 @@ counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}
 # byte 6: CCCC CPAA (crystals ganon, pyramid, access
 access_mode = {"items": 0, "locations": 1, "none": 2}
 
-# byte 7: BSMC BBEE (big, small, maps, compass, bosses, enemies)
-boss_mode = {"none": 0, "simple": 1, "full": 2, "random": 3, "chaos": 3}
+# byte 7: BSMC ??EE (big, small, maps, compass, bosses, enemies)
+
 enemy_mode = {"none": 0, "shuffled": 1, "random": 2, "chaos": 2, "legacy": 3}
 
 # byte 8: HHHD DPBS (enemy_health, enemy_dmg, potshuffle, bomb logic, shuffle links)
@@ -2772,10 +2772,11 @@ enemy_mode = {"none": 0, "shuffled": 1, "random": 2, "chaos": 2, "legacy": 3}
 e_health = {"default": 0, "easy": 1, "normal": 2, "hard": 3, "expert": 4}
 e_dmg = {"default": 0, "shuffled": 1, "random": 2}
 
-# byte 9: RRAA A??? (restrict boss mode, algorithm, ? = unused)
+# byte 9: RRAA ABBB (restrict boss mode, algorithm, boss shuffle)
 rb_mode = {"none": 0, "mapcompass": 1, "dungeon": 2}
 # algorithm:
 algo_mode = {"balanced": 0, "equitable": 1, "vanilla_fill": 2, "dungeon_only": 3, "district": 4}
+boss_mode = {"none": 0, "simple": 1, "full": 2, "random": 3, "chaos": 3, 'unique': 4}
 
 # additions
 # psuedoboots does not effect code
@@ -2809,12 +2810,12 @@ class Settings(object):
 
             (0x80 if w.bigkeyshuffle[p] else 0) | (0x40 if w.keyshuffle[p] else 0)
             | (0x20 if w.mapshuffle[p] else 0) | (0x10 if w.compassshuffle[p] else 0)
-            | (boss_mode[w.boss_shuffle[p]] << 2) | (enemy_mode[w.enemy_shuffle[p]]),
+            | (enemy_mode[w.enemy_shuffle[p]]),
 
             (e_health[w.enemy_health[p]] << 5) | (e_dmg[w.enemy_damage[p]] << 3) | (0x4 if w.potshuffle[p] else 0)
             | (0x2 if w.bombbag[p] else 0) | (1 if w.shufflelinks[p] else 0),
 
-            (rb_mode[w.restrict_boss_items[p]] << 6)])
+            (rb_mode[w.restrict_boss_items[p]] << 6) | (algo_mode[w.algorithm] << 3) | (boss_mode[w.boss_shuffle[p]])])
         return base64.b64encode(code, "+-".encode()).decode()
 
     @staticmethod
@@ -2860,7 +2861,7 @@ class Settings(object):
         args.keyshuffle[p] = True if settings[7] & 0x40 else False
         args.mapshuffle[p] = True if settings[7] & 0x20 else False
         args.compassshuffle[p] = True if settings[7] & 0x10 else False
-        args.shufflebosses[p] = r(boss_mode)[(settings[7] & 0xc) >> 2]
+        # args.shufflebosses[p] = r(boss_mode)[(settings[7] & 0xc) >> 2]
         args.shuffleenemies[p] = r(enemy_mode)[settings[7] & 0x3]
 
         args.enemy_health[p] = r(e_health)[(settings[8] & 0xE0) >> 5]
@@ -2870,6 +2871,8 @@ class Settings(object):
         args.shufflelinks[p] = True if settings[8] & 0x1 else False
         if len(settings) > 9:
             args.restrict_boss_items[p] = r(rb_mode)[(settings[9] & 0x80) >> 6]
+            args.algorithm = r(algo_mode)[(settings[9] & 0x38) >> 3]
+            args.shufflebosses[p] = r(boss_mode)[(settings[9] & 0x07)]
 
 
 class KeyRuleType(FastEnum):
