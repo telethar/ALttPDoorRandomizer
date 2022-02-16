@@ -1007,7 +1007,7 @@ def adjust_locations(world, player):
             loc.address = pot_address(pot_index, datum[1])
             loc.pot = pot
         if (not world.dropshuffle[player] and drop_location)\
-           or (not drop_location and world.pottery[player] == 'none'):
+           or (not drop_location and world.pottery[player] in ['none', 'cave']):
             loc.skip = True
         else:
             key_item = loc.item
@@ -1030,7 +1030,8 @@ def adjust_locations(world, player):
             else:
                 pot = pot_orig.copy()
             world.pot_contents[player].room_map[super_tile].append(pot)
-            if world.pottery[player] == 'lottery':
+
+            if valid_pot_location(pot, world, player):
                 create_pot_location(pot, pot_index, super_tile, world, player)
     if world.shopsanity[player]:
         index = 0
@@ -1053,9 +1054,20 @@ def adjust_locations(world, player):
                 location.skip = True
 
 
+def valid_pot_location(pot, world, player):
+    if world.pottery[player] == 'lottery':
+        return True
+    if world.pottery[player] == 'dungeon' and world.get_region(pot.room, player).type == RegionType.Dungeon:
+        return True
+    if world.pottery[player] == 'cave' and world.get_region(pot.room, player).type == RegionType.Cave:
+        return True
+    return False
+
+
 def create_pot_location(pot, pot_index, super_tile, world, player):
     if (pot.item not in [PotItem.Key, PotItem.Hole]
-       and (pot.item != PotItem.Switch or world.potshuffle[player])):
+       and (pot.item != PotItem.Switch or (world.potshuffle[player]
+                                           and world.pottery[player] in ['lottery', 'dungeon']))):
         address = pot_address(pot_index, super_tile)
         region = pot.room
         if world.mode[player] == 'inverted':

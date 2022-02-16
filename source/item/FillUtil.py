@@ -73,7 +73,7 @@ def create_item_pool_config(world):
             if world.pottery[player] != 'none':
                 for item, locs in potkeys_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
-            if world.pottery[player] == 'lottery':
+            if world.pottery[player] in ['lottery', 'cave', 'dungeon']:
                 for super_tile, pot_list in vanilla_pots.items():
                     for pot_index, pot in enumerate(pot_list):
                         if pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]:
@@ -96,7 +96,7 @@ def create_item_pool_config(world):
                     for item, locs in keydrop_vanilla_mapping.items():
                         if 'Small Key' in item:
                             universal_key_locations.extend(locs)
-                if world.pottery[player] != 'none':
+                if world.pottery[player] not in ['none', 'cave']:
                     for item, locs in potkeys_vanilla_mapping.items():
                         universal_key_locations.extend(locs)
                 if world.shopsanity[player]:

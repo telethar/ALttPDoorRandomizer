@@ -76,6 +76,8 @@
     "choices" : [
       "none",
       "keys",
+      "dungeon",
+      "cave",
       "lottery"
     ]
   },

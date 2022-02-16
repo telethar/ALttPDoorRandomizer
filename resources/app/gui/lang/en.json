@@ -59,6 +59,8 @@
     "randomizer.dungeon.pottery": "Pottery",
     "randomizer.dungeon.pottery.none": "None",
     "randomizer.dungeon.pottery.keys": "Key Pots",
+    "randomizer.dungeon.pottery.cave": "Cave Pots",
+    "randomizer.dungeon.pottery.dungeon": "Dungeon Pots",
     "randomizer.dungeon.pottery.lottery": "Lottery (All Pots and Large Blocks)",
 
     "randomizer.dungeon.dungeondoorshuffle": "Dungeon Door Shuffle",

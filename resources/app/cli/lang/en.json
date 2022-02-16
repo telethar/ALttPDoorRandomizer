@@ -256,6 +256,8 @@
     "pottery": [ "Controls how items under pots are shuffled and if other items can take their place:",
       "None:      No pots are changed",
       "Keys:      Key pots are included in the location pool and other items can take their place",
+      "Cave:      Only pots in houses and caves are included in the location pool",
+      "Dungeon:   Only pots in dungeons are included in the location pool",
       "Lottery:   All pots are part of the location pool"
     ],
     "shufflepots": [ "Pots and switches are shuffled on the supertile (legacy potshuffle) (default: %(default)s)"],

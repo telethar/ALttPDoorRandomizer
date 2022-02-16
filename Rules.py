@@ -716,7 +716,7 @@ def bomb_rules(world, player):
 
 
 def pot_rules(world, player):
-    if world.pottery[player] == 'lottery':
+    if world.pottery[player] in ['lottery', 'cave']:
         blocks = [l for l in world.get_locations() if l.type == LocationType.Pot and l.pot.flags & PotFlags.Block]
         for block_pot in blocks:
             add_rule(block_pot, lambda state: state.can_lift_rocks(player))
@@ -740,7 +740,7 @@ def pot_rules(world, player):
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player))
 
-        # dungeons
+    if world.pottery[player] in ['lottery', 'dungeon']:
         for l in world.get_region('Ice Hammer Block', player).locations:
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player))

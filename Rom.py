@@ -746,7 +746,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player] or world.pottery[player] != 'none':
+    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player] or world.pottery[player] not in ['none', 'cave']:
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
@@ -879,10 +879,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     multiClientFlags = ((0x1 if world.dropshuffle[player] else 0)
                         | (0x2 if world.shopsanity[player] else 0)
                         | (0x4 if world.retro[player] else 0)
-                        | (0x8 if world.pottery[player] in ['keys', 'lottery'] else 0)
+                        | (0x8 if world.pottery[player] != 'none' else 0)
                         | (0x10 if is_mystery else 0))
     rom.write_byte(0x142A51, multiClientFlags)
-    rom.write_byte(0x142A55, ((0x1 if world.pottery[player] != 'none' else 0)  # StandingItemCounterMask
+    # StandingItemCounterMask
+    rom.write_byte(0x142A55, ((0x1 if world.pottery[player] not in ['none', 'cave'] else 0)
                               | (0x2 if world.dropshuffle[player] else 0)))
     if world.pottery[player] not in ['none', 'keys']:
         # Cuccos should not prevent kill rooms from opening
@@ -1466,7 +1467,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     elif world.dungeon_counters[player] == 'on':
         compass_mode = 0x02  # always on
     elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
-          or world.dungeon_counters[player] == 'pickup' or world.pottery[player] != 'none'):
+          or world.dungeon_counters[player] == 'pickup' or world.pottery[player] not in ['none', 'cave']):
         compass_mode = 0x01  # show on pickup
     if world.shuffle[player] != 'vanilla' and world.overworld_map[player] != 'default':
         compass_mode |= 0x80  # turn on locating dungeons

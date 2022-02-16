@@ -1002,7 +1002,7 @@ def cross_dungeon(world, player):
         target_items += 29  # small keys in chests
         if world.dropshuffle[player]:
             target_items += 14  # 13 dropped smalls + 1 big
-        if world.pottery[player] != 'none':
+        if world.pottery[player] not in ['none', 'cave']:
             target_items += 19  # 19 pot keys
     d_items = target_items - all_dungeon_items_cnt
     world.pool_adjustment[player] = d_items
@@ -1064,7 +1064,7 @@ def assign_cross_keys(dungeon_builders, world, player):
         remaining = 29
         if world.dropshuffle[player]:
             remaining += 13
-        if world.pottery[player] in ['keys', 'lottery']:
+        if world.pottery[player] not in ['none', 'cave']:
             remaining += 19
     else:
         remaining = len(list(x for dgn in world.dungeons if dgn.player == player for x in dgn.small_keys))

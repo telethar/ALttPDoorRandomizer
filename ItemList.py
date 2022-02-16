@@ -5,7 +5,7 @@ import RaceRandom as random
 
 from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
 from EntranceShuffle import connect_entrance
-from Regions import shop_to_location_table, retro_shops, shop_table_by_location
+from Regions import shop_to_location_table, retro_shops, shop_table_by_location, valid_pot_location
 from Fill import FillError, fill_restrictive, fast_fill, get_dungeon_item_pool
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
@@ -391,13 +391,13 @@ def generate_itempool(world, player):
         set_up_take_anys(world, player)
         if world.dropshuffle[player]:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
-        if world.pottery[player] != 'none':
+        if world.pottery[player] not in ['none', 'cave']:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
 
 
     create_dynamic_shop_locations(world, player)
 
-    if world.pottery[player] == 'lottery':
+    if world.pottery[player] not in ['none', 'keys']:
         add_pot_contents(world, player)
 
 
@@ -759,7 +759,8 @@ def add_pot_contents(world, player):
     for super_tile, pot_list in vanilla_pots.items():
         for pot in pot_list:
             if pot.item not in [PotItem.Hole, PotItem.Key, PotItem.Switch]:
-                world.itempool.append(ItemFactory(pot_items[pot.item], player))
+                if valid_pot_location(pot, world, player):
+                    world.itempool.append(ItemFactory(pot_items[pot.item], player))
 
 
 def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, retro, bombbag, door_shuffle, logic):

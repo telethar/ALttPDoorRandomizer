@@ -2755,7 +2755,7 @@ mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 
 # new byte 4: ?DDD PPPP (unused, drop, pottery)
 # dropshuffle reserves 2 bits, pottery needs 2 but reserves 2 for future modes)
-pottery_mode = {"none": 0, "shuffle": 1, "keys": 2, "lottery": 3}
+pottery_mode = {"none": 0, "shuffle": 1, "keys": 2, "lottery": 3, 'dungeon': 4, 'cave': 5}
 
 # byte 5: CCCC CTTX (crystals gt, ctr2, experimental)
 counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}

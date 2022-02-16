@@ -158,7 +158,7 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
             if world.potshuffle[player]:
-                if world.pottery[player] != 'lottery':
+                if world.pottery[player] not in ['lottery', 'dungeon']:
                     shuffle_pots(world, player)
                 else:
                     shuffle_pot_switches(world, player)
