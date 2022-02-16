@@ -739,6 +739,8 @@ def pot_rules(world, player):
         for l in world.get_region('Dark Lake Hylia Ledge Spike Cave', player).locations:
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player))
+
+        # dungeons
         for l in world.get_region('Ice Hammer Block', player).locations:
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player))
@@ -750,6 +752,10 @@ def pot_rules(world, player):
         if loc:
             set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4))
                      or state.has('Cane of Byrna', player) or state.has('Cape', player))
+        for l in world.get_region('Ice Refill', player).locations:
+            if l.type == LocationType.Pot:
+                # or can_reach_blue is redundant as you have to hit a crystal switch somewhere...
+                add_rule(l, lambda state: state.can_hit_crystal(player))
 
 
 

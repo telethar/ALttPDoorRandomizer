@@ -201,15 +201,15 @@ def place_bosses(world, player):
 
             place_boss(boss, level, loc, loc_text, world, player)
     elif world.boss_shuffle[player] == 'unique':
-        bosses = placeable_bosses
+        bosses = list(placeable_bosses)
 
         for [loc, level] in boss_locations:
             loc_text = loc + (' ('+level+')' if level else '')
             try:
                 if level:
-                    boss = random.choice(b for b in placeable_bosses if can_place_boss(world, player, b, loc, level))
+                    boss = random.choice([b for b in placeable_bosses if can_place_boss(world, player, b, loc, level)])
                 else:
-                    boss = random.choice(b for b in bosses if can_place_boss(world, player, b, loc, level))
+                    boss = random.choice([b for b in bosses if can_place_boss(world, player, b, loc, level)])
                     bosses.remove(boss)
             except IndexError:
                 raise FillError('Could not place boss for location %s' % loc_text)
