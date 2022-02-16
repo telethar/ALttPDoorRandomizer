@@ -1232,8 +1232,8 @@ def add_connection(parent_name, target_name, entrance_name, world, player):
 def standard_rules(world, player):
     add_connection('Menu', 'Hyrule Castle Secret Entrance', 'Uncle S&Q', world, player)
     world.get_entrance('Uncle S&Q', player).hide_path = True
-    set_rule(world.get_entrance('Links House S&Q', player), lambda state: state.can_reach('Sanctuary', 'Region', player))
-    set_rule(world.get_entrance('Sanctuary S&Q', player), lambda state: state.can_reach('Sanctuary', 'Region', player))
+    set_rule(world.get_entrance('Links House S&Q', player), lambda state: state.has('Zelda Delivered', player))
+    set_rule(world.get_entrance('Sanctuary S&Q', player), lambda state: state.has('Zelda Delivered', player))
     # these are because of rails
     if world.shuffle[player] != 'vanilla':
         # where ever these happen to be

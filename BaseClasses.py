@@ -2764,8 +2764,7 @@ counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}
 access_mode = {"items": 0, "locations": 1, "none": 2}
 
 # byte 7: BSMC ??EE (big, small, maps, compass, bosses, enemies)
-
-enemy_mode = {"none": 0, "shuffled": 1, "random": 2, "chaos": 2, "legacy": 3}
+enemy_mode = {"none": 0, "shuffled": 1, "chaos": 2, "random": 2, "legacy": 3}
 
 # byte 8: HHHD DPBS (enemy_health, enemy_dmg, potshuffle, bomb logic, shuffle links)
 # potshuffle decprecated, now unused
@@ -2776,11 +2775,17 @@ e_dmg = {"default": 0, "shuffled": 1, "random": 2}
 rb_mode = {"none": 0, "mapcompass": 1, "dungeon": 2}
 # algorithm:
 algo_mode = {"balanced": 0, "equitable": 1, "vanilla_fill": 2, "dungeon_only": 3, "district": 4}
-boss_mode = {"none": 0, "simple": 1, "full": 2, "random": 3, "chaos": 3, 'unique': 4}
+boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique': 4}
+
+
+# byte 10: settings_version
 
 # additions
 # psuedoboots does not effect code
 # sfx_shuffle and other adjust items does not effect settings code
+
+# Bump this when making changes that are not backwards compatible (nearly all of them)
+settings_version = 0
 
 
 class Settings(object):
@@ -2815,12 +2820,19 @@ class Settings(object):
             (e_health[w.enemy_health[p]] << 5) | (e_dmg[w.enemy_damage[p]] << 3) | (0x4 if w.potshuffle[p] else 0)
             | (0x2 if w.bombbag[p] else 0) | (1 if w.shufflelinks[p] else 0),
 
-            (rb_mode[w.restrict_boss_items[p]] << 6) | (algo_mode[w.algorithm] << 3) | (boss_mode[w.boss_shuffle[p]])])
+            (rb_mode[w.restrict_boss_items[p]] << 6) | (algo_mode[w.algorithm] << 3) | (boss_mode[w.boss_shuffle[p]]),
+
+            settings_version])
         return base64.b64encode(code, "+-".encode()).decode()
 
     @staticmethod
     def adjust_args_from_code(code, player, args):
         settings, p = base64.b64decode(code.encode(), "+-".encode()), player
+
+        if len(settings) < 11:
+            raise Exception('Provided code is incompatible with this version')
+        if settings[10] != settings_version:
+            raise Exception('Provided code is incompatible with this version')
 
         def r(d):
             return {y: x for x, y in d.items()}
@@ -2833,10 +2845,9 @@ class Settings(object):
         args.difficulty[p] = r(diff_mode)[(settings[2] & 0x18) >> 3]
         args.item_functionality[p] = r(func_mode)[(settings[2] & 0x6) >> 1]
         args.goal[p] = r(goal_mode)[(settings[2] & 0xE0) >> 5]
-        args.accessibility[p] = r(access_mode)[settings[5] & 0x3]
+        args.accessibility[p] = r(access_mode)[settings[6] & 0x3]
         args.retro[p] = True if settings[1] & 0x01 else False
         args.hints[p] = True if settings[2] & 0x01 else False
-        args.retro[p] = True if settings[1] & 0x01 else False
         args.shopsanity[p] = True if settings[3] & 0x80 else False
         # args.keydropshuffle[p] = True if settings[3] & 0x40 else False
         args.mixed_travel[p] = r(mixed_travel_mode)[(settings[3] & 0x30) >> 4]
