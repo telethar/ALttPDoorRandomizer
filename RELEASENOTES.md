@@ -150,6 +150,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* A couple new options for lighter pottery modes
 	* New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
 	* Support for BPS patch creation and applying patches during adjustment
+	* Fix for SFX shuffle
 	* Fix for Hera Basement Cage item inheriting last pot checked
 	* Update indicators on keysanity menu for overworld map option
 	* Fix for Standard ER where locations in rain state could be in logic
