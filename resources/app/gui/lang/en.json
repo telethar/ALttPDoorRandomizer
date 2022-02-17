@@ -53,8 +53,8 @@
     "randomizer.dungeon.compassshuffle": "Compasses",
     "randomizer.dungeon.smallkeyshuffle": "Small Keys",
     "randomizer.dungeon.bigkeyshuffle": "Big Keys",
-    "randomizer.dungeon.keydropshuffle": "Drop and Pot Keys",
-    "randomizer.dungeon.dropshuffle": "Shuffle Key Drops",
+    "randomizer.dungeon.keydropshuffle": "Key Drop Shuffle (Legacy)",
+    "randomizer.dungeon.dropshuffle": "Shuffle Enemy Key Drops",
     "randomizer.dungeon.potshuffle": "Pot Shuffle (Legacy)",
     "randomizer.dungeon.pottery": "Pottery",
     "randomizer.dungeon.pottery.none": "None",
@@ -185,6 +185,7 @@
     "randomizer.gameoptions.sprite.unchanged": "(unchanged)",
 
 
+    "randomizer.generation.bps": "Create BPS Patches",
     "randomizer.generation.createspoiler": "Create Spoiler Log",
     "randomizer.generation.createrom": "Create Patched ROM",
     "randomizer.generation.calcplaythrough": "Calculate Playthrough",

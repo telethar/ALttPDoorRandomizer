@@ -1,5 +1,6 @@
 {
   "checkboxes": {
+    "bps":                { "type": "checkbox" },
     "createspoiler":      { "type": "checkbox" },
     "createrom":          { "type": "checkbox" },
     "calcplaythrough":    { "type": "checkbox" },

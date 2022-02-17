@@ -119,6 +119,13 @@ class LocalRom(object):
             ret.write_bytes(int(address), values)
         return ret
 
+    def verify_base_rom(self):
+        # verify correct checksum of baserom
+        basemd5 = hashlib.md5()
+        basemd5.update(self.buffer)
+        if JAP10HASH != basemd5.hexdigest():
+            raise RuntimeError('Supplied Base Rom does not match known MD5 for JAP(1.0) release.')
+
     def patch_base_rom(self):
         # verify correct checksum of baserom
         basemd5 = hashlib.md5()
@@ -164,7 +171,6 @@ class LocalRom(object):
 
         with open(local_path('data/base2current.json'), 'w') as fp:
             json.dump(patches, fp, separators=(',', ':'))
-
 
     def write_crc(self):
         crc = (sum(self.buffer[:0x7FDC] + self.buffer[0x7FE0:]) + 0x01FE) & 0xFFFF

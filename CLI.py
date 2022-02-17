@@ -208,9 +208,11 @@ def parse_settings():
         "create_spoiler": True,
         "calc_playthrough": True,
         "create_rom": True,
+        "bps": False,
         "usestartinventory": False,
         "custom": False,
         "rom": os.path.join(".", "Zelda no Densetsu - Kamigami no Triforce (Japan).sfc"),
+        "patch": os.path.join(".", "Patch File.bps"),
 
         "seed": "",
         "count": 1,

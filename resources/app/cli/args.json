@@ -366,6 +366,9 @@
   "jsonout": {
     "action": "store_true"
   },
+  "bps": {
+    "action": "store_true"
+  },
   "enemizercli": {
     "setting": "enemizercli"
   },

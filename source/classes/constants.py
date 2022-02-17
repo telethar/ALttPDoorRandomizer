@@ -116,6 +116,7 @@ SETTINGSTOPROCESS = {
       "shuffle_sfx": "shuffle_sfx",
     },
     "generation": {
+      "bps": "bps",
       "createspoiler": "create_spoiler",
       "createrom": "create_rom",
       "calcplaythrough": "calc_playthrough",

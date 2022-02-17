@@ -29,7 +29,7 @@ from ItemList import generate_itempool, difficulties, fill_prizes, customize_sho
 from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
-
+from source.tools.BPS import create_bps_from_data
 
 __version__ = '1.0.1.5-v'
 
@@ -308,7 +308,14 @@ def main(args, seed=None, fish=None):
                     if world.players > 1 or world.teams > 1:
                         outfilepname += f"_{world.player_names[player][team].replace(' ', '_')}" if world.player_names[player][team] != 'Player %d' % player else ''
                     outfilesuffix = f'_{Settings.make_code(world, player)}' if not args.outputname else ''
-                    rom.write_to_file(output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.sfc'))
+                    if args.bps:
+                        patchfile = output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.bps')
+                        patch = create_bps_from_data(LocalRom(args.rom, patch=False).buffer, rom.buffer)
+                        with open(patchfile, 'wb') as stream:
+                            stream.write(patch.binary_ba)
+                    else:
+                        sfc_file = output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.sfc')
+                        rom.write_to_file(sfc_file)
 
         if world.players > 1:
             multidata = zlib.compress(json.dumps({"names": parsed_names,
