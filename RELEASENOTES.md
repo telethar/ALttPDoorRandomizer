@@ -8,7 +8,8 @@ New pottery option that control which pots (and large blocks) are in the locatio
 
 * None: No pots are in the pool, like normal randomizer
 * Key Pots: The pots that have keys are in the pool. This is about half of the old keydropshuffle option
-* Cave Pots: The pots that are not found in dungeon are in the pool. (Includes the large block in Spike Cave) 
+* Cave Pots: The pots that are not found in dungeon are in the pool. (Includes the large block in Spike Cave). Does
+not include key pots. 
 * Dungeon Pots: The pots that are in dungeons are in the pool. (Includes serveral large blocks) 
 * Lottery: All pots and large blocks are in the pool
 
@@ -146,15 +147,16 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
-* 1.0.1.5
-	* A couple new options for lighter pottery modes
+* 1.0.1.6
+	* A couple new options for lighter pottery modes (Cave Pots and Dungeon Pots)
 	* New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
 	* Support for BPS patch creation and applying patches during adjustment
-	* Fix for SFX shuffle
-	* Fix for Hera Basement Cage item inheriting last pot checked
 	* Update indicators on keysanity menu for overworld map option
+	* Fix for SFX shuffle
 	* Fix for Standard ER where locations in rain state could be in logic
-	* Fix for Ice Refill room pots, require being able to hit a switch for bombbag mode	
+	* Fix for Ice Refill room pots, require being able to hit a switch for bombbag mode
+* 1.0.1.5
+	* Fix for Hera Basement Cage item inheriting last pot checked	
 * 1.0.1.4
 	* Reverted SRAM change (the underlying refactor isn't done yet)
 * 1.0.1.3
