@@ -151,12 +151,12 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* A couple new options for lighter pottery modes (Cave Pots and Dungeon Pots)
 	* New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
 	* Support for BPS patch creation and applying patches during adjustment
-	* Update indicators on keysanity menu for overworld map option
 	* Fix for SFX shuffle
 	* Fix for Standard ER where locations in rain state could be in logic
 	* Fix for Ice Refill room pots, require being able to hit a switch for bombbag mode
 * 1.0.1.5
-	* Fix for Hera Basement Cage item inheriting last pot checked	
+	* Fix for Hera Basement Cage item inheriting last pot checked
+	* Update indicators on keysanity menu for overworld map option	
 * 1.0.1.4
 	* Reverted SRAM change (the underlying refactor isn't done yet)
 * 1.0.1.3
