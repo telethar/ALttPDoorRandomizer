@@ -419,7 +419,7 @@ def vanilla_fallback(item_to_place, locations, world):
     return []
 
 
-def filter_locations(item_to_place, locations, world, vanilla_skip=False):
+def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion=False):
     if world.algorithm == 'vanilla_fill':
         config, filtered = world.item_pool_config, []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
@@ -452,6 +452,12 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False):
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name in restricted and l.player in restricted[l.name]]
             return filtered if len(filtered) > 0 else locations
+        elif potion:
+            restricted = config.location_groups[0].locations
+            filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
+            if len(filtered) == 0:
+                raise RuntimeError('Can\'t sell potion of a certain type due to district restriction')
+            return filtered
     return locations
 
 

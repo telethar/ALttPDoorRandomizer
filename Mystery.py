@@ -29,6 +29,7 @@ def main():
     parser.add_argument('--teams', default=1, type=lambda value: max(int(value), 1))
     parser.add_argument('--create_spoiler', action='store_true')
     parser.add_argument('--suppress_rom', action='store_true')
+    parser.add_argument('--bps', action='store_true')
     parser.add_argument('--rom')
     parser.add_argument('--enemizercli')
     parser.add_argument('--outputpath')
@@ -63,6 +64,7 @@ def main():
     erargs.names = args.names
     erargs.create_spoiler = args.create_spoiler
     erargs.suppress_rom = args.suppress_rom
+    erargs.bps = args.bps
     erargs.race = True
     erargs.outputname = seedname
     erargs.outputpath = args.outputpath
@@ -138,12 +140,14 @@ def roll_settings(weights):
 
     ret.algorithm = get_choice('algorithm')
 
+    glitch_map = {'none': 'noglitches', 'no_logic': 'nologic', 'owglitches': 'owglitches',
+                  'minorglitches': 'minorglitches'}
     glitches_required = get_choice('glitches_required')
     if glitches_required is not None:
-        if glitches_required not in ['none', 'no_logic']:
-            print("Only NMG and No Logic supported")
+        if glitches_required not in glitch_map.keys():
+            print(f'Logic did not match one of: {", ".join(glitch_map.keys())}')
             glitches_required = 'none'
-        ret.logic = {'none': 'noglitches', 'no_logic': 'nologic'}[glitches_required]
+        ret.logic = glitch_map[glitches_required]
 
     item_placement = get_choice('item_placement')
     # not supported in ER

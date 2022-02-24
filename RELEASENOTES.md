@@ -148,8 +148,12 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 #### Volatile
 
 * 1.0.1.7
+	* Expanded Mystery logic options (e.g. owglitches)
+	* Allowed Mystery.py to create BPS patches
 	* Allow creation of BPS and SFC files (no longer mutually exclusive)
+	* Fixed a bug with shopsanity + district algorithm where pre-placed potions messed up the placeholder count
 	* Fixed usestartinventory flag (can be use on a per player basis)
+	* Fix for map indicators on keysanity menu not showing up
 * 1.0.1.6
 	* A couple new options for lighter pottery modes (Cave Pots and Dungeon Pots)
 	* New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
