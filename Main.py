@@ -135,10 +135,11 @@ def main(args, seed=None, fish=None):
             if hasattr(world,"escape_assist") and player in world.escape_assist:
                 world.escape_assist[player].append('bombs') # enemized escape assumes infinite bombs available and will likely be unbeatable without it
 
-        for tok in filter(None, args.startinventory[player].split(',')):
-            item = ItemFactory(tok.strip(), player)
-            if item:
-                world.push_precollected(item)
+        if args.usestartinventory[player]:
+            for tok in filter(None, args.startinventory[player].split(',')):
+                item = ItemFactory(tok.strip(), player)
+                if item:
+                    world.push_precollected(item)
 
         if world.mode[player] != 'inverted':
             create_regions(world, player)
