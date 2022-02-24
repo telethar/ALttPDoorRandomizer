@@ -796,7 +796,7 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
     lamps_needed_for_dark_rooms = 1
 
     # insanity shuffle doesn't have fake LW/DW logic so for now guaranteed Mirror and Moon Pearl at the start
-    if  shuffle == 'insanity_legacy':
+    if shuffle == 'insanity_legacy':
         place_item('Link\'s House', 'Magic Mirror')
         place_item('Sanctuary', 'Moon Pearl')
     else:
@@ -854,6 +854,7 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
             place_item('Master Sword Pedestal', swords_to_use.pop())
         else:
             place_item('Master Sword Pedestal', 'Triforce')
+            pool.append(swords_to_use.pop())
     else:
         pool.extend(diff.progressivesword if want_progressives() else diff.basicsword)
         if swords == 'assured':
@@ -865,26 +866,19 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
                 pool.remove('Fighter Sword')
             pool.extend(['Rupees (50)'])
 
-    extraitems = total_items_to_place - len(pool) - len(placed_items)
-
     if timer in ['timed', 'timed-countdown']:
         pool.extend(diff.timedother)
-        extraitems -= len(diff.timedother)
         clock_mode = 'stopwatch' if timer == 'timed' else 'countdown'
     elif timer == 'timed-ohko':
         pool.extend(diff.timedohko)
-        extraitems -= len(diff.timedohko)
         clock_mode = 'countdown-ohko'
     if goal == 'triforcehunt':
         pool.extend(triforcepool)
-        extraitems -= len(triforcepool)
 
     for extra in diff.extras:
-        if extraitems > 0:
-            if len(extra) > extraitems:
-                extra = random.choices(extra, k=extraitems)
-            pool.extend(extra)
-            extraitems -= len(extra)
+        pool.extend(extra)
+
+    # note: massage item pool now handles shrinking the pool appropriately
 
     if goal == 'pedestal' and swords != 'vanilla':
         place_item('Master Sword Pedestal', 'Triforce')

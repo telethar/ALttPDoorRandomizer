@@ -2557,10 +2557,10 @@ Isolated_LH_Doors_Open = ['Mimic Cave',
                           'Desert Palace Entrance (South)',
                           'Desert Palace Entrance (North)',
                           'Capacity Upgrade',
-                          'Ice Palace',
-                          'Skull Woods Final Section',
-                          'Dark World Hammer Peg Cave',
-                          'Turtle Rock Isolated Ledge Entrance']
+                          'Ice Palace', 'Dark World Shop', 'Dark World Potion Shop',
+                          'Skull Woods Final Section', 'Skull Woods Second Section Door (West)',
+                          'Dark World Hammer Peg Cave', 'Dark Death Mountain Ledge (West)',
+                          'Turtle Rock Isolated Ledge Entrance', 'Dark Death Mountain Ledge (East)']
 
 DW_Single_Cave_Doors = ['Bonk Fairy (Dark)',
                         'Dark Sanctuary Hint',
@@ -3033,10 +3033,10 @@ Isolated_LH_Doors = ['Kings Grave',
                      'Desert Palace Entrance (South)',
                      'Desert Palace Entrance (North)',
                      'Capacity Upgrade',
-                     'Ice Palace',
-                     'Skull Woods Final Section',
-                     'Dark World Hammer Peg Cave',
-                     'Turtle Rock Isolated Ledge Entrance']
+                     'Ice Palace', 'Dark World Shop', 'Dark World Potion Shop',
+                     'Skull Woods Final Section', 'Skull Woods Second Section Door (West)',
+                     'Dark World Hammer Peg Cave', 'Dark Death Mountain Ledge (West)',
+                     'Turtle Rock Isolated Ledge Entrance', 'Dark Death Mountain Ledge (East)']
 
 # Entrances that cannot be used to access a must_exit entrance - symmetrical to allow reverse lookups
 Must_Exit_Invalid_Connections = defaultdict(set, {

@@ -829,28 +829,11 @@ vanilla_swords = {"Link's Uncle", 'Master Sword Pedestal', 'Blacksmith', 'Pyrami
 trash_items = {
     'Nothing': -1,
     'Bee Trap': 0,
-    'Rupee (1)': 1,
-    'Rupees (5)': 1,
-    'Rupees (20)': 1,
-
-    'Small Heart': 2,
-    'Bee': 2,
-    'Arrows (5)': 2,
-    'Chicken': 2,
-    'Single Bomb': 2,
-
-    'Bombs (3)': 3,
-    'Arrows (10)': 3,
-    'Bombs (10)': 3,
-    'Small Magic': 3,
-
-    'Big Magic': 4,
-    'Red Potion': 4,
-    'Blue Shield': 4,
-    'Rupees (50)': 4,
-    'Rupees (100)': 4,
+    'Rupee (1)': 1, 'Rupees (5)': 1, 'Small Heart': 1, 'Bee': 1, 'Arrows (5)': 1, 'Chicken': 1,  'Single Bomb': 1,
+    'Rupees (20)': 2,  'Small Magic': 2,
+    'Bombs (3)': 3, 'Arrows (10)': 3, 'Bombs (10)': 3,
+    'Big Magic': 4, 'Red Potion': 4, 'Blue Shield': 4, 'Rupees (50)': 4, 'Rupees (100)': 4,
     'Rupees (300)': 5,
-
     'Piece of Heart': 17
 }
 

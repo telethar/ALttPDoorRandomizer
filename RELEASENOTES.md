@@ -151,6 +151,9 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Expanded Mystery logic options (e.g. owglitches)
 	* Allowed Mystery.py to create BPS patches
 	* Allow creation of BPS and SFC files (no longer mutually exclusive)
+	* Pedestal goal + vanilla swords places a random sword in the pool
+	* Rebalanced trash ditching algo for seeds with lots of triforce pieces
+	* Added a few more places Links House shouldn't go when shuffled
 	* Fixed a bug with shopsanity + district algorithm where pre-placed potions messed up the placeholder count
 	* Fixed usestartinventory flag (can be use on a per player basis)
 	* Fix for map indicators on keysanity menu not showing up
