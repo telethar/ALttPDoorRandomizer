@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 from source.tools.BPS import create_bps_from_data
 
-__version__ = '1.0.1.6-v'
+__version__ = '1.0.1.7-v'
 
 from source.classes.BabelFish import BabelFish
 
@@ -261,7 +261,7 @@ def main(args, seed=None, fish=None):
     rom_names = []
     jsonout = {}
     enemized = False
-    if not args.suppress_rom:
+    if not args.suppress_rom or args.bps:
         logger.info(world.fish.translate("cli","cli","patching.rom"))
         for team in range(world.teams):
             for player in range(1, world.players + 1):
@@ -314,7 +314,7 @@ def main(args, seed=None, fish=None):
                         patch = create_bps_from_data(LocalRom(args.rom, patch=False).buffer, rom.buffer)
                         with open(patchfile, 'wb') as stream:
                             stream.write(patch.binary_ba)
-                    else:
+                    if not args.suppress_rom:
                         sfc_file = output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.sfc')
                         rom.write_to_file(sfc_file)
 
