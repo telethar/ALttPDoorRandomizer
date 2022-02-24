@@ -157,6 +157,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Fixed a bug with shopsanity + district algorithm where pre-placed potions messed up the placeholder count
 	* Fixed usestartinventory flag (can be use on a per player basis)
 	* Fix for map indicators on keysanity menu not showing up
+	* Potential sprite selector fix for systems with SSL issues
 * 1.0.1.6
 	* A couple new options for lighter pottery modes (Cave Pots and Dungeon Pots)
 	* New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
