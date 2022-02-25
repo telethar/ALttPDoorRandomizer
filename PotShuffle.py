@@ -382,7 +382,7 @@ def shuffle_pots(world, player):
             elif old_pot.item == PotItem.Switch:
                 available_pots = (pot for pot in new_pots if (pot.room == old_pot.room or pot.room in movable_switch_rooms[old_pot.room]) and not (pot.flags & PotFlags.NoSwitch))
             elif old_pot.item == PotItem.Key:
-                if world.doorShuffle[player] == 'vanilla' and not world.retro[player] and world.keydropshuffle[player] == 'none' and world.logic[player] != 'nologic':
+                if world.doorShuffle[player] == 'vanilla' and not world.retro[player] and world.pottery[player] == 'none' and world.logic[player] != 'nologic':
                     available_pots = (pot for pot in new_pots if pot.room not in invalid_key_rooms)
                 else:
                     available_pots = new_pots

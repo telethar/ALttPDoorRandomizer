@@ -147,6 +147,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.8
+	* Updated mystery_example.yml
+	* Fixed usestartinventory with mystery
+	* Fixed a bug with the old pot shuffle (crashed when used)
 * 1.0.1.7
 	* Expanded Mystery logic options (e.g. owglitches)
 	* Allowed Mystery.py to create BPS patches

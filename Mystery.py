@@ -257,6 +257,8 @@ def roll_settings(weights):
         if get_choice(item, inventoryweights) == 'on':
             startitems.append(item)
     ret.startinventory = ','.join(startitems)
+    if len(startitems) > 0:
+        ret.usestartinventory = True
 
     if 'rom' in weights:
         romweights = weights['rom']

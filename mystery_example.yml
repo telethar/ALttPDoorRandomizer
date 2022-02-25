@@ -7,10 +7,15 @@
     1: 2
     2: 2
     3: 4
-  keydropshuffle:
-    none: 1
-    keydrops: 1
-    potsanity: 1
+  dropshuffle:
+    on: 1
+    off: 1
+  pottery:
+    none: 4
+    keys: 1
+    cave: 1
+    dungeon: 1
+    lottery: 1
   shopsanity:
     on: 1
     off: 1
@@ -125,10 +130,10 @@
     easy: 1
     hard: 1
     expert: 0
+  startinventory:
+    Pegasus Boots: on
   rom:
-    quickswap:
-      on: 1
-      off: 0
+    quickswap: on
     heartcolor:
       red: 1
       blue: 1
