@@ -7,23 +7,37 @@ DrHudOverride:
 
 HudAdditions:
 {
-    lda.l DRFlags : and #$0008 : beq ++
-;		LDA.w #$28A4 : STA !GOAL_DRAW_ADDRESS
-		lda $7EF423
-        jsr HudHexToDec4DigitCopy
-		LDX.b $05 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+2 ; draw 100's digit
-		LDX.b $06 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+4 ; draw 10's digit
-		LDX.b $07 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+6 ; draw 1's digit
+    LDA.l DRFlags : AND #$0008 : BNE + : JMP .end_item_count : +
+		LDA.l $7EF423 : PHA : CMP #1000 : !BLT +
+			JSL HexToDec4Digit_fast
+			LDX.b $04 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS ; draw 1000's digit
+			BRA .skip
+        + JSL HexToDec_fast
+        .skip
+        LDA #$207F : STA !GOAL_DRAW_ADDRESS+2 : STA !GOAL_DRAW_ADDRESS+4
+		PLA : PHA : CMP.w #100 : !BLT +
+			LDX.b $05 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+2 ; draw 100's digit
+		+ PLA : CMP.w #10 : !BLT +
+		 	LDX.b $06 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+4 ; draw 10's digit
+		+ LDX.b $07 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+6 ; draw 1's digit
 		LDA.w #$2830 : STA !GOAL_DRAW_ADDRESS+8 ; draw slash
 		LDA.l DRFlags : AND #$0100 : BNE +
-        	lda $7EF33E
-			jsr HudHexToDec4DigitCopy
-			LDX.b $05 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+10 ; draw 100's digit
-			LDX.b $06 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+12 ; draw 10's digit
-			LDX.b $07 : TXA : ORA.w #$2400 : STA !GOAL_DRAW_ADDRESS+14 ; draw 1's digit
-			BRA ++
-		+ LDA.w #$2405 : STA !GOAL_DRAW_ADDRESS+10 : STA !GOAL_DRAW_ADDRESS+12 : STA !GOAL_DRAW_ADDRESS+14
-    ++
+        	LDA.l $7EF33E : CMP #1000 : !BLT .three_digit_goal
+				JSL HexToDec4Digit_fast
+				LDX.b $04 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+10 ; draw 1000's digit
+				LDX.b $05 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+12 ; draw 100's digit
+				LDX.b $06 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+14 ; draw 10's digit
+				LDX.b $07 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+16 ; draw 1's digit
+				BRA .end_item_count
+			.three_digit_goal
+			JSL HexToDec_fast
+			LDX.b $05 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+10 ; draw 100's digit
+			LDX.b $06 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+12 ; draw 10's digit
+			LDX.b $07 : TXA : ORA.w #$2490 : STA !GOAL_DRAW_ADDRESS+14 ; draw 1's digit
+			BRA .end_item_count
+		+ LDA.w #$2405 : STA !GOAL_DRAW_ADDRESS+10 : STA !GOAL_DRAW_ADDRESS+12
+		                 STA !GOAL_DRAW_ADDRESS+14 : STA !GOAL_DRAW_ADDRESS+16
+    .end_item_count
 
 	LDX $1B : BNE + : RTS : + ; Skip if outdoors
 	ldx $040c : cpx #$ff : bne + : rts : + ; Skip if not in dungeon

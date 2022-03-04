@@ -516,7 +516,7 @@ class PotSecretTable(object):
         empty_pointer = pc_to_snes(empty_address) & 0xFFFF
         data_pointer = pointer_address + pointer_offset + 2
         for room in range(0, 0x128):
-            if room in self.room_map and any(p for p in self.room_map[room] if not p.empty()):
+            if room in self.room_map:
                 list_idx = 0
                 data_address = pc_to_snes(data_pointer) & 0xFFFF
                 rom.write_bytes(pointer_address + room * 2, int16_as_bytes(data_address))

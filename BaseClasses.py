@@ -2720,9 +2720,6 @@ class Pot(object):
     def copy(self):
         return Pot(self.x, self.y, self.item, self.room, self.flags)
 
-    def empty(self):
-        return self.item == PotItem.Nothing and self.indicator is None
-
     def pot_data(self):
         high_byte = self.y
         if self.flags & PotFlags.LowerRegion:

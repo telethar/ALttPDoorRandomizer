@@ -33,7 +33,7 @@ The old "Pot Shuffle" option is still available under "Pot Shuffle (Legacy)" or 
 
 #### Tracking Notes
 
-The sram locations for pots and sprite drops have been moved, please reach out for assistance or investigate the rom changes.
+The sram locations for pots and sprite drops are not yet final, please reach out for assistance or investigate the rom changes.
 
 ## Restricted Item Placement Algorithm
 
@@ -146,7 +146,11 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 ## Notes and Bug Fixes
 
 #### Volatile
-
+* 1.0.1.9
+	* Every pot you pick up now counts toward the location count
+	* A pot will de-spawn before the item under it does, error beep only plays if it still can't spawn 
+	* Updated item counter & credits to support 4 digits
+	* Updated compass counter to support 3 digits (up to 255)
 * 1.0.1.8
 	* Updated mystery_example.yml
 	* Fixed usestartinventory with mystery

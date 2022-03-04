@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '99f4c032651bb3c773f18280a182cd8f'
+RANDOMIZERBASEHASH = 'fb1887e175ebbfdbe0ceef6cc66abd18'
 
 
 class JsonRom(object):
@@ -591,7 +591,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if location.type == LocationType.Pot:
             if location.item.name in valid_pot_items and location.item.player == player:
                 location.pot.item = valid_pot_items[location.item.name]
-                location.forced_item = True
             else:
                 code = handle_native_dungeon(location, itemid)
                 standing_item_flag = 0x80
@@ -898,19 +897,32 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
         # collection rate address (hi):
-        cr_address = 0x238057
-        cr_pc = cr_address - 0x120000  # convert to pc
+        cr_address = 0x238055
+        cr_pc = snes_to_pc(cr_address)  # convert to pc
         first_top, first_bot = credits_digit((credits_total // 100) % 10)
         mid_top, mid_bot = credits_digit((credits_total // 10) % 10)
         last_top, last_bot = credits_digit(credits_total % 10)
+        if credits_total >= 1000:
+            thousands_top, thousands_bot = credits_digit((credits_total // 1000) % 10)
+            rom.write_byte(cr_pc, 0xa2)  # slash
+            rom.write_byte(cr_pc+1, thousands_top)
+            rom.write_byte(cr_pc+0x1e, 0xc2)  # slash
+            rom.write_byte(cr_pc+0x1f, thousands_bot)
+            # modify stat config
+            stat_address = 0x23B969
+            stat_pc = snes_to_pc(stat_address)
+            rom.write_byte(stat_pc, 0xa9)  # change to pos 21 (from b1)
+            rom.write_byte(stat_pc+2, 0xc0)  # change to 12 bits (from a0)
+            rom.write_byte(stat_pc+3, 0x80)  # change to four digits (from 60)
+
         # top half
-        rom.write_byte(cr_pc, first_top)
-        rom.write_byte(cr_pc+0x1, mid_top)
-        rom.write_byte(cr_pc+0x2, last_top)
+        rom.write_byte(cr_pc+2, first_top)
+        rom.write_byte(cr_pc+3, mid_top)
+        rom.write_byte(cr_pc+4, last_top)
         # bottom half
-        rom.write_byte(cr_pc+0x1e, first_bot)
-        rom.write_byte(cr_pc+0x1f, mid_bot)
-        rom.write_byte(cr_pc+0x20, last_bot)
+        rom.write_byte(cr_pc+0x20, first_bot)
+        rom.write_byte(cr_pc+0x21, mid_bot)
+        rom.write_byte(cr_pc+0x22, last_bot)
 
     # patch medallion requirements
     if world.required_medallions[player][0] == 'Bombos':
@@ -2662,7 +2674,10 @@ def update_compasses(rom, dungeon_locations, world, player):
     provided_dungeon = False
     for name, builder in layouts.items():
         dungeon_id = compass_data[name][4]
-        rom.write_byte(0x187000 + dungeon_id//2, len(dungeon_locations[name]))
+        dungeon_count = len(dungeon_locations[name])
+        if dungeon_count > 255:
+            logging.getLogger('').warning(f'{name} has more locations than 255. Need 16-bit compass counts')
+        rom.write_byte(0x187000 + dungeon_id//2, dungeon_count % 256)
         if builder.bk_provided:
             if provided_dungeon:
                 logging.getLogger('').warning('Multiple dungeons have forced BKs! Compass code might need updating?')
