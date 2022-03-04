@@ -114,5 +114,12 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 ## Notes and Bug Fixes
 
+
 * 1.0.0.1
 	* Add Light Hype Fairy to bombbag mode as needing bombs
+	
+### From stable DoorDev
+
+* 1.0.1
+	* Fixed a bug with key doors not detecting one side of an interior door
+	* Sprite selector fix for systems with SSL issues
