@@ -146,12 +146,13 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 ## Notes and Bug Fixes
 
 #### Volatile
-* 1.0.1.9
+
+* 1.0.1.8
 	* Every pot you pick up now counts toward the location count
 	* A pot will de-spawn before the item under it does, error beep only plays if it still can't spawn 
 	* Updated item counter & credits to support 4 digits
 	* Updated compass counter to support 3 digits (up to 255)
-* 1.0.1.8
+	* Updated retro take-anys to not replace pot locations when pottery options are used
 	* Updated mystery_example.yml
 	* Fixed usestartinventory with mystery
 	* Fixed a bug with the old pot shuffle (crashed when used)

@@ -419,7 +419,9 @@ def set_up_take_anys(world, player):
         if 'Archery Game' in take_any_locations:
             take_any_locations.remove('Archery Game')
 
-    regions = random.sample(take_any_locations, 5)
+    take_any_candidates = [x for x in take_any_locations if len(world.get_region(x, player).locations) == 0]
+
+    regions = random.sample(take_any_candidates, 5)
 
     old_man_take_any = Region("Old Man Sword Cave", RegionType.Cave, 'the sword cave', player)
     world.regions.append(old_man_take_any)
