@@ -723,7 +723,7 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'TR Crystaroller Middle - Ranged Crystal', 'Turtle Rock', None, ['TR Crystaroller Middle Ranged Crystal Exit']),
         create_dungeon_region(player, 'TR Crystaroller Bottom - Ranged Crystal', 'Turtle Rock', None, ['TR Crystaroller Bottom Ranged Crystal Exit']),
         create_dungeon_region(player, 'TR Dark Ride', 'Turtle Rock', None, ['TR Dark Ride Up Stairs', 'TR Dark Ride SW', 'TR Dark Ride Path']),
-        create_dungeon_region(player, 'TR Dark Ride Ledges', 'Turtle Rock', None, ['TR Dark Ride Up Stairs', 'TR Dark Ride SW', 'TR Dark Ride Ledges Path']),
+        create_dungeon_region(player, 'TR Dark Ride Ledges', 'Turtle Rock', None, ['TR Dark Ride Ledges Path']),
         create_dungeon_region(player, 'TR Dash Bridge', 'Turtle Rock', None, ['TR Dash Bridge NW', 'TR Dash Bridge SW', 'TR Dash Bridge WS']),
         create_dungeon_region(player, 'TR Eye Bridge', 'Turtle Rock', ['Turtle Rock - Eye Bridge - Bottom Left', 'Turtle Rock - Eye Bridge - Bottom Right',
                                                                        'Turtle Rock - Eye Bridge - Top Left', 'Turtle Rock - Eye Bridge - Top Right'],

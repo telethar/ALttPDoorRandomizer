@@ -347,7 +347,7 @@ def global_rules(world, player):
     set_rule(world.get_entrance('TR Dark Ride SW', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Dark Ride Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Dark Ride Ledges Path', player), lambda state: state.has('Cane of Somaria', player))
-    for location in world.get_region('TR Dark Ride', player).locations:
+    for location in world.get_region('TR Dark Ride Ledges', player).locations:
         set_rule(location, lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Final Abyss Balcony Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Final Abyss Ledge Path', player), lambda state: state.has('Cane of Somaria', player))
@@ -738,7 +738,10 @@ def pot_rules(world, player):
                 add_rule(l, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
         for l in world.get_region('Dark Lake Hylia Ledge Spike Cave', player).locations:
             if l.type == LocationType.Pot:
-                add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player))
+                add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player)
+                         or state.has('Cape', player)
+                         or (state.has('Cane of Byrna', player)
+                             and state.world.difficulty_adjustments[player] == 'normal'))
 
     if world.pottery[player] in ['lottery', 'dungeon']:
         for l in world.get_region('Ice Hammer Block', player).locations:

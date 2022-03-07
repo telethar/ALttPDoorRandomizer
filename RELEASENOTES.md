@@ -152,6 +152,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Fix for items spawning where a thrown pot was
 	* Fix for vanilla_fill, it now prioritizes heart container placements
 	* Fix for dungeon counter showing up in AT/HC in crossed dungeon mode
+	* Fix for TR Dark Ride (again) and some ohko rules refinement
 * 1.0.1.8
 	* Every pot you pick up now counts toward the location count
 	* A pot will de-spawn before the item under it does, error beep only plays if it still can't spawn 
