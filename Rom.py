@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '4985e1082cc836abf425d68ae27c7c83'
+RANDOMIZERBASEHASH = 'feadc243f2fe49237243d7c4da515d35'
 
 
 class JsonRom(object):
@@ -893,6 +893,14 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.pottery[player] not in ['none', 'keys']:
         # Cuccos should not prevent kill rooms from opening
         rom.write_byte(snes_to_pc(0x0DB457), 0x40)
+    if world.pottery[player] in ['none', 'keys']:
+        rom.write_byte(snes_to_pc(0x28AA56), 0)
+    elif world.pottery[player] == 'cave':
+        rom.write_byte(snes_to_pc(0x28AA56), 1)
+    elif world.pottery[player] == 'dungeon':
+        rom.write_byte(snes_to_pc(0x28AA56), 2)
+    elif world.pottery[player] == 'lottery':
+        rom.write_byte(snes_to_pc(0x28AA56), 3)
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
@@ -1514,10 +1522,12 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             rom.write_bytes(0x53E36+ow_map_index*2, int16_as_bytes(coords[0]))
             rom.write_bytes(0x53E56+ow_map_index*2, int16_as_bytes(coords[1]))
             rom.write_byte(0x53EA6+ow_map_index, world_indicator)
-            # in crossed doors - flip the compass exists flags
-            if world.doorShuffle[player] == 'crossed':
-                exists_flag = any(x for x in world.get_dungeon(dungeon, player).dungeon_items if x.type == 'Compass')
-                rom.write_byte(0x53E96+ow_map_index, 0x1 if exists_flag else 0x0)
+    # in crossed doors - flip the compass exists flags
+    if world.doorShuffle[player] == 'crossed':
+        for dungeon, portal_list in dungeon_portals.items():
+            ow_map_index = dungeon_table[dungeon].map_index
+            exists_flag = any(x for x in world.get_dungeon(dungeon, player).dungeon_items if x.type == 'Compass')
+            rom.write_byte(0x53E96+ow_map_index, 0x1 if exists_flag else 0x0)
 
     rom.write_byte(0x18003C, compass_mode)
 

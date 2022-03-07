@@ -707,7 +707,7 @@ mode_grouping = {
         'Maze Race', 'Spectacle Rock', 'Pyramid', "Zora's Ledge", 'Lumberjack Tree',
         'Sunken Treasure', 'Spectacle Rock Cave', 'Lost Woods Hideout', 'Checkerboard Cave', 'Peg Cave', 'Cave 45',
         'Graveyard Cave', 'Kakariko Well - Top', "Blind's Hideout - Top", 'Bonk Rock Cave', "Aginah's Cave",
-        'Chest Game', 'Digging Game', 'Mire Shed - Right', 'Mimic Cave'
+        'Chest Game', 'Digging Game', 'Mire Shed - Left', 'Mimic Cave'
     ],
     'Big Keys': [
         'Eastern Palace - Big Key Chest', 'Ganons Tower - Big Key Chest',
@@ -760,7 +760,7 @@ mode_grouping = {
         'Paradox Cave Upper - Left', 'Paradox Cave Upper - Right', 'Spiral Cave', 'Brewery', 'C-Shaped House',
         'Hype Cave - Top', 'Hype Cave - Middle Right', 'Hype Cave - Middle Left', 'Hype Cave - Bottom',
         'Hype Cave - Generous Guy', 'Superbunny Cave - Bottom', 'Superbunny Cave - Top', 'Hookshot Cave - Top Right',
-        'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Right', 'Hookshot Cave - Bottom Left', 'Mire Shed - Left'
+        'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Right', 'Hookshot Cave - Bottom Left', 'Mire Shed - Right'
     ],
     'GT Trash': [
         'Ganons Tower - DMs Room - Top Right', 'Ganons Tower - DMs Room - Top Left',
