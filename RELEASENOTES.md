@@ -147,6 +147,9 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.10
+	* More location count fixes
+	* Add major_only algorithm to code
 * 1.0.1.9
 	* Every pot you pick up that wasn't part of the location pool does not count toward the location count
 	* Fix for items spawning where a thrown pot was
