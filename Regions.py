@@ -94,7 +94,7 @@ def create_regions(world, player):
         create_lw_region(player, 'Lake Hylia Island', ['Lake Hylia Island']),
         create_cave_region(player, 'Capacity Upgrade', 'the queen of fairies', ['Capacity Upgrade - Left', 'Capacity Upgrade - Right']),
         create_cave_region(player, 'Two Brothers House', 'a connector', None, ['Two Brothers House Exit (East)', 'Two Brothers House Exit (West)']),
-        create_lw_region(player, 'Maze Race Ledge', ['Maze Race'], ['Two Brothers House (West)'], 'a race against time'),
+        create_lw_region(player, 'Maze Race Ledge', ['Maze Race'], ['Two Brothers House (West)', 'Maze Race Ledge Drop'], 'a race against time'),
         create_cave_region(player, '50 Rupee Cave', 'a cave with some cash'),
         create_lw_region(player, 'Desert Ledge', ['Desert Ledge'], ['Desert Palace Entrance (North) Rocks', 'Desert Palace Entrance (West)'], 'the desert ledge'),
         create_lw_region(player, 'Desert Ledge (Northeast)', None, ['Checkerboard Cave']),

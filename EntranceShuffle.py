@@ -3185,7 +3185,8 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Bombos Tablet Mirror Spot', 'Bombos Tablet Ledge'),
                          ('Graveyard Ledge Mirror Spot', 'Graveyard Ledge'),
                          ('Ganon Drop', 'Bottom of Pyramid'),
-                         ('Pyramid Drop', 'East Dark World')
+                         ('Pyramid Drop', 'East Dark World'),
+                         ('Maze Race Ledge Drop', 'Light World')
                          ]
 
 inverted_mandatory_connections = [('Links House S&Q', 'Inverted Links House'),
@@ -3358,7 +3359,8 @@ inverted_mandatory_connections = [('Links House S&Q', 'Inverted Links House'),
                                   ('Bush Covered Lawn Mirror Spot', 'Dark Grassy Lawn'),
                                   ('Bomb Hut Inner Bushes', 'Light World'),
                                   ('Bomb Hut Outer Bushes', 'Bomb Hut Area'),
-                                  ('Bomb Hut Mirror Spot', 'West Dark World')]
+                                  ('Bomb Hut Mirror Spot', 'West Dark World'),
+                                  ('Maze Race Ledge Drop', 'Light World')]
 # non-shuffled entrance links
 default_connections = [('Links House', 'Links House'),
                        ('Links House Exit', 'Light World'),

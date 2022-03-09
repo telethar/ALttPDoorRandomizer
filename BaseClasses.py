@@ -138,6 +138,7 @@ class World(object):
             set_player_attr('potshuffle', False)
             set_player_attr('pot_contents', None)
             set_player_attr('pseudoboots', False)
+            set_player_attr('collection_rate', False)
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')

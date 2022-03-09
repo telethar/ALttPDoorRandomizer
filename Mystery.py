@@ -169,6 +169,7 @@ def roll_settings(weights):
     ret.door_shuffle = door_shuffle if door_shuffle != 'none' else 'vanilla'
     ret.intensity = get_choice('intensity')
     ret.experimental = get_choice('experimental') == 'on'
+    ret.collection_rate = get_choice('collection_rate') == 'on'
 
     ret.dungeon_counters = get_choice('dungeon_counters') if 'dungeon_counters' in weights else 'default'
     if ret.dungeon_counters == 'default':
@@ -266,6 +267,7 @@ def roll_settings(weights):
         ret.disablemusic = get_choice('disablemusic', romweights) == 'on'
         ret.quickswap = get_choice('quickswap', romweights) == 'on'
         ret.reduce_flashing = get_choice('reduce_flashing', romweights) == 'on'
+        ret.msu_resume = get_choice('msu_resume', romweights) == 'on'
         ret.fastmenu = get_choice('menuspeed', romweights)
         ret.heartcolor = get_choice('heartcolor', romweights)
         ret.heartbeep = get_choice('heartbeep', romweights)

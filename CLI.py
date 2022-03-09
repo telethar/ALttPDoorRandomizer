@@ -107,7 +107,8 @@ def parse_cli(argv, no_defaults=False):
                          'shufflebosses', 'shuffleenemies', 'enemy_health', 'enemy_damage', 'shufflepots',
                          'ow_palettes', 'uw_palettes', 'sprite', 'disablemusic', 'quickswap', 'fastmenu', 'heartcolor',
                          'heartbeep', 'remote_items', 'shopsanity', 'dropshuffle', 'pottery', 'keydropshuffle',
-                         'mixed_travel', 'standardize_palettes', 'code', 'reduce_flashing', 'shuffle_sfx']:
+                         'mixed_travel', 'standardize_palettes', 'code', 'reduce_flashing', 'shuffle_sfx',
+                         'msu_resume', 'collection_rate']:
                 value = getattr(defaults, name) if getattr(playerargs, name) is None else getattr(playerargs, name)
                 if player == 1:
                     setattr(ret, name, {1: value})
@@ -201,6 +202,8 @@ def parse_settings():
         "uw_palettes": "default",
         "reduce_flashing": False,
         "shuffle_sfx": False,
+        'msu_resume': False,
+        'collection_rate': False,
 
         # Spoiler     defaults to TRUE
         # Playthrough defaults to TRUE

@@ -4,6 +4,7 @@
     "adjust.quickswap": "L/R Quickswapping",
     "adjust.reduce_flashing": "Reduce Flashing",
     "adjust.shuffle_sfx": "Shuffle Sound Effects",
+    "adjust.msu_resume": "MSU Resume",
 
     "adjust.heartcolor": "Heart Color",
     "adjust.heartcolor.red": "Red",
@@ -148,6 +149,8 @@
     "randomizer.gameoptions.quickswap": "L/R Quickswapping",
     "randomizer.gameoptions.reduce_flashing": "Reduce Flashing",
     "randomizer.gameoptions.shuffle_sfx": "Shuffle Sound Effects",
+    "randomizer.gameoptions.msu_resume": "MSU Resume",
+    "randomizer.gameoptions.collection_rate": "Display Collection Rate",
 
     "randomizer.gameoptions.heartcolor": "Heart Color",
     "randomizer.gameoptions.heartcolor.red": "Red",

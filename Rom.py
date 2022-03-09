@@ -719,7 +719,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     dr_flags = DROptions.Eternal_Mini_Bosses if world.doorShuffle[player] == 'vanilla' else DROptions.Town_Portal
     if world.doorShuffle[player] == 'crossed':
         dr_flags |= DROptions.Map_Info
-    if world.experimental[player] and world.goal[player] != 'triforcehunt':
+    if world.collection_rate[player] and world.goal[player] != 'triforcehunt':
         dr_flags |= DROptions.Debug
     if world.doorShuffle[player] == 'crossed' and world.logic[player] != 'nologic'\
        and world.mixed_travel[player] == 'prevent':
@@ -1782,14 +1782,16 @@ def hud_format_text(text):
 
 
 def apply_rom_settings(rom, beep, color, quickswap, fastmenu, disable_music, sprite,
-                       ow_palettes, uw_palettes, reduce_flashing, shuffle_sfx):
+                       ow_palettes, uw_palettes, reduce_flashing, shuffle_sfx, msu_resume):
 
     if not os.path.exists("data/sprites/official/001.link.1.zspr") and rom.orig_buffer:
         dump_zspr(rom.orig_buffer[0x80000:0x87000], rom.orig_buffer[0xdd308:0xdd380],
                   rom.orig_buffer[0xdedf5:0xdedf9], "data/sprites/official/001.link.1.zspr", "Nintendo", "Link")
 
-    # todo: implement a flag for msu resume delay
-    rom.write_bytes(0x18021D, [0, 0])  # default to off for now
+    if msu_resume:
+        rom.write_bytes(0x18021D, [0x8, 0x7])
+    else:
+        rom.write_bytes(0x18021D, [0, 0])  # default to off for now
 
     if sprite and not isinstance(sprite, Sprite):
         sprite = Sprite(sprite) if os.path.isfile(sprite) else get_sprite_from_name(sprite)

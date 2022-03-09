@@ -269,7 +269,7 @@ Shuffles a large portion of the sounds effects. Can be used with the adjuster.
 
 ## Experimental Features
 
-The treasure check counter is turned on. Also, you will start as a bunny if your spawn point is in the dark world.
+You will start as a bunny if your spawn point is in the dark world.
 
 ## Triforce Hunt Settings
 
@@ -368,6 +368,18 @@ Reduces amount of flashing in some animations
 ```
 
 Shuffles a bunch of the sounds effects
+
+```
+--msu_resume
+```
+
+Enable MSU resume feature
+
+```
+--collection_rate
+```
+
+Total collection rate is displayed unless Triforce Hunt is on. If the game was designed as a mystery, then the total count is not displayed. 
 
 
 

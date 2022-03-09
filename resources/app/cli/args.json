@@ -218,6 +218,14 @@
     "action": "store_true",
     "type": "bool"
   },
+  "msu_resume": {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "collection_rate": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "mapshuffle": {
     "action": "store_true",
     "type": "bool"

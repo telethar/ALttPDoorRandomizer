@@ -147,6 +147,11 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.1.11
+	* Separated Collection Rate counter from experimental
+	* Added MSU Resume option
+	* Ensured pots in TR Dark Ride need lamp
+	* Fix for Links House being at Maze Race (did not generate)
 * 1.0.1.10
 	* More location count fixes
 	* Add major_only algorithm to code
