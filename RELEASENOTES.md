@@ -152,7 +152,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Added MSU Resume option
 	* Ensured pots in TR Dark Ride need lamp
 	* Fix for GT Crystal Conveyor not requiring Somaria/Bombs to get through
-	* Fix for Links House being at Maze Race (did not generate)
+	* Fixes for Links House being at certain entrances (did not generate)
 * 1.0.1.10
 	* More location count fixes
 	* Add major_only algorithm to code

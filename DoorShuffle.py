@@ -414,7 +414,7 @@ def choose_portals(world, player):
                     info.sole_entrance = inaccessible_portals[0]
                     info.required_passage.clear()
                 else:
-                    raise Exception('please inspect this case')
+                    raise Exception(f'No reachable entrances for {dungeon}')
             if len(reachable_portals) == 1:
                 info.sole_entrance = reachable_portals[0]
             info_map[dungeon] = info
@@ -521,7 +521,7 @@ def analyze_portals(world, player):
                 info.sole_entrance = inaccessible_portals[0]
                 info.required_passage.clear()
             else:
-                raise Exception('please inspect this case')
+                raise Exception(f'No reachable entrances for {dungeon}')
         if len(reachable_portals) == 1:
             info.sole_entrance = reachable_portals[0]
         if world.intensity[player] < 2 and world.doorShuffle[player] == 'basic' and dungeon == 'Desert Palace':

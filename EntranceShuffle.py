@@ -3186,7 +3186,13 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Graveyard Ledge Mirror Spot', 'Graveyard Ledge'),
                          ('Ganon Drop', 'Bottom of Pyramid'),
                          ('Pyramid Drop', 'East Dark World'),
-                         ('Maze Race Ledge Drop', 'Light World')
+                         ('Maze Race Ledge Drop', 'Light World'),
+                         ('Graveyard Ledge Drop', 'Light World'),
+                         ('Cave 45 Ledge Drop', 'Light World'),
+                         ('Checkerboard Ledge Drop', 'Light World'),
+                         ('Desert Ledge Drop', 'Light World'),
+                         ('Hyrule Castle Main Gate (North)', 'Light World'),
+                         ('Hyrule Castle Ledge Drop', 'Light World'),
                          ]
 
 inverted_mandatory_connections = [('Links House S&Q', 'Inverted Links House'),
