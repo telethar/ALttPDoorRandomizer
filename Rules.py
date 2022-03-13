@@ -750,7 +750,7 @@ def pot_rules(world, player):
         for pot in ['Ice Antechamber Pot #3', 'Ice Antechamber Pot #4']:
             loc = world.get_location_unsafe(pot, player)
             if loc:
-                set_rule(loc, lambda state: state.can_lift_rocks(player))
+                set_rule(loc, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player))
         loc = world.get_location_unsafe('Mire Spikes Pot #3', player)
         if loc:
             set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4))
