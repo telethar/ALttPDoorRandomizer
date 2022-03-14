@@ -109,6 +109,7 @@ def main(args, seed=None, fish=None):
     world.pseudoboots = args.pseudoboots.copy()
     world.overworld_map = args.overworld_map.copy()
     world.restrict_boss_items = args.restrict_boss_items.copy()
+    world.collection_rate = args.collection_rate.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
 
