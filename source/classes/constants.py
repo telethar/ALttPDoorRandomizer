@@ -122,6 +122,7 @@ SETTINGSTOPROCESS = {
       "createspoiler": "create_spoiler",
       "createrom": "create_rom",
       "calcplaythrough": "calc_playthrough",
+      "print_custom_yaml": "print_custom_yaml",
       "usestartinventory": "usestartinventory",
       "usecustompool": "custom",
       "saveonexit": "saveonexit"

@@ -35,6 +35,15 @@ The old "Pot Shuffle" option is still available under "Pot Shuffle (Legacy)" or 
 
 The sram locations for pots and sprite drops are not yet final, please reach out for assistance or investigate the rom changes.
 
+## Customizer
+
+Please refer to [the documentation](docs/Customizer.md) and examples of customizer [here](docs/customizer_example.yaml) and [here](docs/multi_mystery_example.yaml)
+note that entrance customization is only available with experimental features turned on.
+
+## Experimental Entrance Shuffle
+
+To support customizer and future entrance shuffle modes (perhaps even customizable ones), the entrance shuffle algorithm has been re-written. It is currently in an unstable state, and will use the old method unless you turn experimental features on. I'm currently in the process of evaluating most modes with different combinations of settings and checking the distribution of entrances. Entrance customization is only supported with this new experimental entrance shuffle. The experimental entrance shuffle includes prototypes of Lean and Lite entrance shuffles from the OWR branch.
+
 ## Restricted Item Placement Algorithm
 
 

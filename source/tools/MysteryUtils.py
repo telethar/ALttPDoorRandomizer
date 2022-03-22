@@ -1,104 +1,10 @@
 import argparse
-import logging
 import RaceRandom as random
 
-from DungeonRandomizer import parse_cli
-from Main import main as DRMain
-from source.classes.BabelFish import BabelFish
-from yaml.constructor import SafeConstructor
+import urllib.request
+import urllib.parse
+import yaml
 
-from source.tools.MysteryUtils import roll_settings, get_weights
-
-
-def add_bool(self, node):
-    return self.construct_scalar(node)
-
-SafeConstructor.add_constructor(u'tag:yaml.org,2002:bool', add_bool)
-
-def main():
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--multi', default=1, type=lambda value: min(max(int(value), 1), 255))
-    multiargs, _ = parser.parse_known_args()
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', help='Path to the weights file to use for rolling game settings, urls are also valid')
-    parser.add_argument('--samesettings', help='Rolls settings per weights file rather than per player', action='store_true')
-    parser.add_argument('--seed', help='Define seed number to generate.', type=int)
-    parser.add_argument('--multi', default=1, type=lambda value: min(max(int(value), 1), 255))
-    parser.add_argument('--names', default='')
-    parser.add_argument('--teams', default=1, type=lambda value: max(int(value), 1))
-    parser.add_argument('--create_spoiler', action='store_true')
-    parser.add_argument('--suppress_rom', action='store_true')
-    parser.add_argument('--bps', action='store_true')
-    parser.add_argument('--rom')
-    parser.add_argument('--enemizercli')
-    parser.add_argument('--outputpath')
-    parser.add_argument('--loglevel', default='info', choices=['debug', 'info', 'warning', 'error', 'critical'])
-    for player in range(1, multiargs.multi + 1):
-        parser.add_argument(f'--p{player}', help=argparse.SUPPRESS)
-    args = parser.parse_args()
-
-    if args.seed is None:
-        random.seed(None)
-        seed = random.randint(0, 999999999)
-    else:
-        seed = args.seed
-    random.seed(seed)
-
-    seedname = f'M{random.randint(0, 999999999)}'
-    print(f"Generating mystery for {args.multi} player{'s' if args.multi > 1 else ''}, {seedname} Seed {seed}")
-
-    weights_cache = {}
-    if args.weights:
-        weights_cache[args.weights] = get_weights(args.weights)
-        print(f"Weights: {args.weights} >> {weights_cache[args.weights]['description']}")
-    for player in range(1, args.multi + 1):
-        path = getattr(args, f'p{player}')
-        if path:
-            if path not in weights_cache:
-                weights_cache[path] = get_weights(path)
-            print(f"P{player} Weights: {path} >> {weights_cache[path]['description']}")
-
-    erargs = parse_cli(['--multi', str(args.multi)])
-    erargs.seed = seed
-    erargs.names = args.names
-    erargs.create_spoiler = args.create_spoiler
-    erargs.suppress_rom = args.suppress_rom
-    erargs.bps = args.bps
-    erargs.race = True
-    erargs.outputname = seedname
-    erargs.outputpath = args.outputpath
-    erargs.loglevel = args.loglevel
-
-    if args.rom:
-        erargs.rom = args.rom
-    if args.enemizercli:
-        erargs.enemizercli = args.enemizercli
-
-    mw_settings = {'algorithm': False}
-
-    settings_cache = {k: (roll_settings(v) if args.samesettings else None) for k, v in weights_cache.items()}
-
-    for player in range(1, args.multi + 1):
-        path = getattr(args, f'p{player}') if getattr(args, f'p{player}') else args.weights
-        if path:
-            settings = settings_cache[path] if settings_cache[path] else roll_settings(weights_cache[path])
-            for k, v in vars(settings).items():
-                if v is not None:
-                    if k == 'algorithm':  # multiworld wide parameters
-                        if not mw_settings[k]:  # only use the first roll
-                            setattr(erargs, k, v)
-                            mw_settings[k] = True
-                    else:
-                        getattr(erargs, k)[player] = v
-        else:
-            raise RuntimeError(f'No weights specified for player {player}')
-
-    # set up logger
-    loglevel = {'error': logging.ERROR, 'info': logging.INFO, 'warning': logging.WARNING, 'debug': logging.DEBUG}[erargs.loglevel]
-    logging.basicConfig(format='%(message)s', level=loglevel)
-
-    DRMain(erargs, seed, BabelFish())
 
 def get_weights(path):
     try:
@@ -109,6 +15,7 @@ def get_weights(path):
     except Exception as e:
         raise Exception(f'Failed to read weights file: {e}')
 
+
 def roll_settings(weights):
     def get_choice(option, root=None):
         root = weights if root is None else root
@@ -118,7 +25,7 @@ def roll_settings(weights):
             return root[option]
         if not root[option]:
             return None
-        return random.choices(list(root[option].keys()), weights=list(map(int,root[option].values())))[0]
+        return random.choices(list(root[option].keys()), weights=list(map(int, root[option].values())))[0]
 
     def get_choice_default(option, root=weights, default=None):
         choice = get_choice(option, root)
@@ -139,6 +46,7 @@ def roll_settings(weights):
     ret = argparse.Namespace()
 
     ret.algorithm = get_choice('algorithm')
+    ret.mystery = get_choice_default('mystery', default=True)
 
     glitch_map = {'none': 'noglitches', 'no_logic': 'nologic', 'owglitches': 'owglitches',
                   'minorglitches': 'minorglitches'}
@@ -149,14 +57,16 @@ def roll_settings(weights):
             glitches_required = 'none'
         ret.logic = glitch_map[glitches_required]
 
-    item_placement = get_choice('item_placement')
+    # item_placement = get_choice('item_placement')
     # not supported in ER
 
     dungeon_items = get_choice('dungeon_items')
-    ret.mapshuffle = get_choice('map_shuffle') == 'on' if 'map_shuffle' in weights else dungeon_items in ['mc', 'mcs', 'full']
-    ret.compassshuffle = get_choice('compass_shuffle') == 'on' if 'compass_shuffle' in weights else dungeon_items in ['mc', 'mcs', 'full']
-    ret.keyshuffle = get_choice('smallkey_shuffle') == 'on' if 'smallkey_shuffle' in weights else dungeon_items in ['mcs', 'full']
-    ret.bigkeyshuffle = get_choice('bigkey_shuffle') == 'on' if 'bigkey_shuffle' in weights else dungeon_items in ['full']
+    dungeon_items = '' if dungeon_items == 'standard' or dungeon_items is None else dungeon_items
+    dungeon_items = 'mcsb' if dungeon_items == 'full' else dungeon_items
+    ret.mapshuffle = get_choice('map_shuffle') == 'on' if 'map_shuffle' in weights else 'm' in dungeon_items
+    ret.compassshuffle = get_choice('compass_shuffle') == 'on' if 'compass_shuffle' in weights else 'c' in dungeon_items
+    ret.keyshuffle = get_choice('smallkey_shuffle') == 'on' if 'smallkey_shuffle' in weights else 's' in dungeon_items
+    ret.bigkeyshuffle = get_choice('bigkey_shuffle') == 'on' if 'bigkey_shuffle' in weights else 'b' in dungeon_items
 
     ret.accessibility = get_choice('accessibility')
     ret.restrict_boss_items = get_choice('restrict_boss_items')
@@ -178,11 +88,14 @@ def roll_settings(weights):
     ret.shufflelinks = get_choice('shufflelinks') == 'on'
     ret.pseudoboots = get_choice('pseudoboots') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
-    ret.dropshuffle = get_choice('dropshuffle') == 'on'
+    keydropshuffle = get_choice('keydropshuffle') == 'on'
+    ret.dropshuffle = get_choice('dropshuffle') == 'on' or keydropshuffle
     ret.pottery = get_choice('pottery') if 'pottery' in weights else 'none'
+    ret.pottery = 'keys' if ret.pottery == 'none' and keydropshuffle else ret.pottery
     ret.shufflepots = get_choice('pot_shuffle') == 'on'
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
-    ret.standardize_palettes = get_choice('standardize_palettes') if 'standardize_palettes' in weights else 'standardize'
+    ret.standardize_palettes = (get_choice('standardize_palettes') if 'standardize_palettes' in weights
+                                else 'standardize')
 
     goal = get_choice('goals')
     if goal is not None:
@@ -219,10 +132,10 @@ def roll_settings(weights):
     swords = get_choice('weapons')
     if swords is not None:
         ret.swords = {'randomized': 'random',
-                    'assured': 'assured',
-                    'vanilla': 'vanilla',
-                    'swordless': 'swordless'
-                    }[swords]
+                      'assured': 'assured',
+                      'vanilla': 'vanilla',
+                      'swordless': 'swordless'
+                      }[swords]
 
     ret.difficulty = get_choice('item_pool')
 
@@ -267,7 +180,6 @@ def roll_settings(weights):
         ret.disablemusic = get_choice('disablemusic', romweights) == 'on'
         ret.quickswap = get_choice('quickswap', romweights) == 'on'
         ret.reduce_flashing = get_choice('reduce_flashing', romweights) == 'on'
-        ret.msu_resume = get_choice('msu_resume', romweights) == 'on'
         ret.fastmenu = get_choice('menuspeed', romweights)
         ret.heartcolor = get_choice('heartcolor', romweights)
         ret.heartbeep = get_choice('heartbeep', romweights)
@@ -276,6 +188,3 @@ def roll_settings(weights):
         ret.shuffle_sfx = get_choice('shuffle_sfx', romweights) == 'on'
 
     return ret
-
-if __name__ == '__main__':
-    main()

@@ -6,7 +6,7 @@ import RaceRandom as random
 from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
 from EntranceShuffle import connect_entrance
 from Regions import shop_to_location_table, retro_shops, shop_table_by_location, valid_pot_location
-from Fill import FillError, fill_restrictive, fast_fill, get_dungeon_item_pool
+from Fill import FillError, fill_restrictive, get_dungeon_item_pool, is_dungeon_item
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
@@ -254,7 +254,9 @@ def generate_itempool(world, player):
         world.get_location('Zelda Drop Off', player).locked = True
 
     # set up item pool
-    if world.custom:
+    if world.customizer and world.customizer.get_item_pool():
+        (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = make_customizer_pool(world, player)
+    elif world.custom:
         (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms) = make_custom_item_pool(world.progressive, world.shuffle[player], world.difficulty[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.customitemarray)
         world.rupoor_cost = min(world.customitemarray[player]["rupoorcost"], 9999)
     else:
@@ -352,7 +354,9 @@ def generate_itempool(world, player):
     # rather than making all hearts/heart pieces progression items (which slows down generation considerably)
     # We mark one random heart container as an advancement item (or 4 heart pieces in expert mode)
     if world.difficulty[player] in ['normal', 'hard'] and not (world.custom and world.customitemarray[player]["heartcontainer"] == 0):
-        next(item for item in items if item.name == 'Boss Heart Container').advancement = True
+        container = next((item for item in items if item.name == 'Boss Heart Container'), None)
+        if container:
+            container.advancement = True
     elif world.difficulty[player] in ['expert'] and not (world.custom and world.customitemarray[player]["heartpiece"] < 4):
         adv_heart_pieces = (item for item in items if item.name == 'Piece of Heart')
         for i in range(4):
@@ -372,8 +376,19 @@ def generate_itempool(world, player):
     world.itempool += [beemizer(item) for item in items]
 
     # shuffle medallions
-    mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
-    tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+    mm_medallion, tr_medallion = None, None
+    if world.customizer and world.customizer.get_medallions() and player in world.customizer.get_medallions():
+        medal_map = world.customizer.get_medallions()
+        if player in medal_map:
+            custom_medallions = medal_map[player]
+            if 'Misery Mire' in custom_medallions:
+                mm_medallion = custom_medallions['Misery Mire']
+            if 'Turtle Rock' in custom_medallions:
+                tr_medallion = custom_medallions['Turtle Rock']
+    if not mm_medallion:
+        mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+    if not tr_medallion:
+        tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     world.required_medallions[player] = (mm_medallion, tr_medallion)
 
     # shuffle bottle refills
@@ -797,12 +812,8 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
 
     lamps_needed_for_dark_rooms = 1
 
-    # insanity shuffle doesn't have fake LW/DW logic so for now guaranteed Mirror and Moon Pearl at the start
-    if shuffle == 'insanity_legacy':
-        place_item('Link\'s House', 'Magic Mirror')
-        place_item('Sanctuary', 'Moon Pearl')
-    else:
-        pool.extend(['Magic Mirror', 'Moon Pearl'])
+    # old insanity shuffle didn't have fake LW/DW logic so this used to be conditional
+    pool.extend(['Magic Mirror', 'Moon Pearl'])
 
     if timer == 'display':
         clock_mode = 'stopwatch'
@@ -993,15 +1004,8 @@ def make_custom_item_pool(progressive, shuffle, difficulty, timer, goal, mode, s
 
     pool.extend(['Fighter Sword'] * customitemarray["sword1"])
     pool.extend(['Progressive Sword'] * customitemarray["progressivesword"])
-
-    if shuffle == 'insanity_legacy':
-        place_item('Link\'s House', 'Magic Mirror')
-        place_item('Sanctuary', 'Moon Pearl')
-        pool.extend(['Magic Mirror'] * max((customitemarray["mirror"] -1 ), 0))
-        pool.extend(['Moon Pearl'] * max((customitemarray["pearl"] - 1), 0))
-    else:
-        pool.extend(['Magic Mirror'] * customitemarray["mirror"])
-        pool.extend(['Moon Pearl'] * customitemarray["pearl"])
+    pool.extend(['Magic Mirror'] * customitemarray["mirror"])
+    pool.extend(['Moon Pearl'] * customitemarray["pearl"])
 
     if retro:
         itemtotal = itemtotal - 28 # Corrects for small keys not being in item pool in Retro Mode
@@ -1012,6 +1016,39 @@ def make_custom_item_pool(progressive, shuffle, difficulty, timer, goal, mode, s
 
     return (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms)
 
+
+def make_customizer_pool(world, player):
+    pool = []
+    placed_items = {}
+    precollected_items = []
+    clock_mode = None
+
+    def place_item(loc, item):
+        assert loc not in placed_items
+        placed_items[loc] = item
+
+    diff = difficulties[world.difficulty[player]]
+    for item_name, amount in world.customizer.get_item_pool()[player].items():
+        if isinstance(amount, int):
+            if item_name == 'Bottle (Random)':
+                for _ in range(amount):
+                    pool.append(random.choice(diff.bottles))
+            else:
+                pool.extend([item_name] * amount)
+
+    timer = world.timer[player]
+    if timer in ['display', 'timed', 'timed-countdown']:
+        clock_mode = 'countdown' if timer == 'timed-countdown' else 'stopwatch'
+    elif timer == 'timed-ohko':
+        clock_mode = 'countdown-ohko'
+    elif timer == 'ohko':
+        clock_mode = 'ohko'
+
+    if world.goal[player] == 'pedestal':
+        place_item('Master Sword Pedestal', 'Triforce')
+
+    return pool, placed_items, precollected_items, clock_mode, 1
+
 # A quick test to ensure all combinations generate the correct amount of items.
 def test():
     for difficulty in ['normal', 'hard', 'expert']:
@@ -1020,7 +1057,7 @@ def test():
                 for mode in ['open', 'standard', 'inverted', 'retro']:
                     for swords in ['random', 'assured', 'swordless', 'vanilla']:
                         for progressive in ['on', 'off']:
-                            for shuffle in ['full', 'insanity_legacy']:
+                            for shuffle in ['full']:
                                 for logic in ['noglitches', 'minorglitches', 'owglitches', 'nologic']:
                                     for retro in [True, False]:
                                         for bombbag in [True, False]:
@@ -1044,24 +1081,48 @@ if __name__ == '__main__':
 
 
 def fill_specific_items(world):
-    keypool = [item for item in world.itempool if item.smallkey]
-    cage = world.get_location('Tower of Hera - Basement Cage', 1)
-    c_dungeon = cage.parent_region.dungeon
-    key_item = next(x for x in keypool if c_dungeon.name in x.name or (c_dungeon.name == 'Hyrule Castle' and 'Escape' in x.name))
-    world.itempool.remove(key_item)
-    all_state = world.get_all_state(True)
-    fill_restrictive(world, all_state, [cage], [key_item])
+    if world.customizer:
+        placements = world.customizer.get_placements()
+        dungeon_pool = get_dungeon_item_pool(world)
+        prize_pool = []
+        prize_set = {'Red Pendant', 'Blue Pendant', 'Green Pendant', 'Crystal 1', 'Crystal 2',
+                     'Crystal 3', 'Crystal 4', 'Crystal 7', 'Crystal 5', 'Crystal 6'}
+        for p in range(1, world.players + 1):
+            prize_pool.extend(prize_set)
+        if placements:
+            for player, placement_list in placements.items():
+                for location, item in placement_list.items():
+                    loc = world.get_location(location, player)
+                    item_parts = item.split('#')
+                    item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                    item_name = item_parts[0]
+                    event_flag = False
+                    if is_dungeon_item(item_name, world, item_player):
+                        item_to_place = next(x for x in dungeon_pool
+                                             if x.name == item_name and x.player == item_player)
+                        dungeon_pool.remove(item_to_place)
+                        event_flag = True
+                    elif item_name in prize_set:
+                        item_player = player  # prizes must be for that player
+                        item_to_place = ItemFactory(item_name, item_player)
+                        prize_pool.remove(item_name)
+                        event_flag = True
+                    else:
+                        item_to_place = next((x for x in world.itempool
+                                             if x.name == item_name and x.player == item_player), None)
+                        if item_to_place is None:
+                            item_to_place = ItemFactory(item_name, player)
+                        else:
+                            world.itempool.remove(item_to_place)
+                    world.push_item(loc, item_to_place, False)
+                    # track_outside_keys(item_to_place, spot_to_fill, world)
+                    # track_dungeon_items(item_to_place, spot_to_fill, world)
+                    loc.event = event_flag or item_to_place.advancement
 
-    location = world.get_location('Tower of Hera - Map Chest', 1)
-    key_item = next(x for x in world.itempool if 'Byrna' in x.name)
-    world.itempool.remove(key_item)
-    fast_fill(world, [key_item], [location])
 
-
-    # somaria = next(item for item in world.itempool if item.name == 'Cane of Somaria')
-    # shooter = world.get_location('Palace of Darkness - Shooter Room', 1)
-    # world.itempool.remove(somaria)
-    # all_state = world.get_all_state(True)
-    # fill_restrictive(world, all_state, [shooter], [somaria])
-
+def is_dungeon_item(item, world, player):
+    return ((item.startswith('Small Key') and not world.keyshuffle[player])
+            or (item.startswith('Big Key') and not world.bigkeyshuffle[player])
+            or (item.startswith('Compass') and not world.compassshuffle[player])
+            or (item.startswith('Map') and not world.mapshuffle[player]))
 

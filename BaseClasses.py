@@ -113,7 +113,7 @@ class World(object):
             set_player_attr('can_access_trock_front', None)
             set_player_attr('can_access_trock_big_chest', None)
             set_player_attr('can_access_trock_middle', None)
-            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic'] or shuffle[player] in ['crossed', 'insanity', 'madness_legacy'])
+            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic'] or shuffle[player] in ['crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
             set_player_attr('keyshuffle', False)
@@ -2733,8 +2733,8 @@ class Pot(object):
 
 # byte 0: DDDE EEEE (DR, ER)
 dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0}
-er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, "insanity": 5, "restricted_legacy": 8,
-           "full_legacy": 9, "madness_legacy": 10, "insanity_legacy": 11, "dungeonsfull": 7, "dungeonssimple": 6}
+er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, "insanity": 5, 'lite': 8,
+           'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6}
 
 # byte 1: LLLW WSSR (logic, mode, sword, retro)
 logic_mode = {"noglitches": 0, "minorglitches": 1, "nologic": 2, "owglitches": 3, "majorglitches": 4}
@@ -2753,7 +2753,7 @@ mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 
 # new byte 4: ?DDD PPPP (unused, drop, pottery)
 # dropshuffle reserves 2 bits, pottery needs 2 but reserves 2 for future modes)
-pottery_mode = {"none": 0, "shuffle": 1, "keys": 2, "lottery": 3, 'dungeon': 4, 'cave': 5}
+pottery_mode = {"none": 0, "shuffle": 1, "keys": 2, 'lottery': 3, 'dungeon': 4, 'cave': 5}
 
 # byte 5: CCCC CTTX (crystals gt, ctr2, experimental)
 counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}

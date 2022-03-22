@@ -316,6 +316,18 @@ class Room(object):
             byte_array.append(kind.value)
         return byte_array
 
+    def next_free(self):
+        for i, door in enumerate(self.doorList):
+            if i >= 4:
+                return None
+            pos, kind = door
+            if kind not in [DoorKind.SmallKey, DoorKind.Dashable, DoorKind.Bombable, DoorKind.TrapTriggerable,
+                            DoorKind.Trap, DoorKind.Trap2, DoorKind.TrapTriggerableLow, DoorKind.TrapLowE3,
+                            DoorKind.BigKey, DoorKind.StairKey, DoorKind.StairKey2, DoorKind.StairKeyLow,
+                            DoorKind.BlastWall, DoorKind.BombableEntrance]:
+                return i
+        return None
+
     def __str__(self):
         return str(self.__unicode__())
 

@@ -11,7 +11,7 @@ from source.item.FillUtil import filter_pot_locations, valid_pot_items
 
 
 def get_dungeon_item_pool(world):
-    return [item for dungeon in world.dungeons for item in dungeon.all_items]
+    return [item for dungeon in world.dungeons for item in dungeon.all_items if item.location is None]
 
 
 def promote_dungeon_items(world):

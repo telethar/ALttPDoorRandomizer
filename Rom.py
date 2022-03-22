@@ -681,7 +681,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                     # Thanks to Zarby89 for originally finding these values
                     # todo fix screen scrolling
 
-                    if world.shuffle[player] not in ['insanity', 'insanity_legacy', 'madness_legacy'] and \
+                    if world.shuffle[player] not in ['insanity'] and \
                             exit.name in ['Eastern Palace Exit', 'Tower of Hera Exit', 'Thieves Town Exit', 'Ice Palace Exit', 'Misery Mire Exit',
                                           'Palace of Darkness Exit', 'Swamp Palace Exit', 'Ganons Tower Exit', 'Desert Palace Exit (North)', 'Agahnims Tower Exit', 'Spiral Cave Exit (Top)',
                                           'Superbunny Cave Exit (Bottom)', 'Turtle Rock Ledge Exit (East)']:
@@ -790,8 +790,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 rom.write_byte(0x13f030+offset, layout.max_chests)
             builder = world.dungeon_layouts[player][name]
             valid_cnt = len(valid_loc_by_dungeon[name])
-            if valid_cnt > 99:
-                logging.getLogger('').warning(f'{name} exceeds 99 in locations ({valid_cnt})')
+            if valid_cnt > 256:
+                logging.getLogger('').warning(f'{name} exceeds 256 in locations ({valid_cnt})')
             rom.write_byte(0x13f080+offset, valid_cnt % 10)
             rom.write_byte(0x13f090+offset, valid_cnt // 10)
             rom.write_byte(0x13f0a0+offset, valid_cnt)
@@ -1644,7 +1644,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0x02F539, [0xEA, 0xEA, 0xEA, 0xEA, 0xEA] if world.powder_patch_required[player] else [0xAD, 0xBF, 0x0A, 0xF0, 0x4F])
 
     # allow smith into multi-entrance caves in appropriate shuffles
-    if world.shuffle[player] in ['restricted', 'full', 'crossed', 'insanity'] or (world.shuffle[player] == 'simple' and world.mode[player] == 'inverted'):
+    if world.shuffle[player] in ['restricted', 'full', 'lite', 'lean', 'crossed', 'insanity'] or (world.shuffle[player] == 'simple' and world.mode[player] == 'inverted'):
         rom.write_byte(0x18004C, 0x01)
 
     # set correct flag for hera basement item
@@ -2133,7 +2133,7 @@ def write_strings(rom, world, player, team):
                 entrances_to_hint.update({'Inverted Ganons Tower': 'The sealed castle door'})
             else:
                 entrances_to_hint.update({'Ganons Tower': 'Ganon\'s Tower'})
-        if world.shuffle[player] in ['simple', 'restricted', 'restricted_legacy']:
+        if world.shuffle[player] in ['simple', 'restricted']:
             for entrance in all_entrances:
                 if entrance.name in entrances_to_hint:
                     this_hint = entrances_to_hint[entrance.name] + ' leads to ' + hint_text(entrance.connected_region) + '.'
@@ -2144,22 +2144,22 @@ def write_strings(rom, world, player, team):
         entrances_to_hint.update(InconvenientOtherEntrances)
         if world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
             hint_count = 0
-        elif world.shuffle[player] in ['simple', 'restricted', 'restricted_legacy']:
+        elif world.shuffle[player] in ['simple', 'restricted']:
             hint_count = 2
         else:
             hint_count = 4
         for entrance in all_entrances:
-            if entrance.name in entrances_to_hint:
-                if hint_count > 0:
+            if hint_count > 0:
+                if entrance.name in entrances_to_hint:
                     this_hint = entrances_to_hint[entrance.name] + ' leads to ' + hint_text(entrance.connected_region) + '.'
                     tt[hint_locations.pop(0)] = this_hint
                     entrances_to_hint.pop(entrance.name)
                     hint_count -= 1
-                else:
-                    break
+            else:
+                break
 
         #Next we handle hints for randomly selected other entrances, curating the selection intelligently based on shuffle.
-        if world.shuffle[player] not in ['simple', 'restricted', 'restricted_legacy']:
+        if world.shuffle[player] not in ['simple', 'restricted']:
             entrances_to_hint.update(ConnectorEntrances)
             entrances_to_hint.update(DungeonEntrances)
             if world.mode[player] == 'inverted':
@@ -2168,7 +2168,17 @@ def write_strings(rom, world, player, team):
                 entrances_to_hint.update({'Agahnims Tower': 'The sealed castle door'})
         elif world.shuffle[player] == 'restricted':
             entrances_to_hint.update(ConnectorEntrances)
-        entrances_to_hint.update(OtherEntrances)
+        entrances_to_hint.update(ItemEntrances)
+        if world.shuffle[player] not in ['lite', 'lean']:
+            entrances_to_hint.update(ShopEntrances)
+            entrances_to_hint.update(OtherEntrances)
+        elif world.shopsanity[player]:
+            entrances_to_hint.update(ShopEntrances)
+        if world.shufflelinks[player] and world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
+            if world.mode[player] == 'inverted':
+                entrances_to_hint.update({'Inverted Links House': 'The hero\'s old residence'})
+            else:
+                entrances_to_hint.update({'Links House': 'The hero\'s old residence'})
         if world.mode[player] == 'inverted':
             entrances_to_hint.update({'Inverted Dark Sanctuary': 'The dark sanctuary cave'})
             entrances_to_hint.update({'Inverted Big Bomb Shop': 'The old hero\'s dark home'})
@@ -2176,7 +2186,7 @@ def write_strings(rom, world, player, team):
         else:
             entrances_to_hint.update({'Dark Sanctuary Hint': 'The dark sanctuary cave'})
             entrances_to_hint.update({'Big Bomb Shop': 'The old bomb shop'})
-        if world.shuffle[player] in ['insanity', 'madness_legacy', 'insanity_legacy']:
+        if world.shuffle[player] in ['insanity']:
             entrances_to_hint.update(InsanityEntrances)
             if world.shuffle_ganon:
                 if world.mode[player] == 'inverted':
@@ -2802,16 +2812,45 @@ DungeonEntrances = {'Eastern Palace': 'Eastern Palace',
                     'Desert Palace Entrance (North)': 'The northmost cave in the desert'
                     }
 
-OtherEntrances = {'Blinds Hideout': 'Blind\'s old house',
-                  'Lake Hylia Fairy': 'A cave NE of Lake Hylia',
+ItemEntrances = {'Blinds Hideout': 'Blind\'s old house',
+                 'Chicken House': 'The chicken lady\'s house',
+                 'Aginahs Cave': 'The open desert cave',
+                 'Sahasrahlas Hut': 'The house near armos',
+                 'Blacksmiths Hut': 'The old smithery',
+                 'Sick Kids House': 'The central house in Kakariko',
+                 'Mini Moldorm Cave': 'The cave south of Lake Hylia',
+                 'Ice Rod Cave': 'The sealed cave SE Lake Hylia',
+                 'Library': 'The old library',
+                 'Potion Shop': 'The witch\'s building',
+                 'Dam': 'The old dam',
+                 'Waterfall of Wishing': 'Going behind the waterfall',
+                 'Bonk Rock Cave': 'The rock pile near Sanctuary',
+                 'Graveyard Cave': 'The graveyard ledge',
+                 'Checkerboard Cave': 'The NE desert ledge',
+                 'Cave 45': 'The ledge south of haunted grove',
+                 'Kings Grave': 'The northeastmost grave',
+                 'C-Shaped House': 'The NE house in Village of Outcasts',
+                 'Mire Shed': 'The western hut in the mire',
+                 'Spike Cave': 'The ledge cave on west dark DM',
+                 'Hype Cave': 'The cave south of the old bomb shop',
+                 'Brewery': 'The Village of Outcasts building with no door',
+                 'Chest Game': 'The westmost building in the Village of Outcasts',
+                 }
+
+ShopEntrances = {'Cave Shop (Lake Hylia)': 'The cave NW Lake Hylia',
+                 'Kakariko Shop': 'The old Kakariko shop',
+                 'Capacity Upgrade': 'The cave on the island',
+                 'Dark Lake Hylia Shop': 'The building NW dark Lake Hylia',
+                 'Dark World Shop': 'The hammer sealed building',
+                 'Red Shield Shop': 'The fenced in building',
+                 'Cave Shop (Dark Death Mountain)': 'The base of east dark DM',
+                 'Dark World Potion Shop': 'The building near the catfish',
+                 'Dark World Lumberjack Shop': 'The northmost Dark World building'
+                 }
+
+OtherEntrances = {'Lake Hylia Fairy': 'A cave NE of Lake Hylia',
                   'Light Hype Fairy': 'The cave south of your house',
                   'Desert Fairy': 'The cave near the desert',
-                  'Chicken House': 'The chicken lady\'s house',
-                  'Aginahs Cave': 'The open desert cave',
-                  'Sahasrahlas Hut': 'The house near armos',
-                  'Cave Shop (Lake Hylia)': 'The cave NW Lake Hylia',
-                  'Blacksmiths Hut': 'The old smithery',
-                  'Sick Kids House': 'The central house in Kakariko',
                   'Lost Woods Gamble': 'A tree trunk door',
                   'Fortune Teller (Light)': 'A building NE of Kakariko',
                   'Snitch Lady (East)': 'A house guarded by a snitch',
@@ -2819,49 +2858,24 @@ OtherEntrances = {'Blinds Hideout': 'Blind\'s old house',
                   'Bush Covered House': 'A house with an uncut lawn',
                   'Tavern (Front)': 'A building with a backdoor',
                   'Light World Bomb Hut': 'A Kakariko building with no door',
-                  'Kakariko Shop': 'The old Kakariko shop',
-                  'Mini Moldorm Cave': 'The cave south of Lake Hylia',
                   'Long Fairy Cave': 'The eastmost portal cave',
                   'Good Bee Cave': 'The open cave SE Lake Hylia',
                   '20 Rupee Cave': 'The rock SE Lake Hylia',
                   '50 Rupee Cave': 'The rock near the desert',
-                  'Ice Rod Cave': 'The sealed cave SE Lake Hylia',
-                  'Library': 'The old library',
-                  'Potion Shop': 'The witch\'s building',
-                  'Dam': 'The old dam',
                   'Lumberjack House': 'The lumberjack house',
                   'Lake Hylia Fortune Teller': 'The building NW Lake Hylia',
                   'Kakariko Gamble Game': 'The old Kakariko gambling den',
-                  'Waterfall of Wishing': 'Going behind the waterfall',
-                  'Capacity Upgrade': 'The cave on the island',
-                  'Bonk Rock Cave': 'The rock pile near Sanctuary',
-                  'Graveyard Cave': 'The graveyard ledge',
-                  'Checkerboard Cave': 'The NE desert ledge',
-                  'Cave 45': 'The ledge south of haunted grove',
-                  'Kings Grave': 'The northeastmost grave',
                   'Bonk Fairy (Light)': 'The rock pile near your home',
                   'Hookshot Fairy': 'The left paired cave on east DM',
-				  'Bonk Fairy (Dark)': 'The rock pile near the old bomb shop',
+                  'Bonk Fairy (Dark)': 'The rock pile near the old bomb shop',
                   'Dark Lake Hylia Fairy': 'The cave NE dark Lake Hylia',
-                  'C-Shaped House': 'The NE house in Village of Outcasts',
                   'Dark Death Mountain Fairy': 'The SW cave on dark DM',
-                  'Dark Lake Hylia Shop': 'The building NW dark Lake Hylia',
-                  'Dark World Shop': 'The hammer sealed building',
-                  'Red Shield Shop': 'The fenced in building',
-                  'Mire Shed': 'The western hut in the mire',
                   'East Dark World Hint': 'The dark cave near the eastmost portal',
                   'Dark Desert Hint': 'The cave east of the mire',
-                  'Spike Cave': 'The ledge cave on west dark DM',
                   'Palace of Darkness Hint': 'The building south of Kiki',
                   'Dark Lake Hylia Ledge Spike Cave': 'The rock SE dark Lake Hylia',
-                  'Cave Shop (Dark Death Mountain)': 'The base of east dark DM',
-                  'Dark World Potion Shop': 'The building near the catfish',
                   'Archery Game': 'The old archery game',
-                  'Dark World Lumberjack Shop': 'The northmost Dark World building',
-                  'Hype Cave': 'The cave south of the old bomb shop',
-                  'Brewery': 'The Village of Outcasts building with no door',
                   'Dark Lake Hylia Ledge Hint': 'The open cave SE dark Lake Hylia',
-                  'Chest Game': 'The westmost building in the Village of Outcasts',
                   'Dark Desert Fairy': 'The eastern hut in the mire',
                   'Dark Lake Hylia Ledge Fairy': 'The sealed cave SE dark Lake Hylia',
                   'Fortune Teller (Dark)': 'The building NE the Village of Outcasts'

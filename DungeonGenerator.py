@@ -1286,6 +1286,10 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player,
         complete_dungeons = {x: y for x, y in dungeon_map.items() if sum(len(sector.outstanding_doors) for sector in y.sectors) <= 0}
         [dungeon_map.pop(key) for key in complete_dungeons.keys()]
 
+        if not dungeon_map:
+            dungeon_map.update(complete_dungeons)
+            return dungeon_map
+
         # categorize sectors
         identify_destination_sectors(accessible_sectors, reverse_d_map, dungeon_map, connections,
                                      dungeon_entrances, split_dungeon_entrances)
@@ -1398,6 +1402,8 @@ def identify_destination_sectors(accessible_sectors, reverse_d_map, dungeon_map,
                 explored = False
             else:
                 d_name = reverse_d_map[sector]
+                if d_name not in dungeon_map:
+                    return
                 if d_name not in split_dungeon_entrances:
                     for r_name in dungeon_entrances[d_name]:
                         ent_sector = find_sector(r_name, dungeon_map[d_name].sectors)
@@ -2953,6 +2959,8 @@ def split_dungeon_builder(builder, split_list, builder_info):
                     sub_builder.all_entrances = list(split_entrances)
                 for r_name in split_entrances:
                     assign_sector(find_sector(r_name, candidate_sectors), sub_builder, candidate_sectors, global_pole)
+            if len(candidate_sectors) == 0:
+                return dungeon_map
             comb_w_replace = len(dungeon_map) ** len(candidate_sectors)
             return balance_split(candidate_sectors, dungeon_map, global_pole, builder_info)
         except (GenerationException, NeutralizingException):

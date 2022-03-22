@@ -131,15 +131,13 @@
 
     "randomizer.entrance.entranceshuffle": "Entrance Shuffle",
     "randomizer.entrance.entranceshuffle.vanilla": "Vanilla",
+    "randomizer.entrance.entranceshuffle.lite": "Lite",
+    "randomizer.entrance.entranceshuffle.lean": "Lean",
     "randomizer.entrance.entranceshuffle.simple": "Simple",
     "randomizer.entrance.entranceshuffle.restricted": "Restricted",
     "randomizer.entrance.entranceshuffle.full": "Full",
     "randomizer.entrance.entranceshuffle.crossed": "Crossed",
     "randomizer.entrance.entranceshuffle.insanity": "Insanity",
-    "randomizer.entrance.entranceshuffle.restricted_legacy": "Restricted (Legacy)",
-    "randomizer.entrance.entranceshuffle.full_legacy": "Full (Legacy)",
-    "randomizer.entrance.entranceshuffle.madness_legacy": "Madness (Legacy)",
-    "randomizer.entrance.entranceshuffle.insanity_legacy": "Insanity (Legacy)",
     "randomizer.entrance.entranceshuffle.dungeonsfull": "Dungeons + Full",
     "randomizer.entrance.entranceshuffle.dungeonssimple": "Dungeons + Simple",
 
@@ -192,6 +190,7 @@
     "randomizer.generation.createspoiler": "Create Spoiler Log",
     "randomizer.generation.createrom": "Create Patched ROM",
     "randomizer.generation.calcplaythrough": "Calculate Playthrough",
+    "randomizer.generation.print_custom_yaml": "Print Customizer File",
     "randomizer.generation.usestartinventory": "Use Starting Inventory",
     "randomizer.generation.usecustompool": "Use Custom Item Pool",
 
