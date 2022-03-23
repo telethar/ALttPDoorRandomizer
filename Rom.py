@@ -35,7 +35,7 @@ from source.item.FillUtil import valid_pot_items
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'e972dbe4fac91ce33979c6c49a210a7d'
+RANDOMIZERBASEHASH = '57df02038c77f9a3b915af21d3c59b78'
 
 
 class JsonRom(object):
