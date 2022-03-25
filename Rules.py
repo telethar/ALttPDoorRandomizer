@@ -736,9 +736,10 @@ def pot_rules(world, player):
         for l in world.get_region('Palace of Darkness Hint', player).locations:
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
-        for l in world.get_region('Dark Lake Hylia Ledge Spike Cave', player).locations:
-            if l.type == LocationType.Pot:
-                add_rule(l, lambda state: state.world.can_take_damage or state.has('Hookshot', player)
+        for number in ['1', '2']:
+            loc = world.get_location_unsafe(f'Dark Lake Hylia Ledge Spike Cave Pot #{number}', player)
+            if loc and loc.type == LocationType.Pot:
+                add_rule(loc, lambda state: state.world.can_take_damage or state.has('Hookshot', player)
                          or state.has('Cape', player)
                          or (state.has('Cane of Byrna', player)
                              and state.world.difficulty_adjustments[player] == 'normal'))

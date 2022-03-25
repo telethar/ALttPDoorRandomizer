@@ -153,6 +153,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Inverted bug
 	* Fix for hammerdashing pots, if sprite limit is reached, items won't spawn, error beep won't play either because of other SFX
 	* Killing enemies freeze + hammer results in the droppable item instead of the freeze prize
+	* Forbid certain doors from being dashable when you either can't dash them open (but bombs would work) or you'd fall into a pit from the recoil in OHKO
 * 1.0.1.11
 	* Separated Collection Rate counter from experimental
 	* Added MSU Resume option

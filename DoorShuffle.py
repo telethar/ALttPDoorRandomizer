@@ -1791,12 +1791,30 @@ def stateful_door(door, kind):
     return False
 
 
+dashable_forbidden = {
+    'Swamp Trench 1 Key Ledge NW', 'Swamp Left Elbow WN', 'Swamp Right Elbow SE', 'Mire Hub WN', 'Mire Hub WS',
+    'Mire Hub Top NW', 'Mire Hub NE', 'Ice Dead End WS'
+}
+
+ohko_forbidden = {
+    'GT Invisible Catwalk NE', 'GT Falling Bridge WN', 'GT Falling Bridge WS', 'GT Hidden Star ES', 'GT Hookshot EN',
+    'GT Torch Cross WN', 'TR Torches WN', 'Mire Falling Bridge WS', 'Mire Falling Bridge W', 'Ice Hookshot Balcony SW',
+    'Ice Catwalk WN', 'Ice Catwalk NW', 'Ice Bomb Jump NW', 'GT Cannonball Bridge SE'
+}
+
+
+def filter_dashable_candidates(candidates, world):
+    forbidden_set = dashable_forbidden if world.can_take_damage else ohko_forbidden
+    return [x for x in candidates if x not in forbidden_set and x.dest not in forbidden_set]
+
+
 def shuffle_bombable_dashable(bd_candidates, world, player):
     if world.doorShuffle[player] == 'basic':
         for dungeon, candidates in bd_candidates.items():
             diff = bomb_dash_counts[dungeon.name][1]
             if diff > 0:
-                for chosen in random.sample(candidates, min(diff, len(candidates))):
+                dash_candidates = filter_dashable_candidates(candidates, world)
+                for chosen in random.sample(dash_candidates, min(diff, len(candidates))):
                     change_pair_type(chosen, DoorKind.Dashable, world, player)
                     candidates.remove(chosen)
             diff = bomb_dash_counts[dungeon.name][0]
@@ -1808,7 +1826,8 @@ def shuffle_bombable_dashable(bd_candidates, world, player):
                 remove_pair_type_if_present(excluded, world, player)
     elif world.doorShuffle[player] == 'crossed':
         all_candidates = sum(bd_candidates.values(), [])
-        for chosen in random.sample(all_candidates, min(8, len(all_candidates))):
+        dash_candidates = filter_dashable_candidates(all_candidates, world)
+        for chosen in random.sample(dash_candidates, min(8, len(all_candidates))):
             change_pair_type(chosen, DoorKind.Dashable, world, player)
             all_candidates.remove(chosen)
         for chosen in random.sample(all_candidates, min(12, len(all_candidates))):
