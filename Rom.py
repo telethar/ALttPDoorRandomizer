@@ -2268,7 +2268,7 @@ def write_strings(rom, world, player, team):
         random.shuffle(items_to_hint)
         hint_count = 5 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 8
         hint_count += 2 if world.doorShuffle[player] == 'crossed' else 0
-        while hint_count > 0:
+        while hint_count > 0 and len(items_to_hint) > 0:
             this_item = items_to_hint.pop(0)
             this_location = world.find_items_not_key_only(this_item, player)
             random.shuffle(this_location)
