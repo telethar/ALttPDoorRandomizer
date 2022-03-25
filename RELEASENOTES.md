@@ -148,6 +148,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 #### Volatile
 
 * 1.0.1.12
+	* Fix for Multiworld forfeits, shops and pot items now included
+	* Reworked GT Trash Fill. Base rate is 0-75% of locations fill with 7 crystals entrance requirements. Triforce hunt is 75%-100% of locations. The 75% number will decrease based on the crystal entrance requirement. Dungeon_only algorithm caps it based on how many items need to be placed in dungeons. Cross dungeon shuffle will now work with the trash fill.
 	* Inverted bug
 	* Fix for hammerdashing pots, if sprite limit is reached, items won't spawn, error beep won't play either because of other SFX
 	* Killing enemies freeze + hammer results in the droppable item instead of the freeze prize
