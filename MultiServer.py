@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import shlex
+import ssl
 import urllib.request
 import websockets
 import zlib
@@ -405,7 +406,7 @@ async def main():
         logging.error('Failed to read multiworld data (%s)' % e)
         return
 
-    ip = urllib.request.urlopen('https://v4.ident.me').read().decode('utf8') if not ctx.host else ctx.host
+    ip = urllib.request.urlopen('https://v4.ident.me', context=ssl._create_unverified_context()).read().decode('utf8') if not ctx.host else ctx.host
     logging.info('Hosting game at %s:%d (%s)' % (ip, ctx.port, 'No password' if not ctx.password else 'Password: %s' % ctx.password))
 
     ctx.disable_save = args.disable_save
