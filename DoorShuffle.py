@@ -1887,7 +1887,7 @@ def smooth_door_pairs(world, player):
                         if type_b == DoorKind.SmallKey:
                             remove_pair(door, world, player)
                 else:
-                    if valid_pair:
+                    if valid_pair and not std_forbidden(door, world, player):
                         bd_candidates[door.entrance.parent_region.dungeon].append(door)
                     elif type_a in [DoorKind.Bombable, DoorKind.Dashable] or type_b in [DoorKind.Bombable, DoorKind.Dashable]:
                         if type_a in [DoorKind.Bombable, DoorKind.Dashable]:
@@ -1896,7 +1896,8 @@ def smooth_door_pairs(world, player):
                         else:
                             room_b.change(partner.doorListPos, DoorKind.Normal)
                             remove_pair(partner, world, player)
-            elif valid_pair and type_a != DoorKind.SmallKey and type_b != DoorKind.SmallKey:
+            elif (valid_pair and type_a != DoorKind.SmallKey and type_b != DoorKind.SmallKey
+                  and not std_forbidden(door, world, player)):
                 bd_candidates[door.entrance.parent_region.dungeon].append(door)
     shuffle_bombable_dashable(bd_candidates, world, player)
     world.paired_doors[player] = [x for x in world.paired_doors[player] if x.pair or x.original]
@@ -1933,6 +1934,11 @@ def stateful_door(door, kind):
     if 0 <= door.doorListPos < 4:
         return kind in [DoorKind.Normal, DoorKind.SmallKey, DoorKind.Bombable, DoorKind.Dashable]  #, DoorKind.BigKey]
     return False
+
+
+def std_forbidden(door, world, player):
+    return (world.mode[player] == 'standard' and door.entrance.parent_region.dungeon.name == 'Hyrule Castle' and
+            'Hyrule Castle Throne Room N' in [door.name, door.dest.name])
 
 
 def custom_door_kind(custom_key, kind, bd_candidates, counts, world, player):
