@@ -159,6 +159,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Logic refinements
 		* Skull X Room requires Boots or access to Skull Back Drop
 		* GT Falling Torches requires Boots to get over the falling tile gap (this is a stop-gap measure until more sophisticated crystal switch traversal is possible)
+	* Fixed a couple rain state issues 
 * 1.0.1.11
 	* Separated Collection Rate counter from experimental
 	* Added MSU Resume option
