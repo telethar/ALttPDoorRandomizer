@@ -392,7 +392,10 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         else:
             max_trash = gt_count
         scaled_trash = math.floor(max_trash * scale_factor)
-        gftower_trash_count = (random.randint(scaled_trash, max_trash) if world.goal[player] == 'triforcehunt' else random.randint(0, scaled_trash))
+        if world.goal[player] in ['triforcehunt', 'trinity']:
+            gftower_trash_count = random.randint(scaled_trash, max_trash)
+        else:
+            gftower_trash_count = random.randint(0, scaled_trash)
 
         gtower_locations = [location for location in fill_locations if location.parent_region.dungeon
                             and location.parent_region.dungeon.name == 'Ganons Tower' and location.player == player]
