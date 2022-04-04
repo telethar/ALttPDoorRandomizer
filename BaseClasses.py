@@ -2532,7 +2532,7 @@ class Spoiler(object):
                 outfile.write('Retro:                           %s\n' % ('Yes' if self.metadata['retro'][player] else 'No'))
                 outfile.write('Swords:                          %s\n' % self.metadata['weapons'][player])
                 outfile.write('Goal:                            %s\n' % self.metadata['goal'][player])
-                if self.metadata['goal'][player] == 'triforcehunt':
+                if self.metadata['goal'][player] in ['triforcehunt', 'trinity']:
                     outfile.write('Triforce Pieces Required:        %s\n' % self.metadata['triforcegoal'][player])
                     outfile.write('Triforce Pieces Total:           %s\n' % self.metadata['triforcepool'][player])
                 outfile.write('Difficulty:                      %s\n' % self.metadata['item_pool'][player])
@@ -2548,7 +2548,8 @@ class Spoiler(object):
                 outfile.write('Crystals required for GT:        %s\n' % (str(self.metadata['gt_crystals'][player]) + addition))
                 addition = ' (Random)' if self.world.crystals_ganon_orig[player] == 'random' else ''
                 outfile.write('Crystals required for Ganon:     %s\n' % (str(self.metadata['ganon_crystals'][player]) + addition))
-                outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
+                if self.metadata['goal'][player] != 'trinity':
+                    outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
                 outfile.write('Accessibility:                   %s\n' % self.metadata['accessibility'][player])
                 outfile.write(f"Restricted Boss Items:           {self.metadata['restricted_boss_items'][player]}\n")
                 outfile.write('Map shuffle:                     %s\n' % ('Yes' if self.metadata['mapshuffle'][player] else 'No'))
@@ -2742,7 +2743,7 @@ world_mode = {"open": 0, "standard": 1, "inverted": 2}
 sword_mode = {"random": 0,  "assured": 1, "swordless": 2, "vanilla": 3}
 
 # byte 2: GGGD DFFH (goal, diff, item_func, hints)
-goal_mode = {"ganon": 0, "pedestal": 1, "dungeons": 2, "triforcehunt": 3, "crystals": 4}
+goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5}
 diff_mode = {"normal": 0, "hard": 1, "expert": 2}
 func_mode = {"normal": 0, "hard": 1, "expert": 2}
 

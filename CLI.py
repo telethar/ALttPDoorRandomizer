@@ -195,8 +195,8 @@ def parse_settings():
         "mixed_travel": "prevent",
         "standardize_palettes": "standardize",
         
-        "triforce_pool": 30,
-        "triforce_goal": 20,
+        "triforce_pool": 0,
+        "triforce_goal": 0,
         "triforce_pool_min": 0,
         "triforce_pool_max": 0,
         "triforce_goal_min": 0,

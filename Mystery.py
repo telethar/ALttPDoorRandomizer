@@ -1,6 +1,9 @@
 import argparse
 import logging
 import RaceRandom as random
+import urllib.request
+import urllib.parse
+import yaml
 
 from DungeonRandomizer import parse_cli
 from Main import main as DRMain
