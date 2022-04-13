@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import logging
 import math
 import RaceRandom as random
@@ -257,15 +257,17 @@ def generate_itempool(world, player):
         world.get_location('Zelda Drop Off', player).locked = True
 
     # set up item pool
+    skip_pool_adjustments = False
     if world.customizer and world.customizer.get_item_pool():
         (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = make_customizer_pool(world, player)
+        skip_pool_adjustments = True
     elif world.custom:
         (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms) = make_custom_item_pool(world.progressive, world.shuffle[player], world.difficulty[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.customitemarray)
         world.rupoor_cost = min(world.customitemarray[player]["rupoorcost"], 9999)
     else:
         (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = get_pool_core(world.progressive, world.shuffle[player], world.difficulty[player], world.treasure_hunt_total[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.doorShuffle[player], world.logic[player])
 
-    if player in world.pool_adjustment.keys():
+    if player in world.pool_adjustment.keys() and not skip_pool_adjustments:
         amt = world.pool_adjustment[player]
         if amt < 0:
             trash_options = [x for x in pool if x in trash_items]
@@ -311,7 +313,7 @@ def generate_itempool(world, player):
         world.get_location(location, player).event = True
         world.get_location(location, player).locked = True
 
-    if world.shopsanity[player]:
+    if world.shopsanity[player] and not skip_pool_adjustments:
         for shop in world.shops[player]:
             if shop.region.name in shop_to_location_table:
                 for index, slot in enumerate(shop.inventory):
@@ -373,7 +375,10 @@ def generate_itempool(world, player):
             return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
         return item
 
-    world.itempool += [beemizer(item) for item in items]
+    if not skip_pool_adjustments:
+        world.itempool += [beemizer(item) for item in items]
+    else:
+        world.itempool += items
 
     # shuffle medallions
     mm_medallion, tr_medallion = None, None
@@ -403,15 +408,15 @@ def generate_itempool(world, player):
     set_up_shops(world, player)
 
     if world.retro[player]:
-        set_up_take_anys(world, player)
-        if world.dropshuffle[player]:
+        set_up_take_anys(world, player, skip_pool_adjustments)
+        if world.dropshuffle[player] and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
-        if world.pottery[player] not in ['none', 'cave']:
+        if world.pottery[player] not in ['none', 'cave'] and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
 
     create_dynamic_shop_locations(world, player)
 
-    if world.pottery[player] not in ['none', 'keys']:
+    if world.pottery[player] not in ['none', 'keys'] and not skip_pool_adjustments:
         add_pot_contents(world, player)
 
 
@@ -426,7 +431,7 @@ take_any_locations = [
     'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Dark Desert Hint']
 
 
-def set_up_take_anys(world, player):
+def set_up_take_anys(world, player, skip_adjustments=False):
     if world.mode[player] == 'inverted':
         if 'Dark Sanctuary Hint' in take_any_locations:
             take_any_locations.remove('Dark Sanctuary Hint')
@@ -450,12 +455,13 @@ def set_up_take_anys(world, player):
 
     sword = next((item for item in world.itempool if item.type == 'Sword' and item.player == player), None)
     if sword:
-        world.itempool.append(ItemFactory('Rupees (20)', player))
-        if not world.shopsanity[player]:
-            world.itempool.remove(sword)
+        if not skip_adjustments:
+            world.itempool.append(ItemFactory('Rupees (20)', player))
+            if not world.shopsanity[player]:
+                world.itempool.remove(sword)
         old_man_take_any.shop.add_inventory(0, sword.name, 0, 0, create_location=True)
     else:
-        if world.shopsanity[player]:
+        if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Rupees (300)', player))
         old_man_take_any.shop.add_inventory(0, 'Rupees (300)', 0, 0, create_location=world.shopsanity[player])
 
@@ -473,7 +479,7 @@ def set_up_take_anys(world, player):
         world.shops[player].append(take_any.shop)
         take_any.shop.add_inventory(0, 'Blue Potion', 0, 0, create_location=world.shopsanity[player])
         take_any.shop.add_inventory(1, 'Boss Heart Container', 0, 0, create_location=world.shopsanity[player])
-        if world.shopsanity[player]:
+        if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Blue Potion', player))
             world.itempool.append(ItemFactory('Boss Heart Container', player))
 
@@ -1032,12 +1038,62 @@ def make_customizer_pool(world, player):
         assert loc not in placed_items
         placed_items[loc] = item
 
+    dungeon_locations, dungeon_count = defaultdict(set), defaultdict(int)
+    for l in world.get_unfilled_locations(player):
+        if l.parent_region.dungeon:
+            dungeon = l.parent_region.dungeon
+            dungeon_locations[dungeon.name].add(l)
+            if dungeon.name not in dungeon_count:
+                d_count = 1 if dungeon.big_key else 0
+                d_count += len(dungeon.small_keys) + len(dungeon.dungeon_items)
+                dungeon_count[dungeon.name] = d_count
+
     diff = difficulties[world.difficulty[player]]
     for item_name, amount in world.customizer.get_item_pool()[player].items():
         if isinstance(amount, int):
             if item_name == 'Bottle (Random)':
                 for _ in range(amount):
                     pool.append(random.choice(diff.bottles))
+            elif item_name.startswith('Small Key') and item_name != 'Small Key (Universal)':
+                d_item = ItemFactory(item_name, player)
+                if not world.keyshuffle[player]:
+                    d_name = d_item.dungeon
+                    dungeon = world.get_dungeon(d_name, player)
+                    target_amount = max(amount, len(dungeon.small_keys))
+                    additional_amount = target_amount - len(dungeon.small_keys)
+                    possible_fit = min(additional_amount, len(dungeon_locations[d_name])-dungeon_count[d_name])
+                    if possible_fit > 0:
+                        dungeon_count[d_name] += possible_fit
+                        dungeon.small_keys.extend([d_item] * amount)
+                        additional_amount -= possible_fit
+                    if additional_amount > 0:
+                        pool.extend([item_name] * amount)
+                else:
+                    dungeon = world.get_dungeon(d_item.dungeon, player)
+                    target_amount = max(amount, len(dungeon.small_keys))
+                    additional_amount = target_amount - len(dungeon.small_keys)
+                    dungeon.small_keys.extend([d_item] * additional_amount)
+            elif item_name.startswith('Big Key') or item_name.startswith('Map') or item_name.startswith('Compass'):
+                d_item = ItemFactory(item_name, player)
+                if ((d_item.bigkey and not world.bigkeyshuffle[player])
+                   or (d_item.compass and not world.compassshuffle[player])
+                   or (d_item.map and not world.mapshuffle[player])):
+                    d_name = d_item.dungeon
+                    dungeon = world.get_dungeon(d_name, player)
+                    current_amount = 1 if d_item == dungeon.big_key or d_item in dungeon.dungeon_items else 0
+                    additional_amount = amount - current_amount
+                    possible_fit = min(additional_amount, len(dungeon_locations[d_name])-dungeon_count[d_name])
+                    if possible_fit > 0:
+                        dungeon_count[d_name] += possible_fit
+                        dungeon.dungeon_items.extend([d_item] * amount)
+                        additional_amount -= possible_fit
+                    if additional_amount > 0:
+                        pool.extend([item_name] * amount)
+                else:
+                    dungeon = world.get_dungeon(d_item.dungeon, player)
+                    current_amount = 1 if d_item == dungeon.big_key or d_item in dungeon.dungeon_items else 0
+                    additional_amount = amount - current_amount
+                    dungeon.dungeon_items.extend([d_item] * additional_amount)
             else:
                 pool.extend([item_name] * amount)
 
@@ -1049,10 +1105,73 @@ def make_customizer_pool(world, player):
     elif timer == 'ohko':
         clock_mode = 'ohko'
 
-    if world.goal[player] == 'pedestal':
+    if world.goal[player] in ['pedestal', 'trinity']:
         place_item('Master Sword Pedestal', 'Triforce')
 
+    guaranteed_items = alwaysitems + ['Magic Mirror', 'Moon Pearl']
+    if world.shopsanity[player]:
+        guaranteed_items.extend(['Blue Potion', 'Green Potion', 'Red Potion'])
+        if world.retro[player]:
+            guaranteed_items.append('Small Key (Universal)')
+    for item in guaranteed_items:
+        if item not in pool:
+            pool.append(item)
+
+    glove_count = sum(1 for i in pool if i == 'Progressive Glove')
+    glove_count = 2 if next((i for i in pool if i == 'Titans Glove'), None) is not None else glove_count
+    for i in range(glove_count, 2):
+        pool.append('Progressive Glove')
+
+    if world.bombbag[player]:
+        if 'Bomb Upgrade (+10)' not in pool:
+            pool.append('Bomb Upgrade (+10)')
+
+    if world.swords[player] != 'swordless':
+        beam_swords = {'Master Sword', 'Tempered Sword', 'Golden Sword'}
+        sword_count = sum(1 for i in pool if i in 'Progressive Sword')
+        sword_count = 2 if next((i for i in pool if i in beam_swords), None) is not None else sword_count
+        for i in range(sword_count, 2):
+            pool.append('Progressive Sword')
+
+    bow_found = next((i for i in pool if i in {'Bow', 'Progressive Bow'}), None)
+    if not bow_found:
+        pool.append('Progressive Bow')
+
+    heart_found = next((i for i in pool if i in {'Boss Heart Container', 'Sanctuary Heart Container'}), None)
+    if heart_found is None:
+        pool.append('Boss Heart Container')
+
+    g, t = set_default_triforce(world.goal[player], world.treasure_hunt_count[player],
+                                world.treasure_hunt_total[player])
+    if t != 0:
+        pieces = sum(1 for i in pool if i == 'Triforce Piece')
+        if pieces < t:
+            pool.extend(['Triforce Piece'] * (t - pieces))
+
+    ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
+    pool_size = len(get_player_dungeon_item_pool(world, player)) + len(pool)
+
+    if pool_size < ttl_locations:
+        amount_to_add = ttl_locations - pool_size
+        pool.extend(random.choices(list(filler_items.keys()), filler_items.values(), k=amount_to_add))
+
     return pool, placed_items, precollected_items, clock_mode, 1
+
+
+filler_items = {
+    'Arrows (10)': 12,
+    'Bombs (3)': 16,
+    'Rupees (300)': 5,
+    'Rupees (100)': 1,
+    'Rupees (50)': 7,
+    'Rupees (20)': 28,
+    'Rupees (5)': 4,
+}
+
+
+def get_player_dungeon_item_pool(world, player):
+    return [item for dungeon in world.dungeons for item in dungeon.all_items
+            if dungeon.player == player and item.location is None]
 
 
 # To display, count must be between 1 and 254 - larger values are not yet supported

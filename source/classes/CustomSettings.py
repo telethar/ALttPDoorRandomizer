@@ -75,6 +75,12 @@ class CustomSettings(object):
                 args.shopsanity[p] = get_setting(settings['shopsanity'], args.shopsanity[p])
                 args.dropshuffle[p] = get_setting(settings['dropshuffle'], args.dropshuffle[p])
                 args.pottery[p] = get_setting(settings['pottery'], args.pottery[p])
+
+                if get_setting(settings['keydropshuffle'], args.keydropshuffle[p]):
+                    args.dropshuffle[p] = True
+                    if args.pottery[p] == 'none':
+                        args.pottery[p] = 'keys'
+
                 args.mixed_travel[p] = get_setting(settings['mixed_travel'], args.mixed_travel[p])
                 args.standardize_palettes[p] = get_setting(settings['standardize_palettes'],
                                                            args.standardize_palettes[p])
@@ -88,6 +94,13 @@ class CustomSettings(object):
                 args.keyshuffle[p] = get_setting(settings['keyshuffle'], args.keyshuffle[p])
                 args.mapshuffle[p] = get_setting(settings['mapshuffle'], args.mapshuffle[p])
                 args.compassshuffle[p] = get_setting(settings['compassshuffle'], args.compassshuffle[p])
+
+                if get_setting(settings['keysanity'], args.keysanity):
+                    args.bigkeyshuffle[p] = True
+                    args.keyshuffle[p] = True
+                    args.mapshuffle[p] = True
+                    args.compassshuffle[p] = True
+
                 args.shufflebosses[p] = get_setting(settings['shufflebosses'], args.shufflebosses[p])
                 args.shuffleenemies[p] = get_setting(settings['shuffleenemies'], args.shuffleenemies[p])
                 args.enemy_health[p] = get_setting(settings['enemy_health'], args.enemy_health[p])
