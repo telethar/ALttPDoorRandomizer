@@ -117,6 +117,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 * 1.0.0.3
 	* overworld_map=map mode fixed. Location of dungeons with maps are not shown until map is retrieved. (Dungeon that do not have map like Castle Tower are simply never shown)
 	* Aga2 completion on overworld_map now tied to boss defeat flag instead of pyramid hole being opened (fast ganon fix)
+	* Minor issue in dungeon_only algorithm fixed (minorly affected major_only keyshuffle and vanilla fallbacks)
 * 1.0.0.2
 	* Include 1.0.1 fixes
 	* District hint rework
