@@ -32,7 +32,7 @@ from source.classes.SFX import randomize_sfx
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '4e4d7c1352c6b85dfe0d3f19aa2afae2'
+RANDOMIZERBASEHASH = '7f28f440ac83d3ddca458dfc64e87978'
 
 
 class JsonRom(object):
@@ -1412,8 +1412,13 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         for idx, x_map in enumerate(x_map_position_generic):
             rom.write_bytes(0x53df6+idx*2, int16_as_bytes(x_map))
             rom.write_bytes(0x53e16+idx*2, int16_as_bytes(0xFC0))
-        if world.compassshuffle[player] and world.overworld_map[player] == 'compass':
-            compass_mode |= 0x40  # compasses are wild
+        if world.overworld_map[player] == 'compass':
+            compass_mode |= 0x20  # check for compass
+            if world.compassshuffle[player]:
+                compass_mode |= 0x40  # compasses are wild
+        elif world.overworld_map[player] == 'map':
+            if world.mapshuffle[player]:
+                compass_mode |= 0x40  # maps are wild
         for dungeon, portal_list in dungeon_portals.items():
             ow_map_index = dungeon_table[dungeon].map_index
             if len(portal_list) == 1:
