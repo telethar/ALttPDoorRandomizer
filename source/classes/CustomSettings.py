@@ -259,7 +259,7 @@ class CustomSettings(object):
         for p in self.player_range:
             placements[p] = {}
         for location in world.get_locations():
-            if location.type != LocationType.Logical and not location.skip:
+            if location.type != LocationType.Logical:
                 if location.player != location.item.player:
                     placements[location.player][location.name] = f'{location.item.name}#{location.item.player}'
                 else:
