@@ -78,8 +78,16 @@
       "keys",
       "dungeon",
       "cave",
+      "cavekeys",
+      "reduced",
+      "clustered",
+      "nonempty",
       "lottery"
     ]
+  },
+  "colorizepots" : {
+    "action": "store_true",
+    "type": "bool"
   },
   "shufflepots": {
     "action": "store_true",

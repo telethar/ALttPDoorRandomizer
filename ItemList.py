@@ -764,7 +764,7 @@ def add_pot_contents(world, player):
     for super_tile, pot_list in vanilla_pots.items():
         for pot in pot_list:
             if pot.item not in [PotItem.Hole, PotItem.Key, PotItem.Switch]:
-                if valid_pot_location(pot, world, player):
+                if valid_pot_location(pot, world.pot_pool[player], world, player):
                     world.itempool.append(ItemFactory(pot_items[pot.item], player))
 
 

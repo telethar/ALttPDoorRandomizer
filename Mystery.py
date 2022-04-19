@@ -180,6 +180,7 @@ def roll_settings(weights):
     ret.shopsanity = get_choice('shopsanity') == 'on'
     ret.dropshuffle = get_choice('dropshuffle') == 'on'
     ret.pottery = get_choice('pottery') if 'pottery' in weights else 'none'
+    ret.colorizepots = get_choice('colorizepots') == 'on'
     ret.shufflepots = get_choice('pot_shuffle') == 'on'
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
     ret.standardize_palettes = get_choice('standardize_palettes') if 'standardize_palettes' in weights else 'standardize'
