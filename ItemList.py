@@ -397,7 +397,6 @@ def generate_itempool(world, player):
         if world.pottery[player] not in ['none', 'cave']:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
 
-
     create_dynamic_shop_locations(world, player)
 
     if world.pottery[player] not in ['none', 'keys']:
@@ -557,7 +556,7 @@ def set_up_shops(world, player):
             removals = [item for item in world.itempool if item.name == 'Bomb Upgrade (+5)' and item.player == player]
             for remove in removals:
                 world.itempool.remove(remove)
-            world.itempool.append(ItemFactory('Rupees (50)', player)) # replace the bomb upgrade
+            world.itempool.append(ItemFactory('Rupees (50)', player))  # replace the bomb upgrade
         else:
             cap_shop = world.get_region('Capacity Upgrade', player).shop
             cap_shop.inventory[0] = cap_shop.inventory[1]  # remove bomb capacity upgrades in bombbag
@@ -765,7 +764,9 @@ def add_pot_contents(world, player):
         for pot in pot_list:
             if pot.item not in [PotItem.Hole, PotItem.Key, PotItem.Switch]:
                 if valid_pot_location(pot, world.pot_pool[player], world, player):
-                    world.itempool.append(ItemFactory(pot_items[pot.item], player))
+                    item = ('Rupees (5)' if world.retro[player] and pot_items[pot.item] == 'Arrows (5)'
+                            else pot_items[pot.item])
+                    world.itempool.append(ItemFactory(item, player))
 
 
 def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, retro, bombbag, door_shuffle, logic):

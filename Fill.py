@@ -486,6 +486,9 @@ def ensure_good_pots(world, write_skips=False):
                     loc.item.player = loc.player
                 else:
                     loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.player)
+        # do the arrow retro check
+        if world.retro[loc.item.player] and loc.item.name in {'Arrows (5)', 'Arrows (10)'}:
+            loc.item = ItemFactory('Rupees (5)', loc.item.player)
         # don't write out all pots to spoiler
         if write_skips:
             if loc.type == LocationType.Pot and loc.item.name in valid_pot_items:
