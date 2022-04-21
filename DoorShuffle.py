@@ -1088,7 +1088,7 @@ def assign_cross_keys(dungeon_builders, world, player):
     # Step 2: Initial Key Number Assignment & Calculate Flexibility
     for name, builder in dungeon_builders.items():
         calculated = int(round(builder.key_doors_num*total_keys/total_candidates))
-        max_keys = builder.location_cnt - calc_used_dungeon_items(builder)
+        max_keys = max(0, builder.location_cnt - calc_used_dungeon_items(builder))
         cand_len = max(0, len(builder.candidates) - builder.key_drop_cnt)
         limit = min(max_keys, cand_len)
         suggested = min(calculated, limit)
