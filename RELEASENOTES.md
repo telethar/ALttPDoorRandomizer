@@ -12,7 +12,7 @@ New pottery option that control which pots (and large blocks) are in the locatio
 not include key pots. 
 * CaveKeys: Both non-dungeon pots and pots that used to have keys are in the pool.
 * Reduced: Same as CaveKeys but also roughly a quarter of dungeon pots are added to the location pool picked at random. This is a dynamic mode so pots in the pool will be colored. Pots out of the pool will have vanilla contents.
-* Clustered: LIke reduced but pot are grouped by logical sets and roughly 50% of pots are chosen from those group. This is a dynamic mode like the above.
+* Clustered: Like reduced but pots are grouped by logical sets and roughly 50% of pots are chosen from those group. This is a dynamic mode like the above.
 * Nonempty: All pots that had some sort of objects under them are chosen to be in the location pool. This excludes most large blocks and some pots out of dungeons. 
 * Dungeon Pots: The pots that are in dungeons are in the pool. (Includes serveral large blocks) 
 * Lottery: All pots and large blocks are in the pool
@@ -166,7 +166,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Customizer
 
-* Fixed up the item_pool section to skip a lot of pool manipulations. Key item will be added to the bow if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
+* Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
 #### Volatile
 
