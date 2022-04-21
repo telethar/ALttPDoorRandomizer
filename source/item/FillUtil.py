@@ -688,7 +688,7 @@ mode_grouping = {
         'Sewers - Dark Cross', 'Desert Palace - Torch', 'Tower of Hera - Basement Cage',
         'Castle Tower - Room 03', 'Castle Tower - Dark Maze',
         'Palace of Darkness - Stalfos Basement',  'Palace of Darkness - Dark Basement - Right',
-        'Palace of Darkness - Dark Maze - Bottom', 'Palace of Darkness - Shooter Room',
+        'Palace of Darkness - Harmless Hellway', 'Palace of Darkness - Shooter Room',
         'Palace of Darkness - The Arena - Bridge',  'Palace of Darkness - The Arena - Ledge',
         "Thieves' Town - Blind's Cell",  'Skull Woods - Bridge Room', 'Ice Palace - Spike Room',
         'Skull Woods - Pot Prison', 'Skull Woods - Pinball Room', 'Misery Mire - Spike Chest',

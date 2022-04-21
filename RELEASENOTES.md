@@ -98,7 +98,7 @@ These districts are chosen at random and then filled with major items. If a loca
 
 In entrance shuffle, what is shuffled to the entrances is considered instead of where the interior was originally. For example, if Blind's Hut is shuffled to the Dam, then the 5 chests in Blind's Hut are part of Central Hyrule instead of Kakariko.
 
-Bombos Table, Lake Hylia Island, Bumper Cave Ledge, the Floating Island, Cave 45, the Graveyard Cave, Checkerboard Cave and Mimic Cave are considered part of the dark world region that you mirror from to get there (except in inverted where these are only accessible in the Light World). Note that Spectacle Rock is always part of light Death Mountain.
+Note: Bombos Tablet, Lake Hylia Island, Bumper Cave Ledge, the Floating Island, Cave 45, the Graveyard Cave, Checkerboard Cave and Mimic Cave are considered part of the light world region rather than the dark world region you mirror from.
 
 In multiworld, the districts chosen apply to all players.  
 
@@ -247,6 +247,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	
 #### Unstable
 
+* 1.0.0.3
+	* overworld_map=map mode fixed. Location of dungeons with maps are not shown until map is retrieved. (Dungeon that do not have map like Castle Tower are simply never shown)
+	* Aga2 completion on overworld_map now tied to boss defeat flag instead of pyramid hole being opened (fast ganon fix)
+	* Minor issue in dungeon_only algorithm fixed (minorly affected major_only keyshuffle and vanilla fallbacks)
 * 1.0.0.2
 	* Include 1.0.1 fixes
 	* District hint rework
