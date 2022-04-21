@@ -16,6 +16,7 @@ from EntranceShuffle import door_addresses, indirect_connections
 from Utils import int16_as_bytes
 from Tables import normal_offset_table, spiral_offset_table, multiply_lookup, divisor_lookup
 from RoomData import Room
+from source.dungeon.RoomObject import RoomObject
 
 
 class World(object):
@@ -139,6 +140,8 @@ class World(object):
             set_player_attr('pot_contents', None)
             set_player_attr('pseudoboots', False)
             set_player_attr('collection_rate', False)
+            set_player_attr('colorizepots', False)
+            set_player_attr('pot_pool', {})
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -2710,7 +2713,7 @@ class PotFlags(FastEnum):
 
 
 class Pot(object):
-    def __init__(self, x, y, item, room, flags = PotFlags.Normal):
+    def __init__(self, x, y, item, room, flags=PotFlags.Normal, obj=None):
         self.x = x
         self.y = y
         self.item = item
@@ -2718,9 +2721,12 @@ class Pot(object):
         self.flags = flags
         self.indicator = None  # 0x80 for standing item, 0xC0 multiworld item
         self.standing_item_code = None  # standing item code if nay
+        self.obj_ref = obj
+        self.location = None  # location back ref
 
     def copy(self):
-        return Pot(self.x, self.y, self.item, self.room, self.flags)
+        obj_ref = RoomObject(self.obj_ref.address, self.obj_ref.data) if self.obj_ref else None
+        return Pot(self.x, self.y, self.item, self.room, self.flags, obj_ref)
 
     def pot_data(self):
         high_byte = self.y
@@ -2730,6 +2736,12 @@ class Pot(object):
             high_byte |= self.indicator
         item = self.item if not self.indicator else self.standing_item_code
         return [self.x, high_byte, item]
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.room == other.room
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.room))
 
 
 # byte 0: DDDE EEEE (DR, ER)
@@ -2754,7 +2766,8 @@ mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 
 # new byte 4: ?DDD PPPP (unused, drop, pottery)
 # dropshuffle reserves 2 bits, pottery needs 2 but reserves 2 for future modes)
-pottery_mode = {"none": 0, "shuffle": 1, "keys": 2, 'lottery': 3, 'dungeon': 4, 'cave': 5}
+pottery_mode = {'none': 0, 'keys': 2, 'lottery': 3, 'dungeon': 4, 'cave': 5, 'cavekeys': 6, 'reduced': 7,
+                'clustered': 8, 'nonempty': 9}
 
 # byte 5: CCCC CTTX (crystals gt, ctr2, experimental)
 counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}

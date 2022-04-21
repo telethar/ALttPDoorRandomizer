@@ -721,7 +721,7 @@ def bomb_rules(world, player):
 
 
 def pot_rules(world, player):
-    if world.pottery[player] in ['lottery', 'cave']:
+    if world.pottery[player] != 'none':
         blocks = [l for l in world.get_locations() if l.type == LocationType.Pot and l.pot.flags & PotFlags.Block]
         for block_pot in blocks:
             add_rule(block_pot, lambda state: state.can_lift_rocks(player))
@@ -748,8 +748,6 @@ def pot_rules(world, player):
                          or state.has('Cape', player)
                          or (state.has('Cane of Byrna', player)
                              and state.world.difficulty_adjustments[player] == 'normal'))
-
-    if world.pottery[player] in ['lottery', 'dungeon']:
         for l in world.get_region('Ice Hammer Block', player).locations:
             if l.type == LocationType.Pot:
                 add_rule(l, lambda state: state.has('Hammer', player) and state.can_lift_rocks(player))

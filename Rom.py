@@ -32,10 +32,11 @@ from EntranceShuffle import door_addresses, exit_ids, ow_prize_table
 
 from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
+from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '8d196e8024faebbbbe1304032158ccea'
+RANDOMIZERBASEHASH = 'd143684aa6a8e4560eb3ac912d600525'
 
 
 class JsonRom(object):
@@ -650,10 +651,18 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.mapshuffle[player]:
         rom.write_byte(0x155C9, random.choice([0x11, 0x16]))  # Randomize GT music too with map shuffle
 
+    if world.pottery[player] not in ['none']:
+        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
+        # make hammer pegs use different tiles
+        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
+
     if world.pot_contents[player]:
+        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
+                                       and (world.colorizepots[player]
+                                            or world.pottery[player] in ['reduced', 'clustered']))
         if world.pot_contents[player].size() > 0x2800:
             raise Exception('Pot table is too big for current area')
-        world.pot_contents[player].write_pot_data_to_rom(rom)
+        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
     # fix for swamp drains if necessary
     swamp1location = world.get_location('Swamp Palace - Trench 1 Pot Key', player)
     if not swamp1location.pot.indicator:
@@ -893,14 +902,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.pottery[player] not in ['none', 'keys']:
         # Cuccos should not prevent kill rooms from opening
         rom.write_byte(snes_to_pc(0x0DB457), 0x40)
-    if world.pottery[player] in ['none', 'keys']:
-        rom.write_byte(snes_to_pc(0x28AA56), 0)
-    elif world.pottery[player] == 'cave':
-        rom.write_byte(snes_to_pc(0x28AA56), 1)
-    elif world.pottery[player] == 'dungeon':
-        rom.write_byte(snes_to_pc(0x28AA56), 2)
-    elif world.pottery[player] == 'lottery':
-        rom.write_byte(snes_to_pc(0x28AA56), 3)
+    rom.write_byte(snes_to_pc(0x28AA56), 0 if world.pottery[player] == 'none' else 1)
 
     write_int16(rom, 0x187010, credits_total)  # dynamic credits
     if credits_total != 216:
