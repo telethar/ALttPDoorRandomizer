@@ -69,6 +69,7 @@ def main():
     erargs.outputname = seedname
     erargs.outputpath = args.outputpath
     erargs.loglevel = args.loglevel
+    erargs.mystery = True
 
     if args.rom:
         erargs.rom = args.rom

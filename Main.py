@@ -289,7 +289,7 @@ def main(args, seed=None, fish=None):
                         logging.warning(enemizerMsg)
                         raise EnemizerError(enemizerMsg)
 
-                patch_rom(world, rom, player, team, enemized, bool(args.outputname))
+                patch_rom(world, rom, player, team, enemized, bool(args.mystery))
 
                 if args.race:
                     patch_race_rom(rom)

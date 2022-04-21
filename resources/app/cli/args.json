@@ -13,6 +13,11 @@
   "suppress_spoiler": {
     "action": "store_true"
   },
+  "mystery": {
+    "action": "store_true",
+    "type": "bool",
+    "help": "suppress"
+  },
   "logic": {
     "choices": [
       "noglitches",
