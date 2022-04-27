@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import List
 
 from BaseClasses import CollectionState
 from Utils import count_set_bits
@@ -18,7 +19,7 @@ def _new_default_sram():
 
 @dataclass
 class InitialSram:
-    _initial_sram_bytes: list[int] = field(default_factory=_new_default_sram)
+    _initial_sram_bytes: List[int] = field(default_factory=_new_default_sram)
 
     def _set_value(self, idx: int, val:int):
         if idx > SRAM_SIZE:
