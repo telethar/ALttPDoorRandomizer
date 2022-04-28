@@ -275,7 +275,7 @@ def massage_item_pool(world):
                 world.itempool.remove(deleted)
                 discrepancy -= 1
             if discrepancy > 0:
-                logging.getLogger('').warning(f'Too many good items in pool, something will be removed at random')
+                raise Exception(f'Too many required items in pool, {discrepancy} items cannot be placed')
     if world.item_pool_config.placeholders is not None:
         removed = 0
         single_rupees = [item for item in world.itempool if item.name == 'Rupee (1)']

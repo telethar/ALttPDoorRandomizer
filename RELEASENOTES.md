@@ -157,6 +157,15 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.0
+	* Updated baserom to bleeding edge
+		* Pottery and enemy SRAM re-located to final destination
+		* Bulk of work on new font
+		* Updated TFH to support up to 850 pieces
+	* Fix for major item algorithm and pottery
+	* Updated map display on keysanity menu to work better with overworld_amp option
+	* Minor bug in crossed doors
+	* Minor bug in MultiClient which would count switches
 * 1.0.1.13
 	* New pottery modes
 	* Trinity goal added

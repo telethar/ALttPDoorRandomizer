@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '3c85536ef5463d329adb2e9e3cda654a'
+RANDOMIZERBASEHASH = '8b87b7c4f37ab57463b93c5afd353299'
 
 
 class JsonRom(object):
@@ -1197,7 +1197,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x18003F, 0x01 if world.swords[player] == 'swordless' else 0x00)  # hammer can harm ganon
     rom.write_byte(0x180041, 0x01 if world.swords[player] == 'swordless' else 0x00)  # swordless medallions
     rom.write_byte(0x180044, 0x01 if world.swords[player] == 'swordless' else 0x00)  # hammer activates tablets
-    rom.initial_sram.set_swordless_curtains()  # open curtains
+    if world.swords[player] == 'swordless':
+        rom.initial_sram.set_swordless_curtains()  # open curtains
 
     # set up clocks for timed modes
     if world.shuffle[player] == 'vanilla':
@@ -1245,7 +1246,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     # set up goals for treasure hunt
     rom.write_bytes(0x180165, [0x0E, 0x28] if world.treasure_hunt_icon[player] == 'Triforce Piece' else [0x0D, 0x28])
     if world.goal[player] in ['triforcehunt', 'trinity']:
-        rom.write_byte(0x180167, int(world.treasure_hunt_count[player]) % 256)
+        rom.write_bytes(0x180167, int16_as_bytes(world.treasure_hunt_count[player]))
     rom.write_byte(0x180194, 1)  # Must turn in triforced pieces (instant win not enabled)
 
     rom.write_bytes(0x180213, [0x00, 0x01])  # Not a Tournament Seed
