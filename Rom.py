@@ -15,7 +15,7 @@ try:
 except ImportError:
     raise Exception('Could not load BPS module')
 
-from BaseClasses import CollectionState, ShopType, Region, Location, Door, DoorType, RegionType, PotItem, LocationType
+from BaseClasses import ShopType, Region, Location, Door, DoorType, RegionType, LocationType
 from DoorShuffle import compass_data, DROptions, boss_indicator, dungeon_portals
 from Dungeons import dungeon_music_addresses, dungeon_table
 from Regions import location_table, shop_to_location_table, retro_shops
@@ -969,7 +969,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.mode[player] in ['open', 'inverted']:
         init_open_mode_sram(rom)
     if world.mode[player] == 'inverted':
-        set_inverted_mode(world, rom)
+        set_inverted_mode(world, player, rom)
     elif world.mode[player] == 'standard':
         init_standard_mode_sram(rom)
 
@@ -2724,7 +2724,7 @@ OtherEntrances = {'Blinds Hideout': 'Blind\'s old house',
                   'Kings Grave': 'The northeastmost grave',
                   'Bonk Fairy (Light)': 'The rock pile near your home',
                   'Hookshot Fairy': 'The left paired cave on east DM',
-				  'Bonk Fairy (Dark)': 'The rock pile near the old bomb shop',
+                  'Bonk Fairy (Dark)': 'The rock pile near the old bomb shop',
                   'Dark Lake Hylia Fairy': 'The cave NE dark Lake Hylia',
                   'C-Shaped House': 'The NE house in Village of Outcasts',
                   'Dark Death Mountain Fairy': 'The SW cave on dark DM',
