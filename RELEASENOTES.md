@@ -157,6 +157,9 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.1
+	* Fix for paired doors
+	* Fix for forbidding certain dashable doors (it actually does something this time)
 * 1.0.2.0
 	* Updated baserom to bleeding edge
 		* Pottery and enemy SRAM re-located to final destination
