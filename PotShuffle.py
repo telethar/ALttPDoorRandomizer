@@ -1052,7 +1052,7 @@ class PotSecretTable(object):
                 rom.write_bytes(pointer_address + room * 2, int16_as_bytes(data_address))
                 for pot in self.room_map[room]:
                     rom.write_bytes(data_pointer + list_idx * 3, pot.pot_data())
-                    if pot.location is not None:
+                    if pot.location is not None and not pot.location.forced_item:
                         collection_rate_mask |= 1 << (15 - list_idx)
                         if colorize and pot.obj_ref:
                             pot.obj_ref.change_type(Shuffled_Pot)
