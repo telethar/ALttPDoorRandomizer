@@ -166,6 +166,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Customizer
 
+* Fixed up the GUI selection of the customizer file.
 * Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
 #### Volatile
