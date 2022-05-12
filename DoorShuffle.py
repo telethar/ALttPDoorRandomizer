@@ -207,8 +207,9 @@ def vanilla_key_logic(world, player):
         world.dungeon_layouts[player][builder.name] = builder
 
     add_inaccessible_doors(world, player)
+    entrances_map, potentials, connections = determine_entrance_list(world, player)
     for builder in builders:
-        origin_list = find_accessible_entrances(world, player, builder)
+        origin_list = entrances_map[builder.name]
         start_regions = convert_regions(origin_list, world, player)
         doors = convert_key_doors(default_small_key_doors[builder.name], world, player)
         key_layout = build_key_layout(builder, start_regions, doors, world, player)
@@ -1723,6 +1724,7 @@ def find_key_door_candidates(region, checked, world, player):
         current, last_door, last_region = queue.pop()
         for ext in current.exits:
             d = ext.door
+            controlled = d
             if d and d.controller:
                 d = d.controller
             if d and not d.blocked and d.dest is not last_door and d.dest is not last_region and d not in checked_doors:
@@ -1754,7 +1756,7 @@ def find_key_door_candidates(region, checked, world, player):
                     candidates.append(d)
                 connected = ext.connected_region
                 if valid_region_to_explore_lim(connected, dungeon_name, world, player):
-                    queue.append((ext.connected_region, d, current))
+                    queue.append((ext.connected_region, controlled, current))
                 if d is not None:
                     checked_doors.append(d)
     return candidates, checked_doors
