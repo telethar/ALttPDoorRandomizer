@@ -165,7 +165,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* Some minor text updates
 * 1.0.2.2
 	* Change to all key pots and enemy key drops: always use the same address
-	* Don't colorize key pots in mystery is the item is "forced"
+	* Don't colorize key pots in mystery if the item is "forced"
 * 1.0.2.1
 	* Fix for paired doors
 	* Fix for forbidding certain dashable doors (it actually does something this time)
