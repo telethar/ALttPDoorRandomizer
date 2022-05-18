@@ -59,6 +59,7 @@ class CustomSettings(object):
                 if isinstance(player_setting, str):
                     weights = get_weights(os.path.join(self.relative_dir, player_setting))
                     settings = defaultdict(lambda: None, vars(roll_settings(weights)))
+                    args.mystery = True
                 else:
                     settings = defaultdict(lambda: None, player_setting)
                 args.shuffle[p] = get_setting(settings['shuffle'], args.shuffle[p])

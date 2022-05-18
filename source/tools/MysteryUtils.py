@@ -46,7 +46,6 @@ def roll_settings(weights):
     ret = argparse.Namespace()
 
     ret.algorithm = get_choice('algorithm')
-    ret.mystery = get_choice_default('mystery', default=True)
 
     glitch_map = {'none': 'noglitches', 'no_logic': 'nologic', 'owglitches': 'owglitches',
                   'owg': 'owglitches', 'minorglitches': 'minorglitches'}
