@@ -1,5 +1,7 @@
 import argparse
 import RaceRandom as random
+import os
+from pathlib import Path
 
 import urllib.request
 import urllib.parse
@@ -8,12 +10,13 @@ import yaml
 
 def get_weights(path):
     try:
-        if urllib.parse.urlparse(path).scheme:
+        return yaml.load(path, Loader=yaml.SafeLoader)
+    except yaml.YAMLError as exc:
+        if os.path.exists(Path(path)):
+            with open(path, "r", encoding="utf-8") as f:
+                return yaml.load(f, Loader=yaml.SafeLoader)
+        elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
             return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
-        with open(path, 'r', encoding='utf-8') as f:
-            return yaml.load(f, Loader=yaml.SafeLoader)
-    except Exception as e:
-        raise Exception(f'Failed to read weights file: {e}')
 
 
 def roll_settings(weights):
