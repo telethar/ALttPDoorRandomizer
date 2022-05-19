@@ -9,14 +9,11 @@ import yaml
 
 
 def get_weights(path):
-    try:
-        return yaml.load(path, Loader=yaml.SafeLoader)
-    except yaml.YAMLError as exc:
-        if os.path.exists(Path(path)):
-            with open(path, "r", encoding="utf-8") as f:
-                return yaml.load(f, Loader=yaml.SafeLoader)
-        elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
-            return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
+    if os.path.exists(Path(path)):
+        with open(path, "r", encoding="utf-8") as f:
+            return yaml.load(f, Loader=yaml.SafeLoader)
+    elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
+        return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
 
 
 def roll_settings(weights):
