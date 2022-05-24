@@ -443,6 +443,7 @@ def copy_world(world):
     ret.enemy_damage = world.enemy_damage.copy()
     ret.beemizer = world.beemizer.copy()
     ret.intensity = world.intensity.copy()
+    ret.decoupledoors = world.decoupledoors.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
     ret.dropshuffle = world.dropshuffle.copy()

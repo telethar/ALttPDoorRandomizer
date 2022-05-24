@@ -87,6 +87,7 @@ class CustomSettings(object):
                 args.standardize_palettes[p] = get_setting(settings['standardize_palettes'],
                                                            args.standardize_palettes[p])
                 args.intensity[p] = get_setting(settings['intensity'], args.intensity[p])
+                args.decoupledoors[p] = get_setting(settings['decoupledoors'], args.decoupledoors[p])
                 args.dungeon_counters[p] = get_setting(settings['dungeon_counters'], args.dungeon_counters[p])
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
                 args.crystals_ganon[p] = get_setting(settings['crystals_ganon'], args.crystals_ganon[p])
@@ -181,6 +182,7 @@ class CustomSettings(object):
             settings_dict[p]['shuffle'] = world.shuffle[p]
             settings_dict[p]['door_shuffle'] = world.doorShuffle[p]
             settings_dict[p]['intensity'] = world.intensity[p]
+            settings_dict[p]['decoupledoors'] = world.decoupledoors[p]
             settings_dict[p]['logic'] = world.logic[p]
             settings_dict[p]['mode'] = world.mode[p]
             settings_dict[p]['swords'] = world.swords[p]

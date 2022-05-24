@@ -17,6 +17,7 @@
     1: 2
     2: 2
     3: 4
+  decoupledoors: off
   dropshuffle:
     on: 1
     off: 1
