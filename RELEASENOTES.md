@@ -107,7 +107,7 @@ These districts are chosen at random and then filled with major items. If a loca
 
 In entrance shuffle, what is shuffled to the entrances is considered instead of where the interior was originally. For example, if Blind's Hut is shuffled to the Dam, then the 5 chests in Blind's Hut are part of Central Hyrule instead of Kakariko.
 
-Bombos Table, Lake Hylia Island, Bumper Cave Ledge, the Floating Island, Cave 45, the Graveyard Cave, Checkerboard Cave and Mimic Cave are considered part of the dark world region that you mirror from to get there (except in inverted where these are only accessible in the Light World). Note that Spectacle Rock is always part of light Death Mountain.
+Note: Bombos Tablet, Lake Hylia Island, Bumper Cave Ledge, the Floating Island, Cave 45, the Graveyard Cave, Checkerboard Cave and Mimic Cave are considered part of the light world region rather than the dark world region you mirror from.
 
 In multiworld, the districts chosen apply to all players.  
 
@@ -170,6 +170,27 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.4
+	* Updated tourney winners (included Doors Async League winners)
+	* Fixed a couple issues with dungeon counters and the DungeonCompletion field for autotracking
+* 1.0.2.3
+	* Fix MultiClient for new shop data location in SRAM
+	* Some minor text updates
+* 1.0.2.2
+	* Change to all key pots and enemy key drops: always use the same address
+	* Don't colorize key pots in mystery if the item is "forced"
+* 1.0.2.1
+	* Fix for paired doors
+	* Fix for forbidding certain dashable doors (it actually does something this time)
+* 1.0.2.0
+	* Updated baserom to bleeding edge
+		* Pottery and enemy SRAM re-located to final destination
+		* Bulk of work on new font
+		* Updated TFH to support up to 850 pieces
+	* Fix for major item algorithm and pottery
+	* Updated map display on keysanity menu to work better with overworld_amp option
+	* Minor bug in crossed doors
+	* Minor bug in MultiClient which would count switches
 * 1.0.1.13
 	* New pottery modes
 	* Trinity goal added
@@ -260,6 +281,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	
 #### Unstable
 
+* 1.0.0.3
+	* overworld_map=map mode fixed. Location of dungeons with maps are not shown until map is retrieved. (Dungeon that do not have map like Castle Tower are simply never shown)
+	* Aga2 completion on overworld_map now tied to boss defeat flag instead of pyramid hole being opened (fast ganon fix)
+	* Minor issue in dungeon_only algorithm fixed (minorly affected major_only keyshuffle and vanilla fallbacks)
 * 1.0.0.2
 	* Include 1.0.1 fixes
 	* District hint rework
