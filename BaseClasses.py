@@ -2893,7 +2893,7 @@ class Settings(object):
         args.bombbag[p] = True if settings[8] & 0x2 else False
         args.shufflelinks[p] = True if settings[8] & 0x1 else False
         if len(settings) > 9:
-            args.restrict_boss_items[p] = r(rb_mode)[(settings[9] & 0x80) >> 6]
+            args.restrict_boss_items[p] = r(rb_mode)[(settings[9] & 0xC0) >> 6]
             args.algorithm = r(algo_mode)[(settings[9] & 0x38) >> 3]
             args.shufflebosses[p] = r(boss_mode)[(settings[9] & 0x07)]
 
