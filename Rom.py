@@ -1274,7 +1274,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0xE9A5, [0x7E, 0x00, 0x24]) # disable below ganon chest
     if world.open_pyramid[player] or world.goal[player] == 'trinity':
         rom.initial_sram.pre_open_pyramid_hole()
-    if world.crystals_needed_for_gt == 0:
+    if world.crystals_needed_for_gt[player] == 0:
         rom.initial_sram.pre_open_ganons_tower()
     rom.write_byte(0xF5D73, 0xF0) # bees are catchable
     rom.write_byte(0xF5F10, 0xF0) # bees are catchable
