@@ -77,9 +77,6 @@ def link_entrances_new(world, player):
         for exit_name, region_name in inverted_mandatory_connections:
             connect_simple(world, exit_name, region_name, player)
 
-    # not randomized at this time
-    connect_simple(world, 'Tavern North', 'Tavern', player)
-
     connect_custom(avail_pool, world, player)
 
     if world.shuffle[player] == 'vanilla':
@@ -190,6 +187,14 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
             if not avail.coupled:
                 avail.decoupled_entrances.remove('Ganons Tower')
                 avail.decoupled_exits.remove('Ganons Tower Exit')
+
+    # back of tavern
+    if not avail.world.shuffletavern[avail.player] and 'Tavern North' in entrances:
+        connect_entrance('Tavern North', 'Tavern', avail)
+        entrances.remove('Tavern North')
+        exits.remove('Tavern')
+        if not avail.coupled:
+            avail.decoupled_entrances.remove('Tavern North')
 
     # links house / houlihan
     do_links_house(entrances, exits, avail, cross_world)
@@ -1061,13 +1066,12 @@ def connect_entrance(entrancename, exit_name, avail):
     addresses = door_addresses[entrance.name][0]
 
     entrance.connect(region, addresses, target)
-    if entrancename != 'Tavern North':
-        avail.entrances.remove(entrancename)
-        if avail.coupled:
-            if exit_name == 'Inverted Dark Sanctuary':
-                avail.exits.remove('Inverted Dark Sanctuary Exit')
-            else:
-                avail.exits.remove(exit_name)
+    avail.entrances.remove(entrancename)
+    if avail.coupled:
+        if exit_name == 'Inverted Dark Sanctuary':
+            avail.exits.remove('Inverted Dark Sanctuary Exit')
+        else:
+            avail.exits.remove(exit_name)
     world.spoiler.set_entrance(entrance.name, exit.name if exit is not None else region.name, 'entrance', player)
     logging.getLogger('').debug(f'Connected (entr) {entrance.name} to {exit.name if exit is not None else region.name}')
 
@@ -1211,7 +1215,7 @@ modes = {
                               'Waterfall of Wishing', 'Inverted Bomb Shop', 'Cave Shop (Dark Death Mountain)',
                               'Dark World Potion Shop', 'Dark World Lumberjack Shop', 'Dark World Shop',
                               'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade', 'Cave Shop (Lake Hylia)',
-                              'Links House', 'Inverted Links House']
+                              'Links House', 'Inverted Links House', 'Tavern North']
             },
             'old_man_cave': {  # have to do old man cave first so lw dungeon don't use up everything
                 'special': 'old_man_cave_east',
@@ -1277,7 +1281,7 @@ modes = {
                               'Waterfall of Wishing', 'Inverted Bomb Shop', 'Cave Shop (Dark Death Mountain)',
                               'Dark World Potion Shop', 'Dark World Lumberjack Shop', 'Dark World Shop',
                               'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade', 'Cave Shop (Lake Hylia)',
-                              'Links House', 'Inverted Links House']
+                              'Links House', 'Inverted Links House', 'Tavern North']
             }
         }
     },
@@ -1575,8 +1579,8 @@ single_entrance_map = {
     'Fortune Teller (Light)': 'Fortune Teller (Light)', 'Lost Woods Gamble': 'Lost Woods Gamble',
     'Sick Kids House': 'Sick Kids House', 'Blacksmiths Hut': 'Blacksmiths Hut', 'Capacity Upgrade': 'Capacity Upgrade',
     'Cave Shop (Lake Hylia)': 'Cave Shop (Lake Hylia)', 'Sahasrahlas Hut': 'Sahasrahlas Hut',
-    'Aginahs Cave': 'Aginahs Cave', 'Chicken House': 'Chicken House', 'Kings Grave': 'Kings Grave',
-    'Desert Fairy': 'Desert Healer Fairy', 'Light Hype Fairy': 'Swamp Healer Fairy',
+    'Aginahs Cave': 'Aginahs Cave', 'Chicken House': 'Chicken House', 'Tavern North': 'Tavern',
+    'Kings Grave': 'Kings Grave', 'Desert Fairy': 'Desert Healer Fairy', 'Light Hype Fairy': 'Swamp Healer Fairy',
     'Lake Hylia Fortune Teller': 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy': 'Lake Hylia Healer Fairy',
     'Bonk Fairy (Light)': 'Bonk Fairy (Light)', 'Lumberjack House': 'Lumberjack House', 'Dam': 'Dam',
     'Blinds Hideout': 'Blinds Hideout', 'Waterfall of Wishing': 'Waterfall of Wishing',
@@ -1613,7 +1617,7 @@ default_lw = {
     'Paradox Cave Exit (Middle)', 'Paradox Cave Exit (Top)', 'Fairy Ascension Cave Exit (Bottom)',
     'Fairy Ascension Cave Exit (Top)', 'Spiral Cave Exit', 'Spiral Cave Exit (Top)', 'Waterfall of Wishing', 'Dam',
     'Blinds Hideout', 'Lumberjack House', 'Bonk Fairy (Light)', 'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy',
-    'Swamp Healer Fairy', 'Desert Healer Fairy', 'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Kings Grave',
+    'Swamp Healer Fairy', 'Desert Healer Fairy', 'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Kings Grave', 'Tavern',
     'Chicken House', 'Aginahs Cave', 'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Capacity Upgrade', 'Blacksmiths Hut',
     'Sick Kids House', 'Lost Woods Gamble', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House',
     'Tavern (Front)', 'Light World Bomb Hut', 'Kakariko Shop', 'Cave 45', 'Graveyard Cave', 'Checkerboard Cave',
@@ -1631,7 +1635,7 @@ LW_Entrances = ['Elder House (East)', 'Elder House (West)', 'Two Brothers House 
                 'Desert Palace Entrance (South)', 'Desert Palace Entrance (West)', 'Desert Palace Entrance (North)',
                 'Desert Palace Entrance (East)', 'Eastern Palace', 'Tower of Hera', 'Hyrule Castle Entrance (West)',
                 'Hyrule Castle Entrance (East)', 'Hyrule Castle Entrance (South)', 'Agahnims Tower', 'Blinds Hideout',
-                'Lake Hylia Fairy', 'Light Hype Fairy', 'Desert Fairy', 'Chicken House', 'Aginahs Cave',
+                'Lake Hylia Fairy', 'Light Hype Fairy', 'Desert Fairy', 'Tavern North', 'Chicken House', 'Aginahs Cave',
                 'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Blacksmiths Hut', 'Sick Kids House', 'Lost Woods Gamble',
                 'Fortune Teller (Light)', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House',
                 'Tavern (Front)', 'Light World Bomb Hut', 'Kakariko Shop', 'Mini Moldorm Cave', 'Long Fairy Cave',
@@ -1774,8 +1778,8 @@ Simple_DM_Non_Connectors = {'Old Man Cave Ledge', 'Spiral Cave (Top)', 'Superbun
                             'Spectacle Rock Cave (Peak)', 'Spectacle Rock Cave (Top)'}
 
 Blacksmith_Options = [
-    'Blinds Hideout', 'Lake Hylia Fairy', 'Light Hype Fairy', 'Desert Fairy', 'Chicken House', 'Aginahs Cave',
-    'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Blacksmiths Hut', 'Sick Kids House', 'Lost Woods Gamble',
+    'Blinds Hideout', 'Lake Hylia Fairy', 'Light Hype Fairy', 'Desert Fairy', 'Tavern North', 'Chicken House',
+    'Aginahs Cave', 'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Blacksmiths Hut', 'Sick Kids House', 'Lost Woods Gamble',
     'Fortune Teller (Light)', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House', 'Tavern (Front)',
     'Light World Bomb Hut', 'Kakariko Shop', 'Mini Moldorm Cave', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave',
     '50 Rupee Cave', 'Ice Rod Cave', 'Library', 'Potion Shop', 'Dam', 'Lumberjack House', 'Lake Hylia Fortune Teller',
@@ -2651,7 +2655,7 @@ door_addresses = {'Links House': (0x00, (0x0104, 0x2c, 0x0506, 0x0a9a, 0x0832, 0
                   'Light Hype Fairy': (0x6B, (0x0115, 0x34, 0x00a0, 0x0c04, 0x0900, 0x0c58, 0x0988, 0x0c73, 0x0985, 0x0a, 0xf6, 0x0000, 0x0000)),
                   'Desert Fairy': (0x71, (0x0115, 0x3a, 0x0000, 0x0e00, 0x0400, 0x0e26, 0x0468, 0x0e6d, 0x0485, 0x00, 0x00, 0x0000, 0x0000)),
                   'Kings Grave': (0x5A, (0x0113, 0x14, 0x0320, 0x0456, 0x0900, 0x04a6, 0x0998, 0x04c3, 0x097d, 0x0a, 0xf6, 0x0000, 0x0000)),
-                  'Tavern North': (0x42, (0x0103, 0x18, 0x1440, 0x08a7, 0x0206, 0x08f9, 0x0288, 0x0914, 0x0293, 0xf7, 0x09, 0xFFFF, 0x0000)),  # do not use, buggy
+                  'Tavern North': (0x42, (0x0103, 0x18, 0x1440, 0x08a7, 0x0206, 0x091b, 0x0288, 0x0914, 0x0293, 0xf7, 0x09, 0xFFFF, 0x0000)),
                   'Chicken House': (0x4A, (0x0108, 0x18, 0x1120, 0x0837, 0x0106, 0x0888, 0x0188, 0x08a4, 0x0193, 0x07, 0xf9, 0x1530, 0x0000)),
                   'Aginahs Cave': (0x70, (0x010a, 0x30, 0x0656, 0x0cc6, 0x02aa, 0x0d18, 0x0328, 0x0d33, 0x032f, 0x08, 0xf8, 0x0000, 0x0000)),
                   'Sahasrahlas Hut': (0x44, (0x0105, 0x1e, 0x0610, 0x06d4, 0x0c76, 0x0727, 0x0cf0, 0x0743, 0x0cfb, 0x0a, 0xf6, 0x0000, 0x0000)),
@@ -2940,7 +2944,7 @@ ow_prize_table = {'Links House': (0x8b1, 0xb2d), 'Inverted Big Bomb Shop': (0x8b
                   'Light Hype Fairy': (0x940, 0xc80),
                   'Desert Fairy': (0x420, 0xe00),
                   'Kings Grave': (0x920, 0x520),
-                  'Tavern North': None,  # can't mark this one technically
+                  'Tavern North': (0x270, 0x900),
                   'Chicken House': (0x120, 0x880),
                   'Aginahs Cave': (0x2e0, 0xd00),
                   'Sahasrahlas Hut': (0xcf0, 0x6c0),

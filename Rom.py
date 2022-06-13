@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '01166fb16b38b49ef79acc9993dc4f02'
+RANDOMIZERBASEHASH = 'e5556450b16f74709c666e419f2a42ad'
 
 
 class JsonRom(object):
@@ -730,6 +730,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 else:
                     # patch door table
                     rom.write_byte(0xDBB73 + exit.addresses, exit.target)
+                    if exit.name == 'Tavern North':
+                        rom.write_byte(0x157D0, exit.target)
     if world.mode[player] == 'inverted':
         patch_shuffled_dark_sanc(world, rom, player)
 
@@ -2048,6 +2050,8 @@ def write_strings(rom, world, player, team):
                 entrances_to_hint.update({'Inverted Links House': 'The hero\'s old residence'})
             else:
                 entrances_to_hint.update({'Links House': 'The hero\'s old residence'})
+        if world.shuffletavern[player] and world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
+            entrances_to_hint.update({'Tavern North': 'A backdoor'})
         if world.mode[player] == 'inverted':
             entrances_to_hint.update({'Inverted Dark Sanctuary': 'The dark sanctuary cave'})
             entrances_to_hint.update({'Inverted Big Bomb Shop': 'The old hero\'s dark home'})

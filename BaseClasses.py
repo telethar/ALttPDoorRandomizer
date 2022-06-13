@@ -2460,6 +2460,7 @@ class Spoiler(object):
                          'goal': self.world.goal,
                          'shuffle': self.world.shuffle,
                          'shufflelinks': self.world.shufflelinks,
+                         'shuffletavern': self.world.shuffletavern,
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
                          'item_pool': self.world.difficulty,
@@ -2541,7 +2542,8 @@ class Spoiler(object):
                 outfile.write('Difficulty:                      %s\n' % self.metadata['item_pool'][player])
                 outfile.write('Item Functionality:              %s\n' % self.metadata['item_functionality'][player])
                 outfile.write('Entrance Shuffle:                %s\n' % self.metadata['shuffle'][player])
-                outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'])}\n")
+                outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'][player])}\n")
+                outfile.write(f"Back of Tavern Shuffled:         {yn(self.metadata['shuffletavern'][player])}\n")
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 outfile.write('Intensity:                       %s\n' % self.metadata['intensity'][player])
                 outfile.write(f"Drop Shuffle:                    {yn(self.metadata['dropshuffle'][player])}\n")
@@ -2827,7 +2829,7 @@ class Settings(object):
 
             (0x80 if w.bigkeyshuffle[p] else 0) | (0x40 if w.keyshuffle[p] else 0)
             | (0x20 if w.mapshuffle[p] else 0) | (0x10 if w.compassshuffle[p] else 0)
-            | (enemy_mode[w.enemy_shuffle[p]]),
+            | (0x8 if w.shuffletavern[p] else 0) | (enemy_mode[w.enemy_shuffle[p]]),
 
             (e_health[w.enemy_health[p]] << 5) | (e_dmg[w.enemy_damage[p]] << 3) | (0x4 if w.potshuffle[p] else 0)
             | (0x2 if w.bombbag[p] else 0) | (1 if w.shufflelinks[p] else 0),
@@ -2885,6 +2887,7 @@ class Settings(object):
         args.mapshuffle[p] = True if settings[7] & 0x20 else False
         args.compassshuffle[p] = True if settings[7] & 0x10 else False
         # args.shufflebosses[p] = r(boss_mode)[(settings[7] & 0xc) >> 2]
+        args.shuffletavern[p] = True if settings[7] & 0x8 else False
         args.shuffleenemies[p] = r(enemy_mode)[settings[7] & 0x3]
 
         args.enemy_health[p] = r(e_health)[(settings[8] & 0xE0) >> 5]

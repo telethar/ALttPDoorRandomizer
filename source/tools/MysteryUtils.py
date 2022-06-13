@@ -85,6 +85,7 @@ def roll_settings(weights):
         ret.dungeon_counters = 'pickup' if ret.door_shuffle != 'vanilla' or ret.compassshuffle == 'on' else 'off'
 
     ret.shufflelinks = get_choice('shufflelinks') == 'on'
+    ret.shuffletavern = get_choice('shuffletavern') == 'on'
     ret.pseudoboots = get_choice('pseudoboots') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
     keydropshuffle = get_choice('keydropshuffle') == 'on'
