@@ -542,8 +542,8 @@ def figure_out_must_exits_same_world(entrances, exits, avail):
 
 
 def must_exits_helper(avail, lw_entrances, dw_entrances):
-    must_exit_lw = Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit
-    must_exit_dw = Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit
+    must_exit_lw = (Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit).copy()
+    must_exit_dw = (Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit).copy()
     if not avail.inverted and not avail.skull_handled:
         must_exit_dw.append(('Skull Woods Second Section Door (West)', 'Skull Woods Final Section'))
     must_exit_lw = must_exit_filter(avail, must_exit_lw, lw_entrances)
@@ -554,8 +554,8 @@ def must_exits_helper(avail, lw_entrances, dw_entrances):
 def figure_out_must_exits_cross_world(entrances, exits, avail):
     multi_exit_caves = figure_out_connectors(exits)
 
-    must_exit_lw = Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit
-    must_exit_dw = Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit
+    must_exit_lw = (Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit).copy()
+    must_exit_dw = (Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit).copy()
     if not avail.inverted and not avail.skull_handled:
         must_exit_dw.append(('Skull Woods Second Section Door (West)', 'Skull Woods Final Section'))
     must_exit = must_exit_filter(avail, must_exit_lw + must_exit_dw, entrances)
