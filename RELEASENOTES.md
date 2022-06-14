@@ -155,8 +155,16 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 ## Notes and Bug Fixes
 
+#### StandardThrone
+
+	* Changed standard dungeon generation to always have Throne Room in hyrule castle and always have sanctuary behind it
+	* S&Q/death in standard after moving the tapestry but before delivering Zelda will result in spawning at the tapestry
+	* Mirror scroll will return you to Zelda's cell instead of last entrance. This reverts to normal behavior once the tapestry open trigger is reach
+
 #### Volatile
 
+* 1.0.2.5
+	* Some textual changes for hints	
 * 1.0.2.4
 	* Updated tourney winners (included Doors Async League winners)
 	* Fixed a couple issues with dungeon counters and the DungeonCompletion field for autotracking

@@ -14,7 +14,7 @@ from Items import ItemFactory
 from RoomData import DoorKind, PairedDoor, reset_rooms
 from DungeonGenerator import ExplorationState, convert_regions, generate_dungeon, pre_validate, determine_required_paths, drop_entrances
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
-from DungeonGenerator import dungeon_portals, dungeon_drops, GenerationException
+from DungeonGenerator import dungeon_portals, dungeon_drops, GenerationException, connect_doors
 from DungeonGenerator import valid_region_to_explore as valid_region_to_explore_lim
 from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout, determine_prize_lock
 from Utils import ncr, kth_combination
@@ -685,6 +685,13 @@ def create_dungeon_entrances(world, player):
                 choice = random.choice(filtered_choices)
                 r_name = portal.door.entrance.parent_region.name
                 split_map[key][choice].append(r_name)
+        elif key == 'Hyrule Castle' and world.mode[player] == 'standard':
+            for portal_name in portal_list:
+                portal = world.get_portal(portal_name, player)
+                choice = 'Sewers' if portal_name == 'Sanctuary' else 'Dungeon'
+                r_name = portal.door.entrance.parent_region.name
+                split_map[key][choice].append(r_name)
+                entrance_map[key].append(r_name)
         else:
             for portal_name in portal_list:
                 portal = world.get_portal(portal_name, player)
@@ -774,7 +781,8 @@ def main_dungeon_generation(dungeon_builders, recombinant_builders, connections_
     logging.getLogger('').info(world.fish.translate("cli", "cli", "generating.dungeon"))
     while len(sector_queue) > 0:
         builder = sector_queue.popleft()
-        split_dungeon = builder.name.startswith('Desert Palace') or builder.name.startswith('Skull Woods')
+        split_dungeon = (builder.name.startswith('Desert Palace') or builder.name.startswith('Skull Woods')
+                         or (builder.name.startswith('Hyrule Castle') and world.mode[player] == 'standard'))
         name = builder.name
         if split_dungeon:
             name = ' '.join(builder.name.split(' ')[:-1])
@@ -782,6 +790,7 @@ def main_dungeon_generation(dungeon_builders, recombinant_builders, connections_
                 del dungeon_builders[builder.name]
                 continue
         origin_list = list(builder.entrance_list)
+        find_standard_origins(builder, recombinant_builders, origin_list)
         find_enabled_origins(builder.sectors, enabled_entrances, origin_list, entrances_map, name)
         split_dungeon = treat_split_as_whole_dungeon(split_dungeon, name, origin_list, world, player)
         if len(origin_list) <= 0 or not pre_validate(builder, origin_list, split_dungeon, world, player):
@@ -798,7 +807,7 @@ def main_dungeon_generation(dungeon_builders, recombinant_builders, connections_
             builder.master_sector = ds
             builder.layout_starts = origin_list if len(builder.entrance_list) <= 0 else builder.entrance_list
             last_key = None
-    combine_layouts(recombinant_builders, dungeon_builders, entrances_map)
+    combine_layouts(recombinant_builders, dungeon_builders, entrances_map, world, player)
     world.dungeon_layouts[player] = {}
     for builder in dungeon_builders.values():
         builder.entrance_list = builder.layout_starts = builder.path_entrances = find_accessible_entrances(world, player, builder)
@@ -870,6 +879,14 @@ def add_shuffled_entrances(sectors, region_list, entrance_list):
         for region in sector.regions:
             if region.name in region_list and region.name not in entrance_list:
                 entrance_list.append(region.name)
+
+
+def find_standard_origins(builder, recomb_builders, origin_list):
+    if builder.name == 'Hyrule Castle Sewers':
+        throne_door = recomb_builders['Hyrule Castle'].throne_door
+        sewer_entrance = throne_door.entrance.parent_region.name
+        if sewer_entrance not in origin_list:
+            origin_list.append(sewer_entrance)
 
 
 def find_enabled_origins(sectors, enabled, entrance_list, entrance_map, key):
@@ -1378,7 +1395,7 @@ def merge_sectors(all_sectors, world, player):
 
 
 # those with split region starts like Desert/Skull combine for key layouts
-def combine_layouts(recombinant_builders, dungeon_builders, entrances_map):
+def combine_layouts(recombinant_builders, dungeon_builders, entrances_map, world, player):
     for recombine in recombinant_builders.values():
         queue = deque(dungeon_builders.values())
         while len(queue) > 0:
@@ -1390,6 +1407,10 @@ def combine_layouts(recombinant_builders, dungeon_builders, entrances_map):
                     recombine.master_sector.name = recombine.name
                 else:
                     recombine.master_sector.regions.extend(builder.master_sector.regions)
+        if recombine.name == 'Hyrule Castle':
+            recombine.master_sector.regions.extend(recombine.throne_sector.regions)
+            throne_n = world.get_door('Hyrule Castle Throne Room N', player)
+            connect_doors(throne_n, recombine.throne_door)
         recombine.layout_starts = list(entrances_map[recombine.name])
         dungeon_builders[recombine.name] = recombine
 
@@ -1487,10 +1508,13 @@ def find_valid_combination(builder, start_regions, world, player, drop_keys=True
     proposal = kth_combination(sample_list[itr], builder.candidates, builder.key_doors_num)
 
     # eliminate start region if portal marked as destination
+    std_flag = world.mode[player] == 'standard' and builder.name == 'Hyrule Castle'
     excluded = {}
     for region in start_regions:
         portal = next((x for x in world.dungeon_portals[player] if x.door.entrance.parent_region == region), None)
         if portal and portal.destination:
+            excluded[region] = None
+        if std_flag and (not portal or portal.find_portal_entrance().parent_region.name != 'Hyrule Castle Courtyard'):
             excluded[region] = None
     start_regions = [x for x in start_regions if x not in excluded.keys()]
 
