@@ -157,6 +157,11 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.5
+	* Some textual changes for hints (capitalization standardization)
+		* Item will be highlighted in red if experimental is on
+	* Bug with 0 GT crystals not opening GT
+	* Settings code fix
 * 1.0.2.4
 	* Updated tourney winners (included Doors Async League winners)
 	* Fixed a couple issues with dungeon counters and the DungeonCompletion field for autotracking
