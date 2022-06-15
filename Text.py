@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from collections import OrderedDict
 import logging
+import re
 
 text_addresses = {'Pedestal': (0x180300, 256),
                   'Triforce': (0x180400, 256),
@@ -624,6 +625,12 @@ class MultiByteCoreTextMapper(object):
         "{IBOX}": [0x6B, 0x02, 0x77, 0x07, 0x7A, 0x03],
         "{C:GREEN}": [0x77, 0x07],
         "{C:YELLOW}": [0x77, 0x02],
+        "{C:WHITE}": [0x77, 0x06],
+        "{C:INV_WHITE}": [0x77, 0x16],
+        "{C:INV_YELLOW}": [0x77, 0x12],
+        "{C:INV_GREEN}": [0x77, 0x17],
+        "{C:RED}": [0x77, 0x01],
+        "{C:INV_RED}": [0x77, 0x11],
     }
 
     @classmethod
@@ -637,7 +644,9 @@ class MultiByteCoreTextMapper(object):
         while lines:
             linespace = wrap
             line = lines.pop(0)
-            if line.startswith('{'):
+
+            match = re.search('^\{[A-Z0-9_:]+\}$', line)
+            if match:
                 if line == '{PAGEBREAK}':
                     if lineindex % 3 != 0:
                         # insert a wait for keypress, unless we just did so
@@ -654,10 +663,27 @@ class MultiByteCoreTextMapper(object):
             pending_space = False
             while words:
                 word = words.pop(0)
+
+                match = re.search('^(\{[A-Z0-9_:]+\}).*', word)
+                if match:
+                    start_command = match.group(1)
+                    outbuf.extend(cls.special_commands[start_command])
+                    word = word.replace(start_command, '')
+
+                match = re.search('(\{[A-Z0-9_:]+\})\.?$', word)
+                if match:
+                    end_command = match.group(1)
+                    word = word.replace(end_command, '')
+                    period = word.endswith('.')
+                else:
+                    end_command, period = None, False
+
                 # sanity check: if the word we have is more than 19 characters,
                 # we take as much as we can still fit and push the rest back for later
                 if cls.wordlen(word) > wrap:
                     (word_first, word_rest) = cls.splitword(word, linespace)
+                    if end_command:
+                        word_rest = (word_rest[:-1] + end_command + '.') if period else (word_rest + end_command)
                     words.insert(0, word_rest)
                     lines.insert(0, ' '.join(words))
 
@@ -670,9 +696,16 @@ class MultiByteCoreTextMapper(object):
                     if cls.wordlen(word) < linespace:
                         pending_space = True
                     linespace -= cls.wordlen(word) + 1 if pending_space else 0
-                    outbuf.extend(RawMBTextMapper.convert(word))
+                    word_to_map = word[:-1] if period else word
+                    outbuf.extend(RawMBTextMapper.convert(word_to_map))
+                    if end_command:
+                        outbuf.extend(cls.special_commands[end_command])
+                        if period:
+                            outbuf.extend(RawMBTextMapper.convert('.'))
                 else:
                     # ran out of space, push word and lines back and continue with next line
+                    if end_command:
+                        word = (word[:-1] + end_command + '.') if period else (word + end_command)
                     words.insert(0, word)
                     lines.insert(0, ' '.join(words))
                     break
