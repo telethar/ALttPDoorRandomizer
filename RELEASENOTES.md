@@ -162,6 +162,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 		* Item will be highlighted in red if experimental is on
 	* Bug with 0 GT crystals not opening GT
 	* Settings code fix
+	* Fix for pottery not counting items in certain caves that share a supertile with shops
 * 1.0.2.4
 	* Updated tourney winners (included Doors Async League winners)
 	* Fixed a couple issues with dungeon counters and the DungeonCompletion field for autotracking
