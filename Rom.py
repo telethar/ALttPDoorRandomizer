@@ -353,6 +353,9 @@ def patch_enemizer(world, player, rom, local_rom, enemizercli, random_sprite_on_
                                   0xad, 0x3, 0x4, 0x29, 0x20, 0xf0, 0x1d])
         rom.write_byte(0x200101, 0)  # Do not close boss room door on entry.
         rom.write_byte(0x1B0101, 0)  # Do not close boss room door on entry. (for Ijwu's enemizer)
+    else:
+        rom.write_byte(0x04DE83, 0xB3)  # maiden is now something else
+
 
     if random_sprite_on_hit:
         _populate_sprite_table()
