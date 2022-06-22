@@ -38,6 +38,7 @@
     "cannot.reach.required": "Not all required items reachable. Something went terribly wrong here.",
     "patching.rom": "Patching ROM",
     "patching.spoiler": "Creating Spoiler",
+    "create.meta": "Creating Meta Info",
     "calc.playthrough": "Calculating Playthrough",
     "made.rom": "Patched ROM:         %s",
     "made.playthrough": "Printed Playthrough: %s",
