@@ -166,11 +166,17 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Customizer
 
+* Fixed an issue with lite/lean ER not generating
 * Fixed up the GUI selection of the customizer file.
 * Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
 #### Volatile
 
+* 1.0.2.6
+	* Fix for Zelda (or any follower) going to the maiden cell supertile and the boss is not Blind. The follower will not despawn unless the boss is Blind, then the maiden will spawn as normal.
+	* Added a check for package requirements before running code. GUI and console both for better error messages. Thanks to mtrethewey for the idea.
+	* Refactored spoiler to generate in stages for better error collection. A meta file will be generated additionally for mystery seeds. Some random settings moved later in the spoiler to have the meta section at the top not spoil certain things. (GT/Ganon requirements.) Thanks to codemann and OWR for most of this work.
+	* Fix for Waterfall of Wishing logic in open. You must have flippers to exit the Waterfall (or moon pearl in glitched modes that allow minor glitches in logic)
 * 1.0.2.5
 	* Some textual changes for hints (capitalization standardization)
 		* Item will be highlighted in red if experimental is on
