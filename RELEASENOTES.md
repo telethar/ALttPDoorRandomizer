@@ -12,7 +12,7 @@ New pottery option that control which pots (and large blocks) are in the locatio
 not include key pots. 
 * CaveKeys: Both non-dungeon pots and pots that used to have keys are in the pool.
 * Reduced: Same as CaveKeys but also roughly a quarter of dungeon pots are added to the location pool picked at random. This is a dynamic mode so pots in the pool will be colored. Pots out of the pool will have vanilla contents.
-* Clustered: LIke reduced but pot are grouped by logical sets and roughly 50% of pots are chosen from those group. This is a dynamic mode like the above.
+* Clustered: Like reduced but pots are grouped by logical sets and roughly 50% of pots are chosen from those group. This is a dynamic mode like the above.
 * Nonempty: All pots that had some sort of objects under them are chosen to be in the location pool. This excludes most large blocks and some pots out of dungeons. 
 * Dungeon Pots: The pots that are in dungeons are in the pool. (Includes serveral large blocks) 
 * Lottery: All pots and large blocks are in the pool
@@ -44,6 +44,15 @@ The old "Pot Shuffle" option is still available under "Pot Shuffle (Legacy)" or 
 #### Tracking Notes
 
 The sram locations for pots and sprite drops are not yet final, please reach out for assistance or investigate the rom changes.
+
+## Customizer
+
+Please refer to [the documentation](docs/Customizer.md) and examples of customizer [here](docs/customizer_example.yaml) and [here](docs/multi_mystery_example.yaml)
+note that entrance customization is only available with experimental features turned on.
+
+## Experimental Entrance Shuffle
+
+To support customizer and future entrance shuffle modes (perhaps even customizable ones), the entrance shuffle algorithm has been re-written. It is currently in an unstable state, and will use the old method unless you turn experimental features on. I'm currently in the process of evaluating most modes with different combinations of settings and checking the distribution of entrances. Entrance customization is only supported with this new experimental entrance shuffle. The experimental entrance shuffle includes prototypes of Lean and Lite entrance shuffles from the OWR branch.
 
 ## Restricted Item Placement Algorithm
 
@@ -164,6 +173,11 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 	* S&Q/death in standard after moving the tapestry but before delivering Zelda will result in spawning at the tapestry
 	* Mirror scroll will return you to Zelda's cell instead of last entrance. This reverts to normal behavior once the tapestry open trigger is reached
 
+#### Customizer
+
+* Fixed an issue with lite/lean ER not generating
+* Fixed up the GUI selection of the customizer file.
+* Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
 #### Volatile
 

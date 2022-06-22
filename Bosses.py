@@ -165,6 +165,22 @@ def place_bosses(world, player):
 
     all_bosses = sorted(boss_table.keys()) #s orted to be deterministic on older pythons
     placeable_bosses = [boss for boss in all_bosses if boss not in ['Agahnim', 'Agahnim2', 'Ganon']]
+    used_bosses = []
+
+    if world.customizer and world.customizer.get_bosses():
+        custom_bosses = world.customizer.get_bosses()
+        if player in custom_bosses:
+            for location, boss in custom_bosses[player].items():
+                level = None
+                if '(' in location:
+                    i = location.find('(')
+                    level = location[i+1:location.find(')')]
+                    location = location[:i-1]
+                if can_place_boss(world, player, boss, location, level):
+                    loc_text = location + (' ('+level+')' if level else '')
+                    place_boss(boss, level, location, loc_text, world, player)
+                    boss_locations.remove([location, level])
+                    used_bosses.append((boss, level))
 
     # temporary hack for swordless kholdstare:
     if world.boss_shuffle[player] in ["simple", "full", "unique"]:
@@ -179,6 +195,8 @@ def place_bosses(world, player):
             bosses = placeable_bosses + ['Armos Knights', 'Lanmolas', 'Moldorm']
         else:  # all bosses present, the three duplicates chosen at random
             bosses = placeable_bosses + random.sample(placeable_bosses, 3)
+        for u, level in used_bosses:
+            placeable_bosses.remove(u)
 
         logging.getLogger('').debug('Bosses chosen %s', bosses)
 
@@ -202,6 +220,9 @@ def place_bosses(world, player):
             place_boss(boss, level, loc, loc_text, world, player)
     elif world.boss_shuffle[player] == 'unique':
         bosses = list(placeable_bosses)
+        for u, level in used_bosses:
+            if not level:
+                bosses.remove(u)
 
         for [loc, level] in boss_locations:
             loc_text = loc + (' ('+level+')' if level else '')

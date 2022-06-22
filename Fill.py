@@ -12,7 +12,7 @@ from source.item.FillUtil import filter_pot_locations, valid_pot_items
 
 
 def get_dungeon_item_pool(world):
-    return [item for dungeon in world.dungeons for item in dungeon.all_items]
+    return [item for dungeon in world.dungeons for item in dungeon.all_items if item.location is None]
 
 
 def promote_dungeon_items(world):
@@ -477,6 +477,8 @@ def calc_trash_locations(world, player):
 
 def ensure_good_pots(world, write_skips=False):
     for loc in world.get_locations():
+        if loc.item is None:
+            loc.item = ItemFactory('Nothing', loc.player)
         # convert Arrows 5 and Nothing when necessary
         if (loc.item.name in {'Arrows (5)', 'Nothing'}
            and (loc.type != LocationType.Pot or loc.item.player != loc.player)):

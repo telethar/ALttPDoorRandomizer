@@ -25,11 +25,13 @@ from Rules import set_rules
 from Dungeons import create_dungeons
 from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
-from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
+from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
 from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
+from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
+from source.classes.CustomSettings import CustomSettings
 
 __version__ = '1.0.2.6-x'
 
@@ -57,22 +59,32 @@ def main(args, seed=None, fish=None):
 
     if args.securerandom:
         random.use_secure()
-
+    seeded = False
     # initialize the world
     if args.code:
         for player, code in args.code.items():
             if code:
                 Settings.adjust_args_from_code(code, player, args)
+    customized = None
+    if args.customizer:
+        customized = CustomSettings()
+        customized.load_yaml(args.customizer)
+        seed = customized.determine_seed()
+        if seed:
+            seeded = True
+        customized.adjust_args(args)
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
                   args.accessibility, args.shuffleganon, args.retro, args.custom, args.customitemarray, args.hints)
+    world.customizer = customized if customized else None
     logger = logging.getLogger('')
     if seed is None:
         random.seed(None)
         world.seed = random.randint(0, 999999999)
     else:
         world.seed = int(seed)
-    random.seed(world.seed)
+    if not seeded:
+        random.seed(world.seed)
 
     if args.securerandom:
         world.seed = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(9))
@@ -129,6 +141,8 @@ def main(args, seed=None, fish=None):
         for player, name in enumerate(team, 1):
             world.player_names[player].append(name)
     logger.info('')
+    world.settings = CustomSettings()
+    world.settings.create_from_world(world)
 
     outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
 
@@ -166,6 +180,15 @@ def main(args, seed=None, fish=None):
         adjust_locations(world, player)
         place_bosses(world, player)
 
+    if world.customizer and world.customizer.get_start_inventory():
+        for p, inv_list in world.customizer.get_start_inventory().items():
+            for inv_item in inv_list:
+                item = ItemFactory(inv_item.strip(), p)
+                if item:
+                    world.push_precollected(item)
+    if args.print_custom_yaml:
+        world.settings.record_info(world)
+
     if any(world.potshuffle.values()):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
@@ -178,15 +201,20 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
     for player in range(1, world.players + 1):
-        if world.mode[player] != 'inverted':
-            link_entrances(world, player)
+        if world.experimental[player] or (world.customizer and world.customizer.get_entrances()):
+            link_entrances_new(world, player)
         else:
-            link_inverted_entrances(world, player)
+            if world.mode[player] != 'inverted':
+                link_entrances(world, player)
+            else:
+                link_inverted_entrances(world, player)
 
     logger.info(world.fish.translate("cli", "cli", "shuffling.prep"))
     for player in range(1, world.players + 1):
         link_doors_prep(world, player)
 
+    if args.print_custom_yaml:
+        world.settings.record_entrances(world)
     create_item_pool_config(world)
 
     logger.info(world.fish.translate("cli", "cli", "shuffling.dungeons"))
@@ -197,6 +225,8 @@ def main(args, seed=None, fish=None):
             mark_light_world_regions(world, player)
         else:
             mark_dark_world_regions(world, player)
+    if args.print_custom_yaml:
+        world.settings.record_doors(world)
     logger.info(world.fish.translate("cli", "cli", "generating.itempool"))
 
     for player in range(1, world.players + 1):
@@ -217,12 +247,12 @@ def main(args, seed=None, fish=None):
             lock_shop_locations(world, player)
 
     massage_item_pool(world)
+    if args.print_custom_yaml:
+        world.settings.record_item_pool(world)
+    fill_specific_items(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 
     fill_prizes(world)
-
-    # used for debugging
-    # fill_specific_items(world)
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.items"))
 
@@ -266,6 +296,10 @@ def main(args, seed=None, fish=None):
     if args.algorithm in ['balanced', 'equitable']:
         balance_money_progression(world)
     ensure_good_pots(world, True)
+
+    if args.print_custom_yaml:
+        world.settings.record_item_placements(world)
+        world.settings.write_to_file(output_path(f'{outfilebase}_custom.yaml'))
 
     rom_names = []
     jsonout = {}

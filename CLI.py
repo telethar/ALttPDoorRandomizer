@@ -9,6 +9,7 @@ import sys
 from source.classes.BabelFish import BabelFish
 
 from Utils import update_deprecated_args
+from source.classes.CustomSettings import CustomSettings
 
 
 class ArgumentDefaultsHelpFormatter(argparse.RawTextHelpFormatter):
@@ -32,10 +33,24 @@ def parse_cli(argv, no_defaults=False):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--settingsfile', help="input json file of settings", type=str)
     parser.add_argument('--multi', default=defval(settings["multi"]), type=lambda value: min(max(int(value), 1), 255))
+    parser.add_argument('--customizer', help='input yaml file for customizations', type=str)
+    parser.add_argument('--print_custom_yaml', help='print example yaml for current settings',
+                        default=False, action="store_true")
+    parser.add_argument('--mystery', dest="mystery", default=False, action="store_true")
+
     multiargs, _ = parser.parse_known_args(argv)
 
     if multiargs.settingsfile:
         settings = apply_settings_file(settings, multiargs.settingsfile)
+
+    player_num = multiargs.multi
+    if multiargs.customizer:
+        custom = CustomSettings()
+        custom.load_yaml(multiargs.customizer)
+        cp = custom.determine_players()
+        if cp:
+            player_num = cp
+
 
     parser = argparse.ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
@@ -78,9 +93,11 @@ def parse_cli(argv, no_defaults=False):
     parser.add_argument('--securerandom', default=defval(settings["securerandom"]), action='store_true')
     parser.add_argument('--teams', default=defval(1), type=lambda value: max(int(value), 1))
     parser.add_argument('--settingsfile', dest="filename", help="input json file of settings", type=str)
+    parser.add_argument('--customizer', dest="customizer", help='input yaml file for customizations', type=str)
+    parser.add_argument('--print_custom_yaml', dest="print_custom_yaml", default=False, action="store_true")
 
-    if multiargs.multi:
-        for player in range(1, multiargs.multi + 1):
+    if player_num:
+        for player in range(1, player_num + 1):
             parser.add_argument(f'--p{player}', default=defval(''), help=argparse.SUPPRESS)
 
     ret = parser.parse_args(argv)
@@ -92,9 +109,9 @@ def parse_cli(argv, no_defaults=False):
         ret.dropshuffle = True
         ret.pottery = 'keys' if ret.pottery == 'none' else ret.pottery
 
-    if multiargs.multi:
+    if player_num:
         defaults = copy.deepcopy(ret)
-        for player in range(1, multiargs.multi + 1):
+        for player in range(1, player_num + 1):
             playerargs = parse_cli(shlex.split(getattr(ret, f"p{player}")), True)
 
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',

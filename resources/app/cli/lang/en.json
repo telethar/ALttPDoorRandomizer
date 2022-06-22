@@ -290,6 +290,7 @@
     "bombbag": ["Start with 0 bomb capacity. Two capacity upgrades (+10) are added to the pool (default: %(default)s)" ],
     "startinventory": [ "Specifies a list of items that will be in your starting inventory (separated by commas). (default: %(default)s)" ],
     "usestartinventory": [ "Toggle usage of Starting Inventory." ],
+    "customizer": ["Path to a customizer file."],
     "custom": [ "Not supported." ],
     "customitemarray": [ "Not supported." ],
     "accessibility": [
