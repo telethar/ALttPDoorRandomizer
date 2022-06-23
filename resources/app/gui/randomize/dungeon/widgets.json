@@ -22,6 +22,7 @@
         "width": 45
       }
     },
+    "decoupledoors": { "type": "checkbox" },
     "keydropshuffle": { "type": "checkbox" },
     "pottery": {
       "type": "selectbox",

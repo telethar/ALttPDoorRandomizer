@@ -142,6 +142,7 @@ class World(object):
             set_player_attr('collection_rate', False)
             set_player_attr('colorizepots', False)
             set_player_attr('pot_pool', {})
+            set_player_attr('decoupledoors', False)
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -2577,6 +2578,7 @@ class Spoiler(object):
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 if self.metadata['door_shuffle'][player] != 'vanilla':
                     outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
+                    outfile.write(f"Decouple Doors:                  {yn(self.metadata['decoupledoors'][player])}\n")
                     outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
                 outfile.write(f"Dungeon Counters:                {self.metadata['dungeon_counters'][player]}\n")
                 outfile.write(f"Drop Shuffle:                    {yn(self.metadata['dropshuffle'][player])}\n")
@@ -2827,7 +2829,7 @@ goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'cryst
 diff_mode = {"normal": 0, "hard": 1, "expert": 2}
 func_mode = {"normal": 0, "hard": 1, "expert": 2}
 
-# byte 3: S?MM PIII (shop, unused, mixed, palettes, intensity)
+# byte 3: SDMM PIII (shop, decouple doors, mixed, palettes, intensity)
 # keydrop now has it's own byte
 mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 # intensity is 3 bits (reserves 4-7 levels)
@@ -2881,7 +2883,8 @@ class Settings(object):
             (goal_mode[w.goal[p]] << 5) | (diff_mode[w.difficulty[p]] << 3)
             | (func_mode[w.difficulty_adjustments[p]] << 1) | (1 if w.hints[p] else 0),
 
-            (0x80 if w.shopsanity[p] else 0) | (mixed_travel_mode[w.mixed_travel[p]] << 4)
+            (0x80 if w.shopsanity[p] else 0) | (0x40 if w.decoupledoors[p] else 0)
+            | (mixed_travel_mode[w.mixed_travel[p]] << 4)
             | (0x8 if w.standardize_palettes[p] == "original" else 0)
             | (0 if w.intensity[p] == "random" else w.intensity[p]),
 
@@ -2929,7 +2932,7 @@ class Settings(object):
         args.retro[p] = True if settings[1] & 0x01 else False
         args.hints[p] = True if settings[2] & 0x01 else False
         args.shopsanity[p] = True if settings[3] & 0x80 else False
-        # args.keydropshuffle[p] = True if settings[3] & 0x40 else False
+        args.decoupledoors[p] = True if settings[3] & 0x40 else False
         args.mixed_travel[p] = r(mixed_travel_mode)[(settings[3] & 0x30) >> 4]
         args.standardize_palettes[p] = "original" if settings[3] & 0x8 else "standardize"
         intensity = settings[3] & 0x7

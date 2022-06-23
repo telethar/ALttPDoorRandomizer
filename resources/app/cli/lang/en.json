@@ -216,6 +216,7 @@
       "3:       And shuffles dungeon lobbies",
       "random:  Picks one of those at random"
     ],
+    "decoupledoors" : [ "Door entrances and exits are decoupled" ],
     "experimental": [ "Enable experimental features. (default: %(default)s)" ],
     "dungeon_counters": [ "Enable dungeon chest counters. (default: %(default)s)" ],
     "crystals_ganon": [
