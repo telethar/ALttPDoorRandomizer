@@ -1262,7 +1262,7 @@ def simple_dungeon_builder(name, sector_list):
     return builder
 
 
-def create_dungeon_builders(all_sectors, connections_tuple, world, player,
+def create_dungeon_builders(all_sectors, connections_tuple, world, player, dungeon_pool,
                             dungeon_entrances=None, split_dungeon_entrances=None):
     logger = logging.getLogger('')
     logger.info('Shuffling Dungeon Sectors')
@@ -1278,7 +1278,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player,
         global_pole = GlobalPolarity(candidate_sectors)
 
         dungeon_map = {}
-        for key in dungeon_regions.keys():
+        for key in dungeon_pool:
             dungeon_map[key] = DungeonBuilder(key)
         for key in dungeon_boss_sectors.keys():
             current_dungeon = dungeon_map[key]

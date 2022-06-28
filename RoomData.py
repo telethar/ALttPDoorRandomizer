@@ -316,9 +316,9 @@ class Room(object):
             byte_array.append(kind.value)
         return byte_array
 
-    def next_free(self):
+    def next_free(self, pos=4):
         for i, door in enumerate(self.doorList):
-            if i >= 4:
+            if i >= pos:
                 return None
             pos, kind = door
             if kind not in [DoorKind.SmallKey, DoorKind.Dashable, DoorKind.Bombable, DoorKind.TrapTriggerable,
@@ -395,8 +395,8 @@ class DoorKind(Enum):
     Bombable = 0x2E
     BlastWall = 0x30
     Hidden = 0x32
-    TrapTriggerable = 0x36  # right side trap or south side trap
-    Trap2 = 0x38  # left side trap or north side trap
+    TrapTriggerable = 0x36  # right side trap or south side trap (West, South)
+    Trap2 = 0x38  # left side trap or north side trap (East, North)
     NormalLow2 = 0x40
     TrapTriggerableLow = 0x44
     Warp = 0x46

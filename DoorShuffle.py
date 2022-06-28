@@ -6,13 +6,14 @@ from enum import unique, Flag
 from typing import DefaultDict, Dict, List
 
 from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
-from BaseClasses import PotFlags, LocationType
+from BaseClasses import PotFlags, LocationType, Direction
 from Doors import reset_portals
 from Dungeons import dungeon_regions, region_starts, standard_starts, split_region_starts
 from Dungeons import dungeon_bigs, dungeon_hints
 from Items import ItemFactory
 from RoomData import DoorKind, PairedDoor, reset_rooms
 from source.dungeon.DungeonStitcher import GenerationException, generate_dungeon
+from source.dungeon.DungeonStitcher import ExplorationState as ExplorationState2
 # from DungeonGenerator import generate_dungeon
 from DungeonGenerator import ExplorationState, convert_regions, pre_validate, determine_required_paths, drop_entrances
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
@@ -757,6 +758,131 @@ def find_entrance_region(portal):
         if entrance.parent_region.type != RegionType.Dungeon:
             return entrance.parent_region
     return None
+
+
+# each dungeon_pool members is a pair of lists: dungeon names and regions in those dungeons
+def main_dungeon_pool(dungeon_pool, world, player):
+    add_inaccessible_doors(world, player)
+    entrances_map, potentials, connections = determine_entrance_list(world, player)
+    connections_tuple = (entrances_map, potentials, connections)
+    entrances, splits = create_dungeon_entrances(world, player)
+
+    dungeon_builders = {}
+    door_type_pools = []
+    for pool, region_list in dungeon_pool:
+        if len(pool) == 1:
+            dungeon_key = next(pool)
+            sector_pool = convert_to_sectors(region_list, world, player)
+            merge_sectors(sector_pool, world, player)
+            dungeon_builders[dungeon_key] = simple_dungeon_builder(dungeon_key, sector_pool)
+            dungeon_builders[dungeon_key].entrance_list = list(entrances_map[dungeon_key])
+        else:
+            if 'Hyrule Castle' in pool:
+                hc = world.get_dungeon('Hyrule Castle', player)
+                hc.dungeon_items.append(ItemFactory('Compass (Escape)', player))
+            if 'Agahnims Tower' in pool:
+                at = world.get_dungeon('Agahnims Tower', player)
+                at.dungeon_items.append(ItemFactory('Compass (Agahnims Tower)', player))
+                at.dungeon_items.append(ItemFactory('Map (Agahnims Tower)', player))
+            sector_pool = convert_to_sectors(region_list, world, player)
+            merge_sectors(sector_pool, world, player)
+            # todo: which dungeon to create
+            dungeon_builders.update(create_dungeon_builders(sector_pool, connections_tuple,
+                                                            world, player, pool, entrances, splits))
+        door_type_pools.append((pool, DoorTypePool(sector_pool, world, player)))
+
+    update_forced_keys(dungeon_builders, entrances_map, world, player)
+    recombinant_builders = {}
+    builder_info = entrances, splits, connections_tuple, world, player
+    handle_split_dungeons(dungeon_builders, recombinant_builders, entrances_map, builder_info)
+
+    main_dungeon_generation(dungeon_builders, recombinant_builders, connections_tuple, world, player)
+
+    setup_custom_door_types(world, player)
+    paths = determine_required_paths(world, player)
+    shuffle_door_types(door_type_pools, paths, world, player)
+
+    check_required_paths(paths, world, player)
+
+    all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
+    target_items = 34
+    if world.retro[player]:
+        target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
+    else:
+        target_items += 29  # small keys in chests
+        if world.dropshuffle[player]:
+            target_items += 14  # 13 dropped smalls + 1 big
+        if world.pottery[player] not in ['none', 'cave']:
+            target_items += 19  # 19 pot keys
+    d_items = target_items - all_dungeon_items_cnt
+    world.pool_adjustment[player] = d_items
+    if not world.decoupledoors[player]:
+        smooth_door_pairs(world, player)
+
+
+def update_forced_keys(dungeon_builders, entrances_map, world, player):
+    for builder in dungeon_builders.values():
+        builder.entrance_list = list(entrances_map[builder.name])
+        dungeon_obj = world.get_dungeon(builder.name, player)
+        for sector in builder.sectors:
+            for region in sector.regions:
+                region.dungeon = dungeon_obj
+                for loc in region.locations:
+                    if loc.forced_item:
+                        key_name = (dungeon_keys[builder.name] if loc.name != 'Hyrule Castle - Big Key Drop'
+                                    else dungeon_bigs[builder.name])
+                        loc.forced_item = loc.item = ItemFactory(key_name, player)
+
+
+def finish_up_work(world, player):
+    dungeon_builders = world.dungeon_layouts[player]
+    # Re-assign dungeon bosses
+    gt = world.get_dungeon('Ganons Tower', player)
+    for name, builder in dungeon_builders.items():
+        reassign_boss('GT Ice Armos', 'bottom', builder, gt, world, player)
+        reassign_boss('GT Lanmolas 2', 'middle', builder, gt, world, player)
+        reassign_boss('GT Moldorm', 'top', builder, gt, world, player)
+
+    sanctuary = world.get_region('Sanctuary', player)
+    d_name = sanctuary.dungeon.name
+    if d_name != 'Hyrule Castle':
+        possible_portals = []
+        for portal_name in dungeon_portals[d_name]:
+            portal = world.get_portal(portal_name, player)
+            if portal.door.name == 'Sanctuary S':
+                possible_portals.clear()
+                possible_portals.append(portal)
+                break
+            if not portal.destination and not portal.deadEnd:
+                possible_portals.append(portal)
+        if len(possible_portals) == 1:
+            world.sanc_portal[player] = possible_portals[0]
+        else:
+            reachable_portals = []
+            for portal in possible_portals:
+                start_area = portal.door.entrance.parent_region
+                state = ExplorationState(dungeon=d_name)
+                state.visit_region(start_area)
+                state.add_all_doors_check_unattached(start_area, world, player)
+                explore_state(state, world, player)
+                if state.visited_at_all(sanctuary):
+                    reachable_portals.append(portal)
+            world.sanc_portal[player] = random.choice(reachable_portals)
+    if world.intensity[player] >= 3:
+        if player in world.sanc_portal:
+            portal = world.sanc_portal[player]
+        else:
+            portal = world.get_portal('Sanctuary', player)
+        target = portal.door.entrance.parent_region
+        connect_simple_door(world, 'Sanctuary Mirror Route', target, player)
+
+    check_entrance_fixes(world, player)
+
+    if world.standardize_palettes[player] == 'standardize' and world.doorShuffle[player] not in ['basic']:
+        palette_assignment(world, player)
+
+    refine_hints(dungeon_builders)
+    refine_boss_exits(world, player)
 
 
 # def unpair_all_doors(world, player):
@@ -1522,7 +1648,9 @@ def setup_custom_door_types(world, player):
         custom_doors = custom_doors[player]
         if 'doors' not in custom_doors:
             return
-        world.custom_door_types[player] = type_map = {'Key Door': defaultdict(list), 'Dash Door': [], 'Bomb Door': []}
+        # todo: dash/bomb door pool specific
+        customizeable_types = ['Key Door', 'Dash Door', 'Bomb Door', 'Trap Door', 'Big Key Door']
+        world.custom_door_types[player] = type_map = {x: defaultdict(list) for x in customizeable_types}
         for door, dest in custom_doors['doors'].items():
             if isinstance(dest, dict):
                 if 'type' in dest:
@@ -1531,17 +1659,206 @@ def setup_custom_door_types(world, player):
                     dungeon = d.entrance.parent_region.dungeon
                     if d.type == DoorType.SpiralStairs:
                         type_map[door_kind][dungeon.name].append(d)
-                    elif door_kind == 'Key Door':
+                    else:
                         # check if the
                         if d.dest.type in [DoorType.Interior, DoorType.Normal]:
                             type_map[door_kind][dungeon.name].append((d, d.dest))
                         else:
                             type_map[door_kind][dungeon.name].append(d)
-                    else:
-                        if d.dest.type in [DoorType.Interior, DoorType.Normal]:
-                            type_map[door_kind].append((d, d.dest))
-                        else:
-                            type_map[door_kind].append(d)
+
+
+class DoorTypePool:
+    def __init__(self, sectors, world, player):
+        self.smalls = 0
+        self.bombable = 0
+        self.dashable = 0
+        self.bigs = 0
+        self.traps = 0
+        # self.tricky = 0
+        # self.hidden = 0
+        # todo: custom pools?
+        self.count_via_sectors(sectors, world, player)
+
+    def count_via_sectors(self, sectors, world, player):
+        skips = set()
+        for sector in sectors:
+            for region in sector.regions:
+                for ext in region.exits:
+                    if ext.door:
+                        d = ext.door
+                        if d.name not in skips and d.type in [DoorType.Normal, DoorType.Interior]:
+                            if d.smallKey:
+                                self.smalls += 1
+                            elif d.bigKey:
+                                self.bigs += 1
+                            elif d.blocked and d.trapFlag and 'Boss' not in d.name and 'Agahnim' not in d.name:
+                                self.traps += 1
+                            elif d.name == 'TR Compass Room NW':
+                                self.tricky += 1
+                            elif d.name in ['Skull Vines NW', 'Tower Altar NW']:
+                                self.hidden += 1
+                            else:
+                                kind = world.get_room(d.roomIndex, player).kind(d)
+                                if kind == DoorKind.Bombable:
+                                    self.bombable += 1
+                                elif kind == DoorKind.Dashable:
+                                    self.dashable += 1
+                            if d.type == DoorType.Interior:
+                                skips.add(d.dest.name)  ## lookup a different way for interior door shuffle
+                            elif d.type == DoorType.Normal:
+                                for dp in world.paired_doors[player]:
+                                    if d.name == dp.door_a or d.name == dp.door_b:
+                                        skips.add(dp.door_b if d.name == dp.door_a else dp.door_a)
+                                        break
+
+    def chaos_shuffle(self):
+        weights = [1, 2, 4, 3, 2, 1]
+        self.smalls = random.choices(self.get_choices(self.smalls), weights=weights)
+        self.bombable = random.choices(self.get_choices(self.bombable), weights=weights)
+        self.dashable = random.choices(self.get_choices(self.dashable), weights=weights)
+        self.bigs = random.choices(self.get_choices(self.bigs), weights=weights)
+        self.traps = random.choices(self.get_choices(self.traps), weights=weights)
+        # self.tricky = random.choices(self.get_choices(self.tricky), weights=weights)
+        # self.hidden = random.choices(self.get_choices(self.hidden), weights=weights)
+
+    @staticmethod
+    def get_choices(number):
+        return [max(number-i, 0) for i in range(-1, 5)]
+
+
+class BuilderDoorCandidates:
+    def __init__(self):
+        self.small = set()
+        self.big = set()
+        self.trap = set()
+        self.bombable = set()
+        self.dashable = set()
+
+        self.checked = set()
+
+
+def shuffle_door_types(door_type_pools, paths, world, player):
+    start_regions_map = {}
+    for name, builder in world.dungeon_layouts[player]:
+        start_regions = convert_regions(builder.path_entrances, world, player)
+        start_regions_map[name] = start_regions
+    used_doors = shuffle_door_traps(door_type_pools, paths, start_regions_map, world, player)
+    # big keys
+    # small keys
+
+    # bombable / dashable
+
+    # tricky / hidden
+
+
+def shuffle_door_traps(door_type_pools, paths, start_regions_map, world, player):
+    used_doors = set()
+    for pool, door_type_pool in door_type_pools:
+        ttl = 0
+        suggestion_map, trap_map, flex_map = {}, {}, {}
+        remaining = door_type_pool.traps
+        if player in world.custom_door_types:
+            custom_trap_doors = world.custom_door_types[player]['Trap Door']
+        else:
+            custom_trap_doors = defaultdict(list)
+
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            find_trappable_candidates(builder, world, player)
+            if custom_trap_doors[dungeon]:
+                builder.candidates.trap = filter_key_door_pool(builder.candidates.trap, custom_trap_doors[dungeon])
+                remaining -= len(custom_trap_doors[dungeon])
+            ttl += len(builder.candidates.trap)
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            proportion = len(builder.candidates.trap)
+            calc = int(round(proportion * door_type_pool.traps/ttl))
+            suggested = min(proportion, calc)
+            remaining -= suggested
+            suggestion_map[dungeon] = suggested
+            flex_map[dungeon] = (proportion - suggested) if suggested < proportion else 0
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            valid_traps, trap_number = find_valid_trap_combination(builder, suggestion_map[dungeon],
+                                                                   start_regions_map[dungeon], paths, world, player)
+            trap_map[dungeon] = valid_traps
+            if trap_number < suggestion_map[dungeon]:
+                flex_map[dungeon] = 0
+                remaining += suggestion_map[dungeon] - trap_number
+                suggestion_map[dungeon] = trap_number
+        builder_order = [x for x in pool if flex_map[x] > 0]
+        queue = deque(builder_order)
+        while len(queue) > 0 and remaining > 0:
+            dungeon = queue.popleft()
+            builder = world.dungeon_layouts[player][dungeon]
+            increased = suggestion_map[dungeon] + 1
+            valid_traps, trap_number = find_valid_trap_combination(builder, increased, start_regions_map[dungeon],
+                                                                   paths, world, player)
+            if valid_traps:
+                trap_map[dungeon] = valid_traps
+                remaining -= 1
+                suggestion_map[dungeon] = increased
+                flex_map[dungeon] -= 1
+                if flex_map[dungeon] > 0:
+                    queue.append(dungeon)
+        # time to re-assign
+        reassign_trap_doors(trap_map, world, player)
+        for name, traps in trap_map.items():
+            used_doors.update(traps)
+    return used_doors
+
+
+def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world, player):
+    for pool, door_type_pool in door_type_pools:
+        ttl = 0
+        suggestion_map, bk_map, flex_map = {}, {}, {}
+        remaining = door_type_pool.bigs
+        if player in world.custom_door_types:
+            custom_bk_doors = world.custom_door_types[player]['Big Key Door']
+        else:
+            custom_bk_doors = defaultdict(list)
+
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            find_big_key_candidates(builder, used_doors, world, player)
+            if custom_bk_doors[dungeon]:
+                builder.candidates.trap = filter_key_door_pool(builder.candidates.big, custom_bk_doors[dungeon])
+                remaining -= len(custom_bk_doors[dungeon])
+            ttl += len(builder.candidates.big)
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            proportion = len(builder.candidates.big)
+            calc = int(round(proportion * door_type_pool.big/ttl))
+            suggested = min(proportion, calc)
+            remaining -= suggested
+            suggestion_map[dungeon] = suggested
+            flex_map[dungeon] = (proportion - suggested) if suggested < proportion else 0
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            valid_doors, bk_number = find_valid_bk_combination(builder, suggestion_map[dungeon],
+                                                                 start_regions_map[dungeon], world, player)
+            bk_map[dungeon] = valid_doors
+            if bk_number < suggestion_map[dungeon]:
+                flex_map[dungeon] = 0
+                remaining += suggestion_map[dungeon] - bk_number
+                suggestion_map[dungeon] = bk_number
+        builder_order = [x for x in pool if flex_map[x] > 0]
+        queue = deque(builder_order)
+        while len(queue) > 0 and remaining > 0:
+            dungeon = queue.popleft()
+            builder = world.dungeon_layouts[player][dungeon]
+            increased = suggestion_map[dungeon] + 1
+            valid_doors, bk_number = find_valid_bk_combination(builder, increased, start_regions_map[dungeon],
+                                                                   paths, world, player)
+            if valid_doors:
+                bk_map[dungeon] = valid_doors
+                remaining -= 1
+                suggestion_map[dungeon] = increased
+                flex_map[dungeon] -= 1
+                if flex_map[dungeon] > 0:
+                    queue.append(dungeon)
+        # time to re-assign
+        reassign_big_key_doors(bk_map, world, player)
 
 
 def shuffle_key_doors(builder, world, player):
@@ -1580,6 +1897,223 @@ def find_current_key_doors(builder):
             if d and d.smallKey:
                 current_doors.append(d)
     return current_doors
+
+
+def find_trappable_candidates(builder, world, player):
+    if world.door_type_mode[player] != 'original':  # all, chaos
+        r_set = builder.master_sector.region_set()
+        filtered_doors = [ext.door for r in r_set for ext in r.exits
+                          if ext.door and ext.door.type in [DoorType.Interior, DoorType.Normal]]
+        for d in filtered_doors:
+            # I only support the first 3 due to the trapFlag right now
+            if 0 <= d.doorListPos < 3 and not d.entranceFlag:
+                room = world.get_room(d.roomIndex, player)
+                kind = room.kind(d)
+                if d.type == DoorType.Interior:
+                    if (kind in [DoorKind.Normal, DoorKind.SmallKey, DoorKind.Bombable, DoorKind.Dashable,
+                                DoorKind.BigKey]
+                       or (d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name)
+                       or (kind == DoorKind.TrapTriggerable and d.direction in [Direction.North, Direction.East])
+                       or (kind == DoorKind.Trap2 and d.direction in [Direction.South, Direction.West])):
+                        builder.candidates.trap.add(d)
+                elif d.type == DoorType.Normal:
+                    if (kind in [DoorKind.Normal, DoorKind.SmallKey, DoorKind.Bombable, DoorKind.Dashable,
+                                 DoorKind.BigKey]
+                       or (d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name)):
+                        builder.candidates.trap.add(d)
+    else:
+        r_set = builder.master_sector.region_set()
+        for r in r_set:
+            for ext in r.exits:
+                if ext.door:
+                    d = ext.door
+                    if d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name:
+                        builder.candidates.trap.add(d)
+
+
+def find_valid_trap_combination(builder, suggested, start_regions, paths, world, player, drop=True):
+    trap_door_pool = builder.candidates.trap
+    trap_doors_needed = suggested
+    if player in world.custom_door_types:
+        custom_trap_doors = world.custom_door_types[player]['Trap Door'][builder.name]
+    else:
+        custom_trap_doors = []
+    if custom_trap_doors:
+        trap_door_pool = filter_key_door_pool(trap_door_pool, custom_trap_doors)
+        trap_doors_needed -= len(custom_trap_doors)
+    if len(trap_door_pool) < trap_doors_needed:
+        if not drop:
+            return None, 0
+        trap_doors_needed = len(trap_door_pool)
+    combinations = ncr(len(trap_door_pool), trap_doors_needed)
+    itr = 0
+    sample_list = build_sample_list(combinations, 1000)
+    proposal = kth_combination(sample_list[itr], trap_door_pool, trap_doors_needed)
+    proposal.extend(custom_trap_doors)
+
+    start_regions = filter_start_regions(builder, start_regions, world, player)
+    while not validate_trap_layout(proposal, builder, start_regions, paths, world, player):
+        itr += 1
+        if itr >= len(sample_list):
+            if not drop:
+                return None, 0
+            trap_doors_needed -= 1
+            if trap_doors_needed < 0:
+                raise Exception(f'Bad dungeon {builder.name} - maybe custom trap doors are bad')
+            combinations = ncr(len(trap_door_pool), trap_doors_needed)
+            sample_list = build_sample_list(combinations, 1000)
+            itr = 0
+        proposal = kth_combination(sample_list[itr], trap_door_pool, trap_doors_needed)
+        proposal.extend(custom_trap_doors)
+    return proposal, trap_doors_needed
+
+
+# eliminate start region if portal marked as destination
+def filter_start_regions(builder, start_regions, world, player):
+    std_flag = world.mode[player] == 'standard' and builder.name == 'Hyrule Castle'
+    excluded = {}
+    for region in start_regions:
+        portal = next((x for x in world.dungeon_portals[player] if x.door.entrance.parent_region == region), None)
+        if portal and portal.destination:
+            excluded[region] = None
+        if std_flag and (not portal or portal.find_portal_entrance().parent_region.name != 'Hyrule Castle Courtyard'):
+            excluded[region] = None
+    return [x for x in start_regions if x not in excluded.keys()]
+
+
+def validate_trap_layout(proposal, builder, start_regions, paths, world, player):
+    return check_required_paths_with_traps(paths, proposal, builder.name, start_regions, world, player)
+
+
+def check_required_paths_with_traps(paths, proposal, dungeon_name, start_regions, world, player):
+    if len(paths[dungeon_name]) > 0:
+        states_to_explore = {}
+        common_starts = tuple(start_regions)
+        for path in paths[dungeon_name]:
+            if type(path) is tuple:
+                states_to_explore[tuple([path[0]])] = (path[1], 'any')
+            else:
+                if common_starts not in states_to_explore:
+                    states_to_explore[common_starts] = ([], 'all')
+                states_to_explore[common_starts][0].append(path)
+        cached_initial_state = None
+        for start_regs, info in states_to_explore.items():
+            dest_regs, path_type = info
+            if type(dest_regs) is not list:
+                dest_regs = [dest_regs]
+            check_paths = convert_regions(dest_regs, world, player)
+            start_regions = convert_regions(start_regs, world, player)
+            initial = start_regs == common_starts
+            if not initial or cached_initial_state is None:
+                init = determine_init_crystal(initial, cached_initial_state, start_regions)
+                state = ExplorationState2(init, dungeon_name)
+                for region in start_regions:
+                    state.visit_region(region)
+                    state.add_all_doors_check_proposed_traps(region, proposal, world, player)
+                explore_state_proposed_traps(state, world, player)
+                if initial and cached_initial_state is None:
+                    cached_initial_state = state
+            else:
+                state = cached_initial_state
+            if path_type == 'any':
+                valid, bad_region = check_if_any_regions_visited(state, check_paths)
+            else:
+                valid, bad_region = check_if_all_regions_visited(state, check_paths)
+            if not valid:
+                return False
+    return True
+
+
+def reassign_trap_doors(trap_map, world, player):
+    logger = logging.getLogger('')
+    for name, traps in trap_map.items():
+        builder = world.dungeon_layouts[player][name]
+        queue = deque(find_current_trap_doors(builder))
+        while len(queue) > 0:
+            d = queue.pop()
+            if d.type is DoorType.Interior and d not in traps:
+                room = world.get_room(d.roomIndex, player)
+                kind = room.kind(d)
+                if kind == DoorKind.Trap:
+                    new_type = (DoorKind.TrapTriggerable if d.direction in [Direction.South, Direction.East] else
+                                DoorKind.Trap2)
+                    room.change(d.doorListPos, new_type)
+                elif kind in [DoorKind.Trap2, DoorKind.TrapTriggerable]:
+                    room.change(d.doorListPos, DoorKind.Normal)
+                d.blocked = False
+            elif d.type is DoorType.Normal and d not in traps:
+                world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
+                d.blocked = False
+        for d in traps:
+            change_door_to_trap(d, world, player)
+            world.spoiler.set_door_type(d.name, 'Trap Door', player)
+            logger.debug('Key Door: %s', d.name)
+
+
+def find_current_trap_doors(builder):
+    current_doors = []
+    for region in builder.master_sector.regions:
+        for ext in region.exits:
+            d = ext.door
+            if d and d.blocked and d.trapFlag != 0:
+                current_doors.append(d)
+    return current_doors
+
+
+def change_door_to_trap(d, world, player):
+    room = world.get_room(d.roomIndex, player)
+    if d.type is DoorType.Interior:
+        kind = room.kind(d)
+        new_kind = None
+        if kind == DoorKind.TrapTriggerable and d.direction in [Direction.North, Direction.West]:
+            new_kind = DoorKind.Trap
+        elif kind == DoorKind.Trap2 and d.direction in [Direction.South, Direction.East]:
+            new_kind = DoorKind.Trap
+        elif d.direction in [Direction.North, Direction.West]:
+            new_kind = DoorKind.Trap2
+        elif d.direction in [Direction.South, Direction.East]:
+            new_kind = DoorKind.TrapTriggerable
+        if new_kind:
+            d.blocked = True
+            verify_door_list_pos(d, room, world, player, pos=3)
+            d.trapFlag = {0: 0x4, 1: 0x2, 2: 0x1}[d.doorListPos]
+            room.change(d.doorListPos, new_kind)
+    elif d.type is DoorType.Normal:
+        d.blocked = True
+        verify_door_list_pos(d, room, world, player, pos=3)
+        d.trapFlag = {0: 0x4, 1: 0x2, 2: 0x1}[d.doorListPos]
+        room.change(d.doorListPos, DoorKind.Trap)
+
+
+def find_big_key_candidates(builder, used, world, player):
+    if world.door_type_mode[player] != 'original':  # all, chaos
+        r_set = builder.master_sector.region_set()
+        filtered_doors = [ext.door for r in r_set for ext in r.exits
+                          if ext.door and ext.door.type in [DoorType.Interior, DoorType.Normal]]
+        for d in filtered_doors:
+            if 0 <= d.doorListPos < 4 and not d.entranceFlag:
+                room = world.get_room(d.roomIndex, player)
+                kind = room.kind(d)
+                if d.type in [DoorType.Interior, DoorType.Normal]:
+                    if (kind in [DoorKind.Normal, DoorKind.SmallKey, DoorKind.Bombable, DoorKind.Dashable,
+                                 DoorKind.BigKey] and d not in used)
+                         or (d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name)
+                         or (kind == DoorKind.TrapTriggerable and d.direction in [Direction.North, Direction.East])
+                         or (kind == DoorKind.Trap2 and d.direction in [Direction.South, Direction.West])):
+                        builder.candidates.big.add(d)
+                elif d.type == DoorType.Normal:
+                    if (kind in [DoorKind.Normal, DoorKind.SmallKey, DoorKind.Bombable, DoorKind.Dashable,
+                                 DoorKind.BigKey]
+                         or (d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name)):
+                        builder.candidates.trap.add(d)
+    else:
+        r_set = builder.master_sector.region_set()
+        for r in r_set:
+            for ext in r.exits:
+                if ext.door:
+                    d = ext.door
+                    if d.bigKey and d.type in [DoorType.Normal, DoorType.Interior]:
+                        builder.candidates.big.add(d)
 
 
 def find_small_key_door_candidates(builder, start_regions, world, player):
@@ -1638,16 +2172,7 @@ def find_valid_combination(builder, start_regions, world, player, drop_keys=True
     sample_list = build_sample_list(combinations)
     proposal = kth_combination(sample_list[itr], key_door_pool, key_doors_needed)
     proposal.extend(custom_key_doors)
-    # eliminate start region if portal marked as destination
-    std_flag = world.mode[player] == 'standard' and builder.name == 'Hyrule Castle'
-    excluded = {}
-    for region in start_regions:
-        portal = next((x for x in world.dungeon_portals[player] if x.door.entrance.parent_region == region), None)
-        if portal and portal.destination:
-            excluded[region] = None
-        if std_flag and (not portal or portal.find_portal_entrance().parent_region.name != 'Hyrule Castle Courtyard'):
-            excluded[region] = None
-    start_regions = [x for x in start_regions if x not in excluded.keys()]
+    start_regions = filter_start_regions(builder, start_regions, world, player)
 
     key_layout = build_key_layout(builder, start_regions, proposal, world, player)
     determine_prize_lock(key_layout, world, player)
@@ -1682,13 +2207,12 @@ def find_valid_combination(builder, start_regions, world, player, drop_keys=True
     return True
 
 
-def build_sample_list(combinations):
-    if combinations <= 1000000:
+def build_sample_list(combinations, max_combinations=1000000):
+    if combinations <= max_combinations:
         sample_list = list(range(0, int(combinations)))
-
     else:
         num_set = set()
-        while len(num_set) < 1000000:
+        while len(num_set) < max_combinations:
             num_set.add(random.randint(0, combinations))
         sample_list = list(num_set)
         sample_list.sort()
@@ -1885,9 +2409,9 @@ def change_door_to_small_key(d, world, player):
         room.change(d.doorListPos, DoorKind.SmallKey)
 
 
-def verify_door_list_pos(d, room, world, player):
-    if d.doorListPos >= 4:
-        new_index = room.next_free()
+def verify_door_list_pos(d, room, world, player, pos=4):
+    if d.doorListPos >= pos:
+        new_index = room.next_free(pos)
         if new_index is not None:
             room.swap(new_index, d.doorListPos)
             other = next(x for x in world.doors if x.player == player and x.roomIndex == d.roomIndex
@@ -1895,7 +2419,7 @@ def verify_door_list_pos(d, room, world, player):
             other.doorListPos = d.doorListPos
             d.doorListPos = new_index
         else:
-            raise Exception(f'Invalid stateful door: {d.name}. Only 4 stateful doors per supertile')
+            raise Exception(f'Invalid stateful door: {d.name}. Only {pos} stateful doors per supertile')
 
 
 def smooth_door_pairs(world, player):
@@ -2259,6 +2783,15 @@ def explore_state(state, world, player):
         if state.can_traverse(door) and not state.visited(connect_region) and valid_region_to_explore(connect_region, world, player):
             state.visit_region(connect_region)
             state.add_all_doors_check_unattached(connect_region, world, player)
+
+
+def explore_state_proposed_traps(state, proposed_traps, world, player):
+    while len(state.avail_doors) > 0:
+        door = state.next_avail_door().door
+        connect_region = world.get_entrance(door.name, player).connected_region
+        if not state.visited(connect_region) and valid_region_to_explore(connect_region, world, player):
+            state.visit_region(connect_region)
+            state.add_all_doors_check_proposed_traps(connect_region, proposed_traps, world, player)
 
 
 def explore_state_not_inaccessible(state, world, player):
