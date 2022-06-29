@@ -157,6 +157,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.8
+	* Pot substitution for red rupees, 10 bomb packs, 3 bomb packs, and 10 arrows have been added. They use objects that can results from a tree pull. The 3 bomb pack becomes a 4 bomb pack and the 10 bomb pack becomes an 8 pack. These substitutions are repeatable like all other nomral pot contents.
 * 1.0.2.7
     * Revised: Fix for Waterfall of Wishing logic in open. You must have flippers to exit the Waterfall (flippers also required in glitched modes as well)
 * 1.0.2.6
