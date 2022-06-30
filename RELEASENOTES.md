@@ -157,6 +157,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Volatile
 
+* 1.0.2.9
+  * Hotfix for enemizer and the new substitution
 * 1.0.2.8
 	* Pot substitutions added for red rupees, 10 bomb packs, 3 bomb packs, and 10 arrows have been added. They use objects that can result from a tree pull or other drop. The 3 bomb pack becomes a 4 bomb pack and the 10 bomb pack becomes an 8 pack. These substitutions are repeatable like all other normal pot contents.
 * 1.0.2.7
