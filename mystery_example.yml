@@ -17,6 +17,11 @@
     1: 2
     2: 2
     3: 4
+  door_type_mode:
+    original: 2
+    big: 2
+    all: 1
+    chaos: 1
   decoupledoors: off
   dropshuffle:
     on: 1

@@ -6,6 +6,7 @@
       "options": [
         "vanilla",
         "basic",
+        "partitioned",
         "crossed"
       ]
     },
@@ -17,6 +18,19 @@
         "2",
         "3",
         "random"
+      ],
+      "config": {
+        "width": 45
+      }
+    },
+    "door_type_mode": {
+      "type": "selectbox",
+      "default": "basic",
+      "options": [
+        "original",
+        "big",
+        "all",
+        "chaos"
       ],
       "config": {
         "width": 45

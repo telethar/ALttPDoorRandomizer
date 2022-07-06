@@ -248,7 +248,7 @@ def find_all_locations(sector):
 
 
 def calc_max_chests(builder, key_layout, world, player):
-    if world.doorShuffle[player] != 'crossed':
+    if world.doorShuffle[player] in ['basic', 'vanilla']:
         return len(world.get_dungeon(key_layout.sector.name, player).small_keys)
     return max(0, builder.key_doors_num - key_layout.max_drops)
 
@@ -1169,6 +1169,16 @@ def expand_key_state(state, flat_proposal, world, player):
             state.add_all_doors_check_keys(connect_region, flat_proposal, world, player)
 
 
+def expand_big_key_state(state, flat_proposal, world, player):
+    while len(state.avail_doors) > 0:
+        exp_door = state.next_avail_door()
+        door = exp_door.door
+        connect_region = world.get_entrance(door.name, player).connected_region
+        if state.validate(door, connect_region, world, player):
+            state.visit_region(connect_region, key_checks=True)
+            state.add_all_doors_check_big_keys(connect_region, flat_proposal, world, player)
+
+
 def flatten_pair_list(paired_list):
     flat_list = []
     for d in paired_list:
@@ -1398,6 +1408,42 @@ def prize_relevance(key_layout, dungeon_entrance):
     return None
 
 
+def prize_relevance_sig2(start_regions, d_name, dungeon_entrance):
+    if len(start_regions) > 1 and dungeon_entrance and dungeon_table[d_name].prize:
+        if dungeon_entrance.name in ['Ganons Tower', 'Inverted Ganons Tower']:
+            return 'GT'
+        elif dungeon_entrance.name == 'Pyramid Fairy':
+            return 'BigBomb'
+    return None
+
+
+def validate_bk_layout(proposal, builder, start_regions, world, player):
+    bk_special = check_bk_special(builder.master_sector.regions, world, player)
+    if world.bigkeyshuffle[player] and (world.dropshuffle[player] or not bk_special):
+        return True
+    flat_proposal = flatten_pair_list(proposal)
+    state = ExplorationState(dungeon=builder.name)
+    state.big_key_special = bk_special
+    for region in start_regions:
+        dungeon_entrance, portal_door = find_outside_connection(region)
+        prize_relevant_flag = prize_relevance_sig2(start_regions, builder.name, dungeon_entrance)
+        if prize_relevant_flag:
+            state.append_door_to_list(portal_door, state.prize_doors)
+            state.prize_door_set[portal_door] = dungeon_entrance
+            # key_layout.prize_relevant = prize_relevant_flag
+        else:
+            state.visit_region(region, key_checks=True)
+            state.add_all_doors_check_big_keys(region, flat_proposal, world, player)
+    expand_big_key_state(state, flat_proposal, world, player)
+    if bk_special:
+        for loc in state.found_locations:
+            if loc.forced_big_key():
+                return True
+    else:
+        return len(state.bk_found) > 0
+    return False
+
+
 # Soft lock stuff
 def validate_key_layout(key_layout, world, player):
     # retro is all good - except for hyrule castle in standard mode
@@ -1601,7 +1647,7 @@ def create_key_counters(key_layout, world, player):
         state.key_locations = len(builder.key_door_proposal) - builder.key_drop_cnt
     else:
         builder = world.dungeon_layouts[player][key_layout.sector.name]
-        state.key_locations = builder.total_keys - builder.key_drop_cnt
+        state.key_locations = max(0, builder.total_keys - builder.key_drop_cnt)
     state.big_key_special = False
     for region in key_layout.sector.regions:
         for location in region.locations:

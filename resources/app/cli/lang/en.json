@@ -205,6 +205,7 @@
     "door_shuffle": [
       "Select Door Shuffling Algorithm. (default: %(default)s)",
       "Basic:          Doors are mixed within a single dungeon.",
+      "Partitioned     Doors are mixed in 3 partitions: L1-3+HC+AT, D1-4, D5-8",
       "Crossed:        Doors are mixed between all dungeons.",
       "Vanilla:        All doors are connected the same way they were in the",
       "                base game."
@@ -215,6 +216,13 @@
       "2:       And shuffles open edges and both types of straight staircases",
       "3:       And shuffles dungeon lobbies",
       "random:  Picks one of those at random"
+    ],
+    "door_type_mode" : [
+      "Door Types to Shuffle (default: %(default)s)",
+      "original: Shuffles key doors, bombable, and dashable doors",
+      "big:      Adds big key doors",
+      "all:      Adds traps doors (and any future supported door types)",
+      "chaos:    Increases the number of door types in all dungeon pools"
     ],
     "decoupledoors" : [ "Door entrances and exits are decoupled" ],
     "experimental": [ "Enable experimental features. (default: %(default)s)" ],

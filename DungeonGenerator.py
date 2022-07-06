@@ -808,6 +808,7 @@ class ExplorationState(object):
         self.prize_door_set = {}
         self.prize_doors = []
         self.prize_doors_opened = False
+        self.prize_received = False
 
     def copy(self):
         ret = ExplorationState(dungeon=self.dungeon)
@@ -839,6 +840,7 @@ class ExplorationState(object):
         ret.prize_door_set = dict(self.prize_door_set)
         ret.prize_doors = list(self.prize_doors)
         ret.prize_doors_opened = self.prize_doors_opened
+        ret.prize_received = self.prize_received
         return ret
 
     def next_avail_door(self):
@@ -976,6 +978,20 @@ class ExplorationState(object):
                     if not self.in_door_list(door, self.small_doors):
                         self.append_door_to_list(door, self.small_doors)
                 elif (door.bigKey or door.name in special_big_key_doors) and not self.big_key_opened:
+                    if not self.in_door_list(door, self.big_doors):
+                        self.append_door_to_list(door, self.big_doors)
+                elif door.req_event is not None and door.req_event not in self.events:
+                    if not self.in_door_list(door, self.event_doors):
+                        self.append_door_to_list(door, self.event_doors)
+                elif not self.in_door_list(door, self.avail_doors):
+                    self.append_door_to_list(door, self.avail_doors)
+
+    def add_all_doors_check_big_keys(self, region, big_key_door_proposal, world, player):
+        for door in get_doors(world, region, player):
+            if self.can_traverse(door):
+                if door.controller:
+                    door = door.controller
+                if (door in big_key_door_proposal or door.name in special_big_key_doors) and not self.big_key_opened:
                     if not self.in_door_list(door, self.big_doors):
                         self.append_door_to_list(door, self.big_doors)
                 elif door.req_event is not None and door.req_event not in self.events:
@@ -1213,6 +1229,8 @@ class DungeonBuilder(object):
         self.combo_size = None
         self.flex = 0
         self.key_door_proposal = None
+        self.bk_door_proposal = None
+        self.trap_door_proposal = None
 
         self.allowance = None
         if 'Stonewall' in name:
@@ -1279,9 +1297,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
 
         dungeon_map = {}
         for key in dungeon_pool:
-            dungeon_map[key] = DungeonBuilder(key)
-        for key in dungeon_boss_sectors.keys():
-            current_dungeon = dungeon_map[key]
+            current_dungeon = dungeon_map[key] = DungeonBuilder(key)
             for r_name in dungeon_boss_sectors[key]:
                 assign_sector(find_sector(r_name, candidate_sectors), current_dungeon, candidate_sectors, global_pole)
             if key == 'Hyrule Castle' and world.mode[player] == 'standard':
@@ -1293,7 +1309,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                               candidate_sectors, global_pole)
         entrances_map, potentials, connections = connections_tuple
         accessible_sectors, reverse_d_map = set(), {}
-        for key in dungeon_entrances.keys():
+        for key in dungeon_pool:
             current_dungeon = dungeon_map[key]
             current_dungeon.all_entrances = dungeon_entrances[key]
             for r_name in current_dungeon.all_entrances:
@@ -1419,6 +1435,8 @@ def identify_destination_sectors(accessible_sectors, reverse_d_map, dungeon_map,
             if ent_name in found_connections:
                 continue
             sector = find_sector(ent_name, reverse_d_map.keys())
+            if sector is None:
+                continue
             if sector in accessible_sectors:
                 found_connections.add(ent_name)
                 accessible_overworld.add(region)  # todo: drops don't give ow access

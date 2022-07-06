@@ -395,8 +395,8 @@ class DoorKind(Enum):
     Bombable = 0x2E
     BlastWall = 0x30
     Hidden = 0x32
-    TrapTriggerable = 0x36  # right side trap or south side trap (West, South)
-    Trap2 = 0x38  # left side trap or north side trap (East, North)
+    TrapTriggerable = 0x36  # right side trap or bottom side trap (West, North)
+    Trap2 = 0x38  # left side trap or top side trap (East, South)
     NormalLow2 = 0x40
     TrapTriggerableLow = 0x44
     Warp = 0x46

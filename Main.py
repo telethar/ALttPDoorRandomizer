@@ -106,6 +106,7 @@ def main(args, seed=None, fish=None):
     world.enemy_damage = args.enemy_damage.copy()
     world.beemizer = args.beemizer.copy()
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
+    world.door_type_mode = args.door_type_mode.copy()
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
     world.fish = fish

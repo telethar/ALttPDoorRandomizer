@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'add982e935888df04ddfa570bc07bede'
+RANDOMIZERBASEHASH = 'afcd895b87559cd29b04aa3714cbc929'
 
 
 class JsonRom(object):
@@ -738,11 +738,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
 
     # setup dr option flags based on experimental, etc.
     dr_flags = DROptions.Eternal_Mini_Bosses if world.doorShuffle[player] == 'vanilla' else DROptions.Town_Portal
-    if world.doorShuffle[player] == 'crossed':
+    if world.doorShuffle[player] not in  ['vanilla', 'basic']:
         dr_flags |= DROptions.Map_Info
     if world.collection_rate[player] and world.goal[player] not in ['triforcehunt', 'trinity']:
         dr_flags |= DROptions.Debug
-    if world.doorShuffle[player] == 'crossed' and world.logic[player] != 'nologic'\
+    if world.doorShuffle[player] not in ['vanilla', 'basic'] and world.logic[player] != 'nologic'\
        and world.mixed_travel[player] == 'prevent':
         # PoD Falling Bridge or Hammjump
         # 1FA607: db $2D, $79, $69 ; 0x0069: Vertical Rail ↕ | { 0B, 1E } | Size: 05
@@ -763,6 +763,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         dr_flags |= DROptions.DarkWorld_Spawns
     if world.logic[player] != 'nologic':
         dr_flags |= DROptions.Fix_EG
+    if world.door_type_mode in ['big', 'chaos']:
+        dr_flags |= DROptions.BigKeyDoor_Shuffle
 
     my_locations = world.get_filled_locations(player)
     valid_locations = [l for l in my_locations if ((l.type == LocationType.Pot and not l.forced_item)
@@ -772,7 +774,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if world.doorShuffle[player] == 'crossed' or world.dropshuffle[player] or world.pottery[player] not in ['none', 'cave']:
+    if (world.doorShuffle[player] not in  ['vanilla', 'basic'] or world.dropshuffle[player]
+         or world.pottery[player] not in ['none', 'cave']):
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
@@ -800,7 +803,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_bytes(0x13fff4, [0xe4, 0x00])
 
     # patch doors
-    if world.doorShuffle[player] == 'crossed':
+    if world.doorShuffle[player] not in ['vanilla', 'basic']:
         rom.write_byte(0x138002, 2)
         for name, layout in world.key_layout[player].items():
             offset = compass_data[name][4]//2
@@ -1377,7 +1380,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             if len(portal_list) == 1:
                 portal_idx = 0
             else:
-                if world.doorShuffle[player] == 'crossed':
+                if world.doorShuffle[player] not in ['vanilla', 'basic']:
                     # the random choice excludes sanctuary
                     portal_idx = next((i for i, elem in enumerate(portal_list)
                                        if world.get_portal(elem, player).chosen), random.choice([1, 2, 3]))
@@ -1392,7 +1395,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             rom.write_bytes(0x53E56+ow_map_index*2, int16_as_bytes(coords[1]))
             rom.write_byte(0x53EA6+ow_map_index, world_indicator)
     # in crossed doors - flip the compass exists flags
-    if world.doorShuffle[player] == 'crossed':
+    if world.doorShuffle[player] not in ['vanilla', 'basic']:
         for dungeon, portal_list in dungeon_portals.items():
             ow_map_index = dungeon_table[dungeon].map_index
             exists_flag = any(x for x in world.get_dungeon(dungeon, player).dungeon_items if x.type == 'Compass')
@@ -1495,7 +1498,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             rom.write_bytes(0x180188, [0x20, 0, 0])  # Zelda respawn refills (magic, bombs, arrows)
             rom.write_bytes(0x18018B, [0x20, 0, 0])  # Mantle respawn refills (magic, bombs, arrows)
             magic_max, magic_small = 0x80, 0x20
-        if world.doorShuffle[player] == 'crossed':
+        if world.doorShuffle[player] not in ['vanilla', 'basic']:
             # Uncle respawn refills (magic, bombs, arrows)
             rom.write_bytes(0x180185, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
             rom.write_bytes(0x180188, [0x20, 3, 10])  # Zelda respawn refills (magic, bombs, arrows)
@@ -2081,13 +2084,13 @@ def write_strings(rom, world, player, team):
 
         # Next we write a few hints for specific inconvenient locations. We don't make many because in entrance this is highly unpredictable.
         locations_to_hint = InconvenientLocations.copy()
-        if world.doorShuffle[player] != 'crossed':
+        if world.doorShuffle[player] == 'vanilla':
             locations_to_hint.extend(InconvenientDungeonLocations)
         if world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
             locations_to_hint.extend(InconvenientVanillaLocations)
         random.shuffle(locations_to_hint)
         hint_count = 3 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 5
-        hint_count -= 2 if world.doorShuffle[player] == 'crossed' else 0
+        hint_count -= 2 if world.doorShuffle[player] not in ['vanilla', 'basic'] else 0
         del locations_to_hint[hint_count:]
         for location in locations_to_hint:
             if location == 'Swamp Left':
@@ -2150,7 +2153,7 @@ def write_strings(rom, world, player, team):
             items_to_hint.extend(BigKeys)
         random.shuffle(items_to_hint)
         hint_count = 5 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 8
-        hint_count += 2 if world.doorShuffle[player] == 'crossed' else 0
+        hint_count += 2 if world.doorShuffle[player] not in ['vanilla', 'basic'] else 0
         while hint_count > 0 and len(items_to_hint) > 0:
             this_item = items_to_hint.pop(0)
             this_location = world.find_items_not_key_only(this_item, player)
@@ -2163,8 +2166,8 @@ def write_strings(rom, world, player, team):
                 tt[hint_locations.pop(0)] = this_hint
                 hint_count -= 1
 
-        # Adding a hint for the Thieves' Town Attic location in Crossed door shuffle.
-        if world.doorShuffle[player] in ['crossed']:
+        # Adding a hint for the Thieves' Town Attic location in mixed door shuffles.
+        if world.doorShuffle[player] not in ['vanilla', 'basic']:
             attic_hint = world.get_location("Thieves' Town - Attic", player).parent_region.dungeon.name
             this_hint = 'A cracked floor can be found in ' + attic_hint + '.'
             if world.intensity[player] < 2 and hint_locations[0] == 'telepathic_tile_thieves_town_upstairs':
@@ -2324,7 +2327,7 @@ def write_strings(rom, world, player, team):
     tt['tablet_bombos_book'] = bombos_text
 
     # attic hint
-    if world.doorShuffle[player] in ['crossed']:
+    if world.doorShuffle[player]  not in ['vanilla', 'basic']:
         attic_hint = world.get_location("Thieves' Town - Attic", player).parent_region.dungeon.name
         tt['blind_not_that_way'] = f'{attic_hint} is too bright for my eyes'
         # see tagalog.asm tables at 957,967 or Follower_HandleTrigger in JPDASM

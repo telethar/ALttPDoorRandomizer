@@ -28,6 +28,7 @@ class World(object):
         self.shuffle = shuffle.copy()
         self.doorShuffle = doorShuffle.copy()
         self.intensity = {}
+        self.door_type_mode = {}
         self.logic = logic.copy()
         self.mode = mode.copy()
         self.swords = swords.copy()
@@ -143,6 +144,7 @@ class World(object):
             set_player_attr('colorizepots', False)
             set_player_attr('pot_pool', {})
             set_player_attr('decoupledoors', False)
+            set_player_attr('door_type_mode', 'original')
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -1872,7 +1874,6 @@ class Sector(object):
         self.item_logic = set()
         self.chest_location_set = set()
 
-
     def region_set(self):
         if self.r_name_set is None:
             self.r_name_set = dict.fromkeys(map(lambda r: r.name, self.regions))
@@ -2154,7 +2155,7 @@ class Location(object):
     def gen_name(self):
         name = self.name
         world = self.parent_region.world if self.parent_region and self.parent_region.world else None
-        if self.parent_region.dungeon and world and world.doorShuffle[self.player] == 'crossed':
+        if self.parent_region.dungeon and world and world.doorShuffle[self.player] not in ['basic', 'vanilla']:
             name += f' @ {self.parent_region.dungeon.name}'
         if world and world.players > 1:
             name += f' ({world.get_player_names(self.player)})'
@@ -2377,6 +2378,8 @@ class Spoiler(object):
                          'overworld_map': self.world.overworld_map,
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
+                         'door_type_mode': self.world.door_type_mode,
+                         'decoupledoors': self.world.decoupledoors,
                          'dungeon_counters': self.world.dungeon_counters,
                          'item_pool': self.world.difficulty,
                          'item_functionality': self.world.difficulty_adjustments,
@@ -2578,6 +2581,7 @@ class Spoiler(object):
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 if self.metadata['door_shuffle'][player] != 'vanilla':
                     outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
+                    outfile.write(f"Door Type Mode:                  {self.metadata['door_type_mode'][player]}\n")
                     outfile.write(f"Decouple Doors:                  {yn(self.metadata['decoupledoors'][player])}\n")
                     outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
                 outfile.write(f"Dungeon Counters:                {self.metadata['dungeon_counters'][player]}\n")
@@ -2815,7 +2819,7 @@ class Pot(object):
 
 
 # byte 0: DDDE EEEE (DR, ER)
-dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0}
+dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0, "partitioned": 3}
 er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, "insanity": 5, 'lite': 8,
            'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6}
 
@@ -2845,7 +2849,8 @@ counter_mode = {"default": 0, "off": 1, "on": 2, "pickup": 3}
 # byte 6: CCCC CPAA (crystals ganon, pyramid, access
 access_mode = {"items": 0, "locations": 1, "none": 2}
 
-# byte 7: BSMC ??EE (big, small, maps, compass, bosses, enemies)
+# byte 7: BSMC DDEE (big, small, maps, compass, door_type, enemies)
+door_type_mode = {'original': 0, 'big': 1, 'all': 2, 'chaos': 3}
 enemy_mode = {"none": 0, "shuffled": 1, "chaos": 2, "random": 2, "legacy": 3}
 
 # byte 8: HHHD DPBS (enemy_health, enemy_dmg, potshuffle, bomb logic, shuffle links)
@@ -2898,7 +2903,7 @@ class Settings(object):
 
             (0x80 if w.bigkeyshuffle[p] else 0) | (0x40 if w.keyshuffle[p] else 0)
             | (0x20 if w.mapshuffle[p] else 0) | (0x10 if w.compassshuffle[p] else 0)
-            | (enemy_mode[w.enemy_shuffle[p]]),
+            | (door_type_mode[w.door_type_mode[p]] << 2) | (enemy_mode[w.enemy_shuffle[p]]),
 
             (e_health[w.enemy_health[p]] << 5) | (e_dmg[w.enemy_damage[p]] << 3) | (0x4 if w.potshuffle[p] else 0)
             | (0x2 if w.bombbag[p] else 0) | (1 if w.shufflelinks[p] else 0),
@@ -2955,7 +2960,7 @@ class Settings(object):
         args.keyshuffle[p] = True if settings[7] & 0x40 else False
         args.mapshuffle[p] = True if settings[7] & 0x20 else False
         args.compassshuffle[p] = True if settings[7] & 0x10 else False
-        # args.shufflebosses[p] = r(boss_mode)[(settings[7] & 0xc) >> 2]
+        args.door_type_mode[p] = r(door_type_mode)[(settings[7] & 0xc) >> 2]
         args.shuffleenemies[p] = r(enemy_mode)[settings[7] & 0x3]
 
         args.enemy_health[p] = r(e_health)[(settings[8] & 0xE0) >> 5]

@@ -135,9 +135,9 @@ def create_random_proposal(doors_to_connect, world, player):
             proposal[secondary_door] = primary_door
             primary_bucket[opp_hook].remove(secondary_door)
             secondary_bucket[next_hook].remove(primary_door)
-            logger.debug(f'Linking {primary_door.name} <-> {secondary_door.name}')
+            logger.debug(f'  Linking {primary_door.name} <-> {secondary_door.name}')
         else:
-            logger.debug(f'Linking {primary_door.name} -> {secondary_door.name}')
+            logger.debug(f'  Linking {primary_door.name} -> {secondary_door.name}')
 
 
 def decouple_check(primary_list, secondary_list, primary_door, secondary_door, world, player):
@@ -203,11 +203,11 @@ def modify_proposal(proposed_map, explored_state, doors_to_connect, hash_code_se
         itr += 1
 
     if not world.decoupledoors[player]:
-        logger.debug(f'Re-linking {attempt.name} <-> {new_door.name}')
-        logger.debug(f'Re-linking {old_attempt.name} <-> {old_target.name}')
+        logger.debug(f'   Re-linking {attempt.name} <-> {new_door.name}')
+        logger.debug(f'   Re-linking {old_attempt.name} <-> {old_target.name}')
     else:
-        logger.debug(f'Re-Linking {attempt.name} -> {new_door.name}')
-        logger.debug(f'Re-Linking {old_attempt.name} -> {old_target.name}')
+        logger.debug(f'   Re-Linking {attempt.name} -> {new_door.name}')
+        logger.debug(f'   Re-Linking {old_attempt.name} -> {old_target.name}')
     hash_code_set.add(hash_code)
     return proposed_map, hash_code
 
@@ -349,12 +349,7 @@ def connect_doors(a, b):
         return
     # Connect supported types
     if a.type in [DoorType.Normal, DoorType.SpiralStairs, DoorType.Open, DoorType.StraightStairs, DoorType.Ladder]:
-        if a.blocked:
-            connect_one_way(b.entrance, a.entrance)
-        elif b.blocked:
-            connect_one_way(a.entrance, b.entrance)
-        else:
-            connect_two_way(a.entrance, b.entrance)
+        connect_two_way(a.entrance, b.entrance)
         dep_doors, target = [], None
         if len(a.dependents) > 0:
             dep_doors, target = a.dependents, b
@@ -527,7 +522,7 @@ class ExplorationState(object):
                         self.key_locations += 1
                     if location.name not in dungeon_events and '- Prize' not in location.name and location.name not in ['Agahnim 1', 'Agahnim 2']:
                         self.ttl_locations += 1
-                if location not in self.found_locations:  # todo: special logic for TT Boss?
+                if location not in self.found_locations:
                     self.found_locations.append(location)
                     if not bk_flag:
                         self.bk_found.add(location)
@@ -616,7 +611,7 @@ class ExplorationState(object):
                 elif not self.in_door_list(door, self.avail_doors):
                     self.append_door_to_list(door, self.avail_doors, flag)
 
-    def add_all_doors_check_proposed_2(self, region, proposed_map, valid_doors, flag, world, player):
+    def add_all_doors_check_proposed_2(self, region, proposed_map, valid_doors, world, player):
         for door in get_doors(world, region, player):
             if door in proposed_map and door.name in valid_doors:
                 self.visited_doors.add(door)
@@ -625,16 +620,16 @@ class ExplorationState(object):
                     door = door.controller
                 if door.dest is None and door not in proposed_map.keys() and door.name in valid_doors:
                     if not self.in_door_list_ic(door, self.unattached_doors):
-                        self.append_door_to_list(door, self.unattached_doors, flag)
+                        self.append_door_to_list(door, self.unattached_doors)
                     else:
                         other = self.find_door_in_list(door, self.unattached_doors)
                         if self.crystal != other.crystal:
                             other.crystal = CrystalBarrier.Either
                 elif door.req_event is not None and door.req_event not in self.events and not self.in_door_list(door,
                                                                                                                 self.event_doors):
-                    self.append_door_to_list(door, self.event_doors, flag)
+                    self.append_door_to_list(door, self.event_doors)
                 elif not self.in_door_list(door, self.avail_doors):
-                    self.append_door_to_list(door, self.avail_doors, flag)
+                    self.append_door_to_list(door, self.avail_doors)
 
     def add_all_doors_check_proposed_traps(self, region, proposed_traps, world, player):
         for door in get_doors(world, region, player):
