@@ -2529,7 +2529,7 @@ class Spoiler(object):
     def mystery_meta_to_file(self, filename):
         self.parse_meta()
         with open(filename, 'w') as outfile:
-            outfile.write('ALttP Dungeon Randomizer Version %s  -  Seed: %s\n\n' % (self.metadata['version'], self.world.seed))
+            outfile.write(f'ALttP Dungeon Randomizer Version {self.metadata["version"]}\n\n')
             for player in range(1, self.world.players + 1):
                 if self.world.players > 1:
                     outfile.write('\nPlayer %d: %s\n' % (player, self.world.get_player_names(player)))

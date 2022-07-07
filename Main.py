@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 from source.tools.BPS import create_bps_from_data
 
-__version__ = '1.0.2.9-v'
+__version__ = '1.0.1.0-u'
 
 from source.classes.BabelFish import BabelFish
 
@@ -148,7 +148,7 @@ def main(args, seed=None, fish=None):
     if args.create_spoiler and not args.jsonout:
         logger.info(world.fish.translate("cli", "cli", "create.meta"))
         world.spoiler.meta_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
-    if args.mystery:
+    if args.mystery and not args.suppress_meta:
         world.spoiler.mystery_meta_to_file(output_path(f'{outfilebase}_meta.txt'))
 
     for player in range(1, world.players + 1):
@@ -341,7 +341,7 @@ def main(args, seed=None, fish=None):
                 with open(output_path('%s_multidata' % outfilebase), 'wb') as f:
                     f.write(multidata)
 
-    if args.mystery:
+    if args.mystery and not args.suppress_meta:
         world.spoiler.hashes_to_file(output_path(f'{outfilebase}_meta.txt'))
     elif args.create_spoiler and not args.jsonout:
         world.spoiler.hashes_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
