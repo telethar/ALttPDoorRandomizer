@@ -320,7 +320,7 @@ class Room(object):
         for i, door in enumerate(self.doorList):
             if i >= pos:
                 return None
-            pos, kind = door
+            position, kind = door
             if kind not in [DoorKind.SmallKey, DoorKind.Dashable, DoorKind.Bombable, DoorKind.TrapTriggerable,
                             DoorKind.Trap, DoorKind.Trap2, DoorKind.TrapTriggerableLow, DoorKind.TrapLowE3,
                             DoorKind.BigKey, DoorKind.StairKey, DoorKind.StairKey2, DoorKind.StairKeyLow,
@@ -395,8 +395,8 @@ class DoorKind(Enum):
     Bombable = 0x2E
     BlastWall = 0x30
     Hidden = 0x32
-    TrapTriggerable = 0x36  # right side trap or bottom side trap (West, North)
-    Trap2 = 0x38  # left side trap or top side trap (East, South)
+    TrapTriggerable = 0x36  # right side trap or bottom side trap (door directions: West, North)
+    Trap2 = 0x38  # left side trap or top side trap (door directions: East, South)
     NormalLow2 = 0x40
     TrapTriggerableLow = 0x44
     Warp = 0x46

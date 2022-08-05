@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'afcd895b87559cd29b04aa3714cbc929'
+RANDOMIZERBASEHASH = 'b4daf51397414464562a772f72f0b551'
 
 
 class JsonRom(object):
@@ -843,7 +843,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.doorShuffle[player] != 'vanilla':
         for name, pair in boss_indicator.items():
             dungeon_id, boss_door = pair
-            opposite_door = world.get_door(boss_door, player).dest
+            boss_region = world.get_door(boss_door, player).entrance.parent_region
+            opposite_door = next(iter(x for x in boss_region.entrances if x.name != 'Skull Final Drop WS')).door
             if opposite_door and isinstance(opposite_door, Door) and opposite_door.roomIndex > -1:
                 dungeon_name = opposite_door.entrance.parent_region.dungeon.name
                 dungeon_id = boss_indicator[dungeon_name][0]

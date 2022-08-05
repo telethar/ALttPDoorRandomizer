@@ -370,8 +370,7 @@ def connect_doors_one_way(a, b):
         return
     # Connect supported types
     if a.type in [DoorType.Normal, DoorType.SpiralStairs, DoorType.Open, DoorType.StraightStairs, DoorType.Ladder]:
-        if not a.blocked:
-            connect_one_way(a.entrance, b.entrance)
+        connect_one_way(a.entrance, b.entrance)
         dep_doors, target = [], None
         if len(a.dependents) > 0:
             dep_doors, target = a.dependents, b

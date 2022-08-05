@@ -18,7 +18,7 @@ from source.dungeon.DungeonStitcher import ExplorationState as ExplorationState2
 # from DungeonGenerator import generate_dungeon
 from DungeonGenerator import ExplorationState, convert_regions, pre_validate, determine_required_paths, drop_entrances
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
-from DungeonGenerator import dungeon_portals, dungeon_drops, connect_doors
+from DungeonGenerator import dungeon_portals, dungeon_drops, connect_doors, count_reserved_locations
 from DungeonGenerator import valid_region_to_explore
 from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout, determine_prize_lock
 from KeyDoorShuffle import validate_bk_layout, check_bk_special
@@ -139,7 +139,7 @@ def link_doors_main(world, player):
                   ['Ice Palace', 'Misery Mire', 'Turtle Rock', 'Ganons Tower']]
         pool = [(group, list(chain.from_iterable([dungeon_regions[d] for d in group]))) for group in groups]
     elif world.doorShuffle[player] == 'crossed':
-        pool = [list(dungeon_regions.keys()), sum(r for r in dungeon_regions.values())]
+        pool = [(list(dungeon_regions.keys()), sum((r for r in dungeon_regions.values()), []))]
     elif world.doorShuffle[player] != 'vanilla':
         logging.getLogger('').error('Invalid door shuffle setting: %s' % world.doorShuffle[player])
         raise Exception('Invalid door shuffle setting: %s' % world.doorShuffle[player])
@@ -172,6 +172,9 @@ def mark_regions(world, player):
 
 def create_door_spoiler(world, player):
     logger = logging.getLogger('')
+    shuffled_door_types = [DoorType.Normal, DoorType.SpiralStairs]
+    if world.intensity[player] > 1:
+        shuffled_door_types += [DoorType.Open, DoorType.StraightStairs, DoorType.Ladder]
 
     queue = deque(world.dungeon_layouts[player].values())
     while len(queue) > 0:
@@ -185,20 +188,23 @@ def create_door_spoiler(world, player):
             for ext in next.exits:
                 door_a = ext.door
                 connect = ext.connected_region
-                if door_a and door_a.type in [DoorType.Normal, DoorType.SpiralStairs, DoorType.Open,
-                                              DoorType.StraightStairs, DoorType.Ladder] and door_a not in done:
+                if door_a and door_a.type in shuffled_door_types and door_a not in done:
                     done.add(door_a)
+
                     door_b = door_a.dest
                     if door_b and not isinstance(door_b, Region):
-                        done.add(door_b)
-                        if not door_a.blocked and not door_b.blocked:
-                            world.spoiler.set_door(door_a.name, door_b.name, 'both', player, builder.name)
-                        elif door_a.blocked:
-                            world.spoiler.set_door(door_b.name, door_a.name, 'entrance', player, builder.name)
-                        elif door_b.blocked:
+                        if world.decoupledoors[player]:
                             world.spoiler.set_door(door_a.name, door_b.name, 'entrance', player, builder.name)
                         else:
-                            logger.warning('This is a bug during door spoiler')
+                            done.add(door_b)
+                            if not door_a.blocked and not door_b.blocked:
+                                world.spoiler.set_door(door_a.name, door_b.name, 'both', player, builder.name)
+                            elif door_a.blocked:
+                                world.spoiler.set_door(door_b.name, door_a.name, 'entrance', player, builder.name)
+                            elif door_b.blocked:
+                                world.spoiler.set_door(door_a.name, door_b.name, 'entrance', player, builder.name)
+                            else:
+                                logger.warning('This is a bug during door spoiler')
                     elif not isinstance(door_b, Region):
                         logger.warning('Door not connected: %s', door_a.name)
                 if connect and connect.type == RegionType.Dungeon and connect not in visited:
@@ -305,12 +311,7 @@ def connect_door_only(world, exit_name, region, player):
 def connect_interior_doors(a, b, world, player):
     door_a = world.get_door(a, player)
     door_b = world.get_door(b, player)
-    if door_a.blocked:
-        connect_one_way(world, b, a, player)
-    elif door_b.blocked:
-        connect_one_way(world, a, b, player)
-    else:
-        connect_two_way(world, a, b, player)
+    connect_two_way(world, a, b, player)
 
 
 def connect_two_way(world, entrancename, exitname, player):
@@ -790,7 +791,7 @@ def main_dungeon_pool(dungeon_pool, world, player):
     door_type_pools = []
     for pool, region_list in dungeon_pool:
         if len(pool) == 1:
-            dungeon_key = next(pool)
+            dungeon_key = next(iter(pool))
             sector_pool = convert_to_sectors(region_list, world, player)
             merge_sectors(sector_pool, world, player)
             dungeon_builders[dungeon_key] = simple_dungeon_builder(dungeon_key, sector_pool)
@@ -823,6 +824,17 @@ def main_dungeon_pool(dungeon_pool, world, player):
 
     check_required_paths(paths, world, player)
 
+    for pool, door_type_pool in door_type_pools:
+        for name in pool:
+            builder = world.dungeon_layouts[player][name]
+            region_set = builder.master_sector.region_set()
+            builder.bk_required = len(builder.bk_door_proposal) > 0 or any(x in region_set for x in special_bk_regions)
+            dungeon = world.get_dungeon(name, player)
+            if not builder.bk_required or builder.bk_provided:
+                dungeon.big_key = None
+            elif builder.bk_required and not builder.bk_provided:
+                dungeon.big_key = ItemFactory(dungeon_bigs[name], player)
+
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
     target_items = 34
     if world.retro[player]:
@@ -835,10 +847,10 @@ def main_dungeon_pool(dungeon_pool, world, player):
             target_items += 19  # 19 pot keys
     d_items = target_items - all_dungeon_items_cnt
     world.pool_adjustment[player] = d_items
-    # todo: remove unused pairs
-    if not world.decoupledoors[player]:
-        smooth_door_pairs(world, player)
     cross_dungeon_clean_up(world, player)
+
+
+special_bk_regions = ['Hyrule Dungeon Cellblock', "Thieves Blind's Cell"]
 
 
 def cross_dungeon_clean_up(world, player):
@@ -953,47 +965,6 @@ def finish_up_work(world, player):
         palette_assignment(world, player)
 
     refine_hints(dungeon_builders)
-    refine_boss_exits(world, player)
-
-
-# def unpair_all_doors(world, player):
-#     for paired_door in world.paired_doors[player]:
-#         paired_door.pair = False
-
-def within_dungeon(world, player):
-    add_inaccessible_doors(world, player)
-    entrances_map, potentials, connections = determine_entrance_list(world, player)
-    connections_tuple = (entrances_map, potentials, connections)
-
-    dungeon_builders = {}
-    for key in dungeon_regions.keys():
-        sector_list = convert_to_sectors(dungeon_regions[key], world, player)
-        dungeon_builders[key] = simple_dungeon_builder(key, sector_list)
-        dungeon_builders[key].entrance_list = list(entrances_map[key])
-    recombinant_builders = {}
-    entrances, splits = create_dungeon_entrances(world, player)
-    builder_info = entrances, splits, connections_tuple, world, player
-    handle_split_dungeons(dungeon_builders, recombinant_builders, entrances_map, builder_info)
-    main_dungeon_generation(dungeon_builders, recombinant_builders, connections_tuple, world, player)
-
-    paths = determine_required_paths(world, player)
-    check_required_paths(paths, world, player)
-
-    setup_custom_door_types(world, player)
-    # shuffle_key_doors for dungeons
-    logging.getLogger('').info(world.fish.translate("cli", "cli", "shuffling.keydoors"))
-    start = time.process_time()
-    for builder in world.dungeon_layouts[player].values():
-        shuffle_key_doors(builder, world, player)
-    logging.getLogger('').info('%s: %s', world.fish.translate("cli", "cli", "keydoor.shuffle.time"), time.process_time()-start)
-    if not world.decoupledoors[player]:
-        smooth_door_pairs(world, player)
-
-    if world.intensity[player] >= 3:
-        portal = world.get_portal('Sanctuary', player)
-        target = portal.door.entrance.parent_region
-        connect_simple_door(world, 'Sanctuary Mirror Route', target, player)
-
     refine_boss_exits(world, player)
 
 
@@ -1601,7 +1572,12 @@ def refine_boss_exits(world, player):
             if len(reachable_portals) == 0:
                 reachable_portals = possible_portals
             unreachable = world.inaccessible_regions[player]
-            filtered = [x for x in reachable_portals if x.door.entrance.connected_region.name not in unreachable]
+            filtered = []
+            for reachable in reachable_portals:
+                for entrance in reachable.door.entrance.connected_region.entrances:
+                    parent = entrance.parent_region
+                    if parent.type != RegionType.Dungeon and parent.name not in unreachable:
+                        filtered.append(reachable)
             if 0 < len(filtered) < len(reachable_portals):
                 reachable_portals = filtered
             chosen_one = random.choice(reachable_portals) if len(reachable_portals) > 1 else reachable_portals[0]
@@ -1766,8 +1742,7 @@ class BuilderDoorCandidates:
         self.small = []
         self.big = []
         self.trap = []
-        self.bombable = []
-        self.dashable = []
+        self.bomb_dash = []
 
 
 def shuffle_door_types(door_type_pools, paths, world, player):
@@ -1776,17 +1751,19 @@ def shuffle_door_types(door_type_pools, paths, world, player):
         start_regions = convert_regions(builder.path_entrances, world, player)
         start_regions_map[name] = start_regions
         builder.candidates = BuilderDoorCandidates()
-    used_doors = shuffle_door_traps(door_type_pools, paths, start_regions_map, world, player)
+
+    world.paired_doors[player].clear()
+    used_doors = shuffle_trap_doors(door_type_pools, paths, start_regions_map, world, player)
     # big keys
     used_doors = shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world, player)
     # small keys
     used_doors = shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, world, player)
     # bombable / dashable
+    used_doors = shuffle_bomb_dash_doors(door_type_pools, used_doors, start_regions_map, world, player)
+    # handle paired list
 
-    # tricky / hidden
 
-
-def shuffle_door_traps(door_type_pools, paths, start_regions_map, world, player):
+def shuffle_trap_doors(door_type_pools, paths, start_regions_map, world, player):
     used_doors = set()
     for pool, door_type_pool in door_type_pools:
         ttl = 0
@@ -1804,6 +1781,8 @@ def shuffle_door_traps(door_type_pools, paths, start_regions_map, world, player)
                 builder.candidates.trap = filter_key_door_pool(builder.candidates.trap, custom_trap_doors[dungeon])
                 remaining -= len(custom_trap_doors[dungeon])
             ttl += len(builder.candidates.trap)
+        if ttl == 0:
+            return used_doors
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.trap)
@@ -1862,6 +1841,8 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world,
                 builder.candidates.big = filter_key_door_pool(builder.candidates.big, custom_bk_doors[dungeon])
                 remaining -= len(custom_bk_doors[dungeon])
             ttl += len(builder.candidates.big)
+        if ttl == 0:
+            return used_doors
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.big)
@@ -1934,6 +1915,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
                 suggested -= 1
                 combo_size = ncr(len(builder.candidates.small), suggested + builder.key_drop_cnt)
             suggestion_map[dungeon] = builder.key_doors_num = suggested + builder.key_drop_cnt
+            remaining -= suggested + builder.key_drop_cnt
             builder.combo_size = combo_size
             flex_map[dungeon] = (limit - suggested) if suggested < limit else 0
         for dungeon in pool:
@@ -1983,6 +1965,79 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
 
         for name, small_list in small_map.items():
             used_doors.update(flatten_pair_list(small_list))
+    return used_doors
+
+
+def shuffle_bomb_dash_doors(door_type_pools, used_doors, start_regions_map, world, player):
+    for pool, door_type_pool in door_type_pools:
+        ttl = 0
+        suggestion_map, bd_map = {}, {}
+        remaining_bomb = door_type_pool.bombable
+        remaining_dash = door_type_pool.dashable
+
+        if player in world.custom_door_types:
+            custom_bomb_doors = world.custom_door_types[player]['Bomb Door']
+            custom_dash_doors = world.custom_door_types[player]['Dash Door']
+        else:
+            custom_bomb_doors = defaultdict(list)
+            custom_dash_doors = defaultdict(list)
+
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            find_bd_candidates(builder, start_regions_map[dungeon], used_doors, world, player)
+            if custom_bomb_doors[dungeon]:
+                builder.candidates.bomb_dash = filter_key_door_pool(builder.candidates.bomb_dash, custom_bomb_doors[dungeon])
+                remaining_bomb -= len(custom_bomb_doors[dungeon])
+            if custom_dash_doors[dungeon]:
+                builder.candidates.bomb_dash = filter_key_door_pool(builder.candidates.bomb_dash, custom_dash_doors[dungeon])
+                remaining_dash -= len(custom_dash_doors[dungeon])
+            ttl += len(builder.candidates.bomb_dash)
+        if ttl == 0:
+            return used_doors
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            proportion = len(builder.candidates.bomb_dash)
+            calc = int(round(proportion * door_type_pool.bombable/ttl))
+            suggested_bomb = min(proportion, calc)
+            remaining_bomb -= suggested_bomb
+            calc = int(round(proportion * door_type_pool.dashable/ttl))
+            suggested_dash = min(proportion, calc)
+            remaining_dash -= suggested_dash
+            suggestion_map[dungeon] = suggested_bomb, suggested_dash
+        for dungeon in pool:
+            builder = world.dungeon_layouts[player][dungeon]
+            bomb_doors, dash_doors, bd_number = find_valid_bd_combination(builder, suggestion_map[dungeon], world, player)
+            bd_map[dungeon] = (bomb_doors, dash_doors)
+            if bd_number < suggestion_map[dungeon][0] + suggestion_map[dungeon][1]:
+                remaining_bomb += suggestion_map[dungeon][0] - len(bomb_doors)
+                remaining_dash += suggestion_map[dungeon][1] - len(dash_doors)
+            suggestion_map[dungeon] = len(bomb_doors), len(dash_doors)
+        builder_order = [x for x in pool]
+        random.shuffle(builder_order)
+        queue = deque(builder_order)
+        while len(queue) > 0 and (remaining_bomb > 0 or remaining_dash > 0):
+            dungeon = queue.popleft()
+            builder = world.dungeon_layouts[player][dungeon]
+            type_pool = []
+            if remaining_bomb > 0:
+                type_pool.append('bomb')
+            if remaining_dash > 0:
+                type_pool.append('dash')
+            type_choice = random.choice(type_pool)
+            pair = suggestion_map[dungeon]
+            pair = pair[0] + (1 if type_choice == 'bomb' else 0), pair[1] + (1 if type_choice == 'dash' else 0)
+            bomb_doors, dash_doors, bd_number = find_valid_bd_combination(builder, pair, world, player)
+            if bomb_doors and dash_doors:
+                bd_map[dungeon] = (bomb_doors, dash_doors)
+                remaining_bomb -= (1 if type_choice == 'bomb' else 0)
+                remaining_dash -= (1 if type_choice == 'dash' else 0)
+                suggestion_map[dungeon] = pair
+                queue.append(dungeon)
+        # time to re-assign
+        reassign_bd_doors(bd_map, world, player)
+        for name, pair in bd_map.items():
+            used_doors.update(flatten_pair_list(pair[0]))
+            used_doors.update(flatten_pair_list(pair[1]))
     return used_doors
 
 
@@ -2049,7 +2104,7 @@ def find_trappable_candidates(builder, world, player):
     else:
         r_set = builder.master_sector.region_set()
         for r in r_set:
-            for ext in r.exits:
+            for ext in world.get_region(r, player).exits:
                 if ext.door:
                     d = ext.door
                     if d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name:
@@ -2188,7 +2243,7 @@ def reassign_trap_doors(trap_map, world, player):
                 elif kind in [DoorKind.Trap2, DoorKind.TrapTriggerable]:
                     room.change(d.doorListPos, DoorKind.Normal)
                 d.blocked = False
-                connect_one_way(world, d.name, d.dest.name, player)
+                # connect_one_way(world, d.name, d.dest.name, player)
             elif d.type is DoorType.Normal and d not in traps:
                 world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.blocked = False
@@ -2213,18 +2268,19 @@ def change_door_to_trap(d, world, player):
     if d.type is DoorType.Interior:
         kind = room.kind(d)
         new_kind = None
-        if kind == DoorKind.TrapTriggerable and d.direction in [Direction.North, Direction.West]:
+        if kind == DoorKind.TrapTriggerable and d.direction in [Direction.South, Direction.East]:
             new_kind = DoorKind.Trap
-        elif kind == DoorKind.Trap2 and d.direction in [Direction.South, Direction.East]:
+        elif kind == DoorKind.Trap2 and d.direction in [Direction.North, Direction.West]:
             new_kind = DoorKind.Trap
-        elif d.direction in [Direction.North, Direction.West]:
-            new_kind = DoorKind.Trap2
         elif d.direction in [Direction.South, Direction.East]:
+            new_kind = DoorKind.Trap2
+        elif d.direction in [Direction.North, Direction.West]:
             new_kind = DoorKind.TrapTriggerable
         if new_kind:
             d.blocked = True
-            verify_door_list_pos(d, room, world, player, pos=3)
-            d.trapFlag = {0: 0x4, 1: 0x2, 2: 0x1}[d.doorListPos]
+            pos = 3 if d.type == DoorType.Normal else 4
+            verify_door_list_pos(d, room, world, player, pos)
+            d.trapFlag = {0: 0x4, 1: 0x2, 2: 0x1, 3: 0x8}[d.doorListPos]
             room.change(d.doorListPos, new_kind)
             if d.entrance.connected_region is not None:
                 d.entrance.connected_region.entrances.remove(d.entrance)
@@ -2281,10 +2337,10 @@ def find_big_key_door_candidates(region, checked, used, world, player):
             if d and d.controller:
                 d = d.controller
             if (d and not d.blocked and d.dest is not last_door and d.dest is not last_region
-               and d not in checked_doors and d not in used):
+               and d not in checked_doors):
                 valid = False
                 if (0 <= d.doorListPos < 4 and d.type in [DoorType.Interior, DoorType.Normal]
-                     and not d.entranceFlag and d.direction in [Direction.North, Direction.South]):
+                     and not d.entranceFlag and d.direction in [Direction.North, Direction.South] and d not in used):
                     room = world.get_room(d.roomIndex, player)
                     position, kind = room.doorList[d.doorListPos]
                     if d.type == DoorType.Interior:
@@ -2366,6 +2422,7 @@ def find_current_bk_doors(builder):
 
 
 def reassign_big_key_doors(bk_map, world, player):
+    logger = logging.getLogger('')
     for name, big_doors in bk_map.items():
         flat_proposal = flatten_pair_list(big_doors)
         builder = world.dungeon_layouts[player][name]
@@ -2388,21 +2445,11 @@ def reassign_big_key_doors(bk_map, world, player):
                     change_door_to_big_key(d1, world, player)
                     d2.bigKey = True  # ensure flag is set
                 else:
-                    names = [d1.name, d2.name]
-                    found = False
-                    for dp in world.paired_doors[player]:
-                        if dp.door_a in names and dp.door_b in names:
-                            dp.pair = True
-                            found = True
-                        elif dp.door_a in names:
-                            dp.pair = False
-                        elif dp.door_b in names:
-                            dp.pair = False
-                    if not found:
-                        world.paired_doors[player].append(PairedDoor(d1.name, d2.name))
+                    world.paired_doors[player].append(PairedDoor(d1.name, d2.name))
                     change_door_to_big_key(d1, world, player)
                     change_door_to_big_key(d2, world, player)
                 world.spoiler.set_door_type(d1.name+' <-> '+d2.name, 'Big Key Door', player)
+                logger.debug(f'Big Key Door: {d1.name} <-> {d2.name}')
             else:
                 d = obj
                 if d.type is DoorType.Interior:
@@ -2419,6 +2466,7 @@ def reassign_big_key_doors(bk_map, world, player):
                                 change_door_to_big_key(d.dest, world, player)
                                 add_pair(d, d.dest, world, player)
                 world.spoiler.set_door_type(d.name, 'Big Key Door', player)
+                logger.debug(f'Big Key Door: {d.name}')
 
 
 def change_door_to_big_key(d, world, player):
@@ -2449,7 +2497,7 @@ def find_small_key_door_candidates(builder, start_regions, used, world, player):
 
 
 def calc_used_dungeon_items(builder, world, player):
-    base = 2
+    base = max(count_reserved_locations(world, player, builder.location_set), 2)
     basic_flag = world.doorShuffle[player] == 'basic'
     if not world.bigkeyshuffle[player]:
         if builder.bk_required and not builder.bk_provided:
@@ -2523,7 +2571,186 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     return builder.key_door_proposal, key_doors_needed
 
 
-def build_sample_list(combinations, max_combinations=100000):
+def find_bd_candidates(builder, start_regions, used, world, player):
+    # traverse dungeon and find candidates
+    candidates = []
+    checked_doors = set()
+    for region in start_regions:
+        possible, checked = find_bd_door_candidates(region, checked_doors, used, world, player)
+        candidates.extend([x for x in possible if x not in candidates])
+        checked_doors.update(checked)
+    flat_candidates = []
+    for candidate in candidates:
+        # not valid if: Normal Coupled and Pair in is Checked and Pair is not in Candidates
+        if (world.decoupledoors[player] or candidate.type != DoorType.Normal
+             or candidate.dest not in checked_doors or candidate.dest in candidates):
+            flat_candidates.append(candidate)
+    builder.candidates.bomb_dash = build_pair_list(flat_candidates)
+
+
+def find_bd_door_candidates(region, checked, used, world, player):
+    decoupled = world.decoupledoors[player]
+    dungeon_name = region.dungeon.name
+    candidates = []
+    checked_doors = list(checked)
+    queue = deque([(region, None, None)])
+    while len(queue) > 0:
+        current, last_door, last_region = queue.pop()
+        for ext in current.exits:
+            d = ext.door
+            controlled = d
+            if d and d.controller:
+                d = d.controller
+            if (d and not d.blocked and d.dest is not last_door and d.dest is not last_region
+                 and d not in checked_doors):
+                valid = False
+                if (0 <= d.doorListPos < 4 and d.type in [DoorType.Interior, DoorType.Normal] and not d.entranceFlag
+                   and d not in used):
+                    room = world.get_room(d.roomIndex, player)
+                    position, kind = room.doorList[d.doorListPos]
+                    if d.type == DoorType.Interior:
+                        valid = kind in okay_interiors
+                        if valid and d.dest not in candidates:  # interior doors are not separable yet
+                            candidates.append(d.dest)
+                    elif d.type == DoorType.Normal:
+                        if decoupled:
+                            valid = kind in okay_normals
+                        else:
+                            d2 = d.dest
+                            if d2 not in candidates and d2 not in used:
+                                if d2.type == DoorType.Normal:
+                                    room_b = world.get_room(d2.roomIndex, player)
+                                    pos_b, kind_b = room_b.doorList[d2.doorListPos]
+                                    valid = kind in okay_normals and kind_b in okay_normals and valid_key_door_pair(d, d2)
+                                else:
+                                    valid = kind in okay_normals
+                                if valid and 0 <= d2.doorListPos < 4:
+                                    candidates.append(d2)
+                            else:
+                                valid = True
+                if valid and d not in candidates:
+                    candidates.append(d)
+                connected = ext.connected_region
+                if valid_region_to_explore(connected, dungeon_name, world, player):
+                    queue.append((ext.connected_region, controlled, current))
+                if d is not None:
+                    checked_doors.append(d)
+    return candidates, checked_doors
+
+
+def find_valid_bd_combination(builder, suggested, world, player):
+    # bombable/dashable doors could be excluded in escape in standard until we can guarantee bomb access
+    # if world.mode[player] == 'standard' and builder.name == 'Hyrule Castle':
+    #     return None, None, 0
+    bd_door_pool = builder.candidates.bomb_dash
+    bomb_doors_needed, dash_doors_needed = suggested
+    ttl_needed = bomb_doors_needed + dash_doors_needed
+    if player in world.custom_door_types:
+        custom_bomb_doors = world.custom_door_types[player]['Bomb Door'][builder.name]
+        custom_dash_doors = world.custom_door_types[player]['Dash Door'][builder.name]
+    else:
+        custom_bomb_doors = []
+        custom_dash_doors = []
+    if custom_bomb_doors:
+        bd_door_pool = filter_key_door_pool(bd_door_pool, custom_bomb_doors)
+        bomb_doors_needed -= len(custom_bomb_doors)
+    if custom_dash_doors:
+        bd_door_pool = filter_key_door_pool(bd_door_pool, custom_dash_doors)
+        dash_doors_needed -= len(custom_dash_doors)
+    while len(bd_door_pool) < bomb_doors_needed + dash_doors_needed:
+        bomb_doors_needed = round(len(bd_door_pool) * bomb_doors_needed/ttl_needed)
+        dash_doors_needed = round(len(bd_door_pool) * dash_doors_needed/ttl_needed)
+    bomb_proposal = random.sample(bd_door_pool, k=bomb_doors_needed)
+    bomb_proposal.extend(custom_bomb_doors)
+    dash_pool = [x for x in bd_door_pool if x not in bomb_proposal]
+    dash_proposal = random.sample(dash_pool, k=dash_doors_needed)
+    dash_proposal.extend(custom_dash_doors)
+    return bomb_proposal, dash_proposal, ttl_needed
+
+
+def reassign_bd_doors(bd_map, world, player):
+    for name, pair in bd_map.items():
+        flat_bomb_proposal = flatten_pair_list(pair[0])
+        flat_dash_proposal = flatten_pair_list(pair[1])
+
+        def not_in_proposal(door):
+            return (door not in flat_bomb_proposal and door.dest not in flat_bomb_proposal and
+                    door not in flat_dash_proposal and door.dest not in flat_bomb_proposal)
+
+        builder = world.dungeon_layouts[player][name]
+        queue = deque(find_current_bd_doors(builder, world))
+        while len(queue) > 0:
+            d = queue.pop()
+            if d.type is DoorType.Interior and not_in_proposal(d):
+                if not d.entranceFlag:
+                    world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
+            elif d.type is DoorType.Normal and not_in_proposal(d):
+                if not d.entranceFlag:
+                    world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
+        do_bombable_dashable(flat_bomb_proposal, DoorKind.Bombable, world, player)
+        do_bombable_dashable(flat_dash_proposal, DoorKind.Dashable, world, player)
+
+
+def do_bombable_dashable(proposal, kind, world, player):
+    for obj in proposal:
+        if type(obj) is tuple:
+            d1 = obj[0]
+            d2 = obj[1]
+            if d1.type is DoorType.Interior:
+                change_door_to_kind(d1, kind, world, player)
+            else:
+                names = [d1.name, d2.name]
+                found = False
+                for dp in world.paired_doors[player]:
+                    if dp.door_a in names and dp.door_b in names:
+                        dp.pair = True
+                        found = True
+                    elif dp.door_a in names:
+                        dp.pair = False
+                    elif dp.door_b in names:
+                        dp.pair = False
+                if not found:
+                    world.paired_doors[player].append(PairedDoor(d1.name, d2.name))
+                change_door_to_kind(d1, kind, world, player)
+                change_door_to_kind(d2, kind, world, player)
+            spoiler_type = 'Bomb Door' if kind == DoorKind.Bombable else 'Dash Door'
+            world.spoiler.set_door_type(d1.name+' <-> '+d2.name, spoiler_type, player)
+        else:
+            d = obj
+            if d.type is DoorType.Interior:
+                change_door_to_kind(d, kind, world, player)
+            elif d.type is DoorType.Normal:
+                change_door_to_kind(d, kind, world, player)
+                if not world.decoupledoors[player] and d.dest:
+                    if d.dest.type in okay_normals and not std_forbidden(d.dest, world, player):
+                        dest_room = world.get_room(d.dest.roomIndex, player)
+                        if stateful_door(d.dest, dest_room.kind(d.dest)):
+                            change_door_to_kind(d.dest, kind, world, player)
+                            add_pair(d, d.dest, world, player)
+            spoiler_type = 'Bomb Door' if kind == DoorKind.Bombable else 'Dash Door'
+            world.spoiler.set_door_type(d.name, spoiler_type, player)
+
+
+def find_current_bd_doors(builder, world):
+    current_doors = []
+    for region in builder.master_sector.regions:
+        for ext in region.exits:
+            d = ext.door
+            if d and d.type in [DoorType.Interior, DoorType.Normal]:
+                kind = d.kind(world)
+                if kind in [DoorKind.Dashable, DoorKind.Bombable]:
+                    current_doors.append(d)
+    return current_doors
+
+
+def change_door_to_kind(d, kind, world, player):
+    room = world.get_room(d.roomIndex, player)
+    if room.doorList[d.doorListPos][1] != kind:
+        verify_door_list_pos(d, room, world, player)
+        room.change(d.doorListPos, kind)
+
+
+def build_sample_list(combinations, max_combinations=10000):
     if combinations <= max_combinations:
         sample_list = list(range(0, int(combinations)))
     else:
@@ -2609,10 +2836,10 @@ def find_key_door_candidates(region, checked, used, world, player):
             if d and d.controller:
                 d = d.controller
             if (d and not d.blocked and d.dest is not last_door and d.dest is not last_region
-                and d not in checked_doors and d not in used):
+                and d not in checked_doors):
                 valid = False
                 if (0 <= d.doorListPos < 4 and d.type in [DoorType.Interior, DoorType.Normal, DoorType.SpiralStairs]
-                     and not d.entranceFlag):
+                     and not d.entranceFlag and d not in used):
                     room = world.get_room(d.roomIndex, player)
                     position, kind = room.doorList[d.doorListPos]
                     if d.type == DoorType.Interior:

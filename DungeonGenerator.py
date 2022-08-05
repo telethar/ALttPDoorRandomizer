@@ -15,6 +15,8 @@ from Regions import dungeon_events, flooded_keys_reverse
 from Dungeons import dungeon_regions, split_region_starts
 from RoomData import DoorKind
 
+from source.dungeon.DungeonStitcher import generate_dungeon_find_proposal
+
 
 class GraphPiece:
 
@@ -62,7 +64,7 @@ def generate_dungeon(builder, entrance_region_names, split_dungeon, world, playe
     if builder.valid_proposal:  # we made this earlier in gen, just use it
         proposed_map = builder.valid_proposal
     else:
-        proposed_map = generate_dungeon_find_proposal(builder, entrance_region_names, split_dungeon, world, player)
+        proposed_map = generate_dungeon_find_proposal_old(builder, entrance_region_names, split_dungeon, world, player)
         builder.valid_proposal = proposed_map
     queue = collections.deque(proposed_map.items())
     while len(queue) > 0:
@@ -80,7 +82,7 @@ def generate_dungeon(builder, entrance_region_names, split_dungeon, world, playe
     return master_sector
 
 
-def generate_dungeon_find_proposal(builder, entrance_region_names, split_dungeon, world, player):
+def generate_dungeon_find_proposal_old(builder, entrance_region_names, split_dungeon, world, player):
     logger = logging.getLogger('')
     name = builder.name
     entrance_regions = convert_regions(entrance_region_names, world, player)
@@ -868,9 +870,9 @@ class ExplorationState(object):
                         self.key_locations += 1
                     if location.name not in dungeon_events and '- Prize' not in location.name and location.name not in ['Agahnim 1', 'Agahnim 2']:
                         self.ttl_locations += 1
-                if location not in self.found_locations:  # todo: special logic for TT Boss?
+                if location not in self.found_locations:
                     self.found_locations.append(location)
-                    if not bk_Flag:
+                    if not bk_Flag and (not location.forced_item or 'Big Key' in location.item.name):
                         self.bk_found.add(location)
                 if location.name in dungeon_events and location.name not in self.events:
                     if self.flooded_key_check(location):
@@ -1199,6 +1201,7 @@ class DungeonBuilder(object):
         self.name = name
         self.sectors = []
         self.location_cnt = 0
+        self.location_set = set()
         self.key_drop_cnt = 0
         self.dungeon_items = None  # during fill how many dungeon items are left
         self.free_items = None  # during fill how many dungeon items are left
@@ -1569,6 +1572,7 @@ def assign_sector_helper(sector, builder):
     builder.sectors.append(sector)
     builder.location_cnt += sector.chest_locations
     builder.key_drop_cnt += sector.key_only_locations
+    builder.location_set.update(sector.chest_location_set)
     if sector.c_switch:
         builder.c_switch_present = True
     if sector.blue_barrier:
