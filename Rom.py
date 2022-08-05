@@ -663,18 +663,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.mapshuffle[player]:
         rom.write_byte(0x155C9, random.choice([0x11, 0x16]))  # Randomize GT music too with map shuffle
 
-    if world.pottery[player] not in ['none']:
-        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
-        # make hammer pegs use different tiles
-        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
-
-    if world.pot_contents[player]:
-        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
-                                       and (world.colorizepots[player]
-                                            or world.pottery[player] in ['reduced', 'clustered']))
-        if world.pot_contents[player].size() > 0x2800:
-            raise Exception('Pot table is too big for current area')
-        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
     # fix for swamp drains if necessary
     swamp1location = world.get_location('Swamp Palace - Trench 1 Pot Key', player)
     if not swamp1location.pot.indicator:
@@ -1544,6 +1532,19 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         for room in world.rooms:
             if room.player == player and room.modified:
                 rom.write_bytes(room.address(), room.rom_data())
+
+    if world.pottery[player] not in ['none']:
+        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
+        # make hammer pegs use different tiles
+        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
+
+    if world.pot_contents[player]:
+        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
+                                       and (world.colorizepots[player]
+                                            or world.pottery[player] in ['reduced', 'clustered']))
+        if world.pot_contents[player].size() > 0x2800:
+            raise Exception('Pot table is too big for current area')
+        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
 
     write_strings(rom, world, player, team)
 

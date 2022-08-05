@@ -183,6 +183,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Unstable
 
+* 1.0.1.1
+  * Fixed the pots in Mire Storyteller/ Dark Desert Hint to be colorized when they should be 
 * 1.0.1.0
   * Large features
     * New pottery modes - see notes above
@@ -235,7 +237,7 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
     * Fixed a bug with shopsanity + district algorithm where pre-placed potions messed up the placeholder count
     * Fixed usestartinventory flag (can be use on a per player basis)
     * Sprite selector fix for systems with SSL issues
-	* Fix for Standard ER where locations in rain state could be in logic
+    * Fix for Standard ER where locations in rain state could be in logic
 * 1.0.0.3
     * overworld_map=map mode fixed. Location of dungeons with maps are not shown until map is retrieved. (Dungeon that do not have map like Castle Tower are simply never shown)
     * Aga2 completion on overworld_map now tied to boss defeat flag instead of pyramid hole being opened (fast ganon fix)
