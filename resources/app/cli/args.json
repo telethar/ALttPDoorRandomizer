@@ -360,6 +360,10 @@
     "dest": "create_rom",
     "help": "suppress"
   },
+  "suppress_meta": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "shuffleganon": {
     "action": "store_false",
     "type": "bool"

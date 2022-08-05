@@ -420,7 +420,7 @@ def choose_portals(world, player):
             allowed = {name: all_dungeons for name in dungeon_regions}
 
         # key drops allow the big key in the right place in Desert Tiles 2
-        bk_shuffle = world.bigkeyshuffle[player] or world.dropshuffle[player]
+        bk_shuffle = world.bigkeyshuffle[player] or world.pottery[player] not in ['none', 'cave']
         std_flag = world.mode[player] == 'standard'
         # roast incognito doors
         world.get_room(0x60, player).delete(5)
