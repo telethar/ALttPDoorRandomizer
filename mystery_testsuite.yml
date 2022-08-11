@@ -43,6 +43,9 @@ entrance_shuffle:
 shufflelinks:
   on: 1
   off: 1
+shuffletavern:
+  on: 1
+  off: 1
 world_state:
   standard: 1
   open: 1

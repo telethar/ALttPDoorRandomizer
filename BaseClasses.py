@@ -2375,6 +2375,7 @@ class Spoiler(object):
                          'shuffle': self.world.shuffle,
                          'shuffleganon': self.world.shuffle_ganon,
                          'shufflelinks': self.world.shufflelinks,
+                         'shuffletavern': self.world.shuffletavern,
                          'overworld_map': self.world.overworld_map,
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
@@ -2574,6 +2575,7 @@ class Spoiler(object):
                 outfile.write('Entrance Shuffle:                %s\n' % self.metadata['shuffle'][player])
                 if self.metadata['shuffle'][player] != 'vanilla':
                     outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'])}\n")
+                    outfile.write(f"Back of Tavern Shuffled:         {yn(self.metadata['shuffletavern'][player])}\n")
                     outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                     outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 if self.metadata['goal'][player] != 'trinity':
@@ -2838,8 +2840,8 @@ func_mode = {"normal": 0, "hard": 1, "expert": 2}
 mixed_travel_mode = {"prevent": 0, "allow": 1, "force": 2}
 # intensity is 3 bits (reserves 4-7 levels)
 
-# new byte 4: ?DDD PPPP (unused, drop, pottery)
-# dropshuffle reserves 2 bits, pottery needs 2 but reserves 2 for future modes)
+# new byte 4: TDDD PPPP (tavern shuffle, drop, pottery)
+# dropshuffle reserves 2 bits, pottery needs 4)
 pottery_mode = {'none': 0, 'keys': 2, 'lottery': 3, 'dungeon': 4, 'cave': 5, 'cavekeys': 6, 'reduced': 7,
                 'clustered': 8, 'nonempty': 9}
 
@@ -2893,7 +2895,7 @@ class Settings(object):
             | (0x8 if w.standardize_palettes[p] == "original" else 0)
             | (0 if w.intensity[p] == "random" else w.intensity[p]),
 
-            (0x10 if w.dropshuffle[p] else 0) | (pottery_mode[w.pottery[p]]),
+            (0x80 if w.shuffletavern[p] else 0) | (0x10 if w.dropshuffle[p] else 0) | (pottery_mode[w.pottery[p]]),
 
             ((8 if w.crystals_gt_orig[p] == "random" else int(w.crystals_gt_orig[p])) << 3)
             | (counter_mode[w.dungeon_counters[p]] << 1) | (1 if w.experimental[p] else 0),
@@ -2943,7 +2945,7 @@ class Settings(object):
         intensity = settings[3] & 0x7
         args.intensity[p] = "random" if intensity == 0 else intensity
 
-        # args.shuffleswitches[p] = True if settings[4] & 0x80 else False
+        args.shuffletavern[p] = True if settings[4] & 0x80 else False
         args.dropshuffle[p] = True if settings[4] & 0x10 else False
         args.pottery[p] = r(pottery_mode)[settings[4] & 0x0F]
 
