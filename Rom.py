@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '9008f4335101689f01184e58295fdbc5'
+RANDOMIZERBASEHASH = '0f96237c73cccaf7a250343fe3e8c887'
 
 
 class JsonRom(object):
@@ -1979,8 +1979,6 @@ def write_strings(rom, world, player, team):
         else:
             if isinstance(dest, Region) and dest.type == RegionType.Dungeon and dest.dungeon:
                 hint = dest.dungeon.name
-            elif isinstance(dest, Item) and world.experimental[player]:
-                hint = f'{{C:RED}}{dest.hint_text}{{C:WHITE}}' if dest.hint_text else 'something'
             else:
                 hint = dest.hint_text if dest.hint_text else "something"
         if dest.player != player:
@@ -2149,8 +2147,7 @@ def write_strings(rom, world, player, team):
             if this_location:
                 item_name = this_location[0].item.hint_text
                 item_name = item_name[0].upper() + item_name[1:]
-                item_format = f'{{C:RED}}{item_name}{{C:WHITE}}' if world.experimental[player] else item_name
-                this_hint = f'{item_format} can be found {hint_text(this_location[0])}.'
+                this_hint = f'{item_name} can be found {hint_text(this_location[0])}.'
                 tt[hint_locations.pop(0)] = this_hint
                 hint_count -= 1
 
@@ -2204,8 +2201,7 @@ def write_strings(rom, world, player, team):
             elif hint_type == 'path':
                 if item_count == 1:
                     the_item = text_for_item(next(iter(choice_set)), world, player, team)
-                    item_format = f'{{C:RED}}{the_item}{{C:WHITE}}' if world.experimental[player] else the_item
-                    hint_candidates.append((hint_type, f'{name} conceals only {item_format}'))
+                    hint_candidates.append((hint_type, f'{name} conceals only {the_item}'))
                 else:
                     hint_candidates.append((hint_type, f'{name} conceals {item_count} {item_type} items'))
         district_hints = min(len(hint_candidates), len(hint_locations))
