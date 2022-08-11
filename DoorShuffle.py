@@ -1730,7 +1730,7 @@ class DoorTypePool:
 
     def chaos_shuffle(self, counts):
         weights = [1, 2, 4, 3, 2, 1]
-        return [random.choices(self.get_choices(counts[i]), weights=weights) for i, c in enumerate(counts)]
+        return [random.choices(self.get_choices(counts[i]), weights=weights)[0] for i, c in enumerate(counts)]
 
     @staticmethod
     def get_choices(number):
@@ -2316,7 +2316,7 @@ def find_big_key_candidates(builder, start_regions, used, world, player):
     else:
         r_set = builder.master_sector.region_set()
         for r in r_set:
-            for ext in r.exits:
+            for ext in world.get_region(r, player).exits:
                 if ext.door:
                     d = ext.door
                     if d.bigKey and d.type in [DoorType.Normal, DoorType.Interior]:

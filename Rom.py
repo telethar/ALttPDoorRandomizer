@@ -753,7 +753,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         dr_flags |= DROptions.DarkWorld_Spawns
     if world.logic[player] != 'nologic':
         dr_flags |= DROptions.Fix_EG
-    if world.door_type_mode in ['big', 'chaos']:
+    if world.door_type_mode[player] in ['big', 'all', 'chaos']:
         dr_flags |= DROptions.BigKeyDoor_Shuffle
 
     my_locations = world.get_filled_locations(player)
