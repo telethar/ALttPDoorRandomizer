@@ -118,6 +118,7 @@ def main(args, seed=None, fish=None):
     world.treasure_hunt_count = {k: int(v) for k, v in args.triforce_goal.items()}
     world.treasure_hunt_total = {k: int(v) for k, v in args.triforce_pool.items()}
     world.shufflelinks = args.shufflelinks.copy()
+    world.shuffletavern = args.shuffletavern.copy()
     world.pseudoboots = args.pseudoboots.copy()
     world.overworld_map = args.overworld_map.copy()
     world.restrict_boss_items = args.restrict_boss_items.copy()
@@ -201,7 +202,7 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
     for player in range(1, world.players + 1):
-        if world.experimental[player] or (world.customizer and world.customizer.get_entrances()):
+        if world.experimental[player] or world.shuffle[player] in ['lite', 'lean'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
             link_entrances_new(world, player)
         else:
             if world.mode[player] != 'inverted':

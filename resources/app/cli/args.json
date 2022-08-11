@@ -360,6 +360,10 @@
     "action": "store_true",
     "type": "bool"
   },
+  "shuffletavern": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "overworld_map": {
     "choices": [
       "default",
