@@ -2574,7 +2574,7 @@ class Spoiler(object):
                 outfile.write(f"Pseudoboots:                     {yn(self.metadata['pseudoboots'][player])}\n")
                 outfile.write('Entrance Shuffle:                %s\n' % self.metadata['shuffle'][player])
                 if self.metadata['shuffle'][player] != 'vanilla':
-                    outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'])}\n")
+                    outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'][player])}\n")
                     outfile.write(f"Back of Tavern Shuffled:         {yn(self.metadata['shuffletavern'][player])}\n")
                     outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                     outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
