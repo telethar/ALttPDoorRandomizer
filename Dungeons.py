@@ -155,14 +155,16 @@ ice_regions = [
 
 mire_regions = [
     'Mire Lobby', 'Mire Post-Gap', 'Mire 2', 'Mire Hub', 'Mire Hub Right', 'Mire Hub Top', 'Mire Hub Switch',
-    'Mire Lone Shooter', 'Mire Failure Bridge', 'Mire Falling Bridge', 'Mire Map Spike Side', 'Mire Map Spot',
-    'Mire Crystal Dead End', 'Mire Hidden Shooters', 'Mire Hidden Shooters Blocked', 'Mire Cross', 'Mire Minibridge',
-    'Mire BK Door Room', 'Mire Spikes', 'Mire Ledgehop', 'Mire Bent Bridge', 'Mire Over Bridge', 'Mire Right Bridge',
-    'Mire Left Bridge', 'Mire Fishbone', 'Mire South Fish', 'Mire Spike Barrier', 'Mire Square Rail', 'Mire Lone Warp',
-    'Mire Wizzrobe Bypass', 'Mire Conveyor Crystal', 'Mire Conveyor - Crystal', 'Mire Tile Room', 'Mire Compass Room', 'Mire Compass Chest',
-    'Mire Neglected Room', 'Mire Chest View', 'Mire Conveyor Barrier', 'Mire BK Chest Ledge', 'Mire Warping Pool',
-    'Mire Torches Top', 'Mire Torches Bottom', 'Mire Attic Hint', 'Mire Dark Shooters', 'Mire Key Rupees',
-    'Mire Block X', 'Mire Tall Dark and Roomy', 'Mire Tall Dark and Roomy - Ranged Crystal', 'Mire Crystal Right', 'Mire Crystal Mid', 'Mire Crystal Left',
+    'Mire Lone Shooter', 'Mire Failure Bridge', 'Mire Falling Bridge - Primary', 'Mire Falling Bridge - Failure',
+    'Mire Falling Bridge - Chest', 'Mire Map Spike Side', 'Mire Map Spot', 'Mire Crystal Dead End',
+    'Mire Hidden Shooters', 'Mire Hidden Shooters Blocked', 'Mire Cross', 'Mire Minibridge', 'Mire BK Door Room',
+    'Mire Spikes', 'Mire Ledgehop', 'Mire Bent Bridge', 'Mire Over Bridge', 'Mire Right Bridge', 'Mire Left Bridge',
+    'Mire Fishbone', 'Mire South Fish', 'Mire Spike Barrier', 'Mire Square Rail', 'Mire Lone Warp',
+    'Mire Wizzrobe Bypass', 'Mire Conveyor Crystal', 'Mire Conveyor - Crystal', 'Mire Tile Room', 'Mire Compass Room',
+    'Mire Compass Chest', 'Mire Neglected Room', 'Mire Chest View', 'Mire Conveyor Barrier', 'Mire BK Chest Ledge',
+    'Mire Warping Pool', 'Mire Torches Top', 'Mire Torches Bottom', 'Mire Attic Hint', 'Mire Dark Shooters',
+    'Mire Key Rupees', 'Mire Block X', 'Mire Tall Dark and Roomy', 'Mire Tall Dark and Roomy - Ranged Crystal',
+    'Mire Crystal Right', 'Mire Crystal Mid', 'Mire Crystal Left',
     'Mire Crystal Top', 'Mire Shooter Rupees', 'Mire Falling Foes', 'Mire Firesnake Skip', 'Mire Antechamber',
     'Mire Boss', 'Mire Portal'
 ]
