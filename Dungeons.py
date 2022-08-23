@@ -52,10 +52,10 @@ hyrule_castle_regions = [
     'Hyrule Dungeon South Abyss', 'Hyrule Dungeon South Abyss Catwalk', 'Hyrule Dungeon Guardroom',
     'Hyrule Dungeon Armory Main', 'Hyrule Dungeon Armory Boomerang',  'Hyrule Dungeon Armory North Branch',
     'Hyrule Dungeon Staircase', 'Hyrule Dungeon Cellblock', 'Hyrule Dungeon Cell', 'Sewers Behind Tapestry',
-    'Sewers Rope Room', 'Sewers Dark Cross', 'Sewers Water', 'Sewers Key Rat', 'Sewers Rat Path',
-    'Sewers Secret Room Blocked Path', 'Sewers Secret Room', 'Sewers Yet More Rats', 'Sewers Pull Switch', 'Sanctuary',
-    'Sanctuary Portal', 'Hyrule Castle West Portal', 'Hyrule Castle South Portal', 'Hyrule Castle East Portal'
-
+    'Sewers Rope Room', 'Sewers Dark Cross', 'Sewers Water', 'Sewers Dark Aquabats', 'Sewers Key Rat',
+    'Sewers Rat Path', 'Sewers Secret Room Blocked Path', 'Sewers Secret Room', 'Sewers Yet More Rats',
+    'Sewers Pull Switch', 'Sanctuary', 'Sanctuary Portal', 'Hyrule Castle West Portal', 'Hyrule Castle South Portal',
+    'Hyrule Castle East Portal'
 ]
 
 eastern_regions = [

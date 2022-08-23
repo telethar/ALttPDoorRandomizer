@@ -104,8 +104,10 @@ def create_doors(world, player):
         create_door(player, 'Sewers Dark Cross Key Door N', Nrml).dir(No, 0x32, Mid, High).small_key().pos(0),
         create_door(player, 'Sewers Water S', Nrml).dir(So, 0x22, Mid, High).small_key().pos(0).portal(Z, 0x22),
         create_door(player, 'Sewers Water W', Nrml).dir(We, 0x22, Bot, High).pos(1),
-        create_door(player, 'Sewers Key Rat E', Nrml).dir(Ea, 0x21, Bot, High).pos(1),
-        create_door(player, 'Sewers Key Rat Key Door N', Nrml).dir(No, 0x21, Right, High).small_key().pos(0),
+        create_door(player, 'Sewers Dark Aquabats ES', Nrml).dir(Ea, 0x21, Bot, High).pos(2),
+        create_door(player, 'Sewers Dark Aquabats N', Intr).dir(No, 0x21, Mid, High).pos(1),
+        create_door(player, 'Sewers Key Rat S', Intr).dir(So, 0x21, Mid, High).pos(1),
+        create_door(player, 'Sewers Key Rat NE', Nrml).dir(No, 0x21, Right, High).small_key().pos(0),
         create_door(player, 'Sewers Secret Room Key Door S', Nrml).dir(So, 0x11, Right, High).small_key().pos(2).portal(X, 0x02),
         create_door(player, 'Sewers Rat Path WS', Intr).dir(We, 0x11, Bot, High).pos(1),
         create_door(player, 'Sewers Rat Path WN', Intr).dir(We, 0x11, Top, High).pos(0),
@@ -1567,7 +1569,7 @@ def reset_portals(world, player):
 
 def create_paired_doors(world, player):
     world.paired_doors[player] = [
-        PairedDoor('Sewers Secret Room Key Door S', 'Sewers Key Rat Key Door N', True),
+        PairedDoor('Sewers Secret Room Key Door S', 'Sewers Key Rat NE', True),
         PairedDoor('TR Pokey 2 ES', 'TR Lava Island WS', True),  # TR Pokey Key
         PairedDoor('TR Dodgers NE', 'TR Lava Escape SE', True),  # TR Big key door by pipes
         PairedDoor('PoD Falling Bridge WN', 'PoD Dark Maze EN', True),  # Pod Dark maze door

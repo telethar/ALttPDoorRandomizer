@@ -3888,6 +3888,7 @@ interior_doors = [
     ('Hyrule Dungeon Armory Interior Key Door S', 'Hyrule Dungeon Armory Interior Key Door N'),
     ('Hyrule Dungeon Armory ES', 'Hyrule Dungeon Armory Boomerang WS'),
     ('Hyrule Dungeon Map Room Key Door S', 'Hyrule Dungeon North Abyss Key Door N'),
+    ('Sewers Dark Aquabats N', 'Sewers Key Rat S'),
     ('Sewers Rat Path WS', 'Sewers Secret Room ES'),
     ('Sewers Rat Path WN', 'Sewers Secret Room EN'),
     ('Sewers Yet More Rats S', 'Sewers Pull Switch N'),
@@ -4058,7 +4059,7 @@ interior_doors = [
 ]
 
 key_doors = [
-    ('Sewers Key Rat Key Door N', 'Sewers Secret Room Key Door S'),
+    ('Sewers Key Rat NE', 'Sewers Secret Room Key Door S'),
     ('Sewers Dark Cross Key Door N', 'Sewers Water S'),
     ('Eastern Dark Square Key Door WN', 'Eastern Cannonball Ledge Key Door EN'),
     ('Eastern Darkness Up Stairs', 'Eastern Attic Start Down Stairs'),
@@ -4078,7 +4079,7 @@ key_doors = [
 
 default_small_key_doors = {
     'Hyrule Castle': [
-        ('Sewers Key Rat Key Door N', 'Sewers Secret Room Key Door S'),
+        ('Sewers Key Rat NE', 'Sewers Secret Room Key Door S'),
         ('Sewers Dark Cross Key Door N', 'Sewers Water S'),
         ('Hyrule Dungeon Map Room Key Door S', 'Hyrule Dungeon North Abyss Key Door N'),
         ('Hyrule Dungeon Armory Interior Key Door N', 'Hyrule Dungeon Armory Interior Key Door S')
@@ -4178,8 +4179,8 @@ default_door_connections = [
     ('Hyrule Castle Throne Room N', 'Sewers Behind Tapestry S'),
     ('Hyrule Dungeon Guardroom N', 'Hyrule Dungeon Armory S'),
     ('Sewers Dark Cross Key Door N', 'Sewers Water S'),
-    ('Sewers Water W', 'Sewers Key Rat E'),
-    ('Sewers Key Rat Key Door N', 'Sewers Secret Room Key Door S'),
+    ('Sewers Water W', 'Sewers Dark Aquabats ES'),
+    ('Sewers Key Rat NE', 'Sewers Secret Room Key Door S'),
     ('Eastern Lobby Bridge N', 'Eastern Cannonball S'),
     ('Eastern Cannonball N', 'Eastern Courtyard Ledge S'),
     ('Eastern Cannonball Ledge WN', 'Eastern Big Key EN'),

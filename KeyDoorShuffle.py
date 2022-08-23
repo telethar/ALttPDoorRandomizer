@@ -1908,7 +1908,7 @@ def val_hyrule(key_logic, world, player):
         val_rule(key_logic.door_rules['Hyrule Dungeon Map Room Key Door S'], 1)
         val_rule(key_logic.door_rules['Hyrule Dungeon Armory Interior Key Door N'], 2)
         val_rule(key_logic.door_rules['Sewers Dark Cross Key Door N'], 3)
-        val_rule(key_logic.door_rules['Sewers Key Rat Key Door N'], 4)
+        val_rule(key_logic.door_rules['Sewers Key Rat NE'], 4)
     else:
         val_rule(key_logic.door_rules['Sewers Secret Room Key Door S'], 2)
         val_rule(key_logic.door_rules['Sewers Dark Cross Key Door N'], 2)
