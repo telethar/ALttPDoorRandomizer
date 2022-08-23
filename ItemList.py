@@ -1099,27 +1099,3 @@ def test():
 
 if __name__ == '__main__':
     test()
-
-
-def fill_specific_items(world):
-    keypool = [item for item in world.itempool if item.smallkey]
-    cage = world.get_location('Tower of Hera - Basement Cage', 1)
-    c_dungeon = cage.parent_region.dungeon
-    key_item = next(x for x in keypool if c_dungeon.name in x.name or (c_dungeon.name == 'Hyrule Castle' and 'Escape' in x.name))
-    world.itempool.remove(key_item)
-    all_state = world.get_all_state(True)
-    fill_restrictive(world, all_state, [cage], [key_item])
-
-    location = world.get_location('Tower of Hera - Map Chest', 1)
-    key_item = next(x for x in world.itempool if 'Byrna' in x.name)
-    world.itempool.remove(key_item)
-    fast_fill(world, [key_item], [location])
-
-
-    # somaria = next(item for item in world.itempool if item.name == 'Cane of Somaria')
-    # shooter = world.get_location('Palace of Darkness - Shooter Room', 1)
-    # world.itempool.remove(somaria)
-    # all_state = world.get_all_state(True)
-    # fill_restrictive(world, all_state, [shooter], [somaria])
-
-
