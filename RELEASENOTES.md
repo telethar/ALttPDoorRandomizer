@@ -183,6 +183,11 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Unstable
 
+* 1.0.1.2
+  * Fixed an issue with small key bias rework
+  * Fixed an issue where trinity goal would open pyramid unexpectedly. (No longer does so if ER mdoe is shuffling holes). Crystals goal updated to match that behavior.
+  * Fixed a playthrough issue that was not respecting pot rules
+  * Fixed an issue that was conflicting with downstream OWR project
 * 1.0.1.1
   * Fixed the pots in Mire Storyteller/ Dark Desert Hint to be colorized when they should be
   * Certain pot items no longer reload when reloading the supertile (matches original pot behavior better)

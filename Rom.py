@@ -1534,9 +1534,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 rom.write_bytes(room.address(), room.rom_data())
 
     if world.pottery[player] not in ['none']:
-        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
+        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2B8000))
         # make hammer pegs use different tiles
-        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
+        Room0127.write_to_rom(snes_to_pc(0x2B8000), rom)
 
     if world.pot_contents[player]:
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
