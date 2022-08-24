@@ -306,7 +306,7 @@ class CustomSettings(object):
             for door in world.doors:
                 if door.player == p and not door.entranceFlag and door.type in door_types and door not in skip:
                     if door.type == DoorType.Interior:
-                        if door.name in door_types:
+                        if door.name in door_kinds:
                             door_value = {'type':  door_kinds[door.name]}
                             door_map[door.name] = door_value  # intra-tile note
                             skip.add(door.dest)
