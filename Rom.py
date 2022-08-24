@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'a8b35a6396c104e9419ff1e46342e4db'
+RANDOMIZERBASEHASH = '0f96237c73cccaf7a250343fe3e8c887'
 
 
 class JsonRom(object):
@@ -663,18 +663,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if world.mapshuffle[player]:
         rom.write_byte(0x155C9, random.choice([0x11, 0x16]))  # Randomize GT music too with map shuffle
 
-    if world.pottery[player] not in ['none']:
-        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
-        # make hammer pegs use different tiles
-        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
-
-    if world.pot_contents[player]:
-        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
-                                       and (world.colorizepots[player]
-                                            or world.pottery[player] in ['reduced', 'clustered']))
-        if world.pot_contents[player].size() > 0x2800:
-            raise Exception('Pot table is too big for current area')
-        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
     # fix for swamp drains if necessary
     swamp1location = world.get_location('Swamp Palace - Trench 1 Pot Key', player)
     if not swamp1location.pot.indicator:
@@ -1277,7 +1265,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0x50563, [0x3F, 0x14]) # disable below ganon chest
     rom.write_byte(0x50599, 0x00) # disable below ganon chest
     rom.write_bytes(0xE9A5, [0x7E, 0x00, 0x24]) # disable below ganon chest
-    if world.open_pyramid[player] or world.goal[player] == 'trinity':
+    if world.open_pyramid[player] or (world.goal[player] in ['trinity', 'crystals'] and world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']):
         rom.initial_sram.pre_open_pyramid_hole()
     if world.crystals_needed_for_gt[player] == 0:
         rom.initial_sram.pre_open_ganons_tower()
@@ -1546,6 +1534,19 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         for room in world.rooms:
             if room.player == player and room.modified:
                 rom.write_bytes(room.address(), room.rom_data())
+
+    if world.pottery[player] not in ['none']:
+        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2B8000))
+        # make hammer pegs use different tiles
+        Room0127.write_to_rom(snes_to_pc(0x2B8000), rom)
+
+    if world.pot_contents[player]:
+        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
+                                       and (world.colorizepots[player]
+                                            or world.pottery[player] in ['reduced', 'clustered']))
+        if world.pot_contents[player].size() > 0x2800:
+            raise Exception('Pot table is too big for current area')
+        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
 
     write_strings(rom, world, player, team)
 
@@ -1980,8 +1981,6 @@ def write_strings(rom, world, player, team):
         else:
             if isinstance(dest, Region) and dest.type == RegionType.Dungeon and dest.dungeon:
                 hint = dest.dungeon.name
-            elif isinstance(dest, Item) and world.experimental[player]:
-                hint = f'{{C:RED}}{dest.hint_text}{{C:WHITE}}' if dest.hint_text else 'something'
             else:
                 hint = dest.hint_text if dest.hint_text else "something"
         if dest.player != player:
@@ -2162,8 +2161,7 @@ def write_strings(rom, world, player, team):
             if this_location:
                 item_name = this_location[0].item.hint_text
                 item_name = item_name[0].upper() + item_name[1:]
-                item_format = f'{{C:RED}}{item_name}{{C:WHITE}}' if world.experimental[player] else item_name
-                this_hint = f'{item_format} can be found {hint_text(this_location[0])}.'
+                this_hint = f'{item_name} can be found {hint_text(this_location[0])}.'
                 tt[hint_locations.pop(0)] = this_hint
                 hint_count -= 1
 
@@ -2217,8 +2215,7 @@ def write_strings(rom, world, player, team):
             elif hint_type == 'path':
                 if item_count == 1:
                     the_item = text_for_item(next(iter(choice_set)), world, player, team)
-                    item_format = f'{{C:RED}}{the_item}{{C:WHITE}}' if world.experimental[player] else the_item
-                    hint_candidates.append((hint_type, f'{name} conceals only {item_format}'))
+                    hint_candidates.append((hint_type, f'{name} conceals only {the_item}'))
                 else:
                     hint_candidates.append((hint_type, f'{name} conceals {item_count} {item_type} items'))
         district_hints = min(len(hint_candidates), len(hint_locations))

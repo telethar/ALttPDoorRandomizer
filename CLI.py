@@ -163,6 +163,7 @@ def parse_settings():
         "accessibility": "items",
         "algorithm": "balanced",
         'mystery': False,
+        'suppress_meta': False,
         "restrict_boss_items": "none",
 
         # Shuffle Ganon defaults to TRUE

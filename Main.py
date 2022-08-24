@@ -33,7 +33,7 @@ from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
 
-__version__ = '1.0.2.7-w'
+__version__ = '1.0.2.8-w'
 
 from source.classes.BabelFish import BabelFish
 
@@ -163,7 +163,7 @@ def main(args, seed=None, fish=None):
     if args.create_spoiler and not args.jsonout:
         logger.info(world.fish.translate("cli", "cli", "create.meta"))
         world.spoiler.meta_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
-    if args.mystery:
+    if args.mystery and not args.suppress_meta:
         world.spoiler.mystery_meta_to_file(output_path(f'{outfilebase}_meta.txt'))
 
     for player in range(1, world.players + 1):
@@ -376,7 +376,7 @@ def main(args, seed=None, fish=None):
                 with open(output_path('%s_multidata' % outfilebase), 'wb') as f:
                     f.write(multidata)
 
-    if args.mystery:
+    if args.mystery and not args.suppress_meta:
         world.spoiler.hashes_to_file(output_path(f'{outfilebase}_meta.txt'))
     elif args.create_spoiler and not args.jsonout:
         world.spoiler.hashes_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
