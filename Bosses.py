@@ -61,8 +61,7 @@ def MothulaDefeatRule(state, player):
         # TODO: Not sure how much (if any) extend magic is needed for these two, since they only apply
         # to non-vanilla locations, so are harder to test, so sticking with what VT has for now:
         (state.has('Cane of Somaria', player) and state.can_extend_magic(player, 16)) or
-        (state.has('Cane of Byrna', player) and state.can_extend_magic(player, 16)) or
-        state.can_get_good_bee(player)
+        (state.has('Cane of Byrna', player) and state.can_extend_magic(player, 16))
     )
 
 def BlindDefeatRule(state, player):
