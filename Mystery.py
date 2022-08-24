@@ -1,5 +1,7 @@
 import argparse
 import logging
+from pathlib import Path
+import os
 import RaceRandom as random
 import urllib.request
 import urllib.parse
@@ -104,13 +106,11 @@ def main():
     DRMain(erargs, seed, BabelFish())
 
 def get_weights(path):
-    try:
-        if urllib.parse.urlparse(path).scheme:
-            return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
-        with open(path, 'r', encoding='utf-8') as f:
+    if os.path.exists(Path(path)):
+        with open(path, "r", encoding="utf-8") as f:
             return yaml.load(f, Loader=yaml.SafeLoader)
-    except Exception as e:
-        raise Exception(f'Failed to read weights file: {e}')
+    elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
+        return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
 
 def roll_settings(weights):
     def get_choice(option, root=None):

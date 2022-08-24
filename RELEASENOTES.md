@@ -184,6 +184,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 #### Unstable
 
 * 1.0.1.2
+  * Removed "good bee" as an in-logic way of killing Mothula
+  * Fixed an issue with Mystery generation and Windows path
   * Fixed an issue with small key bias rework
   * Fixed an issue where trinity goal would open pyramid unexpectedly. (No longer does so if ER mdoe is shuffling holes). Crystals goal updated to match that behavior.
   * Fixed a playthrough issue that was not respecting pot rules

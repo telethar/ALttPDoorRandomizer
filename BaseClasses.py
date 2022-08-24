@@ -1093,16 +1093,16 @@ class CollectionState(object):
             return self.has('Bow', player) and (self.can_buy_unlimited('Single Arrow', player) or self.has('Single Arrow', player))
         return self.has('Bow', player)
 
-    def can_get_good_bee(self, player):
-        cave = self.world.get_region('Good Bee Cave', player)
-        return (
-            self.can_use_bombs(player) and
-            self.has_bottle(player) and
-            self.has('Bug Catching Net', player) and
-            (self.has_Boots(player) or (self.has_sword(player) and self.has('Quake', player))) and
-            cave.can_reach(self) and
-            self.is_not_bunny(cave, player)
-        )
+    # def can_get_good_bee(self, player):
+    #     cave = self.world.get_region('Good Bee Cave', player)
+    #     return (
+    #         self.can_use_bombs(player) and
+    #         self.has_bottle(player) and
+    #         self.has('Bug Catching Net', player) and
+    #         (self.has_Boots(player) or (self.has_sword(player) and self.has('Quake', player))) and
+    #         cave.can_reach(self) and
+    #         self.is_not_bunny(cave, player)
+    #     )
 
     def has_sword(self, player):
         return self.has('Fighter Sword', player) or self.has('Master Sword', player) or self.has('Tempered Sword', player) or self.has('Golden Sword', player)
