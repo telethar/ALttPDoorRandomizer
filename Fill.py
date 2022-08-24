@@ -61,7 +61,7 @@ def fill_dungeons_restrictive(world, shuffled_locations):
     small_state_base = all_state_base.copy()
     for x in others:
         small_state_base.collect(x, True)
-    fill(small_state_base, smalls, smalls)
+    fill(small_state_base, smalls, list(smalls))
     random.shuffle(shuffled_locations)
     fill(all_state_base, others, None)
 
@@ -123,7 +123,6 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
                         raise FillError('No more spots to place %s' % item_to_place)
 
                 world.push_item(spot_to_fill, item_to_place, False)
-                # todo: remove key item from key_pool
                 if item_to_place.smallkey:
                     with suppress(ValueError):
                         key_pool.remove(item_to_place)

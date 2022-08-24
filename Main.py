@@ -33,7 +33,7 @@ from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
 
-__version__ = '1.0.1.1-x'
+__version__ = '1.0.1.2-x'
 
 from source.classes.BabelFish import BabelFish
 
@@ -587,11 +587,7 @@ def copy_dynamic_regions_and_locations(world, ret):
     for location in world.dynamic_locations:
         new_reg = ret.get_region(location.parent_region.name, location.parent_region.player)
         new_loc = Location(location.player, location.name, location.address, location.crystal, location.hint_text, new_reg)
-        # todo: this is potentially dangerous. later refactor so we
-        # can apply dynamic region rules on top of copied world like other rules
-        new_loc.access_rule = location.access_rule
-        new_loc.always_allow = location.always_allow
-        new_loc.item_rule = location.item_rule
+        new_loc.type = location.type
         new_reg.locations.append(new_loc)
 
         ret.clear_location_cache()

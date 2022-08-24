@@ -201,12 +201,20 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Customizer
 
+* Fixed an issue where Interior Key Doors were missing from custom yaml output
+* Updated lite/lean ER for pottery settings
+
 * Fixed an issue with lite/lean ER not generating
 * Fixed up the GUI selection of the customizer file.
 * Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
 #### Unstable
 
+* 1.0.1.2
+  * Fixed an issue with small key bias rework
+  * Fixed an issue where trinity goal would open pyramid unexpectedly. (No longer does so if ER mdoe is shuffling holes). Crystals goal updated to match that behavior.
+  * Fixed a playthrough issue that was not respecting pot rules
+  * Fixed an issue that was conflicting with downstream OWR project
 * 1.0.1.1
   * Fixed the pots in Mire Storyteller/ Dark Desert Hint to be colorized when they should be
   * Certain pot items no longer reload when reloading the supertile (matches original pot behavior better)

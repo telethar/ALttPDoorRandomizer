@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '7b330d5a813abb4bf036313ed42bccee'
+RANDOMIZERBASEHASH = '7b877dcee4ece38713768b74acb333a6'
 
 
 class JsonRom(object):
@@ -1269,7 +1269,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0x50563, [0x3F, 0x14]) # disable below ganon chest
     rom.write_byte(0x50599, 0x00) # disable below ganon chest
     rom.write_bytes(0xE9A5, [0x7E, 0x00, 0x24]) # disable below ganon chest
-    if world.open_pyramid[player] or world.goal[player] == 'trinity':
+    if world.open_pyramid[player] or (world.goal[player] in ['trinity', 'crystals'] and world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']):
         rom.initial_sram.pre_open_pyramid_hole()
     if world.crystals_needed_for_gt[player] == 0:
         rom.initial_sram.pre_open_ganons_tower()
@@ -1540,9 +1540,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 rom.write_bytes(room.address(), room.rom_data())
 
     if world.pottery[player] not in ['none']:
-        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2A8000))
+        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2B8000))
         # make hammer pegs use different tiles
-        Room0127.write_to_rom(snes_to_pc(0x2A8000), rom)
+        Room0127.write_to_rom(snes_to_pc(0x2B8000), rom)
 
     if world.pot_contents[player]:
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']

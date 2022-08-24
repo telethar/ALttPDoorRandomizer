@@ -115,12 +115,14 @@ def roll_settings(weights):
 
     ret.crystals_ganon = get_choice('ganon_open')
 
-    goal_min = get_choice_default('triforce_goal_min', default=20)
-    goal_max = get_choice_default('triforce_goal_max', default=20)
-    pool_min = get_choice_default('triforce_pool_min', default=30)
-    pool_max = get_choice_default('triforce_pool_max', default=30)
+    from ItemList import set_default_triforce
+    default_tf_goal, default_tf_pool = set_default_triforce(ret.goal, 0, 0)
+    goal_min = get_choice_default('triforce_goal_min', default=default_tf_goal)
+    goal_max = get_choice_default('triforce_goal_max', default=default_tf_goal)
+    pool_min = get_choice_default('triforce_pool_min', default=default_tf_pool)
+    pool_max = get_choice_default('triforce_pool_max', default=default_tf_pool)
     ret.triforce_goal = random.randint(int(goal_min), int(goal_max))
-    min_diff = get_choice_default('triforce_min_difference', default=10)
+    min_diff = get_choice_default('triforce_min_difference', default=default_tf_pool-default_tf_goal)
     ret.triforce_pool = random.randint(max(int(pool_min), ret.triforce_goal + int(min_diff)), int(pool_max))
 
     ret.mode = get_choice('world_state')
