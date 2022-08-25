@@ -1346,8 +1346,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
             sanc = find_sector('Sanctuary', candidate_sectors)
             if sanc:  # only run if sanc if a candidate
                 lw_builders = []
-                for name, portal_list in dungeon_portals.items():
-                    for portal_name in portal_list:
+                for name in dungeon_pool:
+                    for portal_name in dungeon_portals[name]:
                         if world.get_portal(portal_name, player).light_world:
                             lw_builders.append(dungeon_map[name])
                             break

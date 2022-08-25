@@ -850,7 +850,7 @@ def create_doors(world, player):
         create_door(player, 'Mire Falling Bridge Hook Path', Lgcl),
         create_door(player, 'Mire Falling Bridge Hook Only Path', Lgcl),
         create_door(player, 'Mire Falling Bridge Primary Path', Lgcl),  # dynamic
-        create_door(player, 'Mire Falling Bridge Failure Path', Lgcl),  # dynamic
+        create_door(player, 'Mire Falling Bridge Failure Path', Lgcl),
         create_door(player, 'Mire Map Spike Side EN', Intr).dir(Ea, 0xc3, Top, High).no_exit().trap(0x2).pos(1),
         create_door(player, 'Mire Map Spot WN', Nrml).dir(We, 0xc3, Top, High).small_key().pos(0),
         create_door(player, 'Mire Crystal Dead End NW', Nrml).dir(No, 0xc3, Left, High).pos(4),
@@ -1481,9 +1481,7 @@ def create_doors(world, player):
     controller_door(south_controller, world.get_door('Ice Cross Top Push Block Bottom', player))
     controller_door(east_controller, world.get_door('Ice Cross Bottom Push Block Right', player))
     controller_door(east_controller, world.get_door('Ice Cross Top Push Block Right', player))
-    failure_controller = world.get_door('Mire Falling Bridge W', player)
     primary_controller = world.get_door('Mire Falling Bridge WS', player)
-    controller_door(failure_controller, world.get_door('Mire Falling Bridge Failure Path', player))
     controller_door(primary_controller, world.get_door('Mire Falling Bridge Primary Path', player))
 
     assign_entrances(world, player)

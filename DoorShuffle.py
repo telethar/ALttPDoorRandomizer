@@ -3595,6 +3595,7 @@ logical_connections = [
     ('Mire Hub Switch Blue Barrier S', 'Mire Hub'),
     ('Mire Falling Bridge Hook Path', 'Mire Falling Bridge - Chest'),
     ('Mire Falling Bridge Hook Only Path', 'Mire Falling Bridge - Chest'),
+    ('Mire Falling Bridge Failure Path', 'Mire Falling Bridge - Failure'),
     ('Mire Map Spike Side Drop Down', 'Mire Lone Shooter'),
     ('Mire Map Spike Side Blue Barrier', 'Mire Crystal Dead End'),
     ('Mire Map Spot Blue Barrier', 'Mire Crystal Dead End'),
@@ -3728,7 +3729,6 @@ vanilla_logical_connections = [
     ('Ice Cross Bottom Push Block Right', 'Ice Pengator Switch'),
     ('Ice Cross Top Push Block Right', 'Ice Pengator Switch'),
     ('Mire Falling Bridge Primary Path', 'Mire Lone Shooter'),
-    ('Mire Falling Bridge Failure Path', 'Mire Failure Bridge'),
 ]
 
 spiral_staircases = [
