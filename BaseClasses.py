@@ -2805,6 +2805,11 @@ class Pot(object):
         item = self.item if not self.indicator else self.standing_item_code
         return [self.x, high_byte, item]
 
+    def get_region(self, world, player):
+        if world.mode[player] == 'inverted' and self.room == 'Links House':
+            return world.get_region('Inverted Links House', 1)
+        return world.get_region(self.room, 1)
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.room == other.room
 
