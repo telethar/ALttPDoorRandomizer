@@ -988,11 +988,16 @@ def cross_dungeon(world, player):
     paths = determine_required_paths(world, player)
     check_required_paths(paths, world, player)
 
+    hc_compass = ItemFactory('Compass (Escape)', player)
+    at_compass = ItemFactory('Compass (Agahnims Tower)', player)
+    at_map = ItemFactory('Map (Agahnims Tower)', player)
+    if world.restrict_boss_items[player] != 'none':
+        hc_compass.advancement = at_compass.advancement = at_map.advancement = True
     hc = world.get_dungeon('Hyrule Castle', player)
-    hc.dungeon_items.append(ItemFactory('Compass (Escape)', player))
+    hc.dungeon_items.append(hc_compass)
     at = world.get_dungeon('Agahnims Tower', player)
-    at.dungeon_items.append(ItemFactory('Compass (Agahnims Tower)', player))
-    at.dungeon_items.append(ItemFactory('Map (Agahnims Tower)', player))
+    at.dungeon_items.append(at_compass)
+    at.dungeon_items.append(at_map)
 
     assign_cross_keys(dungeon_builders, world, player)
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))

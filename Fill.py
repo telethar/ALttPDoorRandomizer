@@ -48,9 +48,10 @@ def fill_dungeons_restrictive(world, shuffled_locations):
     bigs, smalls, others = [], [], []
     for i in dungeon_items:
         (bigs if i.bigkey else smalls if i.smallkey else others).append(i)
+    unplaced_smalls = list(smalls)
     for i in world.itempool:
         if i.smallkey and world.keyshuffle[i.player]:
-            smalls.append(i)
+            unplaced_smalls.append(i)
 
     def fill(base_state, items, key_pool):
         fill_restrictive(world, base_state, shuffled_locations, items, key_pool, True)
@@ -59,12 +60,12 @@ def fill_dungeons_restrictive(world, shuffled_locations):
     big_state_base = all_state_base.copy()
     for x in smalls + others:
         big_state_base.collect(x, True)
-    fill(big_state_base, bigs, smalls)
+    fill(big_state_base, bigs, unplaced_smalls)
     random.shuffle(shuffled_locations)
     small_state_base = all_state_base.copy()
     for x in others:
         small_state_base.collect(x, True)
-    fill(small_state_base, smalls, list(smalls))
+    fill(small_state_base, smalls, unplaced_smalls)
     random.shuffle(shuffled_locations)
     fill(all_state_base, others, None)
 

@@ -63,9 +63,10 @@ def link_entrances(world, player):
             connect_caves(world, lw_entrances, [], hyrule_castle_exits, player)
         elif world.doorShuffle[player] != 'vanilla':
             #  sanc is in light world, so must all of HC if door shuffle is on
-            connect_mandatory_exits(world, lw_entrances,
-                                    [('Hyrule Castle Exit (West)', 'Hyrule Castle Exit (East)', 'Hyrule Castle Exit (South)')],
+            hyrule_castle_exits = [('Hyrule Castle Exit (West)', 'Hyrule Castle Exit (East)', 'Hyrule Castle Exit (South)')]
+            connect_mandatory_exits(world, lw_entrances, hyrule_castle_exits,
                                     list(LW_Dungeon_Entrances_Must_Exit), player)
+            connect_caves(world, lw_entrances, [], hyrule_castle_exits, player)
         else:
             connect_mandatory_exits(world, lw_entrances, dungeon_exits, list(LW_Dungeon_Entrances_Must_Exit), player)
         connect_mandatory_exits(world, dw_entrances, dungeon_exits, list(DW_Dungeon_Entrances_Must_Exit), player)
