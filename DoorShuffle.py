@@ -214,7 +214,7 @@ def vanilla_key_logic(world, player):
         key_layout = build_key_layout(builder, start_regions, doors, world, player)
         valid = validate_key_layout(key_layout, world, player)
         if not valid:
-            logging.getLogger('').warning('Vanilla key layout not valid %s', builder.name)
+            logging.getLogger('').info('Vanilla key layout not valid %s', builder.name)
         builder.key_door_proposal = doors
         if player not in world.key_logic.keys():
             world.key_logic[player] = {}
@@ -1911,8 +1911,10 @@ def find_inaccessible_regions(world, player):
 def find_accessible_entrances(world, player, builder):
     entrances = [region.name for region in (portal.door.entrance.parent_region for portal in world.dungeon_portals[player]) if region.dungeon.name == builder.name]
     entrances.extend(drop_entrances[builder.name])
+    hc_std = False
 
     if world.mode[player] == 'standard' and builder.name == 'Hyrule Castle':
+        hc_std = True
         start_regions = ['Hyrule Castle Courtyard']
     elif world.mode[player] != 'inverted':
         start_regions = ['Links House', 'Sanctuary']
@@ -1937,6 +1939,8 @@ def find_accessible_entrances(world, player, builder):
             if connect not in queue and connect not in visited_regions:
                 queue.append(connect)
         for ext in next_region.exits:
+            if hc_std and ext.name == 'Hyrule Castle Main Gate (North)':  # just skip it
+                continue
             connect = ext.connected_region
             if connect is None or ext.door and ext.door.blocked:
                 continue
