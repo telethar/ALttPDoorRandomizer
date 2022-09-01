@@ -115,6 +115,7 @@ def parse_cli(argv, no_defaults=False):
             playerargs = parse_cli(shlex.split(getattr(ret, f"p{player}")), True)
 
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',
+                         'flute_mode',
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
                          'usestartinventory', 'bombbag', 'overworld_map', 'restrict_boss_items',
@@ -156,6 +157,7 @@ def parse_settings():
         "crystals_gt": "7",
         "crystals_ganon": "7",
         "swords": "random",
+        'flute_mode': 'normal',
         "difficulty": "normal",
         "item_functionality": "normal",
         "timer": "none",

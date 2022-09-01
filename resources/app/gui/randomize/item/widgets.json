@@ -78,12 +78,11 @@
         "expert"
       ]
     },
-    "itemfunction": {
+    "flute_mode": {
       "type": "selectbox",
       "options": [
         "normal",
-        "hard",
-        "expert"
+        "active"
       ]
     },
     "timer": {
@@ -95,14 +94,6 @@
         "timed-ohko",
         "ohko",
         "timed-countdown"
-      ]
-    },
-    "progressives": {
-      "type": "selectbox",
-      "options": [
-        "on",
-        "off",
-        "random"
       ]
     },
     "accessibility": {

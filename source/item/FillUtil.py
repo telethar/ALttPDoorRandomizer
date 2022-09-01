@@ -454,6 +454,7 @@ vanilla_mapping = {
     'Hookshot': ['Swamp Palace - Big Chest'],
     'Magic Mirror': ['Old Man'],
     'Ocarina': ['Flute Spot'],
+    'Ocarina (Activated)': ['Flute Spot'],
     'Pegasus Boots': ['Sahasrahla'],
     'Power Glove': ['Desert Palace - Big Chest'],
     'Cape': ["King's Tomb"],
@@ -779,7 +780,7 @@ major_items = {'Bombos', 'Book of Mudora', 'Cane of Somaria', 'Ether', 'Fire Rod
                'Bug Catching Net', 'Cane of Byrna', 'Blue Boomerang', 'Red Boomerang', 'Progressive Glove',
                'Power Glove', 'Titans Mitts', 'Bottle', 'Bottle (Red Potion)', 'Bottle (Green Potion)', 'Magic Mirror',
                'Bottle (Blue Potion)', 'Bottle (Fairy)', 'Bottle (Bee)', 'Bottle (Good Bee)', 'Magic Upgrade (1/2)',
-               'Sanctuary Heart Container', 'Boss Heart Container', 'Progressive Shield',
+               'Sanctuary Heart Container', 'Boss Heart Container', 'Progressive Shield', 'Ocarina (Activated)',
                'Mirror Shield', 'Progressive Armor', 'Blue Mail', 'Red Mail', 'Progressive Sword', 'Fighter Sword',
                'Master Sword', 'Tempered Sword', 'Golden Sword', 'Bow', 'Silver Arrows', 'Triforce Piece', 'Moon Pearl',
                'Progressive Bow', 'Progressive Bow (Alt)'}

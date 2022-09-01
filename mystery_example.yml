@@ -45,6 +45,9 @@
   bombbag:
     on: 1
     off: 4
+  flute_mode:
+    normal: 3
+    active: 1
   entrance_shuffle:
     none: 15
     dungeonssimple: 3

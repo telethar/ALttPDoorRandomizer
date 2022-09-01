@@ -95,6 +95,7 @@ def main(args, seed=None, fish=None):
     world.keyshuffle = args.keyshuffle.copy()
     world.bigkeyshuffle = args.bigkeyshuffle.copy()
     world.bombbag = args.bombbag.copy()
+    world.flute_mode = args.flute_mode.copy()
     world.crystals_needed_for_ganon = {player: random.randint(0, 7) if args.crystals_ganon[player] == 'random' else int(args.crystals_ganon[player]) for player in range(1, world.players + 1)}
     world.crystals_needed_for_gt = {player: random.randint(0, 7) if args.crystals_gt[player] == 'random' else int(args.crystals_gt[player]) for player in range(1, world.players + 1)}
     world.crystals_ganon_orig = args.crystals_ganon.copy()
@@ -158,7 +159,9 @@ def main(args, seed=None, fish=None):
 
         if args.usestartinventory[player]:
             for tok in filter(None, args.startinventory[player].split(',')):
-                item = ItemFactory(tok.strip(), player)
+                name = tok.strip()
+                name = name if name != 'Ocarina' or world.flute_mode[player] != 'active' else 'Ocarina (Activated)'
+                item = ItemFactory(name, player)
                 if item:
                     world.push_precollected(item)
 
@@ -451,6 +454,7 @@ def copy_world(world):
     ret.keyshuffle = world.keyshuffle.copy()
     ret.bigkeyshuffle = world.bigkeyshuffle.copy()
     ret.bombbag = world.bombbag.copy()
+    ret.flute_mode = world.flute_mode.copy()
     ret.crystals_needed_for_ganon = world.crystals_needed_for_ganon.copy()
     ret.crystals_needed_for_gt = world.crystals_needed_for_gt.copy()
     ret.crystals_ganon_orig = world.crystals_ganon_orig.copy()

@@ -285,10 +285,9 @@
 
     "randomizer.item.shopsanity": "Shopsanity",
 
-    "randomizer.item.itemfunction": "Item Functionality",
-    "randomizer.item.itemfunction.normal": "Normal",
-    "randomizer.item.itemfunction.hard": "Hard",
-    "randomizer.item.itemfunction.expert": "Expert",
+    "randomizer.item.flute_mode": "Flute Mode",
+    "randomizer.item.flute_mode.normal": "Normal",
+    "randomizer.item.flute_mode.active": "Pre-Activated",
 
     "randomizer.item.timer": "Timer Setting",
     "randomizer.item.timer.none": "No Timer",
@@ -297,11 +296,6 @@
     "randomizer.item.timer.timed-ohko": "Timed OHKO",
     "randomizer.item.timer.ohko": "OHKO",
     "randomizer.item.timer.timed-countdown": "Timed Countdown",
-
-    "randomizer.item.progressives": "Progressive Items",
-    "randomizer.item.progressives.on": "On",
-    "randomizer.item.progressives.off": "Off",
-    "randomizer.item.progressives.random": "Random",
 
     "randomizer.item.accessibility": "Accessibility",
     "randomizer.item.accessibility.items": "100% Inventory",

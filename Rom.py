@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '7b877dcee4ece38713768b74acb333a6'
+RANDOMIZERBASEHASH = '0be31dc5cb338e7e85d1ce65e839c99e'
 
 
 class JsonRom(object):
@@ -2161,8 +2161,8 @@ def write_strings(rom, world, player, team):
         while hint_count > 0 and len(items_to_hint) > 0:
             this_item = items_to_hint.pop(0)
             this_location = world.find_items_not_key_only(this_item, player)
-            random.shuffle(this_location)
             if this_location:
+                random.shuffle(this_location)
                 item_name = this_location[0].item.hint_text
                 item_name = item_name[0].upper() + item_name[1:]
                 this_hint = f'{item_name} can be found {hint_text(this_location[0])}.'
@@ -2847,6 +2847,7 @@ RelevantItems = ['Bow',
                  'Hookshot',
                  'Magic Mirror',
                  'Ocarina',
+                 'Ocarina (Activated)',
                  'Pegasus Boots',
                  'Power Glove',
                  'Cape',

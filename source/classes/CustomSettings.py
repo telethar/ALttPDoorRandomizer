@@ -68,6 +68,7 @@ class CustomSettings(object):
                 args.logic[p] = get_setting(settings['logic'], args.logic[p])
                 args.mode[p] = get_setting(settings['mode'], args.mode[p])
                 args.swords[p] = get_setting(settings['swords'], args.swords[p])
+                args.flute_mode[p] = get_setting(settings['flute_mode'], args.flute_mode[p])
                 args.item_functionality[p] = get_setting(settings['item_functionality'], args.item_functionality[p])
                 args.goal[p] = get_setting(settings['goal'], args.goal[p])
                 args.difficulty[p] = get_setting(settings['difficulty'], args.difficulty[p])
@@ -189,6 +190,7 @@ class CustomSettings(object):
             settings_dict[p]['logic'] = world.logic[p]
             settings_dict[p]['mode'] = world.mode[p]
             settings_dict[p]['swords'] = world.swords[p]
+            settings_dict[p]['flute_mode'] = world.flute_mode[p]
             settings_dict[p]['difficulty'] = world.difficulty[p]
             settings_dict[p]['goal'] = world.goal[p]
             settings_dict[p]['accessibility'] = world.accessibility[p]

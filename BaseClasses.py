@@ -895,7 +895,7 @@ class CollectionState(object):
                  'Golden Sword', 'Progressive Sword', 'Progressive Glove', 'Silver Arrows', 'Green Pendant',
                  'Blue Pendant', 'Red Pendant', 'Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5',
                  'Crystal 6', 'Crystal 7', 'Blue Boomerang', 'Red Boomerang', 'Blue Shield', 'Red Shield',
-                 'Mirror Shield', 'Progressive Shield', 'Bug Catching Net', 'Cane of Byrna',
+                 'Mirror Shield', 'Progressive Shield', 'Bug Catching Net', 'Cane of Byrna', 'Ocarina (Activated)',
                  'Boss Heart Container', 'Sanctuary Heart Container', 'Piece of Heart', 'Magic Upgrade (1/2)',
                  'Magic Upgrade (1/4)']
             or item_name.startswith(('Bottle', 'Small Key', 'Big Key'))
@@ -1129,8 +1129,11 @@ class CollectionState(object):
         return self.has('Fire Rod', player) or self.has('Lamp', player)
 
     def can_flute(self, player):
+        if any(map(lambda i: i.name in ['Ocarina', 'Ocarina (Activated)'], self.world.precollected_items)):
+            return True
         lw = self.world.get_region('Light World', player)
-        return self.has('Ocarina', player) and lw.can_reach(self) and self.is_not_bunny(lw, player)
+        return self.has('Ocarina (Activated)', player) or (self.has('Ocarina', player) and lw.can_reach(self)
+                                                         and self.is_not_bunny(lw, player))
 
     def can_melt_things(self, player):
         return self.has('Fire Rod', player) or (self.has('Bombos', player) and self.has_sword(player))
@@ -2371,6 +2374,7 @@ class Spoiler(object):
                          'retro': self.world.retro,
                          'bombbag': self.world.bombbag,
                          'weapons': self.world.swords,
+                         'flute_mode': self.world.flute_mode,
                          'goal': self.world.goal,
                          'shuffle': self.world.shuffle,
                          'shuffleganon': self.world.shuffle_ganon,
@@ -2569,6 +2573,7 @@ class Spoiler(object):
                 outfile.write(f"Restricted Boss Items:           {self.metadata['restricted_boss_items'][player]}\n")
                 outfile.write('Difficulty:                      %s\n' % self.metadata['item_pool'][player])
                 outfile.write('Item Functionality:              %s\n' % self.metadata['item_functionality'][player])
+                outfile.write(f"Flute Mode:                      {self.metadata['flute_mode'][player]}\n")
                 outfile.write(f"Shopsanity:                      {yn(self.metadata['shopsanity'][player])}\n")
                 outfile.write(f"Bombbag:                         {yn(self.metadata['bombbag'][player])}\n")
                 outfile.write(f"Pseudoboots:                     {yn(self.metadata['pseudoboots'][player])}\n")
@@ -2873,6 +2878,8 @@ boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique
 
 
 # byte 10: settings_version
+# byte 11: F???, ???? (flute_mode)
+flute_mode = {'normal': 0, 'active': 1}
 
 # additions
 # psuedoboots does not effect code
@@ -2917,7 +2924,9 @@ class Settings(object):
 
             (rb_mode[w.restrict_boss_items[p]] << 6) | (algo_mode[w.algorithm] << 3) | (boss_mode[w.boss_shuffle[p]]),
 
-            settings_version])
+            settings_version,
+
+            flute_mode[w.flute_mode[p]] << 7])
         return base64.b64encode(code, "+-".encode()).decode()
 
     @staticmethod
@@ -2979,6 +2988,8 @@ class Settings(object):
             args.restrict_boss_items[p] = r(rb_mode)[(settings[9] & 0xC0) >> 6]
             args.algorithm = r(algo_mode)[(settings[9] & 0x38) >> 3]
             args.shufflebosses[p] = r(boss_mode)[(settings[9] & 0x07)]
+        if len(settings) > 11:
+            args.flute_mode[p] = r(flute_mode)[(settings[11] & 0x80) >> 7]
 
 
 class KeyRuleType(FastEnum):

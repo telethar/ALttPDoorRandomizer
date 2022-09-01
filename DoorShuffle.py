@@ -834,7 +834,7 @@ def main_dungeon_pool(dungeon_pool, world, player):
         for name in pool:
             builder = world.dungeon_layouts[player][name]
             region_set = builder.master_sector.region_set()
-            builder.bk_required = len(builder.bk_door_proposal) > 0 or any(x in region_set for x in special_bk_regions)
+            builder.bk_required = builder.bk_door_proposal or any(x in region_set for x in special_bk_regions)
             dungeon = world.get_dungeon(name, player)
             if not builder.bk_required or builder.bk_provided:
                 dungeon.big_key = None
@@ -1793,7 +1793,7 @@ def shuffle_trap_doors(door_type_pools, paths, start_regions_map, world, player)
                 remaining -= len(custom_trap_doors[dungeon])
             ttl += len(builder.candidates.trap)
         if ttl == 0:
-            return used_doors
+            continue
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.trap)
@@ -1853,7 +1853,7 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world,
                 remaining -= len(custom_bk_doors[dungeon])
             ttl += len(builder.candidates.big)
         if ttl == 0:
-            return used_doors
+            continue
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.big)
@@ -2004,7 +2004,7 @@ def shuffle_bomb_dash_doors(door_type_pools, used_doors, start_regions_map, worl
                 remaining_dash -= len(custom_dash_doors[dungeon])
             ttl += len(builder.candidates.bomb_dash)
         if ttl == 0:
-            return used_doors
+            continue
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.bomb_dash)
@@ -2508,8 +2508,9 @@ def find_small_key_door_candidates(builder, start_regions, used, world, player):
 
 
 def calc_used_dungeon_items(builder, world, player):
-    base = max(count_reserved_locations(world, player, builder.location_set), 2)
     basic_flag = world.doorShuffle[player] == 'basic'
+    base = 0 if basic_flag else 2  # at least 2 items per dungeon, except in basic
+    base = max(count_reserved_locations(world, player, builder.location_set), base)
     if not world.bigkeyshuffle[player]:
         if builder.bk_required and not builder.bk_provided:
             base += 1

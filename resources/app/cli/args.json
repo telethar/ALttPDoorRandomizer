@@ -42,6 +42,12 @@
       "vanilla"
     ]
   },
+  "flute_mode": {
+    "choices": [
+      "normal",
+      "active"
+    ]
+  },
   "goal": {
     "choices": [
       "ganon",

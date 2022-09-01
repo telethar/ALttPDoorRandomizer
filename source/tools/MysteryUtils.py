@@ -144,6 +144,7 @@ def roll_settings(weights):
                       }[swords]
 
     ret.difficulty = get_choice('item_pool')
+    ret.flute_mode = get_choice_default('flute_mode', default='normal')
 
     ret.item_functionality = get_choice('item_functionality')
 

@@ -267,7 +267,7 @@ def generate_itempool(world, player):
         (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms) = make_custom_item_pool(world.progressive, world.shuffle[player], world.difficulty[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.customitemarray)
         world.rupoor_cost = min(world.customitemarray[player]["rupoorcost"], 9999)
     else:
-        (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = get_pool_core(world.progressive, world.shuffle[player], world.difficulty[player], world.treasure_hunt_total[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.doorShuffle[player], world.logic[player])
+        (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = get_pool_core(world.progressive, world.shuffle[player], world.difficulty[player], world.treasure_hunt_total[player], world.timer, world.goal[player], world.mode[player], world.swords[player], world.retro[player], world.bombbag[player], world.doorShuffle[player], world.logic[player], world.flute_mode[player] == 'active')
 
     if player in world.pool_adjustment.keys() and not skip_pool_adjustments:
         amt = world.pool_adjustment[player]
@@ -789,7 +789,8 @@ def add_pot_contents(world, player):
                     world.itempool.append(ItemFactory(item, player))
 
 
-def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, retro, bombbag, door_shuffle, logic):
+def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, retro, bombbag,
+                  door_shuffle, logic, flute_activated):
     pool = []
     placed_items = {}
     precollected_items = []
@@ -801,6 +802,10 @@ def get_pool_core(progressive, shuffle, difficulty, treasure_hunt_total, timer, 
     triforcepool = ['Triforce Piece'] * min(treasure_hunt_total, max_goal)
 
     pool.extend(alwaysitems)
+
+    if flute_activated:
+        pool.remove('Ocarina')
+        pool.append('Ocarina (Activated)')
 
     def place_item(loc, item):
         assert loc not in placed_items

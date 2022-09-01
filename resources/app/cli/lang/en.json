@@ -121,6 +121,11 @@
       "Hard:           Reduced functionality.",
       "Expert:         Greatly reduced functionality."
     ],
+    "flute_mode": [
+      "Determine if you need to wake up the bird or not on flute pickup (default: %(default)s)",
+      "Normal:         Normal functionality.",
+      "Active:         Flute is activated on pickup."
+    ],
     "timer": [
       "Select game timer setting. Affects available itempool. (default: %(default)s)",
       "None:           No timer.",
