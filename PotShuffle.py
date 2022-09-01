@@ -894,7 +894,7 @@ def shuffle_pots(world, player):
                 new_pot.item = PotItem.FiveRupees
 
             if new_pot.item == PotItem.Key:
-                key = next(location for location in world.get_region(old_pot.room, player).locations if location.name in key_drop_data)
+                key = next(location for location in old_pot.get_region(world, player).locations if location.name in key_drop_data)
                 key.pot = new_pot
                 if new_pot.room != old_pot.room:
                     # Move pot key to new room
@@ -970,7 +970,7 @@ def choose_pots(world, player):
         dungeon_list = []
         for super_tile, pot_list in vanilla_pots.items():
             for pot in pot_list:
-                if world.get_region(pot.room, player).type == RegionType.Cave:
+                if pot.get_region(world, player).type == RegionType.Cave:
                     pot_pool.add(pot)
                 else:
                     dungeon_list.append(pot)
@@ -981,7 +981,7 @@ def choose_pots(world, player):
         dungeon_count = 0
         for super_tile, pot_list in vanilla_pots.items():
             for pot in pot_list:
-                if world.get_region(pot.room, player).type == RegionType.Cave:
+                if pot.get_region(world, player).type == RegionType.Cave:
                     pot_pool.add(pot)
                 else:
                     dungeon_map[pot.room].append(pot)

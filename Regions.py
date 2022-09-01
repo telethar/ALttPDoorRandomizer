@@ -1073,9 +1073,9 @@ def valid_pot_location(pot, pot_set, world, player):
         return True
     if world.pottery[player] in ['reduced', 'clustered'] and pot in pot_set:
         return True
-    if world.pottery[player] == 'dungeon' and world.get_region(pot.room, player).type == RegionType.Dungeon:
+    if world.pottery[player] == 'dungeon' and pot.get_region(world, player).type == RegionType.Dungeon:
         return True
-    if world.pottery[player] in ['cave', 'cavekeys'] and world.get_region(pot.room, player).type == RegionType.Cave:
+    if world.pottery[player] in ['cave', 'cavekeys'] and pot.get_region(world, player).type == RegionType.Cave:
         return True
     return False
 

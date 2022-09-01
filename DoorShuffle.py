@@ -233,7 +233,7 @@ def vanilla_key_logic(world, player):
         key_layout = build_key_layout(builder, start_regions, doors, world, player)
         valid = validate_key_layout(key_layout, world, player)
         if not valid:
-            logging.getLogger('').warning('Vanilla key layout not valid %s', builder.name)
+            logging.getLogger('').info('Vanilla key layout not valid %s', builder.name)
         builder.key_door_proposal = doors
         if player not in world.key_logic.keys():
             world.key_logic[player] = {}
@@ -799,11 +799,17 @@ def main_dungeon_pool(dungeon_pool, world, player):
         else:
             if 'Hyrule Castle' in pool:
                 hc = world.get_dungeon('Hyrule Castle', player)
-                hc.dungeon_items.append(ItemFactory('Compass (Escape)', player))
+                hc_compass = ItemFactory('Compass (Escape)', player)
+                hc_compass.advancement = world.restrict_boss_items[player] != 'none'
+                hc.dungeon_items.append(hc_compass)
             if 'Agahnims Tower' in pool:
                 at = world.get_dungeon('Agahnims Tower', player)
-                at.dungeon_items.append(ItemFactory('Compass (Agahnims Tower)', player))
-                at.dungeon_items.append(ItemFactory('Map (Agahnims Tower)', player))
+                at_compass = ItemFactory('Compass (Agahnims Tower)', player)
+                at_compass.advancement = world.restrict_boss_items[player] != 'none'
+                at.dungeon_items.append(at_compass)
+                at_map = ItemFactory('Map (Agahnims Tower)', player)
+                at_map.advancement = world.restrict_boss_items[player] != 'none'
+                at.dungeon_items.append(at_map)
             sector_pool = convert_to_sectors(region_list, world, player)
             merge_sectors(sector_pool, world, player)
             # todo: which dungeon to create
@@ -1227,11 +1233,16 @@ def cross_dungeon(world, player):
     paths = determine_required_paths(world, player)
     check_required_paths(paths, world, player)
 
+    hc_compass = ItemFactory('Compass (Escape)', player)
+    at_compass = ItemFactory('Compass (Agahnims Tower)', player)
+    at_map = ItemFactory('Map (Agahnims Tower)', player)
+    if world.restrict_boss_items[player] != 'none':
+        hc_compass.advancement = at_compass.advancement = at_map.advancement = True
     hc = world.get_dungeon('Hyrule Castle', player)
-    hc.dungeon_items.append(ItemFactory('Compass (Escape)', player))
+    hc.dungeon_items.append(hc_compass)
     at = world.get_dungeon('Agahnims Tower', player)
-    at.dungeon_items.append(ItemFactory('Compass (Agahnims Tower)', player))
-    at.dungeon_items.append(ItemFactory('Map (Agahnims Tower)', player))
+    at.dungeon_items.append(at_compass)
+    at.dungeon_items.append(at_map)
 
     setup_custom_door_types(world, player)
     assign_cross_keys(dungeon_builders, world, player)
@@ -3196,8 +3207,10 @@ def find_inaccessible_regions(world, player):
 def find_accessible_entrances(world, player, builder):
     entrances = [region.name for region in (portal.door.entrance.parent_region for portal in world.dungeon_portals[player]) if region.dungeon.name == builder.name]
     entrances.extend(drop_entrances[builder.name])
+    hc_std = False
 
     if world.mode[player] == 'standard' and builder.name == 'Hyrule Castle':
+        hc_std = True
         start_regions = ['Hyrule Castle Courtyard']
     elif world.mode[player] != 'inverted':
         start_regions = ['Links House', 'Sanctuary']
@@ -3222,6 +3235,8 @@ def find_accessible_entrances(world, player, builder):
             if connect not in queue and connect not in visited_regions:
                 queue.append(connect)
         for ext in next_region.exits:
+            if hc_std and ext.name == 'Hyrule Castle Main Gate (North)':  # just skip it
+                continue
             connect = ext.connected_region
             if connect is None or ext.door and ext.door.blocked:
                 continue

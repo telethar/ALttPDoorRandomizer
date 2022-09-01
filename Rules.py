@@ -323,8 +323,10 @@ def global_rules(world, player):
             # byrna could work with sufficient magic
     set_rule(world.get_location('Misery Mire - Spike Chest', player), lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
     loc = world.get_location('Misery Mire - Spikes Pot Key', player)
-    if loc.pot.x == 48 and loc.pot.y == 28:  # pot shuffled to spike area
-        set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
+    if loc.pot:
+        if loc.pot.x == 48 and loc.pot.y == 28:  # pot shuffled to spike area
+            set_rule(loc, lambda state: (state.world.can_take_damage and state.has_hearts(player, 4))
+                     or state.has('Cane of Byrna', player) or state.has('Cape', player))
     set_rule(world.get_entrance('Mire Left Bridge Hook Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Mire Tile Room NW', player), lambda state: state.has_fire_source(player))
     set_rule(world.get_entrance('Mire Attic Hint Hole', player), lambda state: state.has_fire_source(player))
