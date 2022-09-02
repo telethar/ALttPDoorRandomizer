@@ -62,9 +62,9 @@ class KeyLogic(object):
         self.sm_doors = {}
         self.prize_location = None
 
-    def check_placement(self, unplaced_keys, big_key_loc=None, prize_loc=None, cr_count=7):
+    def check_placement(self, unplaced_keys, wild_keys, big_key_loc=None, prize_loc=None, cr_count=7):
         for rule in self.placement_rules:
-            if not rule.is_satisfiable(self.outside_keys, unplaced_keys, big_key_loc, prize_loc, cr_count):
+            if not rule.is_satisfiable(self.outside_keys, wild_keys, unplaced_keys, big_key_loc, prize_loc, cr_count):
                 return False
             if big_key_loc:
                 for rule_a, rule_b in itertools.combinations(self.placement_rules, 2):
@@ -186,17 +186,20 @@ class PlacementRule(object):
         if not bk_blocked and check_locations is None:
             return True
         available_keys = outside_keys
-        empty_chests = 0
         # todo: sometimes we need an extra empty chest to accomodate the big key too
         # dungeon bias seed 563518200 for example
         threshold = self.needed_keys_wo_bk if bk_blocked else self.needed_keys_w_bk
-        for loc in check_locations:
-            if not loc.item:
-                empty_chests += 1
-            elif loc.item and loc.item.name == self.small_key:
-                available_keys += 1
-        place_able_keys = min(empty_chests, unplaced_keys)
-        available_keys += place_able_keys
+        if not wild_keys:
+            empty_chests = 0
+            for loc in check_locations:
+                if not loc.item:
+                    empty_chests += 1
+                elif loc.item and loc.item.name == self.small_key:
+                    available_keys += 1
+            place_able_keys = min(empty_chests, unplaced_keys)
+            available_keys += place_able_keys
+        else:
+            available_keys += unplaced_keys
         return available_keys >= threshold
 
 
