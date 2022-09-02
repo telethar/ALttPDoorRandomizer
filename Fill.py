@@ -173,7 +173,8 @@ def valid_key_placement(item, location, key_pool, world):
         if key_logic.prize_location:
             prize_loc = world.get_location(key_logic.prize_location, location.player)
         cr_count = world.crystals_needed_for_gt[location.player]
-        return key_logic.check_placement(unplaced_keys, location if item.bigkey else None, prize_loc, cr_count)
+        wild_keys = world.keyshuffle[item.player] != 'none'
+        return key_logic.check_placement(unplaced_keys, wild_keys, location if item.bigkey else None, prize_loc, cr_count)
     else:
         return not item.is_inside_dungeon_item(world)
 
