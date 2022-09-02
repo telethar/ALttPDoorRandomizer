@@ -122,9 +122,16 @@
       "Expert:         Greatly reduced functionality."
     ],
     "flute_mode": [
-      "Determine if you need to wake up the bird or not on flute pickup (default: %(default)s)",
+      "Determines if you need to wake up the bird or not on flute pickup (default: %(default)s)",
       "Normal:         Normal functionality.",
       "Active:         Flute is activated on pickup."
+    ],
+    "bow_mode": [
+      "Determines how the bow acts in the pool (default: %(default)s)",
+      "Progressive:       Two progressive bows placed. First picked up is the bow. Second is silvers.",
+      "Silvers Separate:  Bow and silvers are completely separate items.",
+      "Retro:             Z1 Bow where arrows cost money and the Single Arrow must be bought or found to shoot",
+      "Retro + Silvers:   Bow and silvers are completely separate items."
     ],
     "timer": [
       "Select game timer setting. Affects available itempool. (default: %(default)s)",
@@ -299,6 +306,12 @@
     "retro": [
       "Keys are universal, shooting arrows costs rupees,",
       "and a few other little things make this more like Zelda-1. (default: %(default)s)"
+    ],
+    "take_any": [
+      "Take Any caves from Zelda 1 (default: %(default)s)",
+      "None:           No take any caves",
+      "Random:         Take any caves can replace a random set of un-interesting caves. See documentation for full list",
+      "Fixed:          Take any caves will replace certain location. See documentation for full list"
     ],
     "pseudoboots": [ " Players starts with pseudo boots that allow dashing but no item checks (default: %(default)s"],
     "bombbag": ["Start with 0 bomb capacity. Two capacity upgrades (+10) are added to the pool (default: %(default)s)" ],

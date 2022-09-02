@@ -39,7 +39,8 @@ def fill_dungeons_restrictive(world, shuffled_locations):
 
     # with shuffled dungeon items they are distributed as part of the normal item pool
     for item in world.get_items():
-        if (item.smallkey and world.keyshuffle[item.player]) or (item.bigkey and world.bigkeyshuffle[item.player]):
+        if ((item.smallkey and world.keyshuffle[item.player] != 'none')
+           or (item.bigkey and world.bigkeyshuffle[item.player])):
             item.advancement = True
         elif (item.map and world.mapshuffle[item.player]) or (item.compass and world.compassshuffle[item.player]):
             item.priority = True
@@ -50,7 +51,7 @@ def fill_dungeons_restrictive(world, shuffled_locations):
         (bigs if i.bigkey else smalls if i.smallkey else others).append(i)
     unplaced_smalls = list(smalls)
     for i in world.itempool:
-        if i.smallkey and world.keyshuffle[i.player]:
+        if i.smallkey and world.keyshuffle[i.player] != 'none':
             unplaced_smalls.append(i)
 
     def fill(base_state, items, key_pool):
@@ -160,7 +161,7 @@ def valid_key_placement(item, location, key_pool, world):
     if not valid_reserved_placement(item, location, world):
         return False
     if ((not item.smallkey and not item.bigkey) or item.player != location.player
-       or world.retro[item.player] or world.logic[item.player] == 'nologic'):
+       or world.keyshuffle[item.player] == 'universal' or world.logic[item.player] == 'nologic'):
         return True
     dungeon = location.parent_region.dungeon
     if dungeon:
@@ -215,7 +216,7 @@ def track_dungeon_items(item, location, world):
 
 
 def is_dungeon_item(item, world):
-    return ((item.smallkey and not world.keyshuffle[item.player])
+    return ((item.smallkey and world.keyshuffle[item.player] == 'none')
             or (item.bigkey and not world.bigkeyshuffle[item.player])
             or (item.compass and not world.compassshuffle[item.player])
             or (item.map and not world.mapshuffle[item.player]))
@@ -419,7 +420,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
 
     # Make sure the escape small key is placed first in standard with key shuffle to prevent running out of spots
     # todo: crossed
-    progitempool.sort(key=lambda item: 1 if item.name == 'Small Key (Escape)' and world.keyshuffle[item.player] and world.mode[item.player] == 'standard' else 0)
+    progitempool.sort(key=lambda item: 1 if item.name == 'Small Key (Escape)'
+                      and world.keyshuffle[item.player] != 'none' and world.mode[item.player] == 'standard' else 0)
     key_pool = [x for x in progitempool if x.smallkey]
 
     # sort maps and compasses to the back -- this may not be viable in equitable & ambrosia
@@ -498,7 +500,7 @@ def ensure_good_pots(world, write_skips=False):
                 else:
                     loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.player)
         # do the arrow retro check
-        if world.retro[loc.item.player] and loc.item.name in {'Arrows (5)', 'Arrows (10)'}:
+        if world.bow_mode[loc.item.player].startswith('retro') and loc.item.name in {'Arrows (5)', 'Arrows (10)'}:
             loc.item = ItemFactory('Rupees (5)', loc.item.player)
         # don't write out all pots to spoiler
         if write_skips:
@@ -663,7 +665,7 @@ def balance_multiworld_progression(world):
                 candidate_items = collections.defaultdict(set)
                 while True:
                     for location in balancing_sphere:
-                        if location.event and (world.keyshuffle[location.item.player] or not location.item.smallkey) and (world.bigkeyshuffle[location.item.player] or not location.item.bigkey):
+                        if location.event and (world.keyshuffle[location.item.player] != 'none' or not location.item.smallkey) and (world.bigkeyshuffle[location.item.player] or not location.item.bigkey):
                             balancing_state.collect(location.item, True, location)
                             player = location.item.player
                             if player in balancing_players and not location.locked and location.player != player:
@@ -738,7 +740,7 @@ def balance_multiworld_progression(world):
                         sphere_locations.add(location)
 
         for location in sphere_locations:
-            if location.event and (world.keyshuffle[location.item.player] or not location.item.smallkey) and (world.bigkeyshuffle[location.item.player] or not location.item.bigkey):
+            if location.event and (world.keyshuffle[location.item.player] != 'none' or not location.item.smallkey) and (world.bigkeyshuffle[location.item.player] or not location.item.bigkey):
                 state.collect(location.item, True, location)
         checked_locations |= sphere_locations
 
@@ -812,7 +814,9 @@ def balance_money_progression(world):
             return True
         if item.name in ['Progressive Armor', 'Blue Mail', 'Red Mail']:
             return True
-        if world.retro[player] and (item.name in ['Single Arrow', 'Small Key (Universal)']):
+        if world.keyshuffle[player] == 'universal' and item.name == 'Small Key (Universal)':
+            return True
+        if world.bow_mode[player].startswith('retro') and item.name == 'Single Arrow':
             return True
         if location.name in pay_for_locations:
             return True

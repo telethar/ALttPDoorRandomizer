@@ -69,11 +69,13 @@ class CustomSettings(object):
                 args.mode[p] = get_setting(settings['mode'], args.mode[p])
                 args.swords[p] = get_setting(settings['swords'], args.swords[p])
                 args.flute_mode[p] = get_setting(settings['flute_mode'], args.flute_mode[p])
+                args.bow_mode[p] = get_setting(settings['bow_mode'], args.bow_mode[p])
                 args.item_functionality[p] = get_setting(settings['item_functionality'], args.item_functionality[p])
                 args.goal[p] = get_setting(settings['goal'], args.goal[p])
                 args.difficulty[p] = get_setting(settings['difficulty'], args.difficulty[p])
                 args.accessibility[p] = get_setting(settings['accessibility'], args.accessibility[p])
                 args.retro[p] = get_setting(settings['retro'], args.retro[p])
+                args.take_any[p] = get_setting(settings['take_any'], args.take_any[p])
                 args.hints[p] = get_setting(settings['hints'], args.hints[p])
                 args.shopsanity[p] = get_setting(settings['shopsanity'], args.shopsanity[p])
                 args.dropshuffle[p] = get_setting(settings['dropshuffle'], args.dropshuffle[p])
@@ -191,11 +193,12 @@ class CustomSettings(object):
             settings_dict[p]['mode'] = world.mode[p]
             settings_dict[p]['swords'] = world.swords[p]
             settings_dict[p]['flute_mode'] = world.flute_mode[p]
+            settings_dict[p]['bow_mode'] = world.bow_mode[p]
             settings_dict[p]['difficulty'] = world.difficulty[p]
             settings_dict[p]['goal'] = world.goal[p]
             settings_dict[p]['accessibility'] = world.accessibility[p]
             settings_dict[p]['item_functionality'] = world.difficulty_adjustments[p]
-            settings_dict[p]['retro'] = world.retro[p]
+            settings_dict[p]['take_any'] = world.take_any[p]
             settings_dict[p]['hints'] = world.hints[p]
             settings_dict[p]['shopsanity'] = world.shopsanity[p]
             settings_dict[p]['dropshuffle'] = world.dropshuffle[p]

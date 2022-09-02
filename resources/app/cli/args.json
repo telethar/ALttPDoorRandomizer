@@ -48,6 +48,14 @@
       "active"
     ]
   },
+  "bow_mode": {
+    "choices": [
+      "progressive",
+      "silvers",
+      "retro",
+      "retro_silvers"
+    ]
+  },
   "goal": {
     "choices": [
       "ganon",
@@ -266,8 +274,11 @@
     "type": "bool"
   },
   "keyshuffle": {
-    "action": "store_true",
-    "type": "bool"
+    "choices": [
+      "none",
+      "wild",
+      "universal"
+    ]
   },
   "bigkeyshuffle": {
     "action": "store_true",
@@ -285,6 +296,13 @@
   "retro": {
     "action": "store_true",
     "type": "bool"
+  },
+  "take_any": {
+    "choices": [
+      "none",
+      "random",
+      "fixed"
+    ]
   },
   "startinventory": {},
   "usestartinventory": {

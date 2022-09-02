@@ -48,6 +48,11 @@
   flute_mode:
     normal: 3
     active: 1
+  bow_mode:
+    progressive: 5
+    silvers: 5
+    retro: 1
+    retro_silvers: 1
   entrance_shuffle:
     none: 15
     dungeonssimple: 3
@@ -66,9 +71,10 @@
     open: 1
     inverted: 1
     retro: 0
-  retro:
-    on: 1
-    off: 4
+  take_any:
+    random: 1
+    fixed: 3
+    none: 16
   goals:
     ganon: 2
     fast_ganon: 2
@@ -86,6 +92,12 @@
     mc: 3
     mcs: 2
     full: 5
+    mcu: 1  # map, compass, universal smalls
+# for use when you aren't using the dungeon_items above
+#  smallkey_shuffle:
+#    standard: 5
+#    wild: 1
+#    universal: 1
   dungeon_counters:
     on: 5
     off: 0

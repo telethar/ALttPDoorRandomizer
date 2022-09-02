@@ -68,6 +68,7 @@ SETTINGSTOPROCESS = {
       "weapons": "swords",
       "itempool": "difficulty",
       "flute_mode": "flute_mode",
+      "bow_mode": "bow_mode",
       "timer": "timer",
       "accessibility": "accessibility",
       "sortingalgo": "algorithm",
@@ -81,6 +82,7 @@ SETTINGSTOPROCESS = {
       "shuffletavern": "shuffletavern",
       "entranceshuffle": "shuffle",
       "overworld_map": "overworld_map",
+      "take_any": "take_any",
     },
     "enemizer": {
       "enemyshuffle": "shuffleenemies",

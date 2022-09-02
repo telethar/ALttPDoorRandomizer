@@ -64,7 +64,13 @@ def roll_settings(weights):
     dungeon_items = 'mcsb' if dungeon_items == 'full' else dungeon_items
     ret.mapshuffle = get_choice('map_shuffle') == 'on' if 'map_shuffle' in weights else 'm' in dungeon_items
     ret.compassshuffle = get_choice('compass_shuffle') == 'on' if 'compass_shuffle' in weights else 'c' in dungeon_items
-    ret.keyshuffle = get_choice('smallkey_shuffle') == 'on' if 'smallkey_shuffle' in weights else 's' in dungeon_items
+    if 'smallkey_shuffle' in weights:
+        ret.keyshuffle = get_choice('smallkey_shuffle')
+    else:
+        if 's' in dungeon_items:
+            ret.keyshuffle = 'wild'
+        if 'u' in dungeon_items:
+            ret.keyshuffle = 'universal'
     ret.bigkeyshuffle = get_choice('bigkey_shuffle') == 'on' if 'bigkey_shuffle' in weights else 'b' in dungeon_items
 
     ret.accessibility = get_choice('accessibility')
@@ -130,6 +136,7 @@ def roll_settings(weights):
         ret.mode = 'open'
         ret.retro = True
     ret.retro = get_choice('retro') == 'on'  # this overrides world_state if used
+    ret.take_any = get_choice_default('take_any', default='none')
 
     ret.bombbag = get_choice('bombbag') == 'on'
 
@@ -145,6 +152,7 @@ def roll_settings(weights):
 
     ret.difficulty = get_choice('item_pool')
     ret.flute_mode = get_choice_default('flute_mode', default='normal')
+    ret.bow_mode = get_choice_default('bow_mode', default='progressive')
 
     ret.item_functionality = get_choice('item_functionality')
 

@@ -82,10 +82,11 @@ def create_item_pool_config(world):
             if world.shopsanity[player]:
                 for item, locs in shop_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
-            if world.retro[player]:
+            if world.take_any[player] != 'none':
                 for item, locs in retro_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
                 # universal keys
+            if world.keyshuffle[player] == 'universal':
                 universal_key_locations = []
                 for item, locs in vanilla_mapping.items():
                     if 'Small Key' in item:
@@ -98,12 +99,13 @@ def create_item_pool_config(world):
                     for item, locs in potkeys_vanilla_mapping.items():
                         universal_key_locations.extend(locs)
                 if world.shopsanity[player]:
-                    single_arrow_placement = list(shop_vanilla_mapping['Red Potion'])
-                    single_arrow_placement.append('Red Shield Shop - Right')
-                    config.static_placement[player]['Single Arrow'] = single_arrow_placement
                     universal_key_locations.extend(shop_vanilla_mapping['Small Heart'])
                     universal_key_locations.extend(shop_vanilla_mapping['Blue Shield'])
                 config.static_placement[player]['Small Key (Universal)'] = universal_key_locations
+            if world.bow_mode[player].startswith('retro') and world.shopsanity[player]:
+                single_arrow_placement = list(shop_vanilla_mapping['Red Potion'])
+                single_arrow_placement.append('Red Shield Shop - Right')
+                config.static_placement[player]['Single Arrow'] = single_arrow_placement
             config.location_groups[player] = [
                 LocationGroup('Major').locs(mode_grouping['Overworld Major'] + mode_grouping['Big Chests'] + mode_grouping['Heart Containers']),
                 LocationGroup('bkhp').locs(mode_grouping['Heart Pieces']),
@@ -124,7 +126,7 @@ def create_item_pool_config(world):
                 groups.locations.extend(mode_grouping['Big Keys'])
                 if world.dropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Big Key Drops'])
-            if world.keyshuffle[player]:
+            if world.keyshuffle[player] != 'none':
                 groups.locations.extend(mode_grouping['Small Keys'])
                 if world.dropshuffle[player] != 'none':
                     groups.locations.extend(mode_grouping['Key Drops'])
@@ -137,7 +139,7 @@ def create_item_pool_config(world):
             if world.shopsanity[player]:
                 groups.locations.append('Capacity Upgrade - Left')
                 groups.locations.append('Capacity Upgrade - Right')
-            if world.retro[player]:
+            if world.take_any[player] != 'none':
                 if world.shopsanity[player]:
                     groups.locations.extend(retro_vanilla_mapping['Heart Container'])
                     groups.locations.append('Old Man Sword Cave Item 1')
@@ -249,7 +251,7 @@ def previously_reserved(location, world, player):
         if world.restrict_boss_items[player] == 'dungeon' and (not world.compassshuffle[player]
                                                                or not world.mapshuffle[player]
                                                                or not world.bigkeyshuffle[player]
-                                                               or not (world.keyshuffle[player] or world.retro[player])):
+                                                               or world.keyshuffle[player] == 'standard'):
             return True
     return False
 
@@ -335,7 +337,7 @@ def determine_major_items(world, player):
         pass  # now what?
     if world.bigkeyshuffle[player]:
         major_item_set.update({x for x, y in item_table.items() if y[2] == 'BigKey'})
-    if world.keyshuffle[player]:
+    if world.keyshuffle[player] != 'none':
         major_item_set.update({x for x, y in item_table.items() if y[2] == 'SmallKey'})
     if world.compassshuffle[player]:
         major_item_set.update({x for x, y in item_table.items() if y[2] == 'Compass'})
@@ -344,8 +346,9 @@ def determine_major_items(world, player):
     if world.shopsanity[player]:
         major_item_set.add('Bomb Upgrade (+5)')
         major_item_set.add('Arrow Upgrade (+5)')
-    if world.retro[player]:
+    if world.bow_mode[player].startswith('retro'):
         major_item_set.add('Single Arrow')
+    if world.keyshuffle[player] == 'universal':
         major_item_set.add('Small Key (Universal)')
     if world.goal == 'triforcehunt':
         major_item_set.add('Triforce Piece')

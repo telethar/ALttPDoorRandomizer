@@ -2072,7 +2072,7 @@ def add_key_logic_rules(world, player):
             add_rule(big_chest, create_rule(d_logic.bk_name, player))
             if len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1:
                 set_always_allow(big_chest, allow_big_key_in_big_chest(d_logic.bk_name, player))
-    if world.retro[player]:
+    if world.keyshuffle[player] == 'universal':
         for d_name, layout in world.key_layout[player].items():
             for door in layout.flat_prop:
                 if world.mode[player] != 'standard' or not retro_in_hc(door.entrance):

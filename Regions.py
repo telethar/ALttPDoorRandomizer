@@ -1029,7 +1029,7 @@ def adjust_locations(world, player):
             loc.event = False
             item_dungeon = key_item.dungeon
             dungeon = world.get_dungeon(item_dungeon, player)
-            if key_item.smallkey and not world.retro[player]:
+            if key_item.smallkey and world.keyshuffle[player] != 'universal':
                 dungeon.small_keys.append(key_item)
             elif key_item.bigkey:
                 dungeon.big_key = key_item

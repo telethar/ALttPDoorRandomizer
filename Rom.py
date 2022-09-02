@@ -797,7 +797,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x138002, 2)
         for name, layout in world.key_layout[player].items():
             offset = compass_data[name][4]//2
-            if world.retro[player]:
+            if world.keyshuffle[player] == 'universal':
                 rom.write_byte(0x13f030+offset, layout.max_chests + layout.max_drops)
             else:
                 rom.write_byte(0x13f020+offset, layout.max_chests + layout.max_drops)  # not currently used
@@ -898,7 +898,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x142A50, 1)  # StandingItemsOn
     multiClientFlags = ((0x1 if world.dropshuffle[player] else 0)
                         | (0x2 if world.shopsanity[player] else 0)
-                        | (0x4 if world.retro[player] else 0)
+                        | (0x4 if world.take_any[player] != 'none' else 0)
                         | (0x8 if world.pottery[player] != 'none' else 0)
                         | (0x10 if is_mystery else 0))
     rom.write_byte(0x142A51, multiClientFlags)
@@ -1112,7 +1112,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         prizes = [prize_replacements.get(prize, prize) for prize in prizes]
         dig_prizes = [prize_replacements.get(prize, prize) for prize in dig_prizes]
 
-    if world.retro[player]:
+    if world.bow_mode[player].startswith('retro'):
         prize_replacements = {0xE1: 0xDA, #5 Arrows -> Blue Rupee
                               0xE2: 0xDB} #10 Arrows -> Red Rupee
         prizes = [prize_replacements.get(prize, prize) for prize in prizes]
@@ -1155,7 +1155,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         0x12, 0x01, 0x35, 0xFF, # lamp -> 5 rupees
         0x51, 0x00 if world.bombbag[player] else 0x06, 0x31 if world.bombbag[player] else 0x52, 0xFF, # 6 +5 bomb upgrades -> +10 bomb upgrade. If bombbag -> turns into Bombs (10)
         0x53, 0x06, 0x54, 0xFF, # 6 +5 arrow upgrades -> +10 arrow upgrade
-        0x58, 0x01, 0x36 if world.retro[player] else 0x43, 0xFF, # silver arrows -> single arrow (red 20 in retro mode)
+        0x58, 0x01, 0x36 if world.bow_mode[player].startswith('retro') else 0x43, 0xFF, # silver arrows -> single arrow (red 20 in retro mode)
         0x3E, difficulty.boss_heart_container_limit, 0x47, 0xff, # boss heart -> green 20
         0x17, difficulty.heart_piece_limit, 0x47, 0xff, # piece of heart -> green 20
         0xFF, 0xFF, 0xFF, 0xFF, # end of table sentinel
@@ -1204,7 +1204,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         ERtimeincrease = 10
     else:
         ERtimeincrease = 20
-    if world.keyshuffle[player] or world.bigkeyshuffle[player] or world.mapshuffle[player]:
+    if world.keyshuffle[player] != 'none' or world.bigkeyshuffle[player] or world.mapshuffle[player]:
         ERtimeincrease = ERtimeincrease + 15
     if world.clock_mode == 'none':
         rom.write_bytes(0x180190, [0x00, 0x00, 0x00])  # turn off clock mode
@@ -1337,7 +1337,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     # m - enabled for inside maps
     # c - enabled for inside compasses
     # s - enabled for inside small keys
-    rom.write_byte(0x18016A, 0x10 | ((0x01 if world.keyshuffle[player] else 0x00)
+    rom.write_byte(0x18016A, 0x10 | ((0x01 if world.keyshuffle[player] == 'wild' else 0x00)
                                      | (0x02 if world.compassshuffle[player] else 0x00)
                                      | (0x04 if world.mapshuffle[player] else 0x00)
                                      | (0x08 if world.bigkeyshuffle[player] else 0x00)))  # free roaming item text boxes
@@ -1403,7 +1403,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     # a - Small Key
     #
     enable_menu_map_check = world.overworld_map[player] != 'default' and world.shuffle[player] != 'none'
-    rom.write_byte(0x180045, ((0x01 if world.keyshuffle[player] else 0x00)
+    rom.write_byte(0x180045, ((0x01 if world.keyshuffle[player] == 'wild' else 0x00)
                               | (0x02 if world.bigkeyshuffle[player] else 0x00)
                               | (0x04 if world.mapshuffle[player] or enable_menu_map_check else 0x00)
                               | (0x08 if world.compassshuffle[player] else 0x00)))  # free roaming items in menu
@@ -1434,17 +1434,17 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     write_int16(rom, 0x18017A, get_reveal_bytes('Green Pendant') if world.mapshuffle[player] else 0x0000) # Sahasrahla reveal
     write_int16(rom, 0x18017C, get_reveal_bytes('Crystal 5')|get_reveal_bytes('Crystal 6') if world.mapshuffle[player] else 0x0000) # Bomb Shop Reveal
 
-    rom.write_byte(0x180172, 0x01 if world.retro[player] else 0x00)  # universal keys
-    rom.write_byte(0x180175, 0x01 if world.retro[player] else 0x00)  # rupee bow
-    rom.write_byte(0x180176, 0x0A if world.retro[player] else 0x00)  # wood arrow cost
-    rom.write_byte(0x180178, 0x32 if world.retro[player] else 0x00)  # silver arrow cost
-    rom.write_byte(0x301FC, 0xDA if world.retro[player] else 0xE1)  # rupees replace arrows under pots
+    rom.write_byte(0x180172, 0x01 if world.keyshuffle[player] == 'universal' else 0x00)  # universal keys
+    rom.write_byte(0x180175, 0x01 if world.bow_mode[player].startswith('retro') else 0x00)  # rupee bow
+    rom.write_byte(0x180176, 0x0A if world.bow_mode[player].startswith('retro') else 0x00)  # wood arrow cost
+    rom.write_byte(0x180178, 0x32 if world.bow_mode[player].startswith('retro') else 0x00)  # silver arrow cost
+    rom.write_byte(0x301FC, 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)  # rupees replace arrows under pots
     if enemized:
-        rom.write_byte(0x1B152e, 0xDA if world.retro[player] else 0xE1)
-    rom.write_byte(0x30052, 0xDB if world.retro[player] else 0xE2) # replace arrows in fish prize from bottle merchant
-    rom.write_bytes(0xECB4E, [0xA9, 0x00, 0xEA, 0xEA] if world.retro[player] else [0xAF, 0x77, 0xF3, 0x7E])  # Thief steals rupees instead of arrows
-    rom.write_bytes(0xF0D96, [0xA9, 0x00, 0xEA, 0xEA] if world.retro[player] else [0xAF, 0x77, 0xF3, 0x7E])  # Pikit steals rupees instead of arrows
-    rom.write_bytes(0xEDA5, [0x35, 0x41] if world.retro[player] else [0x43, 0x44])  # Chest game gives rupees instead of arrows
+        rom.write_byte(0x1B152e, 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)
+    rom.write_byte(0x30052, 0xDB if world.bow_mode[player].startswith('retro') else 0xE2) # replace arrows in fish prize from bottle merchant
+    rom.write_bytes(0xECB4E, [0xA9, 0x00, 0xEA, 0xEA] if world.bow_mode[player].startswith('retro') else [0xAF, 0x77, 0xF3, 0x7E])  # Thief steals rupees instead of arrows
+    rom.write_bytes(0xF0D96, [0xA9, 0x00, 0xEA, 0xEA] if world.bow_mode[player].startswith('retro') else [0xAF, 0x77, 0xF3, 0x7E])  # Pikit steals rupees instead of arrows
+    rom.write_bytes(0xEDA5, [0x35, 0x41] if world.bow_mode[player].startswith('retro') else [0x43, 0x44])  # Chest game gives rupees instead of arrows
     digging_game_rng = random.randint(1, 30)  # set rng for digging game
     rom.write_byte(0x180020, digging_game_rng)
     rom.write_byte(0xEFD95, digging_game_rng)
@@ -2151,7 +2151,7 @@ def write_strings(rom, world, player, team):
         # It is done the way it is to re-use the silver code and also to give one hint per each type of item regardless
         # of how many exist. This supports many settings well.
         items_to_hint = RelevantItems.copy()
-        if world.keyshuffle[player]:
+        if world.keyshuffle[player] == 'wild':
             items_to_hint.extend(SmallKeys)
         if world.bigkeyshuffle[player]:
             items_to_hint.extend(BigKeys)

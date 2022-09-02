@@ -1,5 +1,13 @@
 {
   "widgets": {
+    "keyshuffle": {
+      "type": "selectbox",
+      "options": [
+        "standard",
+        "wild",
+        "universal"
+      ]
+    },
     "dungeondoorshuffle": {
       "type": "selectbox",
       "default": "basic",

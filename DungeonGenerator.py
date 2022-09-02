@@ -1355,7 +1355,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                 sanc_builder = random.choice(lw_builders)
                 assign_sector(sanc, sanc_builder, candidate_sectors, global_pole)
 
-        bow_sectors, retro_std_flag = {}, world.retro[player] and world.mode[player] == 'standard'
+        bow_sectors, retro_std_flag = {}, world.bow_mode[player].startswith('retro') and world.mode[player] == 'standard'
         free_location_sectors = {}
         crystal_switches = {}
         crystal_barriers = {}

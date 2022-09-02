@@ -53,6 +53,9 @@
     "randomizer.dungeon.mapshuffle": "Maps",
     "randomizer.dungeon.compassshuffle": "Compasses",
     "randomizer.dungeon.smallkeyshuffle": "Small Keys",
+    "randomizer.dungeon.smallkeyshuffle.standard": "In Dungeon",
+    "randomizer.dungeon.smallkeyshuffle.wild": "Randomized",
+    "randomizer.dungeon.smallkeyshuffle.universal": "Universal",
     "randomizer.dungeon.bigkeyshuffle": "Big Keys",
     "randomizer.dungeon.keydropshuffle": "Key Drop Shuffle (Legacy)",
     "randomizer.dungeon.decoupledoors": "Decouple Doors",
@@ -155,7 +158,10 @@
     "randomizer.entrance.entranceshuffle.dungeonsfull": "Dungeons + Full",
     "randomizer.entrance.entranceshuffle.dungeonssimple": "Dungeons + Simple",
 
-
+    "randomizer.entrance.take_any": "Take Any Caves",
+    "randomizer.entrance.take_any.none": "None",
+    "randomizer.entrance.take_any.random": "Random",
+    "randomizer.entrance.take_any.fixed": "Fixed",
 
     "randomizer.gameoptions.nobgm": "Disable Music & MSU-1",
     "randomizer.gameoptions.quickswap": "L/R Quickswapping",
@@ -219,7 +225,7 @@
     "randomizer.generation.rom.dialog.allfiles": "All Files",
 
     "randomizer.item.hints": "Include Helpful Hints",
-    "randomizer.item.retro": "Retro mode (universal keys)",
+    "randomizer.item.retro": "Retro mode",
     "randomizer.item.pseudoboots": "Start with Pseudo Boots",
     "randomizer.item.bombbag": "Bombbag",
 
@@ -288,6 +294,12 @@
     "randomizer.item.flute_mode": "Flute Mode",
     "randomizer.item.flute_mode.normal": "Normal",
     "randomizer.item.flute_mode.active": "Pre-Activated",
+
+    "randomizer.item.bow_mode": "Bow Mode",
+    "randomizer.item.bow_mode.progressive": "Progressive",
+    "randomizer.item.bow_mode.silvers": "Silvers Separate",
+    "randomizer.item.bow_mode.retro": "Retro (Progressive)",
+    "randomizer.item.bow_mode.retro_silvers": "Retro + Silvers",
 
     "randomizer.item.timer": "Timer Setting",
     "randomizer.item.timer.none": "No Timer",

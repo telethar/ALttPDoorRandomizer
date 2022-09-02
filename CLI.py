@@ -103,11 +103,20 @@ def parse_cli(argv, no_defaults=False):
     ret = parser.parse_args(argv)
 
     if ret.keysanity:
-        ret.mapshuffle, ret.compassshuffle, ret.keyshuffle, ret.bigkeyshuffle = [True] * 4
+        ret.mapshuffle, ret.compassshuffle, ret.bigkeyshuffle = [True] * 3
+        ret.keyshuffle = 'wild'
 
     if ret.keydropshuffle:
         ret.dropshuffle = True
         ret.pottery = 'keys' if ret.pottery == 'none' else ret.pottery
+
+    if ret.retro or ret.mode == 'retro':
+        if ret.bow_mode == 'progressive':
+            ret.bow_mode = 'retro'
+        elif ret.bow_mode == 'silvers':
+            ret.bow_mode = 'retro_silvers'
+        ret.take_any = 'random' if ret.take_any == 'none' else ret.take_any
+        ret.keyshuffle = 'universal'
 
     if player_num:
         defaults = copy.deepcopy(ret)
@@ -115,7 +124,7 @@ def parse_cli(argv, no_defaults=False):
             playerargs = parse_cli(shlex.split(getattr(ret, f"p{player}")), True)
 
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',
-                         'flute_mode',
+                         'flute_mode', 'bow_mode', 'take_any',
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
                          'usestartinventory', 'bombbag', 'overworld_map', 'restrict_boss_items',
@@ -158,6 +167,7 @@ def parse_settings():
         "crystals_ganon": "7",
         "swords": "random",
         'flute_mode': 'normal',
+        'bow_mode': 'progressive',
         "difficulty": "normal",
         "item_functionality": "normal",
         "timer": "none",
@@ -175,6 +185,7 @@ def parse_settings():
         "shufflelinks": False,
         "shuffletavern": False,
         "overworld_map": "default",
+        'take_any': 'none',
         "pseudoboots": False,
 
         "shuffleenemies": "none",
@@ -189,11 +200,11 @@ def parse_settings():
         'pottery': 'none',
         'colorizepots': False,
         'shufflepots': False,
-        "mapshuffle": False,
-        "compassshuffle": False,
-        "keyshuffle": False,
-        "bigkeyshuffle": False,
-        "keysanity": False,
+        'mapshuffle': False,
+        'compassshuffle': False,
+        'keyshuffle': 'none',
+        'bigkeyshuffle': False,
+        'keysanity': False,
         "door_shuffle": "basic",
         "intensity": 2,
         'door_type_mode': 'original',

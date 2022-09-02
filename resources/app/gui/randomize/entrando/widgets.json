@@ -29,6 +29,14 @@
       "config": {
         "width": 45
       }
+    },
+    "take_any":  {
+      "type": "selectbox",
+      "options": [
+        "none",
+        "random",
+        "fixed"
+      ]
     }
   }
 }

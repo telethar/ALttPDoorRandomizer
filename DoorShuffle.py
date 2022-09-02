@@ -470,7 +470,7 @@ def choose_portals(world, player):
         for dungeon, info in shuffled_info:
             outstanding_portals = list(dungeon_portals[dungeon])
             hc_flag = std_flag and dungeon == 'Hyrule Castle'
-            rupee_bow_flag = hc_flag and world.retro[player]  # rupee bow
+            rupee_bow_flag = hc_flag and world.bow_mode[player].startswith('retro')  # rupee bow
             if hc_flag:
                 sanc = world.get_portal('Sanctuary', player)
                 sanc.destination = True
@@ -843,7 +843,7 @@ def main_dungeon_pool(dungeon_pool, world, player):
 
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
     target_items = 34
-    if world.retro[player]:
+    if world.keyshuffle[player] == 'universal':
         target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
     else:
         target_items += 29  # small keys in chests
@@ -1248,7 +1248,7 @@ def cross_dungeon(world, player):
     assign_cross_keys(dungeon_builders, world, player)
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
     target_items = 34
-    if world.retro[player]:
+    if world.keyshuffle[player] == 'universal':
         target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
     else:
         target_items += 29  # small keys in chests
@@ -1336,7 +1336,7 @@ def filter_key_door_pool(pool, selected_custom):
 def assign_cross_keys(dungeon_builders, world, player):
     logging.getLogger('').info(world.fish.translate("cli", "cli", "shuffling.keydoors"))
     start = time.process_time()
-    if world.retro[player]:
+    if world.keyshuffle[player] == 'universal':
         remaining = 29
         if world.dropshuffle[player]:
             remaining += 13
@@ -1424,7 +1424,7 @@ def assign_cross_keys(dungeon_builders, world, player):
     # Last Step: Adjust Small Key Dungeon Pool
     for name, builder in dungeon_builders.items():
         reassign_key_doors(builder, world, player)
-        if not world.retro[player]:
+        if world.keyshuffle[player] != 'universal':
             log_key_logic(builder.name, world.key_logic[player][builder.name])
             actual_chest_keys = max(builder.key_doors_num - builder.key_drop_cnt, 0)
             dungeon = world.get_dungeon(name, player)
@@ -1963,7 +1963,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
         # time to re-assign
         reassign_key_doors(small_map, world, player)
         for dungeon_name in pool:
-            if not world.retro[player]:
+            if world.keyshuffle[player] != 'universal':
                 builder = world.dungeon_layouts[player][dungeon_name]
                 log_key_logic(builder.name, world.key_logic[player][builder.name])
                 if world.doorShuffle[player] != 'basic':
@@ -2470,7 +2470,7 @@ def reassign_big_key_doors(bk_map, world, player):
                     pass  # we don't have spiral stairs candidates yet that aren't already key doors
                 elif d.type is DoorType.Normal:
                     change_door_to_big_key(d, world, player)
-                    if not world.decoupledoors[player] and d.dest:
+                    if not world.decoupledoors[player] and d.dest and world.door_type_mode[player] != 'original':
                         if d.dest.type in [DoorType.Normal]:
                             dest_room = world.get_room(d.dest.roomIndex, player)
                             if stateful_door(d.dest, dest_room.kind(d.dest)):

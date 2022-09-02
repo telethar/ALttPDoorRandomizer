@@ -75,7 +75,7 @@ def main(args, seed=None, fish=None):
         customized.adjust_args(args)
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
-                  args.accessibility, args.shuffleganon, args.retro, args.custom, args.customitemarray, args.hints)
+                  args.accessibility, args.shuffleganon, args.custom, args.customitemarray, args.hints)
     world.customizer = customized if customized else None
     logger = logging.getLogger('')
     if seed is None:
@@ -96,6 +96,7 @@ def main(args, seed=None, fish=None):
     world.bigkeyshuffle = args.bigkeyshuffle.copy()
     world.bombbag = args.bombbag.copy()
     world.flute_mode = args.flute_mode.copy()
+    world.bow_mode = args.bow_mode.copy()
     world.crystals_needed_for_ganon = {player: random.randint(0, 7) if args.crystals_ganon[player] == 'random' else int(args.crystals_ganon[player]) for player in range(1, world.players + 1)}
     world.crystals_needed_for_gt = {player: random.randint(0, 7) if args.crystals_gt[player] == 'random' else int(args.crystals_gt[player]) for player in range(1, world.players + 1)}
     world.crystals_ganon_orig = args.crystals_ganon.copy()
@@ -124,11 +125,13 @@ def main(args, seed=None, fish=None):
     world.shuffletavern = args.shuffletavern.copy()
     world.pseudoboots = args.pseudoboots.copy()
     world.overworld_map = args.overworld_map.copy()
+    world.take_any = args.take_any.copy()
     world.restrict_boss_items = args.restrict_boss_items.copy()
     world.collection_rate = args.collection_rate.copy()
     world.colorizepots = args.colorizepots.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
+    world.finish_init()
 
     logger.info(
       world.fish.translate("cli","cli","app.title") + "\n",
@@ -247,7 +250,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
             sell_potions(world, player)
-            if world.retro[player]:
+            if world.keyshuffle[player] == 'universal':
                 sell_keys(world, player)
         else:
             lock_shop_locations(world, player)
@@ -425,7 +428,7 @@ def copy_world(world):
     # ToDo: Not good yet
     ret = World(world.players, world.shuffle, world.doorShuffle, world.logic, world.mode, world.swords,
                 world.difficulty, world.difficulty_adjustments, world.timer, world.progressive, world.goal, world.algorithm,
-                world.accessibility, world.shuffle_ganon, world.retro, world.custom, world.customitemarray, world.hints)
+                world.accessibility, world.shuffle_ganon, world.custom, world.customitemarray, world.hints)
     ret.teams = world.teams
     ret.player_names = copy.deepcopy(world.player_names)
     ret.remote_items = world.remote_items.copy()
