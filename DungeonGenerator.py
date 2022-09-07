@@ -16,6 +16,7 @@ from Dungeons import dungeon_regions, split_region_starts
 from RoomData import DoorKind
 
 from source.dungeon.DungeonStitcher import generate_dungeon_find_proposal
+from source.dungeon.DungeonStitcher import GenerationException as OtherGenException
 
 
 class GraphPiece:
@@ -1505,6 +1506,8 @@ def calc_allowance_and_dead_ends(builder, connections_tuple, world, player):
                     builder.branches -= 1
                 if entrance not in drop_entrances_allowance:
                     needed_connections.append(entrance)
+    if builder.sewers_access:
+        starting_allowance += 1
     builder.allowance = starting_allowance
     for entrance in needed_connections:
         sector = find_sector(entrance, builder.sectors)
@@ -3051,7 +3054,7 @@ def split_dungeon_builder(builder, split_list, builder_info):
             comb_w_replace = len(dungeon_map) ** len(candidate_sectors)
             return balance_split(candidate_sectors, dungeon_map, global_pole, builder_info)
         except (GenerationException, NeutralizingException):
-            if comb_w_replace and comb_w_replace <= 10000:
+            if comb_w_replace and comb_w_replace <= 10000 and not builder.throne_door:
                 attempts += 5  # all the combinations were tried already, no use repeating
             else:
                 attempts += 1
@@ -3535,7 +3538,7 @@ def check_for_valid_layout(builder, sector_list, builder_info):
                 split_list['Sewers'].remove(temp_builder.throne_door.entrance.parent_region.name)
             builder.exception_list = list(sector_list)
             return True, {}, package
-        except (GenerationException, NeutralizingException):
+        except (GenerationException, NeutralizingException, OtherGenException):
             builder.split_dungeon_map = None
             builder.valid_proposal = None
             if temp_builder.name == 'Hyrule Castle' and temp_builder.throne_door:
@@ -3948,20 +3951,20 @@ def find_free_equation(equations):
 def copy_door_equations(builder, sector_list):
     equations = {}
     for sector in builder.sectors + sector_list:
-        sector.equations = calc_sector_equations(sector)
+        sector.equations = calc_sector_equations(sector, builder.sewers_access)
         curr_list = equations[sector] = []
         for equation in sector.equations:
             curr_list.append(equation.copy())
     return equations
 
 
-def calc_sector_equations(sector):
+def calc_sector_equations(sector, sewers_flag=False):
     equations = []
-    is_entrance = sector.is_entrance_sector() and not sector.destination_entrance
+    is_entrance = (sector.is_entrance_sector() and not sector.destination_entrance) or sewers_flag
     if is_entrance:
         flagged_equations = []
         for door in sector.outstanding_doors:
-            equation, flag = calc_door_equation(door, sector, True)
+            equation, flag = calc_door_equation(door, sector, True, sewers_flag)
             if flag:
                 flagged_equations.append(equation)
             equations.append(equation)
@@ -3977,9 +3980,9 @@ def calc_sector_equations(sector):
     return equations
 
 
-def calc_door_equation(door, sector, look_for_entrance):
+def calc_door_equation(door, sector, look_for_entrance, sewers_flag=None):
     if look_for_entrance and not door.blocked:
-        flag = sector.is_entrance_sector()
+        flag = sector.is_entrance_sector() or sewers_flag
         if flag:
             eq = DoorEquation(door)
             eq.benefit[hook_from_door(door)].append(door)

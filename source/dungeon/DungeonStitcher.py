@@ -56,6 +56,8 @@ def generate_dungeon_find_proposal(builder, entrance_region_names, split_dungeon
                 if (access_region.name in world.inaccessible_regions[player] and
                      region.name not in world.enabled_entrances[player]):
                     excluded[region] = None
+        elif split_dungeon and builder.sewers_access and builder.sewers_access.entrance.parent_region == region:
+            continue
         elif len(region.entrances) == 1:  # for holes
             access_region = next(x.parent_region for x in region.entrances
                                  if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]
@@ -182,11 +184,17 @@ def modify_proposal(proposed_map, explored_state, doors_to_connect, hash_code_se
             return proposed_map, hash_code
 
         attempt, opp_hook = None, None
-        opp_hook_len = 0
+        opp_hook_len, possible_swaps = 0, list(visited_choices)
         while opp_hook_len == 0:
-            attempt = random.choice(visited_choices)
+            if len(possible_swaps) == 0:
+                break
+            attempt = random.choice(possible_swaps)
+            possible_swaps.remove(attempt)
             opp_hook = type_map[hook_from_door(attempt)]
             opp_hook_len = len(unvisted_bucket[opp_hook])
+        if opp_hook_len == 0:
+            itr += 1
+            continue
         unvisted_bucket[opp_hook].sort(key=lambda d: d.name)
         new_door = random.choice(unvisted_bucket[opp_hook])
         old_target = proposed_map[attempt]
