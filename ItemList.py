@@ -544,7 +544,7 @@ def fill_prizes(world, attempts=15):
                 continue
             break
         else:
-            raise FillError('Unable to place dungeon prizes')
+            raise FillError(f'Unable to place dungeon prizes {", ".join(list(map(lambda d: d.hint_text, prize_locs)))}')
 
 
 def set_up_shops(world, player):
