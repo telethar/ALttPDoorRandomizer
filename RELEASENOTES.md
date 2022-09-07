@@ -183,6 +183,9 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 #### Unstable
 
+* 1.0.1.3
+  * Fix for rain prevented doors fouling up key doors
+  * Couple minor issues
 * 1.0.1.2
   * Removed "good bee" as an in-logic way of killing Mothula
   * Fixed an issue with Mystery generation and Windows path
