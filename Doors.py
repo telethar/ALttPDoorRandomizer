@@ -435,7 +435,7 @@ def create_doors(world, player):
         create_door(player, 'PoD Dark Basement W Up Stairs', Sprl).dir(Up, 0x6a, 0, HTH).ss(S, 0x1b, 0x3c, True),
         create_door(player, 'PoD Dark Basement E Up Stairs', Sprl).dir(Up, 0x6a, 1, HTH).ss(S, 0x1b, 0x9c, True),
         create_door(player, 'PoD Dark Alley NE', Nrml).dir(No, 0x6a, Right, High).big_key().pos(0),
-        create_door(player, 'PoD Mimics 2 SW', Nrml).dir(So, 0x1b, Left, High).pos(1).kill().portal(Z, 0x00),
+        create_door(player, 'PoD Mimics 2 SW', Nrml).dir(So, 0x1b, Left, High).pos(1).portal(Z, 0x00),
         create_door(player, 'PoD Mimics 2 NW', Intr).dir(No, 0x1b, Left, High).pos(0),
         create_door(player, 'PoD Bow Statue SW', Intr).dir(So, 0x1b, Left, High).pos(0),
         create_door(player, 'PoD Bow Statue Left to Right Barrier - Orange', Lgcl),
@@ -1466,6 +1466,11 @@ def create_doors(world, player):
     world.get_door('GT Spike Crystal Left to Right Barrier - Orange', player).barrier(CrystalBarrier.Orange)
     world.get_door('GT Spike Crystal Right to Left Barrier - Orange', player).barrier(CrystalBarrier.Orange)
     world.get_door('GT Spike Crystal Left to Right Bypass', player).barrier(CrystalBarrier.Blue)
+
+    # kill certain doors
+    if world.intensity[player] == 1:  # due to ladder & warp being fixed
+        world.get_door('PoD Mimics 2 SW', player).kill()
+
 
     # nifty dynamic logical doors:
     south_controller = world.get_door('Ice Cross Bottom SE', player)
