@@ -158,7 +158,7 @@ class PlacementRule(object):
                 left -= rule_needed
         return False
 
-    def is_satisfiable(self, outside_keys, unplaced_keys, big_key_loc, prize_location, cr_count):
+    def is_satisfiable(self, outside_keys, wild_keys, unplaced_keys, big_key_loc, prize_location, cr_count):
         if self.prize_relevance and prize_location:
             if self.prize_relevance == 'BigBomb':
                  if prize_location.item.name not in ['Crystal 5', 'Crystal 6']:
