@@ -113,7 +113,7 @@ class World(object):
             set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic'] or shuffle[player] in ['crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
-            set_player_attr('keyshuffle', 'standard')
+            set_player_attr('keyshuffle', 'none')
             set_player_attr('bigkeyshuffle', False)
             set_player_attr('restrict_boss_items', 'none')
             set_player_attr('bombbag', False)
