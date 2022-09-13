@@ -353,9 +353,6 @@ def connect_one_way(world, entrancename, exitname, player):
     y = world.check_for_door(exitname, player)
     if x is not None:
         x.dest = y
-    if y is not None:
-        y.dest = x
-
 
 def unmark_ugly_smalls(world, player):
     for d in ['Eastern Hint Tile Blocked Path SE', 'Eastern Darkness S', 'Thieves Hallway SE', 'Mire Left Bridge S',
