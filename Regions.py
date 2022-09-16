@@ -436,6 +436,7 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'PoD Basement Ledge', 'Palace of Darkness', None, ['PoD Basement Ledge Drop Down', 'PoD Basement Ledge Up Stairs']),
         create_dungeon_region(player, 'PoD Big Key Landing', 'Palace of Darkness', ['Palace of Darkness - Big Key Chest'], ['PoD Big Key Landing Down Stairs', 'PoD Big Key Landing Hole']),
         create_dungeon_region(player, 'PoD Falling Bridge Ledge', 'Palace of Darkness', None, ['PoD Falling Bridge WN', 'PoD Falling Bridge EN', 'PoD Falling Bridge Path S']),
+        create_dungeon_region(player, 'PoD Falling Bridge Mid', 'Palace of Darkness', None, ['PoD Falling Bridge Mid Path S', 'PoD Falling Bridge Mid Path N']),
         create_dungeon_region(player, 'PoD Falling Bridge', 'Palace of Darkness', None, ['PoD Falling Bridge SW', 'PoD Falling Bridge Path N']),
         create_dungeon_region(player, 'PoD Dark Maze', 'Palace of Darkness', ['Palace of Darkness - Dark Maze - Top', 'Palace of Darkness - Dark Maze - Bottom'], ['PoD Dark Maze EN', 'PoD Dark Maze E']),
         create_dungeon_region(player, 'PoD Big Chest Balcony', 'Palace of Darkness', ['Palace of Darkness - Big Chest'], ['PoD Big Chest Balcony W']),

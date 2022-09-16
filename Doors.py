@@ -425,6 +425,8 @@ def create_doors(world, player):
         create_door(player, 'PoD Falling Bridge EN', Intr).dir(Ea, 0x1a, Top, High).pos(4),
         create_door(player, 'PoD Falling Bridge Path N', Lgcl),
         create_door(player, 'PoD Falling Bridge Path S', Lgcl),
+        create_door(player, 'PoD Falling Bridge Mid Path S', Lgcl),
+        create_door(player, 'PoD Falling Bridge Mid Path N', Lgcl),
         create_door(player, 'PoD Big Chest Balcony W', Nrml).dir(We, 0x1a, Mid, High).pos(2),
         create_door(player, 'PoD Dark Maze EN', Nrml).dir(Ea, 0x19, Top, High).small_key().pos(1),
         create_door(player, 'PoD Dark Maze E', Nrml).dir(Ea, 0x19, Mid, High).pos(0),
