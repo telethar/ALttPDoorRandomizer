@@ -1,6 +1,7 @@
 import collections
 from Items import ItemFactory
-from BaseClasses import Region, Location, Entrance, RegionType, Shop, ShopType
+from BaseClasses import Region, Location, Entrance, RegionType, Shop, ShopType, LocationType, PotItem, PotFlags
+from PotShuffle import key_drop_data, vanilla_pots, choose_pots, PotSecretTable
 
 
 def create_regions(world, player):
@@ -14,17 +15,20 @@ def create_regions(world, player):
                           'Bonk Rock Cave', 'Library', 'Potion Shop', 'Two Brothers House (East)', 'Desert Palace Stairs', 'Eastern Palace', 'Master Sword Meadow',
                           'Sanctuary', 'Sanctuary Grave', 'Death Mountain Entrance Rock', 'Flute Spot 1', 'Dark Desert Teleporter', 'East Hyrule Teleporter', 'South Hyrule Teleporter', 'Kakariko Teleporter',
                           'Elder House (East)', 'Elder House (West)', 'North Fairy Cave', 'North Fairy Cave Drop', 'Lost Woods Gamble', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Tavern (Front)',
-                          'Bush Covered House', 'Light World Bomb Hut', 'Kakariko Shop', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave', 'Cave Shop (Lake Hylia)', 'Waterfall of Wishing', 'Hyrule Castle Main Gate',
+                          'Bush Covered House', 'Light World Bomb Hut', 'Kakariko Shop', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave', 'Cave Shop (Lake Hylia)', 'Zora Waterfall Entryway', 'Hyrule Castle Main Gate',
                           'Bonk Fairy (Light)', '50 Rupee Cave', 'Fortune Teller (Light)', 'Lake Hylia Fairy', 'Light Hype Fairy', 'Desert Fairy', 'Lumberjack House', 'Lake Hylia Fortune Teller', 'Kakariko Gamble Game', 'Top of Pyramid']),
         create_lw_region(player, 'Death Mountain Entrance', None, ['Old Man Cave (West)', 'Death Mountain Entrance Drop']),
         create_lw_region(player, 'Lake Hylia Central Island', None, ['Capacity Upgrade', 'Lake Hylia Central Island Teleporter']),
-        create_cave_region(player, 'Blinds Hideout', 'a bounty of five items', ["Blind\'s Hideout - Top",
-                                                                        "Blind\'s Hideout - Left",
-                                                                        "Blind\'s Hideout - Right",
-                                                                        "Blind\'s Hideout - Far Left",
-                                                                        "Blind\'s Hideout - Far Right"]),
+        create_cave_region(player, 'Blinds Hideout', 'a bounty of five items', [
+                                                                        "Blind's Hideout - Left",
+                                                                        "Blind's Hideout - Right",
+                                                                        "Blind's Hideout - Far Left",
+                                                                        "Blind's Hideout - Far Right"],
+                           ['Blinds Hideout N']),
+        create_cave_region(player, 'Blinds Hideout (Top)', 'a bounty of five items', ["Blind's Hideout - Top"]),
         create_cave_region(player, 'Hyrule Castle Secret Entrance', 'a drop\'s exit', ['Link\'s Uncle', 'Secret Passage'], ['Hyrule Castle Secret Entrance Exit']),
         create_lw_region(player, 'Zoras River', ['King Zora', 'Zora\'s Ledge']),
+        create_lw_region(player, 'Zora Waterfall Entryway', None, ['Waterfall of Wishing', 'Zora Waterfall Water Drop']),
         create_cave_region(player, 'Waterfall of Wishing', 'a cave with two chests', ['Waterfall Fairy - Left', 'Waterfall Fairy - Right']),
         create_lw_region(player, 'Kings Grave Area', None, ['Kings Grave', 'Kings Grave Inner Rocks']),
         create_cave_region(player, 'Kings Grave', 'a cave with a chest', ['King\'s Tomb']),
@@ -55,12 +59,15 @@ def create_regions(world, player):
         create_cave_region(player, 'Chicken House', 'a house with a chest', ['Chicken House']),
         create_cave_region(player, 'Aginahs Cave', 'a cave with a chest', ['Aginah\'s Cave']),
         create_cave_region(player, 'Sahasrahlas Hut', 'Sahasrahla', ['Sahasrahla\'s Hut - Left', 'Sahasrahla\'s Hut - Middle', 'Sahasrahla\'s Hut - Right', 'Sahasrahla']),
-        create_cave_region(player, 'Kakariko Well (top)', 'a drop\'s exit', ['Kakariko Well - Top', 'Kakariko Well - Left', 'Kakariko Well - Middle',
-                                                                     'Kakariko Well - Right', 'Kakariko Well - Bottom'], ['Kakariko Well (top to bottom)']),
+        create_cave_region(player, 'Kakariko Well (top)', 'a drop',
+                           ['Kakariko Well - Left', 'Kakariko Well - Middle', 'Kakariko Well - Right',
+                            'Kakariko Well - Bottom'],
+                           ['Kakariko Well (top to bottom)', 'Kakariko Well (top to back)']),
+        create_cave_region(player, 'Kakariko Well (back)', 'a drop', ['Kakariko Well - Top']),
         create_cave_region(player, 'Kakariko Well (bottom)', 'a drop\'s exit', None, ['Kakariko Well Exit']),
         create_cave_region(player, 'Blacksmiths Hut', 'the smith', ['Blacksmith', 'Missing Smith']),
         create_lw_region(player, 'Bat Cave Drop Ledge', None, ['Bat Cave Drop']),
-        create_cave_region(player, 'Bat Cave (right)', 'a drop\'s exit', ['Magic Bat'], ['Bat Cave Door']),
+        create_cave_region(player, 'Bat Cave (right)', 'a drop', ['Magic Bat'], ['Bat Cave Door']),
         create_cave_region(player, 'Bat Cave (left)', 'a drop\'s exit', None, ['Bat Cave Exit']),
         create_cave_region(player, 'Sick Kids House', 'the sick kid', ['Sick Kid']),
         create_lw_region(player, 'Hobo Bridge', ['Hobo']),
@@ -68,9 +75,9 @@ def create_regions(world, player):
         create_cave_region(player, 'Lost Woods Hideout (bottom)', 'a drop\'s exit', None, ['Lost Woods Hideout Exit']),
         create_cave_region(player, 'Lumberjack Tree (top)', 'a drop\'s exit', ['Lumberjack Tree'], ['Lumberjack Tree (top to bottom)']),
         create_cave_region(player, 'Lumberjack Tree (bottom)', 'a drop\'s exit', None, ['Lumberjack Tree Exit']),
-        create_lw_region(player, 'Cave 45 Ledge', None, ['Cave 45']),
+        create_lw_region(player, 'Cave 45 Ledge', None, ['Cave 45', 'Cave 45 Ledge Drop']),
         create_cave_region(player, 'Cave 45', 'a cave with an item', ['Cave 45']),
-        create_lw_region(player, 'Graveyard Ledge', None, ['Graveyard Cave']),
+        create_lw_region(player, 'Graveyard Ledge', None, ['Graveyard Cave', 'Graveyard Ledge Drop']),
         create_cave_region(player, 'Graveyard Cave', 'a cave with an item', ['Graveyard Cave']),
         create_cave_region(player, 'Checkerboard Cave', 'a cave with an item', ['Checkerboard Cave']),
         create_cave_region(player, 'Long Fairy Cave', 'a fairy fountain'),
@@ -88,17 +95,17 @@ def create_regions(world, player):
         create_lw_region(player, 'Lake Hylia Island', ['Lake Hylia Island']),
         create_cave_region(player, 'Capacity Upgrade', 'the queen of fairies', ['Capacity Upgrade - Left', 'Capacity Upgrade - Right']),
         create_cave_region(player, 'Two Brothers House', 'a connector', None, ['Two Brothers House Exit (East)', 'Two Brothers House Exit (West)']),
-        create_lw_region(player, 'Maze Race Ledge', ['Maze Race'], ['Two Brothers House (West)']),
+        create_lw_region(player, 'Maze Race Ledge', ['Maze Race'], ['Two Brothers House (West)', 'Maze Race Ledge Drop'], 'a race against time'),
         create_cave_region(player, '50 Rupee Cave', 'a cave with some cash'),
-        create_lw_region(player, 'Desert Ledge', ['Desert Ledge'], ['Desert Palace Entrance (North) Rocks', 'Desert Palace Entrance (West)']),
-        create_lw_region(player, 'Desert Ledge (Northeast)', None, ['Checkerboard Cave']),
+        create_lw_region(player, 'Desert Ledge', ['Desert Ledge'], ['Desert Palace Entrance (North) Rocks', 'Desert Palace Entrance (West)', 'Desert Ledge Drop'], 'the desert ledge'),
+        create_lw_region(player, 'Desert Ledge (Northeast)', None, ['Checkerboard Cave', 'Checkerboard Ledge Drop']),
         create_lw_region(player, 'Desert Palace Stairs', None, ['Desert Palace Entrance (South)']),
-        create_lw_region(player, 'Desert Palace Lone Stairs', None, ['Desert Palace Stairs Drop', 'Desert Palace Entrance (East)']),
-        create_lw_region(player, 'Desert Palace Entrance (North) Spot', None, ['Desert Palace Entrance (North)', 'Desert Ledge Return Rocks']),
+        create_lw_region(player, 'Desert Palace Lone Stairs', None, ['Desert Palace Stairs Drop', 'Desert Palace Entrance (East)'], 'a sandy vista'),
+        create_lw_region(player, 'Desert Palace Entrance (North) Spot', None, ['Desert Palace Entrance (North)', 'Desert Ledge Return Rocks'], 'the desert ledge'),
         create_lw_region(player, 'Master Sword Meadow', ['Master Sword Pedestal']),
         create_cave_region(player, 'Lost Woods Gamble', 'a game of chance'),
-        create_lw_region(player, 'Hyrule Castle Courtyard', None, ['Hyrule Castle Secret Entrance Stairs', 'Hyrule Castle Entrance (South)']),
-        create_lw_region(player, 'Hyrule Castle Ledge', None, ['Hyrule Castle Entrance (East)', 'Hyrule Castle Entrance (West)', 'Agahnims Tower', 'Hyrule Castle Ledge Courtyard Drop']),
+        create_lw_region(player, 'Hyrule Castle Courtyard', None, ['Hyrule Castle Secret Entrance Stairs', 'Hyrule Castle Entrance (South)', 'Hyrule Castle Main Gate (North)']),
+        create_lw_region(player, 'Hyrule Castle Ledge', None, ['Hyrule Castle Entrance (East)', 'Hyrule Castle Entrance (West)', 'Agahnims Tower', 'Hyrule Castle Ledge Courtyard Drop', 'Hyrule Castle Ledge Drop'], 'the castle rampart'),
         create_dungeon_region(player, 'Sewer Drop', 'a drop\'s exit', None, ['Sewer Drop']),  # This exists only to be referenced for access checks
 
         create_cave_region(player, 'Old Man Cave', 'a connector', ['Old Man'], ['Old Man Cave Exit (East)']),
@@ -106,8 +113,9 @@ def create_regions(world, player):
         create_cave_region(player, 'Old Man House', 'a connector', None, ['Old Man House Exit (Bottom)', 'Old Man House Front to Back']),
         create_cave_region(player, 'Old Man House Back', 'a connector', None, ['Old Man House Exit (Top)', 'Old Man House Back to Front']),
         create_lw_region(player, 'Death Mountain', None, ['Old Man Cave (East)', 'Old Man House (Bottom)', 'Old Man House (Top)', 'Death Mountain Return Cave (East)', 'Spectacle Rock Cave', 'Spectacle Rock Cave Peak', 'Spectacle Rock Cave (Bottom)', 'Broken Bridge (West)', 'Death Mountain Teleporter']),
-        create_cave_region(player, 'Death Mountain Return Cave', 'a connector', None, ['Death Mountain Return Cave Exit (West)', 'Death Mountain Return Cave Exit (East)']),
-        create_lw_region(player, 'Death Mountain Return Ledge', None, ['Death Mountain Return Ledge Drop', 'Death Mountain Return Cave (West)']),
+        create_cave_region(player, 'Death Mountain Return Cave (left)', 'a connector', None, ['Death Mountain Return Cave Exit (West)', 'Death Mountain Return Cave E']),
+        create_cave_region(player, 'Death Mountain Return Cave (right)', 'a connector', None, ['Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave W']),
+        create_lw_region(player, 'Death Mountain Return Ledge', None, ['Death Mountain Return Ledge Drop', 'Death Mountain Return Cave (West)'], 'a ledge in the foothills'),
         create_cave_region(player, 'Spectacle Rock Cave (Top)', 'a connector', ['Spectacle Rock Cave'], ['Spectacle Rock Cave Drop', 'Spectacle Rock Cave Exit (Top)']),
         create_cave_region(player, 'Spectacle Rock Cave (Bottom)', 'a connector', None, ['Spectacle Rock Cave Exit']),
         create_cave_region(player, 'Spectacle Rock Cave (Peak)', 'a connector', None, ['Spectacle Rock Cave Peak Drop', 'Spectacle Rock Cave Exit (Peak)']),
@@ -119,9 +127,10 @@ def create_regions(world, player):
                                                                       'Paradox Cave Lower - Right',
                                                                       'Paradox Cave Lower - Far Right',
                                                                       'Paradox Cave Lower - Middle',
-                                                                      'Paradox Cave Upper - Left',
-                                                                      'Paradox Cave Upper - Right'],
-                           ['Paradox Cave Push Block', 'Paradox Cave Bomb Jump']),
+                                                                      ],
+                           ['Paradox Cave Push Block', 'Paradox Cave Bomb Jump', 'Paradox Cave Chest Area NE']),
+        create_cave_region(player, 'Paradox Cave Bomb Area', 'a connector', ['Paradox Cave Upper - Left',
+                                                                             'Paradox Cave Upper - Right']),
         create_cave_region(player, 'Paradox Cave', 'a connector', None, ['Paradox Cave Exit (Middle)', 'Paradox Cave Exit (Top)', 'Paradox Cave Drop']),
         create_cave_region(player, 'Light World Death Mountain Shop', 'a common shop', ['Paradox Shop - Left', 'Paradox Shop - Middle', 'Paradox Shop - Right']),
         create_lw_region(player, 'East Death Mountain (Top)', None, ['Paradox Cave (Top)', 'Death Mountain (Top)', 'Spiral Cave Ledge Access', 'East Death Mountain Drop', 'Turtle Rock Teleporter', 'Fairy Ascension Ledge']),
@@ -173,10 +182,10 @@ def create_regions(world, player):
         create_cave_region(player, 'Red Shield Shop', 'the rare shop', ['Red Shield Shop - Left', 'Red Shield Shop - Middle', 'Red Shield Shop - Right']),
         create_cave_region(player, 'Dark Sanctuary Hint', 'a storyteller'),
         create_cave_region(player, 'Bumper Cave', 'a connector', None, ['Bumper Cave Exit (Bottom)', 'Bumper Cave Exit (Top)']),
-        create_dw_region(player, 'Bumper Cave Ledge', ['Bumper Cave Ledge'], ['Bumper Cave Ledge Drop', 'Bumper Cave (Top)', 'Bumper Cave Ledge Mirror Spot']),
+        create_dw_region(player, 'Bumper Cave Ledge', ['Bumper Cave Ledge'], ['Bumper Cave Ledge Drop', 'Bumper Cave (Top)', 'Bumper Cave Ledge Mirror Spot'], 'a ledge with an item'),
         create_dw_region(player, 'Skull Woods Forest', None, ['Skull Woods First Section Hole (East)', 'Skull Woods First Section Hole (West)', 'Skull Woods First Section Hole (North)',
                                                       'Skull Woods First Section Door', 'Skull Woods Second Section Door (East)']),
-        create_dw_region(player, 'Skull Woods Forest (West)', None, ['Skull Woods Second Section Hole', 'Skull Woods Second Section Door (West)', 'Skull Woods Final Section']),
+        create_dw_region(player, 'Skull Woods Forest (West)', None, ['Skull Woods Second Section Hole', 'Skull Woods Second Section Door (West)', 'Skull Woods Final Section'], 'a deep, dark forest'),
         create_dw_region(player, 'Dark Desert',  None, ['Misery Mire', 'Mire Shed', 'Desert Ledge (Northeast) Mirror Spot', 'Desert Ledge Mirror Spot', 'Desert Palace Stairs Mirror Spot',
                                                 'Desert Palace Entrance (North) Mirror Spot', 'Dark Desert Hint', 'Dark Desert Fairy']),
         create_cave_region(player, 'Mire Shed', 'a cave with two chests', ['Mire Shed - Left', 'Mire Shed - Right']),
@@ -184,18 +193,20 @@ def create_regions(world, player):
         create_dw_region(player, 'Dark Death Mountain (West Bottom)', None, ['Spike Cave', 'Spectacle Rock Mirror Spot', 'Dark Death Mountain Fairy']),
         create_dw_region(player, 'Dark Death Mountain (Top)', None, ['Dark Death Mountain Drop (East)', 'Dark Death Mountain Drop (West)', 'Ganons Tower', 'Superbunny Cave (Top)',
                                                                      'Hookshot Cave', 'East Death Mountain (Top) Mirror Spot', 'Turtle Rock']),
-        create_dw_region(player, 'Dark Death Mountain Ledge', None, ['Dark Death Mountain Ledge (East)', 'Dark Death Mountain Ledge (West)', 'Mimic Cave Mirror Spot', 'Spiral Cave Mirror Spot']),
-        create_dw_region(player, 'Dark Death Mountain Isolated Ledge', None, ['Isolated Ledge Mirror Spot', 'Turtle Rock Isolated Ledge Entrance']),
+        create_dw_region(player, 'Dark Death Mountain Ledge', None, ['Dark Death Mountain Ledge (East)', 'Dark Death Mountain Ledge (West)', 'Mimic Cave Mirror Spot', 'Spiral Cave Mirror Spot'], 'a dark ledge'),
+        create_dw_region(player, 'Dark Death Mountain Isolated Ledge', None, ['Isolated Ledge Mirror Spot', 'Turtle Rock Isolated Ledge Entrance'], 'a dark vista'),
         create_dw_region(player, 'Dark Death Mountain (East Bottom)', None, ['Superbunny Cave (Bottom)', 'Cave Shop (Dark Death Mountain)', 'Fairy Ascension Mirror Spot']),
         create_cave_region(player, 'Superbunny Cave (Top)', 'a connector', ['Superbunny Cave - Top', 'Superbunny Cave - Bottom'], ['Superbunny Cave Exit (Top)']),
         create_cave_region(player, 'Superbunny Cave (Bottom)', 'a connector', None, ['Superbunny Cave Climb', 'Superbunny Cave Exit (Bottom)']),
         create_cave_region(player, 'Spike Cave', 'Spike Cave', ['Spike Cave']),
-        create_cave_region(player, 'Hookshot Cave (Front)', 'a connector', ['Hookshot Cave - Top Right', 'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Right', 'Hookshot Cave - Bottom Left'],
-                           ['Hookshot Cave Front to Middle', 'Hookshot Cave Front Exit']),
+        create_cave_region(player, 'Hookshot Cave (Front)', 'a connector', None,
+                           ['Hookshot Cave Front to Middle', 'Hookshot Cave Front Exit', 'Hookshot Cave Bonk Path', 'Hookshot Cave Hook Path']),
+        create_cave_region(player, 'Hookshot Cave (Bonk Islands)', 'a connector', ['Hookshot Cave - Bottom Right']),
+        create_cave_region(player, 'Hookshot Cave (Hook Islands)', 'a connector', ['Hookshot Cave - Top Right', 'Hookshot Cave - Top Left', 'Hookshot Cave - Bottom Left']),
         create_cave_region(player, 'Hookshot Cave (Back)', 'a connector', None, ['Hookshot Cave Back to Middle', 'Hookshot Cave Back Exit']),
         create_cave_region(player, 'Hookshot Cave (Middle)', 'a connector', None, ['Hookshot Cave Middle to Back', 'Hookshot Cave Middle to Front']),
 
-        create_dw_region(player, 'Death Mountain Floating Island (Dark World)', None, ['Floating Island Drop', 'Hookshot Cave Back Entrance', 'Floating Island Mirror Spot']),
+        create_dw_region(player, 'Death Mountain Floating Island (Dark World)', None, ['Floating Island Drop', 'Hookshot Cave Back Entrance', 'Floating Island Mirror Spot'], 'a dark island'),
         create_lw_region(player, 'Death Mountain Floating Island (Light World)', ['Floating Island']),
         create_dw_region(player, 'Turtle Rock (Top)', None, ['Turtle Rock Drop']),
         create_lw_region(player, 'Mimic Cave Ledge', None, ['Mimic Cave']),
@@ -368,7 +379,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Hera Startile Wide - Crystal', 'Tower of Hera', None, ['Hera Startile Wide Crystal Exit']),
         create_dungeon_region(player, 'Hera 4F', 'Tower of Hera', ['Tower of Hera - Compass Chest'], ['Hera 4F Down Stairs', 'Hera 4F Up Stairs', 'Hera Big Chest Hook Path', 'Hera 4F Holes']),
         create_dungeon_region(player, 'Hera Big Chest Landing', 'Tower of Hera', ['Tower of Hera - Big Chest'], ['Hera Big Chest Landing Exit', 'Hera Big Chest Landing Holes']),
-        create_dungeon_region(player, 'Hera 5F', 'Tower of Hera', None, ['Hera 5F Down Stairs', 'Hera 5F Up Stairs', 'Hera 5F Star Hole', 'Hera 5F Pothole Chain', 'Hera 5F Normal Holes']),
+        create_dungeon_region(player, 'Hera 5F', 'Tower of Hera', None, ['Hera 5F Down Stairs', 'Hera 5F Up Stairs', 'Hera 5F Star Hole', 'Hera 5F Pothole Chain', 'Hera 5F Normal Holes', 'Hera 5F Orange Path']),
+        create_dungeon_region(player, 'Hera 5F Pot Block', 'Tower of Hera', None),
         create_dungeon_region(player, 'Hera Fairies', 'Tower of Hera', None, ['Hera Fairies\' Warp']),
         create_dungeon_region(player, 'Hera Boss', 'Tower of Hera', ['Tower of Hera - Boss', 'Tower of Hera - Prize'], ['Hera Boss Down Stairs', 'Hera Boss Outer Hole', 'Hera Boss Inner Hole']),
 
@@ -456,7 +468,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Swamp Trench 1 Key Ledge', 'Swamp Palace', None, ['Swamp Trench 1 Key Ledge Dry', 'Swamp Trench 1 Key Approach', 'Swamp Trench 1 Key Ledge Depart', 'Swamp Trench 1 Key Ledge NW']),
         create_dungeon_region(player, 'Swamp Trench 1 Departure', 'Swamp Palace', None, ['Swamp Trench 1 Departure Dry', 'Swamp Trench 1 Departure Approach', 'Swamp Trench 1 Departure Key', 'Swamp Trench 1 Departure WS']),
         create_dungeon_region(player, 'Swamp Hammer Switch', 'Swamp Palace', ['Trench 1 Switch'], ['Swamp Hammer Switch SW', 'Swamp Hammer Switch WN']),
-        create_dungeon_region(player, 'Swamp Hub', 'Swamp Palace', ['Swamp Palace - Big Chest', 'Swamp Palace - Hookshot Pot Key'], ['Swamp Hub ES', 'Swamp Hub S', 'Swamp Hub WS', 'Swamp Hub WN', 'Swamp Hub Hook Path']),
+        create_dungeon_region(player, 'Swamp Hub', 'Swamp Palace', ['Swamp Palace - Big Chest'], ['Swamp Hub ES', 'Swamp Hub S', 'Swamp Hub WS', 'Swamp Hub WN', 'Swamp Hub Hook Path', 'Swamp Hub Side Hook Path']),
+        create_dungeon_region(player, 'Swamp Hub Side Ledges', 'Swamp Palace', ['Swamp Palace - Hookshot Pot Key']),
         create_dungeon_region(player, 'Swamp Hub Dead Ledge', 'Swamp Palace', None, ['Swamp Hub Dead Ledge EN']),
         create_dungeon_region(player, 'Swamp Hub North Ledge', 'Swamp Palace', None, ['Swamp Hub North Ledge N', 'Swamp Hub North Ledge Drop Down']),
         create_dungeon_region(player, 'Swamp Donut Top', 'Swamp Palace', None, ['Swamp Donut Top N', 'Swamp Donut Top SE']),
@@ -511,8 +524,9 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Skull Big Key', 'Skull Woods', ['Skull Woods - Big Key Chest'], ['Skull Big Key SW', 'Skull Big Key EN']),
         create_dungeon_region(player, 'Skull Lone Pot', 'Skull Woods', None, ['Skull Lone Pot WN']),
         create_dungeon_region(player, 'Skull Small Hall', 'Skull Woods', None, ['Skull Small Hall ES', 'Skull Small Hall WS']),
-        create_dungeon_region(player, 'Skull Back Drop', 'Skull Woods', None, ['Skull Back Drop Star Path']),
-        create_dungeon_region(player, 'Skull 2 West Lobby', 'Skull Woods', ['Skull Woods - West Lobby Pot Key'], ['Skull 2 West Lobby ES', 'Skull 2 West Lobby NW', 'Skull 2 West Lobby S']),
+        create_dungeon_region(player, 'Skull Back Drop', 'Skull Woods', ['Skull Star Tile'], ['Skull Back Drop Star Path']),
+        create_dungeon_region(player, 'Skull 2 West Lobby', 'Skull Woods', ['Skull Woods - West Lobby Pot Key'], ['Skull 2 West Lobby ES', 'Skull 2 West Lobby Pits', 'Skull 2 West Lobby S']),
+        create_dungeon_region(player, 'Skull 2 West Lobby Ledge', 'Skull Woods', None, ['Skull 2 West Lobby NW', 'Skull 2 West Lobby Ledge Pits']),
         create_dungeon_region(player, 'Skull X Room', 'Skull Woods', None, ['Skull X Room SW']),
         create_dungeon_region(player, 'Skull 3 Lobby', 'Skull Woods', None, ['Skull 3 Lobby NW', 'Skull 3 Lobby EN', 'Skull 3 Lobby SW']),
         create_dungeon_region(player, 'Skull East Bridge', 'Skull Woods', None, ['Skull East Bridge WN', 'Skull East Bridge WS']),
@@ -543,7 +557,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Thieves Hellway S Crystal', 'Thieves\' Town', None, ['Thieves Hellway Crystal Orange Barrier', 'Thieves Hellway Crystal ES']),
         create_dungeon_region(player, 'Thieves Triple Bypass', 'Thieves\' Town', None, ['Thieves Triple Bypass WN', 'Thieves Triple Bypass EN', 'Thieves Triple Bypass SE']),
         create_dungeon_region(player, 'Thieves Spike Switch', 'Thieves\' Town', ['Thieves\' Town - Spike Switch Pot Key'], ['Thieves Spike Switch SW', 'Thieves Spike Switch Up Stairs']),
-        create_dungeon_region(player, 'Thieves Attic', 'Thieves\' Town', None, ['Thieves Attic Down Stairs', 'Thieves Attic ES', 'Thieves Attic Orange Barrier']),
+        create_dungeon_region(player, 'Thieves Attic', 'Thieves\' Town', None, ['Thieves Attic Down Stairs', 'Thieves Attic ES', 'Thieves Attic Orange Barrier', 'Thieves Attic Blue Barrier']),
+        create_dungeon_region(player, 'Thieves Attic Switch', 'Thieves\' Town', None, ['Thieves Attic Switch Blue Barrier']),
         create_dungeon_region(player, 'Thieves Attic Hint', 'Thieves\' Town', None, ['Thieves Attic Hint Orange Barrier']),
         create_dungeon_region(player, 'Thieves Cricket Hall Left', 'Thieves\' Town', None, ['Thieves Cricket Hall Left WS', 'Thieves Cricket Hall Left Edge']),
         create_dungeon_region(player, 'Thieves Cricket Hall Right', 'Thieves\' Town', None, ['Thieves Cricket Hall Right Edge', 'Thieves Cricket Hall Right ES']),
@@ -671,7 +686,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'TR Main Lobby', 'Turtle Rock', None, ['TR Main Lobby Gap', 'TR Main Lobby SE']),
         create_dungeon_region(player, 'TR Lobby Ledge', 'Turtle Rock', None, ['TR Lobby Ledge NE', 'TR Lobby Ledge Gap']),
         create_dungeon_region(player, 'TR Compass Room', 'Turtle Rock', ['Turtle Rock - Compass Chest'], ['TR Compass Room NW']),
-        create_dungeon_region(player, 'TR Hub', 'Turtle Rock', None, ['TR Hub SW', 'TR Hub SE', 'TR Hub ES', 'TR Hub EN', 'TR Hub NW', 'TR Hub NE']),
+        create_dungeon_region(player, 'TR Hub', 'Turtle Rock', None, ['TR Hub SW', 'TR Hub SE', 'TR Hub ES', 'TR Hub EN', 'TR Hub NW', 'TR Hub NE', 'TR Hub Path']),
+        create_dungeon_region(player, 'TR Hub Ledges', 'Turtle Rock', None, ['TR Hub Ledges Path']),
         create_dungeon_region(player, 'TR Torches Ledge', 'Turtle Rock', None, ['TR Torches Ledge WS']),
         create_dungeon_region(player, 'TR Torches', 'Turtle Rock', None, ['TR Torches WN', 'TR Torches NW']),
         create_dungeon_region(player, 'TR Roller Room', 'Turtle Rock', ['Turtle Rock - Roller Room - Left', 'Turtle Rock - Roller Room - Right'], ['TR Roller Room SW']),
@@ -708,7 +724,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'TR Crystaroller Chest', 'Turtle Rock', ['Turtle Rock - Crystaroller Room'], ['TR Crystaroller Chest to Middle Barrier - Blue']),
         create_dungeon_region(player, 'TR Crystaroller Middle - Ranged Crystal', 'Turtle Rock', None, ['TR Crystaroller Middle Ranged Crystal Exit']),
         create_dungeon_region(player, 'TR Crystaroller Bottom - Ranged Crystal', 'Turtle Rock', None, ['TR Crystaroller Bottom Ranged Crystal Exit']),
-        create_dungeon_region(player, 'TR Dark Ride', 'Turtle Rock', None, ['TR Dark Ride Up Stairs', 'TR Dark Ride SW']),
+        create_dungeon_region(player, 'TR Dark Ride', 'Turtle Rock', None, ['TR Dark Ride Up Stairs', 'TR Dark Ride SW', 'TR Dark Ride Path']),
+        create_dungeon_region(player, 'TR Dark Ride Ledges', 'Turtle Rock', None, ['TR Dark Ride Ledges Path']),
         create_dungeon_region(player, 'TR Dash Bridge', 'Turtle Rock', None, ['TR Dash Bridge NW', 'TR Dash Bridge SW', 'TR Dash Bridge WS']),
         create_dungeon_region(player, 'TR Eye Bridge', 'Turtle Rock', ['Turtle Rock - Eye Bridge - Bottom Left', 'Turtle Rock - Eye Bridge - Bottom Right',
                                                                        'Turtle Rock - Eye Bridge - Top Left', 'Turtle Rock - Eye Bridge - Top Right'],
@@ -718,7 +735,8 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'TR Crystal Maze Interior', 'Turtle Rock', None, ['TR Crystal Maze Interior to End Barrier - Blue', 'TR Crystal Maze Interior to Start Barrier - Blue', 'TR Crystal Maze Interior to Start Bypass', 'TR Crystal Maze Interior to End Bypass']),
         create_dungeon_region(player, 'TR Crystal Maze End', 'Turtle Rock', None, ['TR Crystal Maze North Stairs', 'TR Crystal Maze End to Interior Barrier - Blue', 'TR Crystal Maze End to Ranged Crystal']),
         create_dungeon_region(player, 'TR Crystal Maze End - Ranged Crystal', 'Turtle Rock', None, ['TR Crystal Maze End Ranged Crystal Exit']),
-        create_dungeon_region(player, 'TR Final Abyss', 'Turtle Rock', None, ['TR Final Abyss South Stairs', 'TR Final Abyss NW']),
+        create_dungeon_region(player, 'TR Final Abyss Balcony', 'Turtle Rock', None, ['TR Final Abyss South Stairs', 'TR Final Abyss Balcony Path']),
+        create_dungeon_region(player, 'TR Final Abyss Ledge', 'Turtle Rock', None, ['TR Final Abyss NW', 'TR Final Abyss Ledge Path']),
         create_dungeon_region(player, 'TR Boss', 'Turtle Rock', ['Turtle Rock - Boss', 'Turtle Rock - Prize'], ['TR Boss SW']),
 
         # gt
@@ -743,9 +761,10 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'GT Invisible Bridges', 'Ganon\'s Tower', None, ['GT Invisible Bridges WS']),
         create_dungeon_region(player, 'GT Invisible Catwalk', 'Ganon\'s Tower', None, ['GT Invisible Catwalk ES', 'GT Invisible Catwalk WS', 'GT Invisible Catwalk NW', 'GT Invisible Catwalk NE']),
         create_dungeon_region(player, 'GT Conveyor Cross', 'Ganon\'s Tower', ['Ganons Tower - Conveyor Cross Pot Key'], ['GT Conveyor Cross EN', 'GT Conveyor Cross WN']),
-        create_dungeon_region(player, 'GT Hookshot East Platform', 'Ganon\'s Tower', None, ['GT Hookshot EN', 'GT Hookshot East-North Path', 'GT Hookshot East-South Path']),
-        create_dungeon_region(player, 'GT Hookshot North Platform', 'Ganon\'s Tower', None, ['GT Hookshot NW', 'GT Hookshot North-East Path', 'GT Hookshot North-South Path']),
-        create_dungeon_region(player, 'GT Hookshot South Platform', 'Ganon\'s Tower', None, ['GT Hookshot ES', 'GT Hookshot South-East Path', 'GT Hookshot South-North Path', 'GT Hookshot Platform Blue Barrier', 'GT Hookshot Platform Barrier Bypass']),
+        create_dungeon_region(player, 'GT Hookshot East Platform', 'Ganon\'s Tower', None, ['GT Hookshot EN', 'GT Hookshot East-Mid Path']),
+        create_dungeon_region(player, 'GT Hookshot Mid Platform', 'Ganon\'s Tower', None, ['GT Hookshot Mid-East Path', 'GT Hookshot Mid-South Path', 'GT Hookshot Mid-North Path']),
+        create_dungeon_region(player, 'GT Hookshot North Platform', 'Ganon\'s Tower', None, ['GT Hookshot NW', 'GT Hookshot North-Mid Path']),
+        create_dungeon_region(player, 'GT Hookshot South Platform', 'Ganon\'s Tower', None, ['GT Hookshot ES', 'GT Hookshot South-Mid Path', 'GT Hookshot Platform Blue Barrier', 'GT Hookshot Platform Barrier Bypass']),
         create_dungeon_region(player, 'GT Hookshot South Entry', 'Ganon\'s Tower', None, ['GT Hookshot SW', 'GT Hookshot Entry Blue Barrier', 'GT Hookshot South Entry to Ranged Crystal']),
         create_dungeon_region(player, 'GT Hookshot South Entry - Ranged Crystal', 'Ganon\'s Tower', None, ['GT HookShot South Entry Ranged Crystal Exit']),
         create_dungeon_region(player, 'GT Map Room', 'Ganon\'s Tower', ['Ganons Tower - Map Chest'], ['GT Map Room WS']),
@@ -887,12 +906,12 @@ def create_menu_region(player, name, locations=None, exits=None):
     return _create_region(player, name, RegionType.Menu, 'Menu', locations, exits)
 
 
-def create_lw_region(player, name, locations=None, exits=None):
-    return _create_region(player, name, RegionType.LightWorld, 'Light World', locations, exits)
+def create_lw_region(player, name, locations=None, exits=None, hint='Light World'):
+    return _create_region(player, name, RegionType.LightWorld, hint, locations, exits)
 
 
-def create_dw_region(player, name, locations=None, exits=None):
-    return _create_region(player, name, RegionType.DarkWorld, 'Dark World', locations, exits)
+def create_dw_region(player, name, locations=None, exits=None, hint='Dark World'):
+    return _create_region(player, name, RegionType.DarkWorld, hint, locations, exits)
 
 
 def create_cave_region(player, name, hint='Hyrule', locations=None, exits=None):
@@ -974,32 +993,112 @@ def create_shops(world, player):
 
 
 def adjust_locations(world, player):
-    if world.keydropshuffle[player]:
-        for location in key_drop_data.keys():
-            loc = world.get_location(location, player)
+    # handle pots
+    world.pot_contents[player] = PotSecretTable()
+    for location, datum in key_drop_data.items():
+        loc = world.get_location(location, player)
+        drop_location = 'Drop' == datum[0]
+        if drop_location:
+            loc.type = LocationType.Drop
+            snes_address, room, sprite_idx = datum[1]
+            loc.address = snes_address
+        else:
+            loc.type = LocationType.Pot
+            pot, pot_index = next((p, i) for i, p in enumerate(vanilla_pots[datum[1]]) if p.item == PotItem.Key)
+            pot = pot.copy()
+            loc.address = pot_address(pot_index, datum[1])
+            loc.pot = pot
+            pot.location = loc
+        if (not world.dropshuffle[player] and drop_location)\
+           or (not drop_location and world.pottery[player] in ['none', 'cave']):
+            loc.skip = True
+        else:
             key_item = loc.item
             key_item.location = None
 
             loc.forced_item = None
             loc.item = None
             loc.event = False
-            loc.address = key_drop_data[location][1]
-            loc.player_address = key_drop_data[location][0]
-
-            item_dungeon = key_item.name.split('(')[1][:-1]
-            item_dungeon = 'Hyrule Castle' if item_dungeon == 'Escape' else item_dungeon
+            item_dungeon = key_item.dungeon
             dungeon = world.get_dungeon(item_dungeon, player)
             if key_item.smallkey and not world.retro[player]:
                 dungeon.small_keys.append(key_item)
             elif key_item.bigkey:
                 dungeon.big_key = key_item
+    world.pot_pool[player] = choose_pots(world, player)
+    for super_tile, pot_list in vanilla_pots.items():
+        for pot_index, pot_orig in enumerate(pot_list):
+            if pot_orig.item == PotItem.Key:
+                loc = next(location for location, datum in key_drop_data.items() if datum[1] == super_tile)
+                pot = world.get_location(loc, player).pot
+            else:
+                pot = pot_orig.copy()
+            world.pot_contents[player].room_map[super_tile].append(pot)
+
+            if valid_pot_location(pot, world.pot_pool[player], world, player):
+                create_pot_location(pot, pot_index, super_tile, world, player)
     if world.shopsanity[player]:
         index = 0
         for shop, location_list in shop_to_location_table.items():
             for location in location_list:
-                world.get_location(location, player).address = 0x400000 + index
+                loc = world.get_location(location, player)
+                loc.address = 0x400000 + index
+                loc.type = LocationType.Shop
                 # player address? it is in the shop table
                 index += 1
+    # unreal events:
+    for l in ['Ganon', 'Agahnim 1', 'Agahnim 2', 'Dark Blacksmith Ruins', 'Frog', 'Missing Smith', 'Floodgate',
+              'Trench 1 Switch', 'Trench 2 Switch', 'Swamp Drain', 'Attic Cracked Floor', 'Suspicious Maiden',
+              'Revealing Light', 'Ice Block Drop', 'Zelda Pickup', 'Zelda Drop Off', 'Skull Star Tile']:
+        location = world.get_location_unsafe(l, player)
+        if location:
+            location.type = LocationType.Logical
+            location.real = False
+            if l not in ['Ganon', 'Agahnim 1', 'Agahnim 2']:
+                location.skip = True
+
+
+def valid_pot_location(pot, pot_set, world, player):
+    if world.pottery[player] == 'lottery':
+        return True
+    if world.pottery[player] == 'nonempty' and pot.item != PotItem.Nothing:
+        return True
+    if world.pottery[player] in ['reduced', 'clustered'] and pot in pot_set:
+        return True
+    if world.pottery[player] == 'dungeon' and pot.get_region(world, player).type == RegionType.Dungeon:
+        return True
+    if world.pottery[player] in ['cave', 'cavekeys'] and pot.get_region(world, player).type == RegionType.Cave:
+        return True
+    return False
+
+
+def create_pot_location(pot, pot_index, super_tile, world, player):
+    if (pot.item not in [PotItem.Key, PotItem.Hole]
+       and (pot.item != PotItem.Switch or (world.potshuffle[player]
+                                           and world.pottery[player] not in ['none', 'cave', 'keys', 'cavekeys']))):
+        address = pot_address(pot_index, super_tile)
+        region = pot.room
+        if world.mode[player] == 'inverted':
+            if region == 'Links House':
+                region = 'Inverted Links House'
+        parent = world.get_region(region, player)
+        descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+        hint_text = ('under a block' if pot.flags & PotFlags.Block else 'in a pot')
+        modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
+                                            'a bounty of five items', 'the sick kid', 'Sahasrahla'}
+        hint_text = f'{hint_text} {"in" if modifier else "near"} {parent.hint_text}'
+        pot_location = Location(player, f'{pot.room} {descriptor}', address, hint_text=hint_text,
+                                parent=parent)
+        world.dynamic_locations.append(pot_location)
+        pot_location.pot = pot
+        pot.location = pot_location
+
+        pot_location.type = LocationType.Pot
+        parent.locations.append(pot_location)
+
+
+def pot_address(pot_index, super_tile):
+    return 0x7f6018 + super_tile * 2 + (pot_index << 24)
 
 
 # (type, room_id, shopkeeper, custom, locked, [items])
@@ -1052,42 +1151,6 @@ shop_table_by_location_id = {0x400000+cnt: x for cnt, x in enumerate(flat_normal
 shop_table_by_location_id = {**shop_table_by_location_id, **{0x400020+cnt: x for cnt, x in enumerate(flat_retro_shops)}}
 shop_table_by_location = {y: x for x, y in shop_table_by_location_id.items()}
 
-key_drop_data = {
-    'Hyrule Castle - Map Guard Key Drop': [0x140036, 0x140037, 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Boomerang Guard Key Drop': [0x140033, 0x140034, 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Key Rat Key Drop': [0x14000c, 0x14000d, 'in Hyrule Castle', 'Small Key (Escape)'],
-    'Hyrule Castle - Big Key Drop': [0x14003c, 0x14003d, 'in Hyrule Castle', 'Big Key (Escape)'],
-    'Eastern Palace - Dark Square Pot Key': [0x14005a, 0x14005b, 'in Eastern Palace', 'Small Key (Eastern Palace)'],
-    'Eastern Palace - Dark Eyegore Key Drop': [0x140048, 0x140049, 'in Eastern Palace', 'Small Key (Eastern Palace)'],
-    'Desert Palace - Desert Tiles 1 Pot Key': [0x140030, 0x140031, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Desert Palace - Beamos Hall Pot Key': [0x14002a, 0x14002b, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Desert Palace - Desert Tiles 2 Pot Key': [0x140027, 0x140028, 'in Desert Palace', 'Small Key (Desert Palace)'],
-    'Castle Tower - Dark Archer Key Drop': [0x140060, 0x140061, 'in Castle Tower', 'Small Key (Agahnims Tower)'],
-    'Castle Tower - Circle of Pots Key Drop': [0x140051, 0x140052, 'in Castle Tower', 'Small Key (Agahnims Tower)'],
-    'Swamp Palace - Pot Row Pot Key': [0x140018, 0x140019, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Trench 1 Pot Key': [0x140015, 0x140016, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Hookshot Pot Key': [0x140012, 0x140013, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Trench 2 Pot Key': [0x14000f, 0x140010, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Swamp Palace - Waterway Pot Key': [0x140009, 0x14000a, 'in Swamp Palace', 'Small Key (Swamp Palace)'],
-    'Skull Woods - West Lobby Pot Key': [0x14002d, 0x14002e, 'in Skull Woods', 'Small Key (Skull Woods)'],
-    'Skull Woods - Spike Corner Key Drop': [0x14001b, 0x14001c, 'near Mothula', 'Small Key (Skull Woods)'],
-    "Thieves' Town - Hallway Pot Key": [0x14005d, 0x14005e, "in Thieves' Town", 'Small Key (Thieves Town)'],
-    "Thieves' Town - Spike Switch Pot Key": [0x14004e, 0x14004f, "in Thieves' Town", 'Small Key (Thieves Town)'],
-    'Ice Palace - Jelly Key Drop': [0x140003, 0x140004, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Conveyor Key Drop': [0x140021, 0x140022, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Hammer Block Key Drop': [0x140024, 0x140025, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Many Pots Pot Key': [0x140045, 0x140046, 'in Ice Palace', 'Small Key (Ice Palace)'],
-    'Misery Mire - Spikes Pot Key': [0x140054, 0x140055 , 'in Misery Mire', 'Small Key (Misery Mire)'],
-    'Misery Mire - Fishbone Pot Key': [0x14004b, 0x14004c, 'in forgotten Mire', 'Small Key (Misery Mire)'],
-    'Misery Mire - Conveyor Crystal Key Drop': [0x140063, 0x140064 , 'in Misery Mire', 'Small Key (Misery Mire)'],
-    'Turtle Rock - Pokey 1 Key Drop': [0x140057, 0x140058, 'in Turtle Rock', 'Small Key (Turtle Rock)'],
-    'Turtle Rock - Pokey 2 Key Drop': [0x140006, 0x140007, 'in Turtle Rock', 'Small Key (Turtle Rock)'],
-    'Ganons Tower - Conveyor Cross Pot Key': [0x14003f, 0x140040, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Double Switch Pot Key': [0x140042, 0x140043, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Conveyor Star Pits Pot Key': [0x140039, 0x14003a, "in Ganon's Tower", 'Small Key (Ganons Tower)'],
-    'Ganons Tower - Mini Helmasaur Key Drop': [0x14001e, 0x14001f, "atop Ganon's Tower", 'Small Key (Ganons Tower)']
-}
-
 dungeon_events = [
     'Trench 1 Switch',
     'Trench 2 Switch',
@@ -1096,6 +1159,7 @@ dungeon_events = [
     'Suspicious Maiden',
     'Revealing Light',
     'Ice Block Drop',
+    'Skull Star Tile',
     'Zelda Pickup',
     'Zelda Drop Off'
 ]
@@ -1188,7 +1252,7 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   'Paradox Cave Lower - Middle': (0xeb36, 0x18630a, False, 'in a cave with seven chests'),
                   'Paradox Cave Upper - Left': (0xeb39, 0x18630d, False, 'in a cave with seven chests'),
                   'Paradox Cave Upper - Right': (0xeb3c, 0x186310, False, 'in a cave with seven chests'),
-                  'Spiral Cave': (0xe9bf, 0x186193, False, 'in spiral cave'),
+                  'Spiral Cave': (0xe9bf, 0x186193, False, 'in Spiral Cave'),
                   'Ether Tablet': (0x180016, 0x18633b, False, 'at a monolith'),
                   'Spectacle Rock': (0x180140, 0x18634f, False, 'atop a rock'),
                   'Tower of Hera - Basement Cage': (0x180162, 0x18633a, False, 'in Tower of Hera'),
@@ -1197,7 +1261,7 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   'Tower of Hera - Compass Chest': (0xe9fb, 0x1861cf, False, 'in Tower of Hera'),
                   'Tower of Hera - Big Chest': (0xe9f8, 0x1861cc, False, 'in Tower of Hera'),
                   'Tower of Hera - Boss': (0x180152, 0x186340, False, 'with Moldorm'),
-                  'Pyramid': (0x180147, 0x186356, False, 'on the pyramid'),
+                  'Pyramid': (0x180147, 0x186356, False, 'on the Pyramid'),
                   'Catfish': (0xee185, 0x186361, False, 'with a catfish'),
                   'Stumpy': (0x330c7, 0x18636a, False, 'with tree boy'),
                   'Digging Game': (0x180148, 0x186357, False, 'underground'),
@@ -1235,13 +1299,13 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   'Swamp Palace - Flooded Room - Right': (0xeaac, 0x186280, False, 'in Swamp Palace'),
                   'Swamp Palace - Waterfall Room': (0xeaaf, 0x186283, False, 'in Swamp Palace'),
                   'Swamp Palace - Boss': (0x180154, 0x186342, False, 'with Arrghus'),
-                  "Thieves' Town - Big Key Chest": (0xea04, 0x1861d8, False, "in Thieves' Town"),
-                  "Thieves' Town - Map Chest": (0xea01, 0x1861d5, False, "in Thieves' Town"),
-                  "Thieves' Town - Compass Chest": (0xea07, 0x1861db, False, "in Thieves' Town"),
-                  "Thieves' Town - Ambush Chest": (0xea0a, 0x1861de, False, "in Thieves' Town"),
-                  "Thieves' Town - Attic": (0xea0d, 0x1861e1, False, "in Thieves' Town"),
-                  "Thieves' Town - Big Chest": (0xea10, 0x1861e4, False, "in Thieves' Town"),
-                  "Thieves' Town - Blind's Cell": (0xea13, 0x1861e7, False, "in Thieves' Town"),
+                  "Thieves' Town - Big Key Chest": (0xea04, 0x1861d8, False, "in Thieves Town"),
+                  "Thieves' Town - Map Chest": (0xea01, 0x1861d5, False, "in Thieves Town"),
+                  "Thieves' Town - Compass Chest": (0xea07, 0x1861db, False, "in Thieves Town"),
+                  "Thieves' Town - Ambush Chest": (0xea0a, 0x1861de, False, "in Thieves Town"),
+                  "Thieves' Town - Attic": (0xea0d, 0x1861e1, False, "in Thieves Town"),
+                  "Thieves' Town - Big Chest": (0xea10, 0x1861e4, False, "in Thieves Town"),
+                  "Thieves' Town - Blind's Cell": (0xea13, 0x1861e7, False, "in Thieves Town"),
                   "Thieves' Town - Boss": (0x180156, 0x186344, False, 'with Blind'),
                   'Skull Woods - Compass Chest': (0xe992, 0x186166, False, 'in Skull Woods'),
                   'Skull Woods - Map Chest': (0xe99b, 0x18616f, False, 'in Skull Woods'),
@@ -1334,18 +1398,19 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   'Suspicious Maiden': (None, None, False, None),
                   'Revealing Light': (None, None, False, None),
                   'Ice Block Drop': (None, None, False, None),
+                  'Skull Star Tile': (None, None, False, None),
                   'Zelda Pickup': (None, None, False, None),
                   'Zelda Drop Off': (None, None, False, None),
-                  'Eastern Palace - Prize': ([0x1209D, 0x53EF8, 0x53EF9, 0x180052, 0x18007C, 0xC6FE], None, True, 'Eastern Palace'),
-                  'Desert Palace - Prize': ([0x1209E, 0x53F1C, 0x53F1D, 0x180053, 0x180078, 0xC6FF], None, True, 'Desert Palace'),
-                  'Tower of Hera - Prize': ([0x120A5, 0x53F0A, 0x53F0B, 0x18005A, 0x18007A, 0xC706], None, True, 'Tower of Hera'),
-                  'Palace of Darkness - Prize': ([0x120A1, 0x53F00, 0x53F01, 0x180056, 0x18007D, 0xC702], None, True, 'Palace of Darkness'),
-                  'Swamp Palace - Prize': ([0x120A0, 0x53F6C, 0x53F6D, 0x180055, 0x180071, 0xC701], None, True, 'Swamp Palace'),
-                  'Thieves\' Town - Prize': ([0x120A6, 0x53F36, 0x53F37, 0x18005B, 0x180077, 0xC707], None, True, 'Thieves\' Town'),
-                  'Skull Woods - Prize': ([0x120A3, 0x53F12, 0x53F13, 0x180058, 0x18007B, 0xC704], None, True, 'Skull Woods'),
-                  'Ice Palace - Prize': ([0x120A4, 0x53F5A, 0x53F5B, 0x180059, 0x180073, 0xC705], None, True, 'Ice Palace'),
-                  'Misery Mire - Prize': ([0x120A2, 0x53F48, 0x53F49, 0x180057, 0x180075, 0xC703], None, True, 'Misery Mire'),
-                  'Turtle Rock - Prize': ([0x120A7, 0x53F24, 0x53F25, 0x18005C, 0x180079, 0xC708], None, True, 'Turtle Rock'),
+                  'Eastern Palace - Prize': ([0x1209D, 0x53E76, 0x53E77, 0x180052, 0x180070, 0xC6FE, 0x186FE2], None, True, 'Eastern Palace'),
+                  'Desert Palace - Prize': ([0x1209E, 0x53E7A, 0x53E7B, 0x180053, 0x180072, 0xC6FF, 0x186FE3], None, True, 'Desert Palace'),
+                  'Tower of Hera - Prize': ([0x120A5, 0x53E78, 0x53E79, 0x18005A, 0x180071, 0xC706, 0x186FEA], None, True, 'Tower of Hera'),
+                  'Palace of Darkness - Prize': ([0x120A1, 0x53E7C, 0x53E7D, 0x180056, 0x180073, 0xC702, 0x186FE6], None, True, 'Palace of Darkness'),
+                  'Swamp Palace - Prize': ([0x120A0, 0x53E88, 0x53E89, 0x180055, 0x180079, 0xC701, 0x186FE5], None, True, 'Swamp Palace'),
+                  'Thieves\' Town - Prize': ([0x120A6, 0x53E82, 0x53E83, 0x18005B, 0x180076, 0xC707, 0x186FEB], None, True, 'Thieves Town'),
+                  'Skull Woods - Prize': ([0x120A3, 0x53E7E, 0x53E7F, 0x180058, 0x180074, 0xC704, 0x186FE8], None, True, 'Skull Woods'),
+                  'Ice Palace - Prize': ([0x120A4, 0x53E86, 0x53E87, 0x180059, 0x180078, 0xC705, 0x186FE9], None, True, 'Ice Palace'),
+                  'Misery Mire - Prize': ([0x120A2, 0x53E84, 0x53E85, 0x180057, 0x180077, 0xC703, 0x186FE7], None, True, 'Misery Mire'),
+                  'Turtle Rock - Prize': ([0x120A7, 0x53E80, 0x53E81, 0x18005C, 0x180075, 0xC708, 0x186FEC], None, True, 'Turtle Rock'),
                   'Kakariko Shop - Left': (None, None, False, 'for sale in Kakariko'),
                   'Kakariko Shop - Middle': (None, None, False, 'for sale in Kakariko'),
                   'Kakariko Shop - Right': (None, None, False, 'for sale in Kakariko'),
@@ -1381,8 +1446,6 @@ location_table = {'Mushroom': (0x180013, 0x186338, False, 'in the woods'),
                   }
 
 lookup_id_to_name = {data[0]: name for name, data in location_table.items() if type(data[0]) == int}
-lookup_id_to_name = {**lookup_id_to_name, **{data[1]: name for name, data in key_drop_data.items()}}
 lookup_id_to_name.update(shop_table_by_location_id)
 lookup_name_to_id = {name: data[0] for name, data in location_table.items() if type(data[0]) == int}
-lookup_name_to_id = {**lookup_name_to_id, **{name: data[1] for name, data in key_drop_data.items()}}
 lookup_name_to_id.update(shop_table_by_location)

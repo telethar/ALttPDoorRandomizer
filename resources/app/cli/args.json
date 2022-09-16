@@ -13,6 +13,11 @@
   "suppress_spoiler": {
     "action": "store_true"
   },
+  "mystery": {
+    "action": "store_true",
+    "type": "bool",
+    "help": "suppress"
+  },
   "logic": {
     "choices": [
       "noglitches",
@@ -43,6 +48,7 @@
       "pedestal",
       "dungeons",
       "triforcehunt",
+      "trinity",
       "crystals"
     ]
   },
@@ -65,6 +71,31 @@
     "type": "bool"
   },
   "keydropshuffle" : {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "dropshuffle" : {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "pottery" : {
+    "choices" : [
+      "none",
+      "keys",
+      "dungeon",
+      "cave",
+      "cavekeys",
+      "reduced",
+      "clustered",
+      "nonempty",
+      "lottery"
+    ]
+  },
+  "colorizepots" : {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "shufflepots": {
     "action": "store_true",
     "type": "bool"
   },
@@ -101,12 +132,10 @@
   "algorithm": {
     "choices": [
       "balanced",
-      "freshness",
-      "flood",
-      "vt21",
-      "vt22",
-      "vt25",
-      "vt26"
+      "vanilla_fill",
+      "major_only",
+      "dungeon_only",
+      "district"
     ]
   },
   "shuffle": {
@@ -203,6 +232,14 @@
     "action": "store_true",
     "type": "bool"
   },
+  "msu_resume": {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "collection_rate": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "mapshuffle": {
     "action": "store_true",
     "type": "bool"
@@ -252,6 +289,13 @@
       "items",
       "locations",
       "none"
+    ]
+  },
+  "restrict_boss_items": {
+    "choices": [
+      "none",
+      "mapcompass",
+      "dungeon"
     ]
   },
   "hints": {
@@ -305,6 +349,10 @@
     "dest": "create_rom",
     "help": "suppress"
   },
+  "suppress_meta": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "shuffleganon": {
     "action": "store_false",
     "type": "bool"
@@ -317,6 +365,13 @@
   "shufflelinks": {
     "action": "store_true",
     "type": "bool"
+  },
+  "overworld_map": {
+    "choices": [
+      "default",
+      "compass",
+      "map"
+    ]
   },
   "pseudoboots": {
     "action": "store_true",
@@ -337,6 +392,9 @@
   "jsonout": {
     "action": "store_true"
   },
+  "bps": {
+    "action": "store_true"
+  },
   "enemizercli": {
     "setting": "enemizercli"
   },
@@ -344,6 +402,7 @@
     "choices": [
       "none",
       "simple",
+      "unique",
       "full",
       "random"
     ]
@@ -371,10 +430,6 @@
       "shuffled",
       "random"
     ]
-  },
-  "shufflepots": {
-    "action": "store_true",
-    "type": "bool"
   },
   "remote_items": {
     "action": "store_true",

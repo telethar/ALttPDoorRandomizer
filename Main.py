@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import copy
 from itertools import zip_longest
 import json
@@ -14,22 +13,25 @@ from Bosses import place_bosses
 from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
-from PotShuffle import shuffle_pots
+from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_world_regions, create_dungeon_regions, adjust_locations
 from InvertedRegions import create_inverted_regions, mark_dark_world_regions
 from EntranceShuffle import link_entrances, link_inverted_entrances
 from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
-from DoorShuffle import link_doors, connect_portal
+from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
 from Rules import set_rules
-from Dungeons import create_dungeons, fill_dungeons, fill_dungeons_restrictive
-from Fill import distribute_items_cutoff, distribute_items_staleness, distribute_items_restrictive, flood_items
+from Dungeons import create_dungeons
+from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops
 from Utils import output_path, parse_player_names
 
-__version__ = '1.0.1-dev'
+from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
+from source.tools.BPS import create_bps_from_data
+
+__version__ = '1.1.0-dev'
 
 from source.classes.BabelFish import BabelFish
 
@@ -94,16 +96,21 @@ def main(args, seed=None, fish=None):
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
-    world.potshuffle = args.shufflepots.copy()
     world.fish = fish
     world.shopsanity = args.shopsanity.copy()
-    world.keydropshuffle = args.keydropshuffle.copy()
+    world.dropshuffle = args.dropshuffle.copy()
+    world.pottery = args.pottery.copy()
+    world.potshuffle = args.shufflepots.copy()
     world.mixed_travel = args.mixed_travel.copy()
     world.standardize_palettes = args.standardize_palettes.copy()
-    world.treasure_hunt_count = args.triforce_goal.copy()
-    world.treasure_hunt_total = args.triforce_pool.copy()
+    world.treasure_hunt_count = {k: int(v) for k, v in args.triforce_goal.items()}
+    world.treasure_hunt_total = {k: int(v) for k, v in args.triforce_pool.items()}
     world.shufflelinks = args.shufflelinks.copy()
     world.pseudoboots = args.pseudoboots.copy()
+    world.overworld_map = args.overworld_map.copy()
+    world.restrict_boss_items = args.restrict_boss_items.copy()
+    world.collection_rate = args.collection_rate.copy()
+    world.colorizepots = args.colorizepots.copy()
 
     world.rom_seeds = {player: random.randint(0, 999999999) for player in range(1, world.players + 1)}
 
@@ -123,6 +130,8 @@ def main(args, seed=None, fish=None):
             world.player_names[player].append(name)
     logger.info('')
 
+    outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
+
     for player in range(1, world.players + 1):
         world.difficulty_requirements[player] = difficulties[world.difficulty[player]]
 
@@ -130,11 +139,19 @@ def main(args, seed=None, fish=None):
             if hasattr(world,"escape_assist") and player in world.escape_assist:
                 world.escape_assist[player].append('bombs') # enemized escape assumes infinite bombs available and will likely be unbeatable without it
 
-        for tok in filter(None, args.startinventory[player].split(',')):
-            item = ItemFactory(tok.strip(), player)
-            if item:
-                world.push_precollected(item)
+        if args.usestartinventory[player]:
+            for tok in filter(None, args.startinventory[player].split(',')):
+                item = ItemFactory(tok.strip(), player)
+                if item:
+                    world.push_precollected(item)
 
+    if args.create_spoiler and not args.jsonout:
+        logger.info(world.fish.translate("cli", "cli", "create.meta"))
+        world.spoiler.meta_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
+    if args.mystery and not args.suppress_meta:
+        world.spoiler.mystery_meta_to_file(output_path(f'{outfilebase}_meta.txt'))
+
+    for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':
             create_regions(world, player)
         else:
@@ -153,7 +170,10 @@ def main(args, seed=None, fish=None):
         logger.info(world.fish.translate("cli", "cli", "shuffling.pots"))
         for player in range(1, world.players + 1):
             if world.potshuffle[player]:
-                shuffle_pots(world, player)
+                if world.pottery[player] in ['none', 'cave', 'keys', 'cavekeys']:
+                    shuffle_pots(world, player)
+                else:
+                    shuffle_pot_switches(world, player)
 
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
@@ -163,7 +183,13 @@ def main(args, seed=None, fish=None):
         else:
             link_inverted_entrances(world, player)
 
-    logger.info(world.fish.translate("cli","cli","shuffling.dungeons"))
+    logger.info(world.fish.translate("cli", "cli", "shuffling.prep"))
+    for player in range(1, world.players + 1):
+        link_doors_prep(world, player)
+
+    create_item_pool_config(world)
+
+    logger.info(world.fish.translate("cli", "cli", "shuffling.dungeons"))
 
     for player in range(1, world.players + 1):
         link_doors(world, player)
@@ -171,8 +197,7 @@ def main(args, seed=None, fish=None):
             mark_light_world_regions(world, player)
         else:
             mark_dark_world_regions(world, player)
-    logger.info(world.fish.translate("cli","cli","generating.itempool"))
-    logger.info(world.fish.translate("cli","cli","generating.itempool"))
+    logger.info(world.fish.translate("cli", "cli", "generating.itempool"))
 
     for player in range(1, world.players + 1):
         generate_itempool(world, player)
@@ -182,6 +207,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
+    district_item_pool_config(world)
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
             sell_potions(world, player)
@@ -190,8 +216,8 @@ def main(args, seed=None, fish=None):
         else:
             lock_shop_locations(world, player)
 
-
-    logger.info(world.fish.translate("cli","cli","placing.dungeon.prizes"))
+    massage_item_pool(world)
+    logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 
     fill_prizes(world)
 
@@ -200,14 +226,12 @@ def main(args, seed=None, fish=None):
 
     logger.info(world.fish.translate("cli","cli","placing.dungeon.items"))
 
-    shuffled_locations = None
-    if args.algorithm in ['balanced', 'vt26'] or any(list(args.mapshuffle.values()) + list(args.compassshuffle.values()) +
-                                                     list(args.keyshuffle.values()) + list(args.bigkeyshuffle.values())):
+    if args.algorithm != 'equitable':
         shuffled_locations = world.get_unfilled_locations()
         random.shuffle(shuffled_locations)
         fill_dungeons_restrictive(world, shuffled_locations)
     else:
-        fill_dungeons(world)
+        promote_dungeon_items(world)
 
     for player in range(1, world.players+1):
         if world.logic[player] != 'nologic':
@@ -225,41 +249,28 @@ def main(args, seed=None, fish=None):
 
     logger.info(world.fish.translate("cli","cli","fill.world"))
 
-    if args.algorithm == 'flood':
-        flood_items(world)  # different algo, biased towards early game progress items
-    elif args.algorithm == 'vt21':
-        distribute_items_cutoff(world, 1)
-    elif args.algorithm == 'vt22':
-        distribute_items_cutoff(world, 0.66)
-    elif args.algorithm == 'freshness':
-        distribute_items_staleness(world)
-    elif args.algorithm == 'vt25':
-        distribute_items_restrictive(world, False)
-    elif args.algorithm == 'vt26':
-
-        distribute_items_restrictive(world, True, shuffled_locations)
-    elif args.algorithm == 'balanced':
-        distribute_items_restrictive(world, True)
+    distribute_items_restrictive(world, True)
 
     if world.players > 1:
-        logger.info(world.fish.translate("cli","cli","balance.multiworld"))
-        balance_multiworld_progression(world)
+        logger.info(world.fish.translate("cli", "cli", "balance.multiworld"))
+        if args.algorithm in ['balanced', 'equitable']:
+            balance_multiworld_progression(world)
 
     # if we only check for beatable, we can do this sanity check first before creating the rom
     if not world.can_beat_game(log_error=True):
-        raise RuntimeError(world.fish.translate("cli","cli","cannot.beat.game"))
+        raise RuntimeError(world.fish.translate("cli", "cli", "cannot.beat.game"))
 
     for player in range(1, world.players+1):
         if world.shopsanity[player]:
             customize_shops(world, player)
-    balance_money_progression(world)
-
-    outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
+    if args.algorithm in ['balanced', 'equitable']:
+        balance_money_progression(world)
+    ensure_good_pots(world, True)
 
     rom_names = []
     jsonout = {}
     enemized = False
-    if not args.suppress_rom:
+    if not args.suppress_rom or args.bps:
         logger.info(world.fish.translate("cli","cli","patching.rom"))
         for team in range(world.teams):
             for player in range(1, world.players + 1):
@@ -285,7 +296,7 @@ def main(args, seed=None, fish=None):
                         logging.warning(enemizerMsg)
                         raise EnemizerError(enemizerMsg)
 
-                patch_rom(world, rom, player, team, enemized, bool(args.outputname))
+                patch_rom(world, rom, player, team, enemized, bool(args.mystery))
 
                 if args.race:
                     patch_race_rom(rom)
@@ -296,7 +307,7 @@ def main(args, seed=None, fish=None):
                 apply_rom_settings(rom, args.heartbeep[player], args.heartcolor[player], args.quickswap[player],
                                    args.fastmenu[player], args.disablemusic[player], args.sprite[player],
                                    args.ow_palettes[player], args.uw_palettes[player], args.reduce_flashing[player],
-                                   args.shuffle_sfx[player])
+                                   args.shuffle_sfx[player], args.msu_resume[player])
 
                 if args.jsonout:
                     jsonout[f'patch_t{team}_p{player}'] = rom.patches
@@ -307,7 +318,14 @@ def main(args, seed=None, fish=None):
                     if world.players > 1 or world.teams > 1:
                         outfilepname += f"_{world.player_names[player][team].replace(' ', '_')}" if world.player_names[player][team] != 'Player %d' % player else ''
                     outfilesuffix = f'_{Settings.make_code(world, player)}' if not args.outputname else ''
-                    rom.write_to_file(output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.sfc'))
+                    if args.bps:
+                        patchfile = output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.bps')
+                        patch = create_bps_from_data(LocalRom(args.rom, patch=False).buffer, rom.buffer)
+                        with open(patchfile, 'wb') as stream:
+                            stream.write(patch.binary_ba)
+                    if not args.suppress_rom:
+                        sfc_file = output_path(f'{outfilebase}{outfilepname}{outfilesuffix}.sfc')
+                        rom.write_to_file(sfc_file)
 
         if world.players > 1:
             multidata = zlib.compress(json.dumps({"names": parsed_names,
@@ -323,6 +341,14 @@ def main(args, seed=None, fish=None):
                 with open(output_path('%s_multidata' % outfilebase), 'wb') as f:
                     f.write(multidata)
 
+    if args.mystery and not args.suppress_meta:
+        world.spoiler.hashes_to_file(output_path(f'{outfilebase}_meta.txt'))
+    elif args.create_spoiler and not args.jsonout:
+        world.spoiler.hashes_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
+    if args.create_spoiler and not args.jsonout:
+        logger.info(world.fish.translate("cli", "cli", "patching.spoiler"))
+        world.spoiler.to_file(output_path(f'{outfilebase}_Spoiler.txt'))
+
     if not args.skip_playthrough:
         logger.info(world.fish.translate("cli","cli","calc.playthrough"))
         create_playthrough(world)
@@ -335,7 +361,7 @@ def main(args, seed=None, fish=None):
             with open(output_path('%s_Spoiler.json' % outfilebase), 'w') as outfile:
               outfile.write(world.spoiler.to_json())
         else:
-            world.spoiler.to_file(output_path('%s_Spoiler.txt' % outfilebase))
+            world.spoiler.playthrough_to_file(output_path(f'{outfilebase}_Spoiler.txt'))
 
     YES = world.fish.translate("cli","cli","yes")
     NO = world.fish.translate("cli","cli","no")
@@ -401,11 +427,12 @@ def copy_world(world):
     ret.intensity = world.intensity.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
-    ret.keydropshuffle = world.keydropshuffle.copy()
+    ret.dropshuffle = world.dropshuffle.copy()
+    ret.pottery = world.pottery.copy()
+    ret.potshuffle = world.potshuffle.copy()
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
-
-    ret.exp_cache = world.exp_cache.copy()
+    ret.restrict_boss_items = world.restrict_boss_items.copy()
 
     for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':
@@ -418,6 +445,9 @@ def copy_world(world):
         create_dungeons(ret, player)
         if world.logic[player] in ('owglitches', 'nologic'):
             create_owg_connections(ret, player)
+
+    # there are region references here they must be migrated to preserve integrity
+    # ret.exp_cache = world.exp_cache.copy()
 
     copy_dynamic_regions_and_locations(world, ret)
     for player in range(1, world.players + 1):
@@ -467,6 +497,7 @@ def copy_world(world):
         new_location.access_rule = lambda state: True
         new_location.item_rule = lambda state: True
         new_location.forced_item = location.forced_item
+        new_location.pot = location.pot
 
     # copy remaining itempool. No item in itempool should have an assigned location
     for item in world.itempool:
@@ -518,11 +549,7 @@ def copy_dynamic_regions_and_locations(world, ret):
     for location in world.dynamic_locations:
         new_reg = ret.get_region(location.parent_region.name, location.parent_region.player)
         new_loc = Location(location.player, location.name, location.address, location.crystal, location.hint_text, new_reg)
-        # todo: this is potentially dangerous. later refactor so we
-        # can apply dynamic region rules on top of copied world like other rules
-        new_loc.access_rule = location.access_rule
-        new_loc.always_allow = location.always_allow
-        new_loc.item_rule = location.item_rule
+        new_loc.type = location.type
         new_reg.locations.append(new_loc)
 
         ret.clear_location_cache()
@@ -535,7 +562,7 @@ def create_playthrough(world):
 
     # get locations containing progress items
     prog_locations = [location for location in world.get_filled_locations() if location.item.advancement]
-    optional_locations = ['Trench 1 Switch', 'Trench 2 Switch', 'Ice Block Drop']
+    optional_locations = ['Trench 1 Switch', 'Trench 2 Switch', 'Ice Block Drop', 'Skull Star Tile']
     state_cache = [None]
     collection_spheres = []
     state = CollectionState(world)
@@ -578,11 +605,11 @@ def create_playthrough(world):
             # todo: this is not very efficient, but I'm not sure how else to do it for this backwards logic
             # world.clear_exp_cache()
             if world.can_beat_game(state_cache[num]):
-                # logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is not required')
+                logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is not required')
                 to_delete.add(location)
             else:
                 # still required, got to keep it around
-                # logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is required')
+                logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is required')
                 location.item = old_item
 
         # cull entries in spheres for spoiler walkthrough at end

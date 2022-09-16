@@ -1,4 +1,14 @@
   description: Example door rando weights
+  algorithm:
+    balanced: 12
+    vanilla_fill: 1
+    major_only: 1
+    dungeon_only: 1
+    district: 1
+  restrict_boss_items:
+      none: 1
+#      mapcompass: 1 Bug exists, not recommended
+      dungeon: 1
   door_shuffle:
     vanilla: 0
     basic: 2
@@ -7,9 +17,19 @@
     1: 2
     2: 2
     3: 4
-  keydropshuffle:
+  dropshuffle:
     on: 1
     off: 1
+  pottery:
+    none: 8
+    keys: 1
+    cave: 1
+    dungeon: 1
+    lottery: 1
+    cavekeys: 1
+    reduced: 1
+    clustered: 1
+    nonempty: 1
   shopsanity:
     on: 1
     off: 1
@@ -28,6 +48,10 @@
     full: 2
     crossed: 3
     insanity: 1
+  overworld_map: # control how the overworld map operates when entrance shuffle is on
+    default: 1
+    compass: 10
+    map: 5
   world_state:
     standard: 1
     open: 1
@@ -42,6 +66,7 @@
     dungeons: 1
     pedestal: 2
     triforce-hunt: 2
+    trinity: 2
   triforce_goal_min: 10
   triforce_goal_max: 30
   triforce_pool_min: 20
@@ -120,10 +145,10 @@
     easy: 1
     hard: 1
     expert: 0
+  startinventory:
+    Pegasus Boots: on
   rom:
-    quickswap:
-      on: 1
-      off: 0
+    quickswap: on
     heartcolor:
       red: 1
       blue: 1
