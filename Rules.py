@@ -296,6 +296,7 @@ def global_rules(world, player):
 
     set_rule(world.get_entrance('Ice Lobby WS', player), lambda state: state.can_melt_things(player))
     set_rule(world.get_entrance('Ice Hammer Block ES', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
+    set_rule(world.get_entrance('Ice Right H Path', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
     set_rule(world.get_location('Ice Palace - Hammer Block Key Drop', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
     set_rule(world.get_location('Ice Palace - Map Chest', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
     set_rule(world.get_entrance('Ice Antechamber Hole', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
@@ -498,6 +499,7 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Ice Bomb Jump Ledge Orange Barrier', player), lambda state: state.can_reach_orange(world.get_region('Ice Bomb Jump Ledge', player), player))
     set_rule(world.get_entrance('Ice Bomb Jump Catwalk Orange Barrier', player), lambda state: state.can_reach_orange(world.get_region('Ice Bomb Jump Catwalk', player), player))
 
+    set_rule(world.get_entrance('Ice Bomb Drop Path', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('Ice Conveyor to Crystal', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('Ice Refill to Crystal', player), lambda state: state.can_hit_crystal(player) or state.can_reach_blue(world.get_region('Ice Refill', player), player))
 
@@ -2017,8 +2019,9 @@ bunny_impassible_doors = {
     'Thieves Hellway Blue Barrier', 'Thieves Hellway Crystal Blue Barrier', 'Thieves Attic ES',
     'Thieves Basement Block Path', 'Thieves Blocked Entry Path', 'Thieves Conveyor Bridge Block Path',
     'Thieves Conveyor Block Path', 'Ice Lobby WS', 'Ice Cross Left Push Block', 'Ice Cross Bottom Push Block Left',
-    'Ice Bomb Drop Hole', 'Ice Pengator Switch WS', 'Ice Pengator Switch ES', 'Ice Big Key Push Block', 'Ice Stalfos Hint SE', 'Ice Bomb Jump EN',
-    'Ice Pengator Trap NE', 'Ice Hammer Block ES', 'Ice Tongue Pull WS', 'Ice Freezors Bomb Hole', 'Ice Tall Hint WS',
+    'Ice Bomb Drop Hole', 'Ice Pengator Switch WS', 'Ice Pengator Switch ES', 'Ice Big Key Push Block',
+    'Ice Stalfos Hint SE', 'Ice Bomb Jump EN', 'Ice Pengator Trap NE', 'Ice Hammer Block ES', 'Ice Right H Path',
+    'Ice Bomb Drop Path', 'Ice Tongue Pull WS', 'Ice Freezors Bomb Hole', 'Ice Tall Hint WS',
     'Ice Hookshot Ledge Path', 'Ice Hookshot Balcony Path', 'Ice Many Pots SW', 'Ice Many Pots WS',
     'Ice Crystal Right Blue Hole', 'Ice Crystal Left Blue Barrier', 'Ice Big Chest Landing Push Blocks',
     'Ice Backwards Room Hole', 'Ice Switch Room SE', 'Ice Antechamber NE', 'Ice Antechamber Hole', 'Mire Lobby Gap',

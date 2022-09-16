@@ -738,6 +738,7 @@ def create_doors(world, player):
         create_door(player, 'Ice Cross Top Push Block Right', Lgcl),  # dynamic
         create_door(player, 'Ice Cross Bottom SE', Nrml).dir(So, 0x1e, Right, High).pos(3).portal(X, 0x00),
         create_door(player, 'Ice Cross Right ES', Nrml).dir(Ea, 0x1e, Bot, High).trap(0x4).pos(0),
+        create_door(player, 'Ice Bomb Drop Path', Lgcl),
         create_door(player, 'Ice Bomb Drop Hole', Hole),
         create_door(player, 'Ice Compass Room NE', Nrml).dir(No, 0x2e, Right, High).pos(0),
         create_door(player, 'Ice Pengator Switch WS', Nrml).dir(We, 0x1f, Bot, High).trap(0x4).pos(0),
@@ -769,6 +770,8 @@ def create_doors(world, player):
         create_door(player, 'Ice Spike Room WS', Nrml).dir(We, 0x5f, Bot, High).small_key().pos(0),
         create_door(player, 'Ice Spike Room Down Stairs', Sprl).dir(Dn, 0x5f, 3, HTH).ss(Z, 0x11, 0x48, True, True),
         create_door(player, 'Ice Spike Room Up Stairs', Sprl).dir(Up, 0x5f, 4, HTH).ss(Z, 0x1a, 0xa4, True, True),
+        create_door(player, 'Ice Right H Path', Lgcl),
+        create_door(player, 'Ice Hammer Block Path', Lgcl),
         create_door(player, 'Ice Hammer Block Down Stairs', Sprl).dir(Dn, 0x3f, 0, HTH).ss(Z, 0x11, 0xb8, True, True).kill(),
         create_door(player, 'Ice Hammer Block ES', Intr).dir(Ea, 0x3f, Bot, High).pos(0),
         create_door(player, 'Ice Tongue Pull WS', Intr).dir(We, 0x3f, Bot, High).pos(0),
