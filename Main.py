@@ -23,7 +23,7 @@ from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons
-from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
+from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_items
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
 from Utils import output_path, parse_player_names
@@ -304,7 +304,7 @@ def main(args, seed=None, fish=None):
             customize_shops(world, player)
     if args.algorithm in ['balanced', 'equitable']:
         balance_money_progression(world)
-    ensure_good_pots(world, True)
+    ensure_good_items(world, True)
 
     if args.print_custom_yaml:
         world.settings.record_item_placements(world)

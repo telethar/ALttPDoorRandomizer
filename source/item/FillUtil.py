@@ -2,6 +2,7 @@ import RaceRandom as random
 import logging
 from collections import defaultdict
 
+from source.dungeon.EnemyList import enemy_stats
 from source.item.District import resolve_districts
 from BaseClasses import PotItem, PotFlags
 from DoorShuffle import validate_vanilla_reservation
@@ -421,17 +422,18 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
     return locations
 
 
-def filter_pot_locations(locations, world):
+
+
+def filter_special_locations(locations, world, vanilla_matcher):
     if world.algorithm == 'district':
         config = world.item_pool_config
         restricted = config.location_groups[0].locations
         filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
         return filtered if len(filtered) > 0 else locations
     if world.algorithm == 'vanilla_fill':
-        filtered = [l for l in locations if l.pot and l.pot.item in [PotItem.Chicken, PotItem.BigMagic]]
+        filtered = [l for l in locations if vanilla_matcher(l)]
         return filtered if len(filtered) > 0 else locations
     return locations
-
 
 
 vanilla_mapping = {

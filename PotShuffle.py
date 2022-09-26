@@ -1041,11 +1041,12 @@ class PotSecretTable(object):
         self.multiworld_count = 0
 
     def write_pot_data_to_rom(self, rom, colorize):
-        pointer_address = 0x140000  # pots currently in bank 28
-        pointer_offset = 0x128 * 2
-        empty_address = (pointer_address + pointer_offset)
+        pointer_address = snes_to_pc(0x09D87E)  # pots currently in bank 9
+        data_bank_address = snes_to_pc(0x09DACE)
+        # pointer_offset = 0x128 * 2
+        empty_address = data_bank_address
         empty_pointer = pc_to_snes(empty_address) & 0xFFFF
-        data_pointer = pointer_address + pointer_offset + 2
+        data_pointer = data_bank_address + 2
         for room in range(0, 0x128):
             if room in self.room_map:
                 list_idx = 0

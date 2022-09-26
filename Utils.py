@@ -6,6 +6,7 @@ import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from math import factorial
+import fileinput
 
 
 def int16_as_bytes(value):
@@ -696,10 +697,19 @@ def check_pots():
                     print(f'{pot.room}#{i+1} secret: {hex(secret_vram)} tile: {hex(tile_vram)}')
 
 
+def find_and_replace():
+    for data_line in fileinput.input('scratch.txt', inplace=True):
+        if '=' in data_line:
+            one, two = data_line.split(' = ')
+            number = int(two.strip())
+            print(data_line.replace(two, hex(number)))
+
+
 if __name__ == '__main__':
     # make_new_base2current()
     # read_entrance_data(old_rom=sys.argv[1])
     # room_palette_data(old_rom=sys.argv[1])
     # extract_data_from_us_rom(sys.argv[1])
     # extract_data_from_jp_rom(sys.argv[1])
-    check_pots()
+    # check_pots()
+    find_and_replace()

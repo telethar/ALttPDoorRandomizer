@@ -1,3 +1,9 @@
+try:
+    from fast_enum import FastEnum
+except ImportError:
+    from enum import IntFlag as FastEnum
+
+
 from RoomData import DoorKind, Position
 from source.dungeon.RoomObject import RoomObject, DoorObject
 

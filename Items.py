@@ -1,5 +1,3 @@
-import logging
-
 from BaseClasses import Item
 
 
@@ -176,6 +174,7 @@ item_table = {'Bow': (True, False, None, 0x0B, 200, 'You have\nchosen the\narche
               'Blue Potion': (False, False, None, 0x30, 160, 'Delicious blue goop!', 'and the blue goo', 'the liquid kid', 'potion for sale', 'free samples', 'bottle boy has blue goo again', 'a blue potion'),
               'Bee': (False, False, None, 0x0E, 10, 'I will sting your foes a few times', 'and the sting buddy', 'the beekeeper kid', 'insect for sale', 'shroom pollenation', 'bottle boy has mad bee again', 'a bee'),
               'Small Heart': (False, False, None, 0x42, 10, 'Just a little\npiece of love!', 'and the heart', 'the life-giving kid', 'little love for sale', 'fungus for life', 'life boy feels some love again', 'a heart'),
+              'Fairy': (False, False, None, 0x5A, 50, 'Just a pixie!', 'and the pixie', 'the pixie kid', 'pixie for sale', 'pixie fungus', 'bottle boy has pixie again', 'a pixie'),
               'Beat Agahnim 1': (True, False, 'Event', 999, None, None, None, None, None, None, None, None),
               'Beat Agahnim 2': (True, False, 'Event', 999, None, None, None, None, None, None, None, None),
               'Get Frog': (True, False, 'Event', 999, None, None, None, None, None, None, None, None),

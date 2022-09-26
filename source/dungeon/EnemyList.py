@@ -1,3 +1,4 @@
+from collections import defaultdict
 import math
 import typing
 
@@ -6,11 +7,17 @@ try:
 except ImportError:
     from enum import IntFlag as FastEnum
 
+import RaceRandom as random
+from BaseClasses import Location, LocationType
+from Items import ItemFactory
+from Utils import snes_to_pc, pc_to_snes, int16_as_bytes
 from source.logic.Rule import RuleFactory
+
+# todo: bosses shifted coordinates
 
 
 class EnemyStats:
-    def __init__(self, sprite, static, drop_flag=False, prize_pack=0, sub_type=0):
+    def __init__(self, sprite, static, drop_flag=False, prize_pack: typing.Union[tuple, int] = 0, sub_type=0):
         self.sprite = sprite
         self.sub_type = sub_type
         self.static = static
@@ -21,11 +28,16 @@ class EnemyStats:
 
 
 class EnemySprite(FastEnum):
-    CorrectPullSwitch = 0x04,
+    Raven = 0x00
+    Vulture = 0x01
+    CorrectPullSwitch = 0x04
     WrongPullSwitch = 0x06
     Octorok = 0x08
     Moldorm = 0x09
+    Octorok4Way = 0x0a
     Cucco = 0x0b
+    Buzzblob = 0x0d
+    Snapdragon = 0x0e
 
     Octoballoon = 0x0f
     OctoballoonBaby = 0x10
@@ -90,16 +102,20 @@ class EnemySprite(FastEnum):
     BombGuard = 0x4a
     GreenKnifeGuard = 0x4b
     Geldman = 0x4c
+    Toppo = 0x4d
     Popo = 0x4e
     Popo2 = 0x4f
-    
+
+    ArmosStatue = 0x51
+    KingZora = 0x52
     ArmosKnight = 0x53
     Lanmolas = 0x54
+    FireballZora = 0x55
     Zora = 0x56
     DesertStatue = 0x57
     Crab = 0x58
     LostWoodsBird = 0x59
-    LostWoodsSquirrel =0x5a
+    LostWoodsSquirrel = 0x5a
     SparkCW = 0x5b
     SparkCCW = 0x5c
     RollerVerticalUp = 0x5d
@@ -159,8 +175,8 @@ class EnemySprite(FastEnum):
     Pengator = 0x99
     Kyameron = 0x9a
     Wizzrobe = 0x9b
-    Zoro = 0x9c
-    Babasu = 0x9d
+    Zoro = 0x9c  # babasu horizontal?
+    Babasu = 0x9d  # babasu vertical?
     GroveOstritch = 0x9e
     GroveRabbit = 0x9f
     GroveBird = 0xa0    
@@ -171,6 +187,10 @@ class EnemySprite(FastEnum):
     BlueZazak = 0xa5
     RedZazak = 0xa6
     Stalfos = 0xa7
+    GreenZirro = 0xa8
+    BlueZirro = 0xa9
+    Pikit = 0xaa
+    CrystalMaiden = 0xab
     # ... OW
     OldMan = 0xad
     PipeDown = 0xae
@@ -179,9 +199,12 @@ class EnemySprite(FastEnum):
     PipeLeft = 0xb1
     GoodBee = 0xb2
     PedestalPlaque = 0xb3
+    PurpleChest = 0xb4
     BombShopGuy = 0xb5
+    Kiki = 0xb6
     BlindMaiden = 0xb7
-    
+    BullyPinkBall = 0xb9
+
     Whirlpool = 0xba
     Shopkeeper = 0xbb
     Drunkard = 0xbc
@@ -206,14 +229,18 @@ class EnemySprite(FastEnum):
     Lynel = 0xd0
     BunnyBeam = 0xd1
     FloppingFish = 0xd2
-    Stal = 0xd3
+    Stal = 0xd3  # alive skull rock?
+    DiggingGameNPC = 0xd5
     Ganon = 0xd6
 
     Faerie = 0xe3
     SmallKey = 0xe4
+    FakeMasterSword = 0xe8
     MagicShopAssistant = 0xe9
     HeartPiece = 0xeb
+    SomariaPlatform = 0xed
     CastleMantle = 0xee
+    MedallionTablet = 0xf2
     
     
 class SpriteType(FastEnum):
@@ -222,7 +249,7 @@ class SpriteType(FastEnum):
 
 
 def init_enemy_stats():
-    enemy_stats = {
+    stats = {
         EnemySprite.CorrectPullSwitch: EnemyStats(EnemySprite.CorrectPullSwitch, True),
         EnemySprite.WrongPullSwitch: EnemyStats(EnemySprite.WrongPullSwitch, True),
         EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2),
@@ -417,6 +444,22 @@ def init_enemy_stats():
         EnemySprite.CastleMantle: EnemyStats(EnemySprite.CastleMantle, True),
 
     }
+    return stats
+
+
+def handle_native_dungeon(location, itemid):
+    # Keys in their native dungeon should use the original item code for keys
+    if location.parent_region.dungeon:
+        if location.parent_region.dungeon.name == location.item.dungeon:
+            if location.item.bigkey:
+                return 0x32
+            if location.item.smallkey:
+                return 0x24
+            if location.item.map:
+                return 0x33
+            if location.item.compass:
+                return 0x25
+    return itemid
 
 
 class Sprite(object):
@@ -432,15 +475,36 @@ class Sprite(object):
         self.drops_item = drops_item
         self.drop_item_kind = drop_item_kind
 
+        self.location = None
+
+    def copy(self):
+        return Sprite(self.super_tile, self.kind, self.sub_type, self.layer, self.tile_x, self.tile_y, self.region,
+                      self.drops_item, self.drop_item_kind)
+
+    def sprite_data(self):
+        data = [(self.layer << 7) | ((self.sub_type & 0x18) << 2) | self.tile_y,
+                ((self.sub_type & 7) << 5) | self.tile_x, self.kind]
+        if self.location is not None:
+            item_id = self.location.item.code if self.location.item is not None else 0x5A
+            code = 0xF9 if self.location.item.player != self.location.player else 0xF8
+            if code == 0xF8:
+                item_id = handle_native_dungeon(self.location, item_id)
+            data.append(item_id)
+            data.append(0 if code == 0xF8 else self.location.item.player)
+            data.append(code)
+        return data
+
 
 # map of super_tile to list of Sprite objects:
 vanilla_sprites = {}
+enemy_stats = {}
 
 
-def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None, drops_item=False, drop_item_kind=None):
+def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None,
+                  drops_item=False, drop_item_kind=None):
     if super_tile not in vanilla_sprites:
         vanilla_sprites[super_tile] = []
-    vanilla_sprites[super_tile].append(Sprite(kind, sub_type, layer, tile_x, tile_y,
+    vanilla_sprites[super_tile].append(Sprite(super_tile, kind, sub_type, layer, tile_x, tile_y,
                                               region, drops_item, drop_item_kind))
 
 
@@ -672,22 +736,22 @@ def init_vanilla_sprites():
     create_sprite(0x0027, EnemySprite.SparkCW, 0x00, 0, 0x0f, 0x06, 'Hera Big Chest Landing')
     create_sprite(0x0027, EnemySprite.Kondongo, 0x00, 0, 0x05, 0x0e, 'Hera 4F')
     create_sprite(0x0027, EnemySprite.Kondongo, 0x00, 0, 0x04, 0x16, 'Hera 4F')
-    create_sprite(0x0028, EnemySprite.Kyameron, 0x00, 0, 0x0a, 0x06, 'Hera 4F')
+    create_sprite(0x0028, EnemySprite.Kyameron, 0x00, 0, 0x0a, 0x06, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x08, 0x08, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x07, 0x0d, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.SpikeBlock, 0x00, 0, 0x08, 0x10, 'Swamp Entrance')
     create_sprite(0x0029, EnemySprite.Mothula, 0x00, 0, 0x18, 0x16)
     create_sprite(0x0029, 0x07, SpriteType.Overlord, 0, 0x07, 0x16)
-    create_sprite(0x002a, EnemySprite.CrystalSwitch, 0x00, 0, 0x10, 0x17)
-    create_sprite(0x002a, EnemySprite.Bumper, 0x00, 0, 0x0f, 0x0f)
+    create_sprite(0x002a, EnemySprite.CrystalSwitch, 0x00, 0, 0x10, 0x17, 'PoD Arena Main')
+    create_sprite(0x002a, EnemySprite.Bumper, 0x00, 0, 0x0f, 0x0f, 'PoD Arena Main')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x0d, 0x08, 'PoD Arena North')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x07, 0x0c, 'PoD Arena Main')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x10, 0x0c, 'PoD Arena Main')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x0d, 0x0f, 'PoD Arena Main')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x13, 0x11, 'PoD Arena Main')
     create_sprite(0x002a, EnemySprite.HardhatBeetle, 0x00, 0, 0x0f, 0x13, 'PoD Arena Main')
-    create_sprite(0x002b, EnemySprite.CrystalSwitch, 0x00, 0, 0x0a, 0x11, 'PoD Arena Main')
+    create_sprite(0x002b, EnemySprite.CrystalSwitch, 0x00, 0, 0x0a, 0x11)
     create_sprite(0x002b, EnemySprite.Statue, 0x00, 0, 0x0a, 0x0a)
     create_sprite(0x002b, EnemySprite.RedBari, 0x00, 0, 0x07, 0x17, 'PoD Map Balcony')
     create_sprite(0x002b, EnemySprite.Faerie, 0x00, 0, 0x16, 0x17)
@@ -776,9 +840,9 @@ def init_vanilla_sprites():
     create_sprite(0x0039, 0x09, SpriteType.Overlord, 0, 0x0f, 0x0f)
     create_sprite(0x0039, EnemySprite.Gibdo, 0x00, 0, 0x05, 0x15, 'Skull Spike Corner', True, 0xe4)
     create_sprite(0x0039, EnemySprite.MiniHelmasaur, 0x00, 0, 0x09, 0x15, 'Skull Spike Corner')
-    create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x16, 'Skull Spike Corner')
+    create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x16, 'Skull Final Drop')
     create_sprite(0x0039, EnemySprite.HardhatBeetle, 0x00, 0, 0x0b, 0x18, 'Skull Spike Corner')
-    create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x1a, 'Skull Spike Corner')
+    create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x1a, 'Skull Final Drop')
     create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x0e, 0x11, 'PoD Pit Room',)
     create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x11, 0x11, 'PoD Pit Room',)
     create_sprite(0x003a, EnemySprite.Medusa, 0x00, 0, 0x04, 0x14, 'PoD Pit Room',)
@@ -1920,6 +1984,8 @@ def init_vanilla_sprites():
     create_sprite(0x0126, EnemySprite.Faerie, 0x00, 0, 0x08, 0x16)
     create_sprite(0x0126, EnemySprite.HeartPiece, 0x00, 0, 0x1c, 0x14)
     create_sprite(0x0127, EnemySprite.HeartPiece, 0x00, 0, 0x07, 0x16)
+    global enemy_stats
+    enemy_stats = init_enemy_stats()
 
 
 def kill_rules(world, player, stats):
@@ -1982,6 +2048,132 @@ def kill_rules(world, player, stats):
         EnemySprite.Pokey: defeat_rule(world, player, h(EnemySprite.Pokey), silver=2, ice=1),
     }
     return defeat_rules
+
+
+layered_oam_rooms = {
+    0x14, 0x15, 0x51, 0x59, 0x5b, 0x60, 0x62, 0x81, 0x86, 0xa8, 0xaa, 0xb2, 0xb9, 0xc2, 0xcb, 0xcc, 0xdb, 0xdc
+}
+
+
+class EnemyTable:
+    def __init__(self):
+        self.room_map = defaultdict(list)
+        self.multiworld_count = 0
+
+    def write_sprite_data_to_rom(self, rom):
+        pointer_address = snes_to_pc(0x09D62E)
+        data_pointer = snes_to_pc(0x288000)
+        empty_pointer = pc_to_snes(data_pointer) & 0xFFFF
+        rom.write_bytes(data_pointer, [0x00, 0xff])
+        data_pointer += 2
+        for room in range(0, 0x128):
+            if room in self.room_map:
+                data_address = pc_to_snes(data_pointer) & 0xFFFF
+                rom.write_bytes(pointer_address + room * 2, int16_as_bytes(data_address))
+                rom.write_byte(data_pointer, 0x01 if room in layered_oam_rooms else 0x00)
+                list_offset = 1
+                for sprite in self.room_map[room]:
+                    data = sprite.sprite_data()
+                    rom.write_bytes(data_pointer + list_offset, data)
+                    list_offset + len(data)
+                rom.write_byte(data_pointer, 0xff)
+                data_pointer += list_offset + 1
+            else:
+                rom.write_bytes(pointer_address + room * 2, int16_as_bytes(empty_pointer))
+
+    def size(self):
+        size = 2
+        for room in range(0, 0x128):
+            if room in self.room_map:
+                size += sum(len(sprite.sprite_data()) for sprite in self.room_map[room]) + 2
+        return size
+
+
+def setup_enemy_locations(world, player):
+    world.enemy_list[player] = EnemyTable()
+    for super_tile, enemy_list in vanilla_sprites.items():
+        for index, sprite in enumerate(enemy_list):
+            # if sprite.drops_item and sprite.drop_item_kind == 0xe4:
+            #     # normal key drops
+            #     pass
+            my_sprite = sprite.copy()
+            world.enemy_list[player].room_map[super_tile].append()
+
+            if valid_drop_location(my_sprite, world, player):
+                create_drop_location(my_sprite, index, super_tile, world, player)
+
+
+def valid_drop_location(sprite, world, player):
+    if world.dropshuffle[player] == 'underworld':
+        if sprite.drops_item and sprite.drop_item_kind == 0xe4:
+            # already has a location -- hook it up?
+            return False
+        else:
+            stat = enemy_stats[sprite.kind]
+            return not stat.static and stat.drop_flag
+
+
+def create_drop_location(sprite, index, super_tile, world, player):
+
+    address = drop_address(index, super_tile)
+    region_name = sprite.region
+    parent = world.get_region(region_name, player)
+    descriptor = f'Enemy #{index+1}'
+    modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
+                                        'a bounty of five items', 'the sick kid', 'Sahasrahla'}
+    hint_text = f'{"held by an enemy"} {"in" if modifier else "near"} {parent.hint_text}'
+    drop_location = Location(player, f'{region_name} {descriptor}', address, hint_text=hint_text, parent=parent)
+    world.dynamic_locations.append(drop_location)
+    drop_location.drop = sprite
+    sprite.location = drop_location
+    drop_location.type = LocationType.Drop
+
+
+# todo: placeholder address
+def drop_address(index, super_tile):
+    return 0x7f9000 + super_tile * 2 + (index << 24)
+
+
+prize_pack_selector = {
+    0: ['Nothing'],
+    1: ['Small Heart', 'Small Heart', 'Small Heart', 'Small Heart',
+        'Rupee (1)', 'Small Heart', 'Small Heart', 'Rupee (1)'],
+    2: ['Rupees (5)', 'Rupee (1)', 'Rupees (5)', 'Rupees (20)',
+        'Rupees (5)', 'Rupee (1)', 'Rupees (5)', 'Rupees (5)'],
+    3: ['Big Magic', 'Small Magic', 'Small Magic', 'Rupees (5)',
+        'Big Magic', 'Small Magic', 'Small Heart', 'Small Magic'],
+    4: ['Single Bomb', 'Single Bomb', 'Single Bomb', 'Single Bomb',
+        'Single Bomb', 'Single Bomb', 'Bombs (10)', 'Single Bomb'],
+    5: ['Arrows (5)', 'Small Heart', 'Arrows (5)', 'Arrows (10)',
+        'Arrows (5)', 'Small Heart', 'Arrows (5)', 'Arrows (10)'],
+    6: ['Small Magic', 'Rupee (1)', 'Small Heart', 'Arrows (5)',
+        'Small Magic', 'Single Bomb', 'Rupee (1)', 'Small Heart'],
+    7: ['Small Heart', 'Fairy', 'Big Magic', 'Rupees (20)',
+        'Bombs (10)', 'Small Heart', 'Rupees (20)', 'Arrows (10)'],
+}
+
+
+def add_drop_contents(world, player):
+    retro_bow = world.bow_mode[player].startswith('retro')
+    index_selector = [0]*8
+    for super_tile, enemy_list in world.enemy_list[player].room_map.items():
+        for sprite in enemy_list:
+            if sprite.drops_item and sprite.drop_item_kind == 0xe4:
+                continue
+            else:
+                stat = enemy_stats[sprite.kind]
+                if not stat.static and stat.drop_flag:
+                    pack = 0
+                    if isinstance(stat.prize_pack, int):
+                        pack = stat.prize_pack
+                    elif isinstance(stat.prize_pack, tuple):
+                        pack = random.choice(stat.prize_pack)
+                    pack_contents = prize_pack_selector[pack]
+                    idx = index_selector[pack]
+                    index_selector[pack] = (idx + 1) % len(pack_contents)
+                    item_name = pack_contents[idx]
+                    item_name = 'Rupees (5)' if retro_bow and 'Arrows' in item_name else item_name
+                    world.itempool.append(ItemFactory(item_name, player))
 
 
 def or_rule(*rules):
@@ -2126,3 +2318,218 @@ def can_shoot_arrows(world, player):
 def can_use_bombs(world, player):
     return or_rule(RuleFactory.static_rule(not world.bombag[player]), has('Bomb Upgrade (+10)', player))
 
+enemy_names = {
+    0x00: 'Raven',
+    0x01: 'Vulture',
+    0x04: 'CorrectPullSwitch',
+    0x06: 'WrongPullSwitch',
+    0x08: 'Octorok',
+    0x09: 'Moldorm',
+    0x0a: 'Octorok4Way',
+    0x0b: 'Cucco',
+    0x0d: 'Buzzblob',
+    0x0e: 'Snapdragon',
+
+    0x0f: 'Octoballoon',
+    0x10: 'OctoballoonBaby',
+    0x11: 'Hinox',
+    0x12: 'Moblin',
+    0x13: 'MiniHelmasaur',
+    0x14: 'ThievesTownGrate',
+    0x15: 'AntiFairy',
+    0x16: 'Wiseman',
+    0x17: 'Hoarder',
+    0x18: 'MiniMoldorm',
+    0x19: 'Poe',
+    0x1a: 'Smithy',
+    0x1b: 'Arrow',
+    0x1c: 'Statue',
+    0x1d: 'FluteQuest',
+    0x1e: 'CrystalSwitch',
+    0x1f: 'SickKid',
+    0x20: 'Sluggula',
+    0x21: 'WaterSwitch',
+    0x22: 'Ropa',
+    0x23: 'RedBari',
+    0x24: 'BlueBari',
+    0x25: 'TalkingTree',
+    0x26: 'HardhatBeetle',
+    0x27: 'Deadrock',
+    0x28: 'DarkWorldHintNpc',
+    0x29: 'AdultNpc',
+    0x2a: 'SweepingLady',
+    0x2b: 'Hobo',
+    0x2c: 'Lumberjacks',
+    0x2d: 'TelepathicTile',
+    0x2e: 'FluteKid',
+    0x2f: 'RaceGameLady',
+
+    0x31: 'FortuneTeller',
+    0x32: 'ArgueBros',
+    0x33: 'RupeePull',
+    0x34: 'YoungSnitch',
+    0x35: 'Innkeeper',
+    0x36: 'Witch',
+    0x37: 'Waterfall',
+    0x38: 'EyeStatue',
+    0x39: 'Locksmith',
+    0x3a: 'MagicBat',
+    0x3b: 'BonkItem',
+    0x3c: 'KidInKak',
+    0x3d: 'OldSnitch',
+    0x3e: 'Hoarder2',
+    0x3f: 'TutorialGuard',
+
+    0x40: 'LightningGate',
+    0x41: 'BlueGuard',
+    0x42: 'GreenGuard',
+    0x43: 'RedSpearGuard',
+    0x44: 'BluesainBolt',
+    0x45: 'UsainBolt',
+    0x46: 'BlueArcher',
+    0x47: 'GreenBushGuard',
+    0x48: 'RedJavelinGuard',
+    0x49: 'RedBushGuard',
+    0x4a: 'BombGuard',
+    0x4b: 'GreenKnifeGuard',
+    0x4c: 'Geldman',
+    0x4d: 'Toppo',
+    0x4e: 'Popo',
+    0x4f: 'Popo2',
+
+    0x51: 'ArmosStatue',
+    0x52: 'KingZora',
+    0x53: 'ArmosKnight',
+    0x54: 'Lanmolas',
+    0x55: 'FireballZora',
+    0x56: 'Zora',
+    0x57: 'DesertStatue',
+    0x58: 'Crab',
+    0x59: 'LostWoodsBird',
+    0x5a: 'LostWoodsSquirrel',
+    0x5b: 'SparkCW',
+    0x5c: 'SparkCCW',
+    0x5d: 'RollerVerticalUp',
+    0x5e: 'RollerVerticalDown',
+    0x5f: 'RollerHorizontalLeft',
+    0x60: 'RollerHorizontalRight',
+    0x61: 'Beamos',
+    0x62: 'MasterSword',
+    0x63: 'DebirandoPit',
+    0x64: 'Debirando',
+    0x65: 'ArcheryNpc',
+    0x66: 'WallCannonVertLeft',
+    0x67: 'WallCannonVertRight',
+    0x68: 'WallCannonHorzTop',
+    0x69: 'WallCannonHorzBottom',
+    0x6a: 'BallNChain',
+    0x6b: 'CannonTrooper',
+    0x6d: 'CricketRat',
+    0x6e: 'Snake',
+    0x6f: 'Keese',
+
+    0x71: 'Leever',
+    0x72: 'FairyPondTrigger',
+    0x73: 'UnclePriest',
+    0x74: 'RunningNpc',
+    0x75: 'BottleMerchant',
+    0x76: 'Zelda',
+    0x78: 'Grandma',
+    0x7a: 'Agahnim',
+    0x7c: 'FloatingSkull',
+    0x7d: 'BigSpike',
+    0x7e: 'FirebarCW',
+    0x7f: 'FirebarCCW',
+    0x80: 'Firesnake',
+    0x81: 'Hover',
+    0x82: 'AntiFairyCircle',
+    0x83: 'GreenEyegoreMimic',
+    0x84: 'RedEyegoreMimic',
+    0x85: 'YellowStalfos',  # falling stalfos that shoots head
+    0x86: 'Kondongo',
+    0x88: 'Mothula',
+    0x8a: 'SpikeBlock',
+    0x8b: 'Gibdo',
+    0x8c: 'Arrghus',
+    0x8d: 'Arrghi',
+    0x8e: 'Terrorpin',
+    0x8f: 'Blob',
+    0x90: 'Wallmaster',
+    0x91: 'StalfosKnight',
+    0x92: 'HelmasaurKing',
+    0x93: 'Bumper',
+    0x94: 'Pirogusu',
+    0x95: 'LaserEyeLeft',
+    0x96: 'LaserEyeRight',
+    0x97: 'LaserEyeTop',
+    0x98: 'LaserEyeBottom',
+    0x99: 'Pengator',
+    0x9a: 'Kyameron',
+    0x9b: 'Wizzrobe',
+    0x9c: 'Zoro',  # babasu horizontal?
+    0x9d: 'Babasu',  # babasu vertical?
+    0x9e: 'GroveOstritch',
+    0x9f: 'GroveRabbit',
+    0xa0: 'GroveBird',
+    0xa1: 'Freezor',
+    0xa2: 'Kholdstare',
+    0xa3: 'KholdstareShell',
+    0xa4: 'FallingIce',
+    0xa5: 'BlueZazak',
+    0xa6: 'RedZazak',
+    0xa7: 'Stalfos',
+    0xa8: 'GreenZirro',
+    0xa9: 'BlueZirro',
+    0xaa: 'Pikit',
+    0xab: 'CrystalMaiden',
+    # ... OW
+    0xad: 'OldMan',
+    0xae: 'PipeDown',
+    0xaf: 'PipeUp',
+    0xb0: 'PipeRight',
+    0xb1: 'PipeLeft',
+    0xb2: 'GoodBee',
+    0xb3: 'PedestalPlaque',
+    0xb4: 'PurpleChest',
+    0xb5: 'BombShopGuy',
+    0xb6: 'Kiki',
+    0xb7: 'BlindMaiden',
+    0xb9: 'BullyPinkBall',
+
+    0xba: 'Whirlpool',
+    0xbb: 'Shopkeeper',
+    0xbc: 'Drunkard',
+    0xbd: 'Vitreous',
+    # ... (spawnables)
+    0xc0: 'Catfish',
+    0xc1: 'CutsceneAgahnim',
+    0xc2: 'Boulder',
+    0xc3: 'Gibo',  # patrick!
+    0xc4: 'Thief',
+    0xc5: 'Medusa',
+    0xc6: 'FourWayShooter',
+    0xc7: 'Pokey',
+    0xc8: 'BigFairy',
+    0xc9: 'Tektite',  # firebat?
+    0xca: 'Chainchomp',
+    0xcb: 'TrinexxRockHead',
+    0xcc: 'TrinexxFireHead',
+    0xcd: 'TrinexxIceHead',
+    0xce: 'Blind',
+    0xcf: 'Swamola',
+    0xd0: 'Lynel',
+    0xd1: 'BunnyBeam',
+    0xd2: 'FloppingFish',
+    0xd3: 'Stal',  # alive skull rock?
+    0xd5: 'DiggingGameNPC',
+    0xd6: 'Ganon',
+
+    0xe3: 'Faerie',
+    0xe4: 'SmallKey',
+    0xe8: 'FakeMasterSword',
+    0xe9: 'MagicShopAssistant',
+    0xeb: 'HeartPiece',
+    0xed: 'SomariaPlatform',
+    0xee: 'CastleMantle',
+    0xf2: 'MedallionTablet',
+}

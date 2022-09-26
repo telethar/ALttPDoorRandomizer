@@ -10,6 +10,7 @@ from Fill import FillError, fill_restrictive, get_dungeon_item_pool, is_dungeon_
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
+from source.dungeon.EnemyList import add_drop_contents
 from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST
@@ -422,6 +423,9 @@ def generate_itempool(world, player):
 
     if world.pottery[player] not in ['none', 'keys'] and not skip_pool_adjustments:
         add_pot_contents(world, player)
+
+    if world.dropshuffle[player] == 'underworld' and not skip_pool_adjustments:
+        add_drop_contents(world, player)
 
 
 take_any_locations = [

@@ -1548,16 +1548,18 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
                                        and (world.colorizepots[player]
                                             or world.pottery[player] in ['reduced', 'clustered']))
-        if world.pot_contents[player].size() > 0x2800:
+        if world.pot_contents[player].size() > 0x11c0:
             raise Exception('Pot table is too big for current area')
         world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
+
+    # todo: write sprites
 
     write_strings(rom, world, player, team)
 
     # write initial sram
     rom.write_initial_sram()
 
-    rom.write_byte(0x18636C, 1 if world.remote_items[player] else 0)
+    rom.write_byte(0x187E30, 1 if world.remote_items[player] else 0)
 
     # set rom name
     # 21 bytes
@@ -1615,7 +1617,7 @@ def write_custom_shops(rom, world, player):
             if item is None:
                 break
             if world.shopsanity[player] or shop.type == ShopType.TakeAny:
-                rom.write_byte(0x186560 + shop.sram_address + index, 1)
+                rom.write_byte(0x187E40 + shop.sram_address + index, 1)
             if world.shopsanity[player] and shop.region.name in shop_to_location_table:
                 loc_item = world.get_location(shop_to_location_table[shop.region.name][index], player).item
             elif world.shopsanity[player] and shop.region.name in retro_shops:
