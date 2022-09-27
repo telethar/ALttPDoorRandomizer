@@ -87,7 +87,7 @@ class World(object):
         self._portal_cache = {}
         self.sanc_portal = {}
         self.fish = BabelFish()
-        self.pot_contents = {}
+        self.data_tables = {}
 
         for player in range(1, players + 1):
             def set_player_attr(attr, val):
@@ -151,6 +151,7 @@ class World(object):
 
             set_player_attr('exp_cache', defaultdict(dict))
             set_player_attr('enabled_entrances', {})
+            set_player_attr('data_tables', None)
 
     def finish_init(self):
         for player in range(1, self.players + 1):
@@ -393,7 +394,7 @@ class World(object):
             item.location = location
             item.world = self
             if location.player != item.player and location.type == LocationType.Pot:
-                self.pot_contents[location.player].multiworld_count += 1
+                self.data_tables[location.player].pot_secret_table.multiworld_count += 1
             if collect:
                 self.state.collect(item, location.event, location)
 
@@ -2136,6 +2137,7 @@ class Location(object):
         self.skip = False
         self.type = LocationType.Normal if not crystal else LocationType.Prize
         self.pot = None
+        self.drop = None
 
     def can_fill(self, state, item, check_access=True):
         if not self.valid_multiworld(state, item):
@@ -2144,7 +2146,7 @@ class Location(object):
 
     def valid_multiworld(self, state, item):
         if self.type == LocationType.Pot and self.player != item.player:
-            return state.world.pot_contents[self.player].multiworld_count < 256
+            return state.world.data_tables[self.player].pot_secret_table.multiworld_count < 256
         return True
 
     def can_reach(self, state):

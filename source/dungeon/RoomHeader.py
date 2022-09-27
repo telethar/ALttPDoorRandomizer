@@ -315,7 +315,8 @@ class RoomHeader:
 		self.sprite_sheet = byte_array[3]
 
 	def write_to_rom(self, rom, base_address):
-		rom.write_byte(base_address + self.room_id*14 + 3, self.sprite_sheet)
+		room_offest = self.room_id*14
+		rom.write_byte(base_address + room_offest + 3, self.sprite_sheet)
 
 
 def init_room_headers():

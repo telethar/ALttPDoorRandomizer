@@ -32,6 +32,8 @@ from source.item.FillUtil import create_item_pool_config, massage_item_pool, dis
 from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
+from source.rom.DataTables import init_data_tables
+
 
 __version__ = '1.0.1.3-x'
 
@@ -186,6 +188,7 @@ def main(args, seed=None, fish=None):
         create_doors(world, player)
         create_rooms(world, player)
         create_dungeons(world, player)
+        world.data_tables[player] = init_data_tables(world, player)
         adjust_locations(world, player)
         place_bosses(world, player)
 

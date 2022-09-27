@@ -919,14 +919,14 @@ def shuffle_pots(world, player):
 
         new_pot_contents.room_map[super_tile] = new_pots
 
-    world.pot_contents[player] = new_pot_contents
+    world.data_tables[player].pot_secret_table = new_pot_contents
 
 
 def shuffle_pot_switches(world, player):
     import RaceRandom as random
 
     for super_tile in vanilla_pots:
-        new_pots = world.pot_contents[player].room_map[super_tile]
+        new_pots = world.data_tables[player].pot_secret_table.room_map[super_tile]
         # sort in the order Hole, Switch, Key, Other, Nothing
         sort_order = {PotItem.Hole: 4, PotItem.Switch: 3, PotItem.Key: 2, PotItem.Nothing: 0}
         old_pots = sorted(new_pots, key=lambda pot: sort_order.get(pot.item, 1), reverse=True)

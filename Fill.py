@@ -581,7 +581,7 @@ def fast_fill_pot_for_multiworld(world, item_pool, fill_locations):
         if loc.type == LocationType.Pot:
             pot_fill_locations[loc.player].append(loc)
     for player in range(1, world.players+1):
-        flex = 256 - world.pot_contents[player].multiworld_count
+        flex = 256 - world.data_tables[player].pot_secret_table.multiworld_count
         fill_count = len(pot_fill_locations[player]) - flex
         if fill_count > 0:
             fill_spots = random.sample(pot_fill_locations[player], fill_count)

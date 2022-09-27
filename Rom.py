@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '61c296effe6180274721d570d2471e1c'
+RANDOMIZERBASEHASH = '0587709ac8c5f2abf95b14d1e1264945'
 
 
 class JsonRom(object):
@@ -1539,20 +1539,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             if room.player == player and room.modified:
                 rom.write_bytes(room.address(), room.rom_data())
 
-    if world.pottery[player] not in ['none']:
-        rom.write_bytes(snes_to_pc(0x1F8375), int32_as_bytes(0x2B8000))
-        # make hammer pegs use different tiles
-        Room0127.write_to_rom(snes_to_pc(0x2B8000), rom)
-
-    if world.pot_contents[player]:
+    if world.data_tables[player]:
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
                                        and (world.colorizepots[player]
                                             or world.pottery[player] in ['reduced', 'clustered']))
-        if world.pot_contents[player].size() > 0x11c0:
-            raise Exception('Pot table is too big for current area')
-        world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
-
-    # todo: write sprites
+        world.data_tables[player].write_to_rom(rom)
 
     write_strings(rom, world, player, team)
 

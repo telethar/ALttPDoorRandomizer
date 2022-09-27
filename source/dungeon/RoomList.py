@@ -17,23 +17,25 @@ class Room:
         self.doors = doors
 
     def write_to_rom(self, address, rom):
+        offset = 0
         rom.write_bytes(address, self.layout)
-        address += 2
+        offset += 2
         for obj in self.layer1:
-            rom.write_bytes(address, obj.data)
-            address += 3
-        rom.write_bytes(address, [0xFF, 0xFF])
-        address += 2
+            rom.write_bytes(address + offset, obj.data)
+            offset += 3
+        rom.write_bytes(address + offset, [0xFF, 0xFF])
+        offset += 2
         for obj in self.layer2:
-            rom.write_bytes(address, obj.data)
-            address += 3
-        rom.write_bytes(address, [0xFF, 0xFF, 0xF0, 0xFF])
-        address += 4
+            rom.write_bytes(address + offset, obj.data)
+            offset += 3
+        rom.write_bytes(address + offset, [0xFF, 0xFF, 0xF0, 0xFF])
+        offset += 4
+        door_start = offset
         for door in self.doors:
-            rom.write_bytes(address, door.get_bytes())
-            address += 2
-        rom.write_bytes(address, [0xFF, 0xFF])
-        return address + 2  # where the data ended
+            rom.write_bytes(address + offset, door.get_bytes())
+            offset += 2
+        rom.write_bytes(address + offset, [0xFF, 0xFF])
+        return door_start, offset + 2  # how many bytes were written
 
 
 Room0127 = Room([0xE1, 0x00],

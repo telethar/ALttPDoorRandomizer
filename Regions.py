@@ -3,6 +3,8 @@ from Items import ItemFactory
 from BaseClasses import Region, Location, Entrance, RegionType, Shop, ShopType, LocationType, PotItem, PotFlags
 from PotShuffle import key_drop_data, vanilla_pots, choose_pots, PotSecretTable
 
+from source.dungeon.EnemyList import setup_enemy_locations
+
 
 def create_regions(world, player):
     world.regions += [
@@ -1005,7 +1007,7 @@ def create_shops(world, player):
 
 def adjust_locations(world, player):
     # handle pots
-    world.pot_contents[player] = PotSecretTable()
+    world.data_tables[player].pot_secret_table = PotSecretTable()
     for location, datum in key_drop_data.items():
         loc = world.get_location(location, player)
         drop_location = 'Drop' == datum[0]
@@ -1013,6 +1015,7 @@ def adjust_locations(world, player):
             loc.type = LocationType.Drop
             snes_address, room, sprite_idx = datum[1]
             loc.address = snes_address
+            world.data_tables[player].uw_enemy_table.room_map[room][sprite_idx].location = loc
         else:
             loc.type = LocationType.Pot
             pot, pot_index = next((p, i) for i, p in enumerate(vanilla_pots[datum[1]]) if p.item == PotItem.Key)
@@ -1044,7 +1047,7 @@ def adjust_locations(world, player):
                 pot = world.get_location(loc, player).pot
             else:
                 pot = pot_orig.copy()
-            world.pot_contents[player].room_map[super_tile].append(pot)
+            world.data_tables[player].pot_secret_table.room_map[super_tile].append(pot)
 
             if valid_pot_location(pot, world.pot_pool[player], world, player):
                 create_pot_location(pot, pot_index, super_tile, world, player)
@@ -1057,6 +1060,7 @@ def adjust_locations(world, player):
                 loc.type = LocationType.Shop
                 # player address? it is in the shop table
                 index += 1
+    setup_enemy_locations(world, player)
     # unreal events:
     for l in ['Ganon', 'Agahnim 1', 'Agahnim 2', 'Dark Blacksmith Ruins', 'Frog', 'Missing Smith', 'Floodgate',
               'Trench 1 Switch', 'Trench 2 Switch', 'Swamp Drain', 'Attic Cracked Floor', 'Suspicious Maiden',
@@ -1180,7 +1184,7 @@ flooded_keys_reverse = {
     'Swamp Palace - Trench 2 Pot Key': 'Trench 2 Switch'
 }
 
-lookup_id_to_name = {data[0]: name for name, data in location_table.items() if type(data[0]) == int}
+
 location_table = {'Mushroom': (0x180013, 0x186df8, False, 'in the woods'),
                   'Bottle Merchant': (0x2eb18, 0x186df9, False, 'with a merchant'),
                   'Flute Spot': (0x18014a, 0x186dfd, False, 'underground'),
@@ -1457,6 +1461,7 @@ location_table = {'Mushroom': (0x180013, 0x186df8, False, 'in the woods'),
                   'Potion Shop - Middle': (None, None, False, 'for sale near potions'),
                   'Potion Shop - Right': (None, None, False, 'for sale near potions'),
                   }
+lookup_id_to_name = {data[0]: name for name, data in location_table.items() if type(data[0]) == int}
 lookup_id_to_name.update(shop_table_by_location_id)
 lookup_name_to_id = {name: data[0] for name, data in location_table.items() if type(data[0]) == int}
 lookup_name_to_id.update(shop_table_by_location)

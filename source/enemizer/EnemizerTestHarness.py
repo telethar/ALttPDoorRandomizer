@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from source.dungeon.EnemyList import enemy_names, SpriteType
 from source.enemizer.Enemizer import randomize_underworld_rooms
 from source.enemizer.SpriteSheets import randomize_underworld_sprite_sheets
@@ -6,7 +8,8 @@ import RaceRandom as random
 
 if __name__ == '__main__':
     random.seed(42)
-    data_tables = init_data_tables(None, None)
+    world = SimpleNamespace(pottery={1: 'none'})
+    data_tables = init_data_tables(world, 1)
 
     randomize_underworld_sprite_sheets(data_tables.sprite_sheets)
     randomize_underworld_rooms(data_tables)
