@@ -6,9 +6,6 @@ on:
   push:
     branches:
       - ip_ledge
-  pull_request:
-    branches:
-      - DoorDev
 
 # stuff to do
 jobs:
