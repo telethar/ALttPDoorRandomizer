@@ -769,6 +769,7 @@ def pot_rules(world, player):
 
 
 def default_rules(world, player):
+    set_rule(world.get_entrance('Ice Palace Drop', player), lambda state: True)
     # overworld requirements
     set_rule(world.get_entrance('Kings Grave', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('Kings Grave Outer Rocks', player), lambda state: state.can_lift_heavy_rocks(player))

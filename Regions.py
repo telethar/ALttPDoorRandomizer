@@ -158,7 +158,7 @@ def create_regions(world, player):
         create_cave_region(player, 'Big Bomb Shop', 'the bomb shop'),
         create_cave_region(player, 'Archery Game', 'a game of skill'),
         create_dw_region(player, 'Dark Lake Hylia', None, ['Lake Hylia Island Mirror Spot', 'East Dark World Pier', 'Dark Lake Hylia Ledge']),
-        create_dw_region(player, 'Dark Lake Hylia Central Island', None, ['Ice Palace', 'Lake Hylia Central Island Mirror Spot']),
+        create_dw_region(player, 'Dark Lake Hylia Central Island', None, ['Ice Palace', 'Lake Hylia Central Island Mirror Spot', 'Ice Palace Drop']),
         create_dw_region(player, 'Dark Lake Hylia Ledge', None, ['Dark Lake Hylia Ledge Drop', 'Dark Lake Hylia Ledge Fairy', 'Dark Lake Hylia Ledge Hint', 'Dark Lake Hylia Ledge Spike Cave']),
         create_cave_region(player, 'Dark Lake Hylia Ledge Hint', 'a storyteller'),
         create_cave_region(player, 'Dark Lake Hylia Ledge Spike Cave', 'a spiky hint'),
