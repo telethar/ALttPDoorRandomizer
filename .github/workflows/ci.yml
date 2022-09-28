@@ -183,7 +183,7 @@ jobs:
         path: ${{ steps.parentDir.outputs.value }}/deploy
 
   # Deploy to GitHub Releases
-  #  Release Name:  ALttPDoorRandomizer v${GITHUB_TAG}
+  #  Release Name:  ALttPEntranceRandomizer v${GITHUB_TAG}
   #  Release Body:  Inline content of RELEASENOTES.md
   #  Release Body:  Fallback to URL to RELEASENOTES.md
   #  Release Files: ${{ steps.parentDir.outputs.value }}/deploy
@@ -265,11 +265,9 @@ jobs:
         GITHUB_TAG="$(head -n 1 ../build/app_version.txt)"
         echo "::set-output name=github_tag::$GITHUB_TAG"
         GITHUB_TAG="v${GITHUB_TAG}"
-        RELEASE_NAME="ALttPDoorRandomizer ${GITHUB_TAG}"
+        RELEASE_NAME="ALttPEntranceRandomizer ${GITHUB_TAG}"
         echo "Release Name: ${RELEASE_NAME}"
         echo "Git Tag:      ${GITHUB_TAG}"
-    - name: Display structure of downloaded files
-      run: ls -R ${{ steps.parentDir.outputs.value }}/deploy/linux
     # create a pre/release
     - name: Create a Pre/Release
       id: create_release
@@ -278,7 +276,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ steps.debug_info.outputs.github_tag }}
-        release_name: ALttPDoorRandomizer v${{ steps.debug_info.outputs.github_tag }}
+        release_name: ALttPEntranceRandomizer v${{ steps.debug_info.outputs.github_tag }}
         body_path: RELEASENOTES.md
         draft: true
         prerelease: true
@@ -291,8 +289,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ../deploy/linux/ALttPDoorRandomizer.tar.gz
-        asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-linux-focal.tar.gz
+        asset_path: ../deploy/linux/ALttPEntranceRandomizer.tar.gz
+        asset_name: ALttPEntranceRandomizer-${{ steps.debug_info.outputs.github_tag }}-linux-focal.tar.gz
         asset_content_type: application/gzip
       if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
     # upload macos archive asset
@@ -303,8 +301,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ../deploy/macos/ALttPDoorRandomizer.tar.gz
-        asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-osx.tar.gz
+        asset_path: ../deploy/macos/ALttPEntranceRandomizer.tar.gz
+        asset_name: ALttPEntranceRandomizer-${{ steps.debug_info.outputs.github_tag }}-osx.tar.gz
         asset_content_type: application/gzip
       if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
     # upload windows archive asset
@@ -315,7 +313,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ../deploy/windows/ALttPDoorRandomizer.zip
-        asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-windows.zip
+        asset_path: ../deploy/windows/ALttPEntranceRandomizer.zip
+        asset_name: ALttPEntranceRandomizer-${{ steps.debug_info.outputs.github_tag }}-windows.zip
         asset_content_type: application/zip
       if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
