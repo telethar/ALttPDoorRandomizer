@@ -30,6 +30,8 @@ jobs:
     # checkout commit
     - name: Checkout commit
       uses: actions/checkout@v2
+      with:
+        ref: 'ip_ledge'
     # install python
     - name: Install python
       uses: actions/setup-python@v2
@@ -115,6 +117,8 @@ jobs:
     # checkout commit
     - name: Checkout commit
       uses: actions/checkout@v2
+      with:
+        ref: 'ip_ledge'
     # install python
     - name: Install Python
       uses: actions/setup-python@v2
@@ -200,6 +204,8 @@ jobs:
     # checkout commit
     - name: Checkout commit
       uses: actions/checkout@v2
+      with:
+        ref: 'ip_ledge'
     # get parent directory
     - name: Get Repo Name
       uses: mad9000/actions-find-and-replace-string@1
