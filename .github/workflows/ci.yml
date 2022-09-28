@@ -23,7 +23,7 @@ jobs:
     #  os & python versions
     strategy:
       matrix:
-        os-name: [ ubuntu-latest, ubuntu-18.04, macOS-latest, windows-latest ]
+        os-name: [ ubuntu-latest, macOS-latest, windows-latest ]
         python-version: [ 3.9 ]
 #    needs: [ install-test ]
     steps:
@@ -107,7 +107,7 @@ jobs:
     strategy:
       matrix:
         # install/release on not bionic
-        os-name: [ ubuntu-latest, ubuntu-18.04, macOS-latest, windows-latest ]
+        os-name: [ ubuntu-latest, macOS-latest, windows-latest ]
         python-version: [ 3.9 ]
 
     needs: [ install-build ]
@@ -274,7 +274,7 @@ jobs:
         body_path: RELEASENOTES.md
         draft: true
         prerelease: true
-      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease')
+      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
     # upload linux archive asset
     - name: Upload Linux Archive Asset
       id: upload-linux-asset
@@ -286,7 +286,7 @@ jobs:
         asset_path: ../deploy/linux/ALttPDoorRandomizer.tar.gz
         asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-linux-focal.tar.gz
         asset_content_type: application/gzip
-      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease')
+      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
     # upload macos archive asset
     - name: Upload MacOS Archive Asset
       id: upload-macos-asset
@@ -298,7 +298,7 @@ jobs:
         asset_path: ../deploy/macos/ALttPDoorRandomizer.tar.gz
         asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-osx.tar.gz
         asset_content_type: application/gzip
-      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease')
+      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
     # upload windows archive asset
     - name: Upload Windows Archive Asset
       id: upload-windows-asset
@@ -310,4 +310,4 @@ jobs:
         asset_path: ../deploy/windows/ALttPDoorRandomizer.zip
         asset_name: ALttPDoorRandomizer-${{ steps.debug_info.outputs.github_tag }}-windows.zip
         asset_content_type: application/zip
-      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease')
+      if: contains(github.ref, 'master') || contains(github.ref, 'stable') || contains(github.ref, 'dev') || contains(github.ref, 'DoorRelease') || contains(github.ref, 'ip_ledge')
