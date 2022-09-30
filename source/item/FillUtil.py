@@ -2,7 +2,6 @@ import RaceRandom as random
 import logging
 from collections import defaultdict
 
-from source.dungeon.EnemyList import enemy_stats
 from source.item.District import resolve_districts
 from BaseClasses import PotItem, PotFlags
 from DoorShuffle import validate_vanilla_reservation
@@ -66,7 +65,7 @@ def create_item_pool_config(world):
         for player in range(1, world.players + 1):
             config.static_placement[player] = defaultdict(list)
             config.static_placement[player].update(vanilla_mapping)
-            if world.dropshuffle[player]:
+            if world.dropshuffle[player] != 'none':
                 for item, locs in keydrop_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
             if world.pottery[player] not in ['none', 'cave']:
@@ -92,7 +91,7 @@ def create_item_pool_config(world):
                 for item, locs in vanilla_mapping.items():
                     if 'Small Key' in item:
                         universal_key_locations.extend(locs)
-                if world.dropshuffle[player]:
+                if world.dropshuffle[player] != 'none':
                     for item, locs in keydrop_vanilla_mapping.items():
                         if 'Small Key' in item:
                             universal_key_locations.extend(locs)

@@ -461,11 +461,13 @@ def copy_world(world):
     ret.bigkeyshuffle = world.bigkeyshuffle.copy()
     ret.bombbag = world.bombbag.copy()
     ret.flute_mode = world.flute_mode.copy()
+    ret.bow_mode = world.bow_mode.copy()
     ret.crystals_needed_for_ganon = world.crystals_needed_for_ganon.copy()
     ret.crystals_needed_for_gt = world.crystals_needed_for_gt.copy()
     ret.crystals_ganon_orig = world.crystals_ganon_orig.copy()
     ret.crystals_gt_orig = world.crystals_gt_orig.copy()
     ret.open_pyramid = world.open_pyramid.copy()
+    ret.take_any = world.take_any.copy()
     ret.boss_shuffle = world.boss_shuffle.copy()
     ret.enemy_shuffle = world.enemy_shuffle.copy()
     ret.enemy_health = world.enemy_health.copy()
@@ -481,6 +483,7 @@ def copy_world(world):
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()
+    ret.data_tables = world.data_tables  # can be changed...
 
     for player in range(1, world.players + 1):
         if world.mode[player] != 'inverted':

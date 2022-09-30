@@ -108,6 +108,8 @@ class RuleFactory(object):
                 rule.sub_rules.extend(r.sub_rules)  # todo: this extension for the lambda calc
             elif r.rule_type == RuleType.Static and r.principal:  # remove static flag if unnecessary
                 continue
+            elif r.rule_type == RuleType.Static and not r.principal:  # always evaluates to false
+                return r
             else:
                 rule.sub_rules.append(r)
             if not rule_lambda:
@@ -128,6 +130,8 @@ class RuleFactory(object):
                 rule.sub_rules.extend(r.sub_rules)   # todo: this extension for the lambda calc
             elif r.rule_type == RuleType.Static and not r.principal:  # remove static flag if unnecessary
                 continue
+            elif r.rule_type == RuleType.Static and r.principal:  # always evaluates to true
+                return r
             else:
                 rule.sub_rules.append(r)
             if not rule_lambda:

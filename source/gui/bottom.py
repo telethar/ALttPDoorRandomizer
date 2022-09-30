@@ -282,7 +282,7 @@ def create_guiargs(parent):
 
     # Key drop shuffle stuff
     if guiargs.keydropshuffle:
-        guiargs.dropshuffle = 1
+        guiargs.dropshuffle = 'keys' if guiargs.dropshuffle == 'none' else guiargs.dropshuffle
         guiargs.pottery = 'keys' if guiargs.pottery == 'none' else guiargs.pottery
 
     if guiargs.retro or guiargs.mode == 'retro':

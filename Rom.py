@@ -33,11 +33,11 @@ from InitialSram import InitialSram
 
 from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
-from source.dungeon.RoomList import Room0127
+from source.dungeon.EnemyList import EnemySprite
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '0587709ac8c5f2abf95b14d1e1264945'
+RANDOMIZERBASEHASH = '81d7cf07a34d06ec875074296c39cd97'
 
 
 class JsonRom(object):
@@ -616,18 +616,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
                 location.pot.indicator = standing_item_flag
                 location.pot.standing_item_code = code
             continue
-        elif location.type == LocationType.Drop:
-            if location.item.player != player:
-                code = 0xF9
-            else:
-                code = 0xF8
-            sprite_pointer = snes_to_pc(location.address)
-            rom.write_byte(sprite_pointer, handle_native_dungeon(location, itemid))
-            if code == 0xF9:
-                rom.write_byte(sprite_pointer+1, location.item.player)
-            else:
-                rom.write_byte(sprite_pointer+1, 0)
-            rom.write_byte(sprite_pointer+2, code)
+        elif location.type == LocationType.Drop:  # handled in the sprite table routine
             continue
         if location.address is None or (type(location.address) is int and location.address >= 0x400000):
             continue
@@ -764,7 +753,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if (world.doorShuffle[player] not in  ['vanilla', 'basic'] or world.dropshuffle[player]
+    if (world.doorShuffle[player] not in  ['vanilla', 'basic'] or world.dropshuffle[player] != 'none'
          or world.pottery[player] not in ['none', 'cave']):
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
@@ -894,9 +883,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
 
     credits_total = len(valid_locations)
 
-    if world.dropshuffle[player] or world.pottery[player] != 'none':
+    if world.dropshuffle[player] != 'none' or world.pottery[player] != 'none':
         rom.write_byte(0x142A50, 1)  # StandingItemsOn
-    multiClientFlags = ((0x1 if world.dropshuffle[player] else 0)
+    multiClientFlags = ((0x1 if world.dropshuffle[player] != 'none' else 0)
                         | (0x2 if world.shopsanity[player] else 0)
                         | (0x4 if world.take_any[player] != 'none' else 0)
                         | (0x8 if world.pottery[player] != 'none' else 0)
@@ -904,7 +893,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x142A51, multiClientFlags)
     # StandingItemCounterMask
     rom.write_byte(0x142A55, ((0x1 if world.pottery[player] not in ['none', 'cave'] else 0)
-                              | (0x2 if world.dropshuffle[player] else 0)))
+                              | (0x2 if world.dropshuffle[player] != 'none' else 0)))
     if world.pottery[player] not in ['none', 'keys']:
         # Cuccos should not prevent kill rooms from opening
         rom.write_byte(snes_to_pc(0x0DB457), 0x40)
@@ -1249,8 +1238,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_bytes(0x180213, [0x00, 0x01])  # Not a Tournament Seed
 
     gametype = 0x04 # item
-    if (world.shuffle[player] != 'vanilla' or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
-       or world.pottery[player] != 'none'):
+    if (world.shuffle[player] != 'vanilla' or world.doorShuffle[player] != 'vanilla'
+       or world.dropshuffle[player] != 'none' or world.pottery[player] != 'none'):
         gametype |= 0x02  # entrance/door
     if enemized:
         gametype |= 0x01  # enemizer
@@ -1350,7 +1339,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x18003C, 0x00)
     elif world.dungeon_counters[player] == 'on':
         compass_mode = 0x02  # always on
-    elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
+    elif (world.compassshuffle[player] or world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player] != 'none'
           or world.dungeon_counters[player] == 'pickup' or world.pottery[player] not in ['none', 'cave']):
         compass_mode = 0x01  # show on pickup
     if world.shuffle[player] != 'vanilla' and world.overworld_map[player] != 'default':
@@ -1518,10 +1507,11 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if item_dungeon == 'Escape':
             item_dungeon = 'Hyrule Castle'
         is_small_key_this_dungeon = hera_basement.parent_region.dungeon.name == item_dungeon
+    # hera small key is 11th in list, 10th sprite because of overlord
     if is_small_key_this_dungeon:
-        rom.write_byte(0x4E3BB, 0xE4)
+        world.data_tables[player].uw_enemy_table.room_map[0x87][11].kind = EnemySprite.SmallKey
     else:
-        rom.write_byte(0x4E3BB, 0xEB)
+        world.data_tables[player].uw_enemy_table.room_map[0x87][11].kind = EnemySprite.HeartPiece
 
     # fix trock doors for reverse entrances
     if world.fix_trock_doors[player]:
@@ -1533,7 +1523,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0xFED31, 0x0E)  # preopen bombable exit
         rom.write_byte(0xFEE41, 0x0E)  # preopen bombable exit
 
-    if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player]
+    # todo: combine this with data_tables for in place edits
+    if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player] != 'none'
        or world.pottery[player] != 'none'):
         for room in world.rooms:
             if room.player == player and room.modified:

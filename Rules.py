@@ -9,6 +9,8 @@ from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
 
+from source.dungeon.EnemyList import kill_rules
+
 
 def set_rules(world, player):
 
@@ -35,6 +37,7 @@ def set_rules(world, player):
 
     bomb_rules(world, player)
     pot_rules(world, player)
+    drop_rules(world, player)
 
     if world.logic[player] == 'noglitches':
         no_glitches_rules(world, player)
@@ -769,6 +772,17 @@ def pot_rules(world, player):
                 # or can_reach_blue is redundant as you have to hit a crystal switch somewhere...
                 add_rule(l, lambda state: state.can_hit_crystal(player))
 
+
+def drop_rules(world, player):
+    data_tables = world.data_tables[player]
+    defeat_rules = kill_rules(world, player, data_tables.enemy_stats)
+    for super_tile, enemy_list in data_tables.uw_enemy_table.room_map.items():
+        for enemy in enemy_list:
+            if enemy.location:
+                # could handle odd health rules here? assume harder variant for now
+                verbose_rule = defeat_rules[enemy.kind]
+                enemy.location.verbose_rule = verbose_rule
+                add_rule(enemy.location, verbose_rule.rule_lambda)
 
 
 def default_rules(world, player):

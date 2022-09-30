@@ -1422,7 +1422,7 @@ def prize_relevance_sig2(start_regions, d_name, dungeon_entrance):
 
 def validate_bk_layout(proposal, builder, start_regions, world, player):
     bk_special = check_bk_special(builder.master_sector.regions, world, player)
-    if world.bigkeyshuffle[player] and (world.dropshuffle[player] or not bk_special):
+    if world.bigkeyshuffle[player] and (world.dropshuffle[player] != 'none' or not bk_special):
         return True
     flat_proposal = flatten_pair_list(proposal)
     state = ExplorationState(dungeon=builder.name)

@@ -414,7 +414,7 @@ def generate_itempool(world, player):
     if world.take_any[player] != 'none':
         set_up_take_anys(world, player, skip_pool_adjustments)
     if world.keyshuffle[player] == 'universal':
-        if world.dropshuffle[player] and not skip_pool_adjustments:
+        if world.dropshuffle[player] != 'none' and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
         if world.pottery[player] not in ['none', 'cave'] and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19

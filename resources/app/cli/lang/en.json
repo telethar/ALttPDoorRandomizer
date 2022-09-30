@@ -277,7 +277,11 @@
     "keyshuffle": [ "Small Keys are no longer restricted to their dungeons, but can be anywhere. (default: %(default)s)" ],
     "bigkeyshuffle": [ "Big Keys are no longer restricted to their dungeons, but can be anywhere. (default: %(default)s)" ],
     "shopsanity": ["Shop contents are shuffle in the main item pool and other items can take their place. (default: %(default)s)"],
-    "dropshuffle": [ "Keys dropped by enemies are shuffled and other items can take their place. (default: %(default)s)"],
+    "dropshuffle": [ "Controls how enemies drop items (default: %(default)s)",
+      "None:        Enemies drops prize packs or keys as normal",
+      "Keys:        Enemies that drop keys can drop other items and the keys are shuffled into the pool",
+      "Underworld:  All killable enemies in the underworld can drop items"
+    ],
     "pottery": [ "Controls how items under pots are shuffled and if other items can take their place:",
       "None:      No pots are changed",
       "Keys:      Key pots are included in the location pool and other items can take their place",

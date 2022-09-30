@@ -65,7 +65,14 @@
       }
     },
     "colorizepots": { "type": "checkbox" },
-    "dropshuffle": { "type": "checkbox" },
+    "dropshuffle": {
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "keys",
+        "underworld"
+      ]},
     "potshuffle": { "type": "checkbox" },
     "experimental": { "type": "checkbox" },
     "dungeon_counters": {

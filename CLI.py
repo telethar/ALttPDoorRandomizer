@@ -107,7 +107,7 @@ def parse_cli(argv, no_defaults=False):
         ret.keyshuffle = 'wild'
 
     if ret.keydropshuffle:
-        ret.dropshuffle = True
+        ret.dropshuffle = 'keys' if ret.dropshuffle == 'none' else ret.dropshuffle
         ret.pottery = 'keys' if ret.pottery == 'none' else ret.pottery
 
     if ret.retro or ret.mode == 'retro':
@@ -196,7 +196,7 @@ def parse_settings():
 
         "shopsanity": False,
         'keydropshuffle': False,
-        'dropshuffle': False,
+        'dropshuffle': 'none',
         'pottery': 'none',
         'colorizepots': False,
         'shufflepots': False,

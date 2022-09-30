@@ -841,10 +841,10 @@ def main_dungeon_pool(dungeon_pool, world, player):
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
     target_items = 34
     if world.keyshuffle[player] == 'universal':
-        target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
+        target_items += 1 if world.dropshuffle[player] != 'none' else 0  # the hc big key
     else:
         target_items += 29  # small keys in chests
-        if world.dropshuffle[player]:
+        if world.dropshuffle[player] != 'none':
             target_items += 14  # 13 dropped smalls + 1 big
         if world.pottery[player] not in ['none', 'cave']:
             target_items += 19  # 19 pot keys
@@ -1246,10 +1246,10 @@ def cross_dungeon(world, player):
     all_dungeon_items_cnt = len(list(y for x in world.dungeons if x.player == player for y in x.all_items))
     target_items = 34
     if world.keyshuffle[player] == 'universal':
-        target_items += 1 if world.dropshuffle[player] else 0  # the hc big key
+        target_items += 1 if world.dropshuffle[player] != 'none' else 0  # the hc big key
     else:
         target_items += 29  # small keys in chests
-        if world.dropshuffle[player]:
+        if world.dropshuffle[player] != 'none':
             target_items += 14  # 13 dropped smalls + 1 big
         if world.pottery[player] not in ['none', 'cave']:
             target_items += 19  # 19 pot keys
@@ -1335,7 +1335,7 @@ def assign_cross_keys(dungeon_builders, world, player):
     start = time.process_time()
     if world.keyshuffle[player] == 'universal':
         remaining = 29
-        if world.dropshuffle[player]:
+        if world.dropshuffle[player] != 'none':
             remaining += 13
         if world.pottery[player] not in ['none', 'cave']:
             remaining += 19

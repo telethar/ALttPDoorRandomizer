@@ -82,7 +82,8 @@ class CustomSettings(object):
                 args.pottery[p] = get_setting(settings['pottery'], args.pottery[p])
 
                 if get_setting(settings['keydropshuffle'], args.keydropshuffle[p]):
-                    args.dropshuffle[p] = True
+                    if args.dropshuffle[p] == 'none':
+                        args.dropshuffle[p] = 'keys'
                     if args.pottery[p] == 'none':
                         args.pottery[p] = 'keys'
 

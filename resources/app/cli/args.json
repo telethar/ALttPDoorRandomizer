@@ -89,8 +89,11 @@
     "type": "bool"
   },
   "dropshuffle" : {
-    "action": "store_true",
-    "type": "bool"
+    "choices" : [
+      "none",
+      "keys",
+      "underworld"
+    ]
   },
   "pottery" : {
     "choices" : [

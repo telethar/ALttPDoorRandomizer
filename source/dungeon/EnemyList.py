@@ -17,14 +17,26 @@ from source.logic.Rule import RuleFactory
 
 
 class EnemyStats:
-    def __init__(self, sprite, static, drop_flag=False, prize_pack: typing.Union[tuple, int] = 0, sub_type=0):
+    def __init__(self, sprite, static, drop_flag=False, prize_pack: typing.Union[tuple, int] = 0,
+                 sub_type=0, health=None):
         self.sprite = sprite
         self.sub_type = sub_type
         self.static = static
-        # self.health = health
+        self.health = health
         # self.damage = damage
         self.drop_flag = drop_flag
         self.prize_pack = prize_pack
+
+        # health special cases:
+        # Octorok light/dark world
+        # Hardhat Beetle - starting position
+        # Tektike - starting position?
+        # RatCricket light/dark world
+        # Keese light/dark world
+        # Rope light/dark world
+        # Raven light/dark world
+
+
 
 
 class EnemySprite(FastEnum):
@@ -252,34 +264,34 @@ def init_enemy_stats():
     stats = {
         EnemySprite.CorrectPullSwitch: EnemyStats(EnemySprite.CorrectPullSwitch, True),
         EnemySprite.WrongPullSwitch: EnemyStats(EnemySprite.WrongPullSwitch, True),
-        EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2),
+        EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2, health=4),
         EnemySprite.Moldorm: EnemyStats(EnemySprite.Moldorm, True, False),
         EnemySprite.Cucco: EnemyStats(EnemySprite.Cucco, False, False),
 
-        EnemySprite.Octoballoon: EnemyStats(EnemySprite.Octoballoon, False, False, 0),
+        EnemySprite.Octoballoon: EnemyStats(EnemySprite.Octoballoon, False, False, 0, health=2),
         EnemySprite.OctoballoonBaby: EnemyStats(EnemySprite.OctoballoonBaby, False),
-        EnemySprite.Hinox: EnemyStats(EnemySprite.Hinox, False, True, 4),
-        EnemySprite.Moblin: EnemyStats(EnemySprite.Moblin, False, True, 1),
-        EnemySprite.MiniHelmasaur: EnemyStats(EnemySprite.MiniHelmasaur, False, True, 7),
+        EnemySprite.Hinox: EnemyStats(EnemySprite.Hinox, False, True, 4, health=20),
+        EnemySprite.Moblin: EnemyStats(EnemySprite.Moblin, False, True, 1, health=4),
+        EnemySprite.MiniHelmasaur: EnemyStats(EnemySprite.MiniHelmasaur, False, True, 7, health=4),
         EnemySprite.ThievesTownGrate: EnemyStats(EnemySprite.ThievesTownGrate, True),
         EnemySprite.AntiFairy: EnemyStats(EnemySprite.AntiFairy, False, False),
         EnemySprite.Wiseman: EnemyStats(EnemySprite.Wiseman, True),
-        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, False),
-        EnemySprite.MiniMoldorm: EnemyStats(EnemySprite.MiniMoldorm, False, True, 2),
-        EnemySprite.Poe: EnemyStats(EnemySprite.Poe, False, True, 6),
+        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, False, health=2),
+        EnemySprite.MiniMoldorm: EnemyStats(EnemySprite.MiniMoldorm, False, True, 2, health=3),
+        EnemySprite.Poe: EnemyStats(EnemySprite.Poe, False, True, 6, health=8),
         EnemySprite.Smithy: EnemyStats(EnemySprite.Smithy, True),
         EnemySprite.Arrow: EnemyStats(EnemySprite.Arrow, True),
         EnemySprite.Statue: EnemyStats(EnemySprite.Statue, True),
         EnemySprite.FluteQuest: EnemyStats(EnemySprite.FluteQuest, True),
         EnemySprite.CrystalSwitch: EnemyStats(EnemySprite.CrystalSwitch, True),
         EnemySprite.SickKid: EnemyStats(EnemySprite.SickKid, True),
-        EnemySprite.Sluggula: EnemyStats(EnemySprite.Sluggula, False, True, 4),
+        EnemySprite.Sluggula: EnemyStats(EnemySprite.Sluggula, False, True, 4, health=8),
         EnemySprite.WaterSwitch: EnemyStats(EnemySprite.WaterSwitch, True),
-        EnemySprite.Ropa: EnemyStats(EnemySprite.Ropa, False, True, 2),
-        EnemySprite.RedBari: EnemyStats(EnemySprite.RedBari, False, True, 6, 2),
-        EnemySprite.BlueBari: EnemyStats(EnemySprite.BlueBari, False, True, 6, 2),
+        EnemySprite.Ropa: EnemyStats(EnemySprite.Ropa, False, True, 2, health=8),
+        EnemySprite.RedBari: EnemyStats(EnemySprite.RedBari, False, True, 6, 2, health=2),
+        EnemySprite.BlueBari: EnemyStats(EnemySprite.BlueBari, False, True, 6, 2, health=2),
         EnemySprite.TalkingTree: EnemyStats(EnemySprite.TalkingTree, True),
-        EnemySprite.HardhatBeetle: EnemyStats(EnemySprite.HardhatBeetle, False, True, (2, 6)),
+        EnemySprite.HardhatBeetle: EnemyStats(EnemySprite.HardhatBeetle, False, True, (2, 6), health=32),
         EnemySprite.Deadrock: EnemyStats(EnemySprite.Deadrock, False, False),
         EnemySprite.DarkWorldHintNpc: EnemyStats(EnemySprite.DarkWorldHintNpc, True),
         EnemySprite.AdultNpc: EnemyStats(EnemySprite.AdultNpc, True),
@@ -303,30 +315,30 @@ def init_enemy_stats():
         EnemySprite.BonkItem: EnemyStats(EnemySprite.BonkItem, True),
         EnemySprite.KidInKak: EnemyStats(EnemySprite.KidInKak, True),
         EnemySprite.OldSnitch: EnemyStats(EnemySprite.OldSnitch, True),
-        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, False),
+        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, False, health=2),
         EnemySprite.TutorialGuard: EnemyStats(EnemySprite.TutorialGuard, True),
 
         EnemySprite.LightningGate: EnemyStats(EnemySprite.LightningGate, True),
-        EnemySprite.BlueGuard: EnemyStats(EnemySprite.BlueGuard, False, True, 1),
-        EnemySprite.GreenGuard: EnemyStats(EnemySprite.GreenGuard, False, True, 1),
-        EnemySprite.RedSpearGuard: EnemyStats(EnemySprite.RedSpearGuard, False, True, 1),
-        EnemySprite.BluesainBolt: EnemyStats(EnemySprite.BluesainBolt, False, True, 7),
-        EnemySprite.UsainBolt: EnemyStats(EnemySprite.UsainBolt, False, True, 1),
-        EnemySprite.BlueArcher: EnemyStats(EnemySprite.BlueArcher, False, True, 5),
-        EnemySprite.GreenBushGuard: EnemyStats(EnemySprite.GreenBushGuard, False, True, 5),
-        EnemySprite.RedJavelinGuard: EnemyStats(EnemySprite.RedJavelinGuard, False, True, 3),
-        EnemySprite.RedBushGuard: EnemyStats(EnemySprite.RedBushGuard, False, True, 7),
-        EnemySprite.BombGuard: EnemyStats(EnemySprite.BombGuard, False, True, 4),
-        EnemySprite.GreenKnifeGuard: EnemyStats(EnemySprite.GreenKnifeGuard, False, True, 1),
-        EnemySprite.Geldman: EnemyStats(EnemySprite.Geldman, False, True, 2),
-        EnemySprite.Popo: EnemyStats(EnemySprite.Popo, False, True, 2),
-        EnemySprite.Popo2: EnemyStats(EnemySprite.Popo2, False, True, 2),
+        EnemySprite.BlueGuard: EnemyStats(EnemySprite.BlueGuard, False, True, 1, health=6),
+        EnemySprite.GreenGuard: EnemyStats(EnemySprite.GreenGuard, False, True, 1, health=4),
+        EnemySprite.RedSpearGuard: EnemyStats(EnemySprite.RedSpearGuard, False, True, 1, health=8),
+        EnemySprite.BluesainBolt: EnemyStats(EnemySprite.BluesainBolt, False, True, 7, health=6),
+        EnemySprite.UsainBolt: EnemyStats(EnemySprite.UsainBolt, False, True, 1, health=8),
+        EnemySprite.BlueArcher: EnemyStats(EnemySprite.BlueArcher, False, True, 5, health=6),
+        EnemySprite.GreenBushGuard: EnemyStats(EnemySprite.GreenBushGuard, False, True, 5, health=4),
+        EnemySprite.RedJavelinGuard: EnemyStats(EnemySprite.RedJavelinGuard, False, True, 3, health=8),
+        EnemySprite.RedBushGuard: EnemyStats(EnemySprite.RedBushGuard, False, True, 7, health=8),
+        EnemySprite.BombGuard: EnemyStats(EnemySprite.BombGuard, False, True, 4, health=8),
+        EnemySprite.GreenKnifeGuard: EnemyStats(EnemySprite.GreenKnifeGuard, False, True, 1, health=4),
+        EnemySprite.Geldman: EnemyStats(EnemySprite.Geldman, False, True, 2, health=4),
+        EnemySprite.Popo: EnemyStats(EnemySprite.Popo, False, True, 2, health=2),
+        EnemySprite.Popo2: EnemyStats(EnemySprite.Popo2, False, True, 2, health=2),
 
         EnemySprite.ArmosKnight: EnemyStats(EnemySprite.ArmosKnight, True, False),
         EnemySprite.Lanmolas: EnemyStats(EnemySprite.Lanmolas, True, False),
         EnemySprite.Zora: EnemyStats(EnemySprite.Zora, False, True, 4),
         EnemySprite.DesertStatue: EnemyStats(EnemySprite.DesertStatue, True),
-        EnemySprite.Crab: EnemyStats(EnemySprite.Crab, False, True, 1),
+        EnemySprite.Crab: EnemyStats(EnemySprite.Crab, False, True, 1, health=2),
         EnemySprite.LostWoodsBird: EnemyStats(EnemySprite.LostWoodsBird, True),
         EnemySprite.LostWoodsSquirrel: EnemyStats(EnemySprite.LostWoodsSquirrel, True),
         EnemySprite.SparkCW: EnemyStats(EnemySprite.SparkCW, False, False),
@@ -337,20 +349,20 @@ def init_enemy_stats():
         EnemySprite.RollerHorizontalRight: EnemyStats(EnemySprite.RollerHorizontalRight, False, False),
         EnemySprite.Beamos: EnemyStats(EnemySprite.Beamos, False, False),
         EnemySprite.MasterSword: EnemyStats(EnemySprite.MasterSword, True),
-        EnemySprite.DebirandoPit: EnemyStats(EnemySprite.DebirandoPit, False, True, 2),
-        EnemySprite.Debirando: EnemyStats(EnemySprite.Debirando, False, True, 2),
+        EnemySprite.DebirandoPit: EnemyStats(EnemySprite.DebirandoPit, False, True, 2, health=4),
+        EnemySprite.Debirando: EnemyStats(EnemySprite.Debirando, False, True, 2, health=4),
         EnemySprite.ArcheryNpc: EnemyStats(EnemySprite.ArcheryNpc, True),
         EnemySprite.WallCannonVertLeft: EnemyStats(EnemySprite.WallCannonVertLeft, True),
         EnemySprite.WallCannonVertRight: EnemyStats(EnemySprite.WallCannonVertRight, True),
         EnemySprite.WallCannonHorzTop: EnemyStats(EnemySprite.WallCannonHorzTop, True),
         EnemySprite.WallCannonHorzBottom: EnemyStats(EnemySprite.WallCannonHorzBottom, True),
-        EnemySprite.BallNChain: EnemyStats(EnemySprite.BallNChain, False, True, 2),
-        EnemySprite.CannonTrooper: EnemyStats(EnemySprite.CannonTrooper, False, True, 1),
-        EnemySprite.CricketRat: EnemyStats(EnemySprite.CricketRat, False, True, 2),
-        EnemySprite.Snake: EnemyStats(EnemySprite.Snake, False, True, (1, 7)),
-        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, True, (0, 7)),
+        EnemySprite.BallNChain: EnemyStats(EnemySprite.BallNChain, False, True, 2, health=16),
+        EnemySprite.CannonTrooper: EnemyStats(EnemySprite.CannonTrooper, False, True, 1, health=3),
+        EnemySprite.CricketRat: EnemyStats(EnemySprite.CricketRat, False, True, 2, health=8),
+        EnemySprite.Snake: EnemyStats(EnemySprite.Snake, False, True, (1, 7), health=8),
+        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, True, (0, 7), health=4),
 
-        EnemySprite.Leever: EnemyStats(EnemySprite.Leever, False, True, 1),
+        EnemySprite.Leever: EnemyStats(EnemySprite.Leever, False, True, 1, health=4),
         EnemySprite.FairyPondTrigger: EnemyStats(EnemySprite.FairyPondTrigger, True),
         EnemySprite.UnclePriest: EnemyStats(EnemySprite.UnclePriest, True),
         EnemySprite.RunningNpc: EnemyStats(EnemySprite.RunningNpc, True),
@@ -358,26 +370,26 @@ def init_enemy_stats():
         EnemySprite.Zelda: EnemyStats(EnemySprite.Zelda, True),
         EnemySprite.Grandma: EnemyStats(EnemySprite.Grandma, True),
         EnemySprite.Agahnim: EnemyStats(EnemySprite.Agahnim, True),
-        EnemySprite.FloatingSkull: EnemyStats(EnemySprite.FloatingSkull, False, True, 7),
+        EnemySprite.FloatingSkull: EnemyStats(EnemySprite.FloatingSkull, False, True, 7, health=24),
         EnemySprite.BigSpike: EnemyStats(EnemySprite.BigSpike, False, False),
         EnemySprite.FirebarCW: EnemyStats(EnemySprite.FirebarCW, False, False),
         EnemySprite.FirebarCCW: EnemyStats(EnemySprite.FirebarCCW, False, False),
         EnemySprite.Firesnake: EnemyStats(EnemySprite.Firesnake, False, False),
-        EnemySprite.Hover: EnemyStats(EnemySprite.Hover, False, True, 2),
+        EnemySprite.Hover: EnemyStats(EnemySprite.Hover, False, True, 2, health=4),
         EnemySprite.AntiFairyCircle: EnemyStats(EnemySprite.AntiFairyCircle, False, False),
-        EnemySprite.GreenEyegoreMimic: EnemyStats(EnemySprite.GreenEyegoreMimic, False, True, 5),
-        EnemySprite.RedEyegoreMimic: EnemyStats(EnemySprite.RedEyegoreMimic, False, True, 5),
-        EnemySprite.YellowStalfos: EnemyStats(EnemySprite.YellowStalfos, True),
-        EnemySprite.Kondongo: EnemyStats(EnemySprite.Kondongo, False, True, 6),
+        EnemySprite.GreenEyegoreMimic: EnemyStats(EnemySprite.GreenEyegoreMimic, False, True, 5, health=16),
+        EnemySprite.RedEyegoreMimic: EnemyStats(EnemySprite.RedEyegoreMimic, False, True, 5, health=8),
+        EnemySprite.YellowStalfos: EnemyStats(EnemySprite.YellowStalfos, True, health=8),
+        EnemySprite.Kondongo: EnemyStats(EnemySprite.Kondongo, False, True, 6, health=1),
         EnemySprite.Mothula: EnemyStats(EnemySprite.Mothula, True),
         EnemySprite.SpikeBlock: EnemyStats(EnemySprite.SpikeBlock, False, False),
-        EnemySprite.Gibdo: EnemyStats(EnemySprite.Gibdo, False, True, 3),
+        EnemySprite.Gibdo: EnemyStats(EnemySprite.Gibdo, False, True, 3, health=32),
         EnemySprite.Arrghus: EnemyStats(EnemySprite.Arrghus, True),
         EnemySprite.Arrghi: EnemyStats(EnemySprite.Arrghi, True),
-        EnemySprite.Terrorpin: EnemyStats(EnemySprite.Terrorpin, False, True, 2),
-        EnemySprite.Blob: EnemyStats(EnemySprite.Blob, False, True, 1),
+        EnemySprite.Terrorpin: EnemyStats(EnemySprite.Terrorpin, False, True, 2, health=8),
+        EnemySprite.Blob: EnemyStats(EnemySprite.Blob, False, True, 1, health=4),
         EnemySprite.Wallmaster: EnemyStats(EnemySprite.Wallmaster, True),
-        EnemySprite.StalfosKnight: EnemyStats(EnemySprite.StalfosKnight, False, True, 4),
+        EnemySprite.StalfosKnight: EnemyStats(EnemySprite.StalfosKnight, False, True, 4, health=64),
         EnemySprite.HelmasaurKing: EnemyStats(EnemySprite.HelmasaurKing, True),
         EnemySprite.Bumper: EnemyStats(EnemySprite.Bumper, True),
         EnemySprite.Pirogusu: EnemyStats(EnemySprite.Pirogusu, True),
@@ -385,21 +397,21 @@ def init_enemy_stats():
         EnemySprite.LaserEyeRight: EnemyStats(EnemySprite.LaserEyeRight, True),
         EnemySprite.LaserEyeTop: EnemyStats(EnemySprite.LaserEyeTop, True),
         EnemySprite.LaserEyeBottom: EnemyStats(EnemySprite.LaserEyeBottom, True),
-        EnemySprite.Pengator: EnemyStats(EnemySprite.Pengator, False, True, 3),
-        EnemySprite.Kyameron: EnemyStats(EnemySprite.Kyameron, False, False),
-        EnemySprite.Wizzrobe: EnemyStats(EnemySprite.Wizzrobe, False, True, 1),
-        EnemySprite.Zoro: EnemyStats(EnemySprite.Zoro, True),
-        EnemySprite.Babasu: EnemyStats(EnemySprite.Babasu, False, True, 0),
+        EnemySprite.Pengator: EnemyStats(EnemySprite.Pengator, False, True, 3, health=16),
+        EnemySprite.Kyameron: EnemyStats(EnemySprite.Kyameron, False, False, health=4),
+        EnemySprite.Wizzrobe: EnemyStats(EnemySprite.Wizzrobe, False, True, 1, health=2),
+        EnemySprite.Zoro: EnemyStats(EnemySprite.Zoro, True, health=4),
+        EnemySprite.Babasu: EnemyStats(EnemySprite.Babasu, False, True, 0, health=4),
         EnemySprite.GroveOstritch: EnemyStats(EnemySprite.GroveOstritch, True),
         EnemySprite.GroveRabbit: EnemyStats(EnemySprite.GroveRabbit, True),
         EnemySprite.GroveBird: EnemyStats(EnemySprite.GroveBird, True),
-        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, True, 0),
+        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, True, 0, health=16),
         EnemySprite.Kholdstare: EnemyStats(EnemySprite.Kholdstare, True),
         EnemySprite.KholdstareShell: EnemyStats(EnemySprite.KholdstareShell, True),
         EnemySprite.FallingIce: EnemyStats(EnemySprite.FallingIce, True),
-        EnemySprite.BlueZazak: EnemyStats(EnemySprite.BlueZazak, False, True, 6),
-        EnemySprite.RedZazak: EnemyStats(EnemySprite.RedZazak, False, True, 6),
-        EnemySprite.Stalfos: EnemyStats(EnemySprite.Stalfos, False, True, 6),
+        EnemySprite.BlueZazak: EnemyStats(EnemySprite.BlueZazak, False, True, 6, health=4),
+        EnemySprite.RedZazak: EnemyStats(EnemySprite.RedZazak, False, True, 6, health=8),
+        EnemySprite.Stalfos: EnemyStats(EnemySprite.Stalfos, False, True, 6, health=4),
     # ... OW
         EnemySprite.OldMan: EnemyStats(EnemySprite.OldMan, True),
         EnemySprite.PipeDown: EnemyStats(EnemySprite.PipeDown, True),
@@ -418,23 +430,23 @@ def init_enemy_stats():
         EnemySprite.Catfish: EnemyStats(EnemySprite.Catfish, True),
         EnemySprite.CutsceneAgahnim: EnemyStats(EnemySprite.CutsceneAgahnim, True),
         EnemySprite.Boulder: EnemyStats(EnemySprite.Boulder, True),
-        EnemySprite.Gibo: EnemyStats(EnemySprite.Gibo, False, True, 0),  # patrick!
+        EnemySprite.Gibo: EnemyStats(EnemySprite.Gibo, False, True, 0, health=8),  # patrick!
         EnemySprite.Thief: EnemyStats(EnemySprite.Thief, False, False),  # could drop if killable thieves is on
         EnemySprite.Medusa: EnemyStats(EnemySprite.Medusa, True),
         EnemySprite.FourWayShooter: EnemyStats(EnemySprite.FourWayShooter, True),
-        EnemySprite.Pokey: EnemyStats(EnemySprite.Pokey, False, True, 7),
+        EnemySprite.Pokey: EnemyStats(EnemySprite.Pokey, False, True, 7, health=32),
         EnemySprite.BigFairy: EnemyStats(EnemySprite.BigFairy, True),
-        EnemySprite.Tektite: EnemyStats(EnemySprite.Tektite, False, True, 2),
+        EnemySprite.Tektite: EnemyStats(EnemySprite.Tektite, False, True, 2, health=12),
         EnemySprite.Chainchomp: EnemyStats(EnemySprite.Chainchomp, False, False),
         EnemySprite.TrinexxRockHead: EnemyStats(EnemySprite.TrinexxRockHead, True),
         EnemySprite.TrinexxFireHead: EnemyStats(EnemySprite.TrinexxFireHead, True),
         EnemySprite.TrinexxIceHead: EnemyStats(EnemySprite.TrinexxIceHead, True),
         EnemySprite.Blind: EnemyStats(EnemySprite.Blind, True),
-        EnemySprite.Swamola: EnemyStats(EnemySprite.Swamola, False, True, 0),
-        EnemySprite.Lynel: EnemyStats(EnemySprite.Lynel, False, True, 7),
+        EnemySprite.Swamola: EnemyStats(EnemySprite.Swamola, False, True, 0, health=16),
+        EnemySprite.Lynel: EnemyStats(EnemySprite.Lynel, False, True, 7, health=24),
         EnemySprite.BunnyBeam: EnemyStats(EnemySprite.BunnyBeam, False, False),  # todo: medallions can kill bunny beams?
         EnemySprite.FloppingFish: EnemyStats(EnemySprite.FloppingFish, True),
-        EnemySprite.Stal: EnemyStats(EnemySprite.Stal, False, True, 1),
+        EnemySprite.Stal: EnemyStats(EnemySprite.Stal, False, True, 1, health=4),
         EnemySprite.Ganon: EnemyStats(EnemySprite.Ganon, True),
 
         EnemySprite.Faerie: EnemyStats(EnemySprite.Faerie, True),
@@ -497,8 +509,6 @@ class Sprite(object):
 
 # map of super_tile to list of Sprite objects:
 vanilla_sprites = {}
-enemy_stats = {}
-
 
 def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None,
                   drops_item=False, drop_item_kind=None):
@@ -1984,8 +1994,6 @@ def init_vanilla_sprites():
     create_sprite(0x0126, EnemySprite.Faerie, 0x00, 0, 0x08, 0x16)
     create_sprite(0x0126, EnemySprite.HeartPiece, 0x00, 0, 0x1c, 0x14)
     create_sprite(0x0127, EnemySprite.HeartPiece, 0x00, 0, 0x07, 0x16)
-    global enemy_stats
-    enemy_stats = init_enemy_stats()
 
 
 def kill_rules(world, player, stats):
@@ -2015,6 +2023,7 @@ def kill_rules(world, player, stats):
         EnemySprite.GreenKnifeGuard: defeat_rule(world, player, h(EnemySprite.GreenKnifeGuard)),
         EnemySprite.Popo: defeat_rule(world, player, h(EnemySprite.Popo), hook=True),
         EnemySprite.Popo2: defeat_rule(world, player, h(EnemySprite.Popo2), hook=True),
+        EnemySprite.DebirandoPit: defeat_rule(world, player, h(EnemySprite.Debirando), fire=1, ice=1, boomerang=True),
         EnemySprite.Debirando: defeat_rule(world, player, h(EnemySprite.Debirando), fire=1, ice=1, boomerang=True),
         EnemySprite.BallNChain: defeat_rule(world, player, h(EnemySprite.BallNChain)),
         EnemySprite.CannonTrooper: defeat_rule(world, player, h(EnemySprite.CannonTrooper), fire=1, ice=1),
@@ -2101,8 +2110,8 @@ def valid_drop_location(sprite, world, player):
         if sprite.drops_item and sprite.drop_item_kind == 0xe4:
             # already has a location
             return False
-        else:
-            stat = enemy_stats[sprite.kind]
+        elif sprite.sub_type != SpriteType.Overlord:
+            stat = world.data_tables[player].enemy_stats[sprite.kind]
             return not stat.static and stat.drop_flag
 
 
@@ -2120,6 +2129,7 @@ def create_drop_location(sprite, index, super_tile, world, player):
     drop_location.drop = sprite
     sprite.location = drop_location
     drop_location.type = LocationType.Drop
+    parent.locations.append(drop_location)
 
 
 # todo: placeholder address
@@ -2149,12 +2159,12 @@ prize_pack_selector = {
 def add_drop_contents(world, player):
     retro_bow = world.bow_mode[player].startswith('retro')
     index_selector = [0]*8
-    for super_tile, enemy_list in world.enemy_list[player].room_map.items():
+    for super_tile, enemy_list in world.data_tables[player].uw_enemy_table.room_map.items():
         for sprite in enemy_list:
             if sprite.drops_item and sprite.drop_item_kind == 0xe4:
                 continue
-            else:
-                stat = enemy_stats[sprite.kind]
+            elif sprite.sub_type != SpriteType.Overlord:
+                stat = world.data_tables[player].enemy_stats[sprite.kind]
                 if not stat.static and stat.drop_flag:
                     pack = 0
                     if isinstance(stat.prize_pack, int):
@@ -2283,10 +2293,10 @@ def defeat_rule(world, player, health, class1=1,
         else:
             rules.append(can_fire_rod_kill(world, player, fire_rod_damage[fire], health))
     if ice is not None:
-        rules.append(can_ice_rod_kill(world, player, ice_rod_damage[fire], health))
+        rules.append(can_ice_rod_kill(world, player, ice_rod_damage[ice], health))
     if boomerang:
         rules.append(has_boomerang(player))
-    return or_rule(rules)
+    return or_rule(*rules)
 
 
 def has_blunt_weapon(player):
@@ -2298,7 +2308,7 @@ def find_shops_that_sell(item, world, player):
 
 
 def can_shoot_arrows(world, player):
-    if world.retro[player]:
+    if world.bow_mode[player].startswith('retro'):
         # todo: Non-progressive silvers grant wooden arrows, but progressive bows do not.
         # Always require shop arrows to be safe
         shops = find_shops_that_sell('Single Arrow', world, player)
@@ -2309,7 +2319,7 @@ def can_shoot_arrows(world, player):
 
 
 def can_use_bombs(world, player):
-    return or_rule(RuleFactory.static_rule(not world.bombag[player]), has('Bomb Upgrade (+10)', player))
+    return or_rule(RuleFactory.static_rule(not world.bombbag[player]), has('Bomb Upgrade (+10)', player))
 
 enemy_names = {
     0x00: 'Raven',

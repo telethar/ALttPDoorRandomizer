@@ -1023,8 +1023,8 @@ def adjust_locations(world, player):
             loc.address = pot_address(pot_index, datum[1])
             loc.pot = pot
             pot.location = loc
-        if (not world.dropshuffle[player] and drop_location)\
-           or (not drop_location and world.pottery[player] in ['none', 'cave']):
+        if ((world.dropshuffle[player] == 'none' and drop_location)
+           or (not drop_location and world.pottery[player] in ['none', 'cave'])):
             loc.skip = True
         else:
             key_item = loc.item

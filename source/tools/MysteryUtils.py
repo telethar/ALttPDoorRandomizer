@@ -97,7 +97,8 @@ def roll_settings(weights):
     ret.pseudoboots = get_choice('pseudoboots') == 'on'
     ret.shopsanity = get_choice('shopsanity') == 'on'
     keydropshuffle = get_choice('keydropshuffle') == 'on'
-    ret.dropshuffle = get_choice('dropshuffle') == 'on' or keydropshuffle
+    ret.dropshuffle = get_choice('dropshuffle') if 'dropshuffle' in weights else 'none'
+    ret.dropshuffle = 'keys' if ret.dropshuffle == 'none' and keydropshuffle else ret.dropshuffle
     ret.pottery = get_choice('pottery') if 'pottery' in weights else 'none'
     ret.pottery = 'keys' if ret.pottery == 'none' and keydropshuffle else ret.pottery
     ret.colorizepots = get_choice('colorizepots') == 'on'

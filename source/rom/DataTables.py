@@ -1,6 +1,6 @@
 from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes
 
-from source.dungeon.EnemyList import EnemyTable, init_vanilla_sprites, vanilla_sprites
+from source.dungeon.EnemyList import EnemyTable, init_vanilla_sprites, vanilla_sprites, init_enemy_stats
 from source.dungeon.RoomHeader import init_room_headers
 from source.dungeon.RoomList import Room0127
 from source.enemizer.SpriteSheets import init_sprite_sheets, init_sprite_requirements
@@ -17,6 +17,7 @@ class DataTables:
 
         # associated data
         self.sprite_requirements = None
+        self.enemy_stats = None
 
     def write_to_rom(self, rom, colorize_pots=False):
         if self.pot_secret_table.size() > 0x11c0:
@@ -56,6 +57,7 @@ def init_data_tables(world, player):
     data_tables.sprite_requirements = init_sprite_requirements()
     data_tables.sprite_sheets = init_sprite_sheets(data_tables.sprite_requirements)
     init_vanilla_sprites()
+    data_tables.enemy_stats = init_enemy_stats()
     uw_table = data_tables.uw_enemy_table = EnemyTable()
     for room, sprite_list in vanilla_sprites.items():
         for sprite in sprite_list:
