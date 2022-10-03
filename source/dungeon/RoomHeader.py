@@ -312,11 +312,15 @@ class RoomHeader:
 		self.room_id = room_id
 
 		# todo: the rest of the header
-		self.sprite_sheet = byte_array[3]
+		self.byte_0 = byte_array[0]  # bg2, collision, lights out
+		self.sprite_sheet = byte_array[3]  # sprite gfx #
+		self.effect = byte_array[4]
 
 	def write_to_rom(self, rom, base_address):
 		room_offest = self.room_id*14
+		rom.write_byte(base_address + room_offest + 0, self.byte_0)
 		rom.write_byte(base_address + room_offest + 3, self.sprite_sheet)
+		rom.write_byte(base_address + room_offest + 4, self.effect)
 
 
 def init_room_headers():

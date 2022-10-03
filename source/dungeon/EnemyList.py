@@ -1945,8 +1945,8 @@ def init_vanilla_sprites():
     create_sprite(0x010c, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x08, 0x14, 'Mimic Cave')
     create_sprite(0x010c, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x0c, 0x14, 'Mimic Cave')
     create_sprite(0x010c, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x0c, 0x1a, 'Mimic Cave')
-    create_sprite(0x010d, EnemySprite.SparkCW, 0x00, 0, 0x05, 0x16, 'Mimic Cave')
-    create_sprite(0x010d, EnemySprite.SparkCCW, 0x00, 0, 0x0a, 0x16, 'Mimic Cave')
+    create_sprite(0x010d, EnemySprite.SparkCW, 0x00, 0, 0x05, 0x16, 'Mire Shed')
+    create_sprite(0x010d, EnemySprite.SparkCCW, 0x00, 0, 0x0a, 0x16, 'Mire Shed')
     create_sprite(0x010e, EnemySprite.DarkWorldHintNpc, 0x00, 0, 0x06, 0x06)
     create_sprite(0x010e, EnemySprite.DarkWorldHintNpc, 0x00, 0, 0x18, 0x06)
     create_sprite(0x010f, EnemySprite.Shopkeeper, 0x00, 0, 0x07, 0x15)
@@ -2005,8 +2005,7 @@ def kill_rules(world, player, stats):
                                                bomb=2, silver=3, fire=None),
         EnemySprite.MiniMoldorm: defeat_rule(world, player, h(EnemySprite.MiniMoldorm), ice=1, hook=True),
         EnemySprite.Sluggula: defeat_rule(world, player, h(EnemySprite.Sluggula), bomb=None),
-        # too hard to hit red biris with arrows
-        EnemySprite.RedBari: defeat_rule(world, player, h(EnemySprite.RedBari) * 3, arrow=None, ice=2, hook=True),
+        EnemySprite.RedBari: or_rule(has('Fire Rod', player), and_rule(has_sword(player), has('Bombos', player))),
         EnemySprite.BlueBari: defeat_rule(world, player, h(EnemySprite.BlueBari), ice=2, hook=True),
         EnemySprite.HardhatBeetle: defeat_rule(world, player, h(EnemySprite.HardhatBeetle),
                                                arrow=None, bomb=None, fire=None),
@@ -2101,18 +2100,22 @@ class EnemyTable:
 def setup_enemy_locations(world, player):
     for super_tile, enemy_list in world.data_tables[player].uw_enemy_table.room_map.items():
         for index, sprite in enumerate(enemy_list):
-            if valid_drop_location(sprite, world, player):
+            if valid_drop_location(sprite, index, world, player):
                 create_drop_location(sprite, index, super_tile, world, player)
 
 
-def valid_drop_location(sprite, world, player):
+exceptions = {0xf1: [4, 5]}  # these keese cannot be lured away
+
+
+def valid_drop_location(sprite, index, world, player):
     if world.dropshuffle[player] == 'underworld':
         if sprite.drops_item and sprite.drop_item_kind == 0xe4:
             # already has a location
             return False
         elif sprite.sub_type != SpriteType.Overlord:
             stat = world.data_tables[player].enemy_stats[sprite.kind]
-            return not stat.static and stat.drop_flag
+            return stat.drop_flag and (sprite.super_tile not in exceptions
+                                       or index not in exceptions[sprite.super_tile])
 
 
 def create_drop_location(sprite, index, super_tile, world, player):
@@ -2120,10 +2123,11 @@ def create_drop_location(sprite, index, super_tile, world, player):
     address = drop_address(index, super_tile)
     region_name = sprite.region
     parent = world.get_region(region_name, player)
-    descriptor = f'Enemy #{index+1}'
+    enemy_name = enemy_names[sprite.kind]
+    descriptor = f'{enemy_name} #{index+1}'
     modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
                                         'a bounty of five items', 'the sick kid', 'Sahasrahla'}
-    hint_text = f'{"held by an enemy"} {"in" if modifier else "near"} {parent.hint_text}'
+    hint_text = f'held by a {enemy_name} {"in" if modifier else "near"} {parent.hint_text}'
     drop_location = Location(player, f'{region_name} {descriptor}', address, hint_text=hint_text, parent=parent)
     world.dynamic_locations.append(drop_location)
     drop_location.drop = sprite
@@ -2272,6 +2276,21 @@ def can_bow_kill(world, player, damage, silver_damage, health):
     return can_shoot_arrows(world, player)
 
 
+def can_quake_kill(world, player, damage, health):
+    magic_needed = math.ceil(health / damage) * 2
+    if magic_needed > 8:
+        return and_rule(has('Quake', player), has_sword(player), can_extend_magic(world, player, magic_needed))
+    else:
+        return and_rule(has('Quake', player), has_sword(player))
+
+
+def can_ether_kill(world, player, damage, health):
+    magic_needed = math.ceil(health / damage) * 2
+    if magic_needed > 8:
+        return and_rule(has('Ether', player), has_sword(player), can_extend_magic(world, player, magic_needed))
+    else:
+        return and_rule(has('Ether', player), has_sword(player))
+
 # main enemy types
 def defeat_rule(world, player, health, class1=1,
                 arrow: typing.Optional[int] = 1, silver=1,
@@ -2320,6 +2339,49 @@ def can_shoot_arrows(world, player):
 
 def can_use_bombs(world, player):
     return or_rule(RuleFactory.static_rule(not world.bombbag[player]), has('Bomb Upgrade (+10)', player))
+
+
+special_rules_check = {
+    'Swamp Waterway': None,
+    'Hera Back': [5, 6],
+    'GT Petting Zoo': [1, 4, 5, 7],
+    'Mimic Cave': [3, 4],
+    'Ice Hookshot Ledge': None,
+    'TR Hub Ledges': [3, 4, 5, 6, 7],
+    'Old Man Cave': None,
+    'Old Man House Back': [4, 5, 6],
+    'Death Mountain Return Cave (left)': None,
+    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7]
+
+}
+
+
+def special_rules_for_region(world, player, region_name, location, original_rule, enemy):
+    if region_name == 'Swamp Waterway':
+        stats = world.data_tables[player].enemy_stats[enemy.kind]
+        return or_rule(can_quake_kill(world, player, 64, stats.health), can_ether_kill(world, player, 64, stats.health))
+    elif region_name in ['Hera Back', 'GT Petting Zoo', 'Mimic Cave']:
+        enemy_number = int(location.name.split('#')[1])
+        if enemy_number in special_rules_check[region_name]:
+            return and_rule(original_rule, has_boomerang(player))
+        else:
+            return original_rule
+    elif region_name == 'Ice Hookshot Ledge':  # enemizer has these hardcoded to red baris for now
+        return and_rule(or_rule(has('Fire Rod', player), and_rule(has_sword(player), has('Bombos', player))),
+                        or_rule(has_boomerang(player), has('Hookshot', player)))
+    elif region_name in ['TR Hub Ledges', 'Old Man Cave', 'Old Man House Back',
+                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)']:
+        enemy_number = int(location.name.split('#')[1])
+        if special_rules_check[region_name] is None or enemy_number in special_rules_check[region_name]:
+            return and_rule(original_rule, or_rule(has_boomerang(player), has('Hookshot', player)))
+        else:
+            return original_rule
+    return original_rule
+
+
+
+
+
 
 enemy_names = {
     0x00: 'Raven',

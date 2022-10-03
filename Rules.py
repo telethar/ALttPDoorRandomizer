@@ -9,7 +9,7 @@ from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
 
-from source.dungeon.EnemyList import kill_rules
+from source.dungeon.EnemyList import kill_rules, special_rules_check, special_rules_for_region
 
 
 def set_rules(world, player):
@@ -781,6 +781,9 @@ def drop_rules(world, player):
             if enemy.location:
                 # could handle odd health rules here? assume harder variant for now
                 verbose_rule = defeat_rules[enemy.kind]
+                if enemy.location.parent_region.name in special_rules_check:
+                    verbose_rule = special_rules_for_region(world, player,  enemy.location.parent_region.name,
+                                                            enemy.location, verbose_rule, enemy)
                 enemy.location.verbose_rule = verbose_rule
                 add_rule(enemy.location, verbose_rule.rule_lambda)
 

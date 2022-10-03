@@ -361,54 +361,6 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     # get items to distribute
     classify_major_items(world)
     # handle pot/drop shuffle
-    chicken_pool = collections.defaultdict(list)
-    big_magic_pool = collections.defaultdict(list)
-    fairy_pool = collections.defaultdict(list)
-
-    for item in world.itempool:
-        # can only fill these in that players world
-        if item.name == 'Chicken':
-            chicken_pool[item.player].append(item)
-        elif item.name == 'Big Magic':
-            big_magic_pool[item.player].append(item)
-        elif item.name == 'Fairy':
-            fairy_pool[item.player].append(item)
-
-    def fast_fill_certain_items(item_pool, location_types, filter_locations, matcher):
-        flag = False
-        for player, pool in item_pool.items():
-            if pool:
-                for certain_item in pool:
-                    world.itempool.remove(certain_item)
-                cand_locations = [location for location in fill_locations
-                                  if location.type in location_types and location.player == player]
-                locations = filter_locations(cand_locations, world, matcher)
-                fast_fill_helper(world, pool, locations)
-                flag = True
-        return flag
-
-    def chicken_matcher(l):
-        return l.pot and l.pot.item == PotItem.Chicken
-
-    def magic_matcher(l):
-        if l.drop:
-            pack = enemy_stats[l.drop.kind].prize_pack
-            return pack in {3,7} if isinstance(pack, int) else (3 in pack or 7 in pack)
-        return l.pot and l.pot.item == PotItem.BigMagic
-
-    def fairy_matcher(l):
-        if l.drop:
-            pack = enemy_stats[l.drop.kind].prize_pack
-            return pack == 7 if isinstance(pack, int) else 7 in pack
-        return False
-
-    reshuffle = fast_fill_certain_items(chicken_pool, [LocationType.Pot], filter_special_locations, chicken_matcher)
-    reshuffle |= fast_fill_certain_items(fairy_pool, [LocationType.Drop], filter_special_locations, fairy_matcher)
-    reshuffle |= fast_fill_certain_items(big_magic_pool, [LocationType.Pot, LocationType.Drop],
-                                         filter_special_locations, magic_matcher)
-    if reshuffle:
-        fill_locations = world.get_unfilled_locations()
-        random.shuffle(fill_locations)
 
     random.shuffle(world.itempool)
     progitempool = [item for item in world.itempool if item.advancement]
@@ -524,29 +476,11 @@ def ensure_good_items(world, write_skips=False):
         if (loc.item.name in {'Arrows (5)', 'Nothing'}
            and (loc.type != LocationType.Pot or loc.item.player != loc.player)):
             loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.item.player)
-        # can be placed here by multiworld balancing or shop balancing
-        # change it to something normal for the player it got swapped to
-        elif loc.item.name == 'Chicken' and (loc.type != LocationType.Pot or loc.item.player != loc.player):
-                if loc.type == LocationType.Pot:
-                    loc.item.player = loc.player
-                else:
-                    loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.player)
-        elif (loc.item.name == 'Big Magic'
-              and (loc.type not in [LocationType.Pot, LocationType.Drop] or loc.item.player != loc.player)):
-            if loc.type in [LocationType.Pot, LocationType.Drop]:
-                loc.item.player = loc.player
-            else:
-                loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.player)
-        elif (loc.item.name == 'Fairy'
-              and (loc.type != LocationType.Drop or loc.item.player != loc.player)):
-            if loc.type == LocationType.Drop:
-                loc.item.player = loc.player
-            else:
-                loc.item = ItemFactory(invalid_location_replacement[loc.item.name], loc.player)
         # do the arrow retro check
         if world.bow_mode[loc.item.player].startswith('retro') and loc.item.name in {'Arrows (5)', 'Arrows (10)'}:
             loc.item = ItemFactory('Rupees (5)', loc.item.player)
         # don't write out all pots to spoiler
+        # todo: skip uninteresting enemy drops
         if write_skips:
             if loc.type == LocationType.Pot and loc.item.name in valid_pot_items:
                 loc.skip = True

@@ -1534,7 +1534,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
                                        and (world.colorizepots[player]
                                             or world.pottery[player] in ['reduced', 'clustered']))
-        world.data_tables[player].write_to_rom(rom)
+        world.data_tables[player].write_to_rom(rom, colorize_pots)
 
     write_strings(rom, world, player, team)
 
