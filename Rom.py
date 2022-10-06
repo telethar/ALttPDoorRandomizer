@@ -34,10 +34,11 @@ from InitialSram import InitialSram
 from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
 from source.dungeon.EnemyList import EnemySprite
+from source.enemizer.Bossmizer import boss_writes
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '81d7cf07a34d06ec875074296c39cd97'
+RANDOMIZERBASEHASH = 'c9bf2a8b285fc8cdb98c30844bc3c821'
 
 
 class JsonRom(object):
@@ -344,19 +345,6 @@ def patch_enemizer(world, player, rom, local_rom, enemizercli, random_sprite_on_
         for patch in json.load(f):
             rom.write_bytes(patch["address"], patch["patchData"])
 
-    if world.get_dungeon("Thieves Town", player).boss.enemizer_name == "Blind":
-        rom.write_byte(0x04DE81, 0x6)  # maiden spawn
-        # restore blind spawn code - necessary because the old enemizer clobbers this stuff
-        # this line could be commented out if ijwu's enemizer is used exclusively
-        # if keeping this line, note the jump to the dr_baserom's enemizer section
-        rom.write_bytes(0xEA081, [0x5c, 0x00, 0x80, 0xb7, 0xc9, 0x6, 0xf0, 0x24,
-                                  0xad, 0x3, 0x4, 0x29, 0x20, 0xf0, 0x1d])
-        rom.write_byte(0x200101, 0)  # Do not close boss room door on entry.
-        rom.write_byte(0x1B0101, 0)  # Do not close boss room door on entry. (for Ijwu's enemizer)
-    else:
-        rom.write_byte(0x04DE83, 0xB3)  # maiden is now something else
-
-
     if random_sprite_on_hit:
         _populate_sprite_table()
         sprites = list(_sprite_table.values())
@@ -585,7 +573,7 @@ def handle_native_dungeon(location, itemid):
     return itemid
 
 
-def patch_rom(world, rom, player, team, enemized, is_mystery=False):
+def patch_rom(world, rom, player, team, is_mystery=False):
     random.seed(world.rom_seeds[player])
 
     # progressive bow silver arrow hint hack
@@ -1241,8 +1229,6 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if (world.shuffle[player] != 'vanilla' or world.doorShuffle[player] != 'vanilla'
        or world.dropshuffle[player] != 'none' or world.pottery[player] != 'none'):
         gametype |= 0x02  # entrance/door
-    if enemized:
-        gametype |= 0x01  # enemizer
     rom.write_byte(0x180211, gametype)  # Game type
 
     # assorted fixes
@@ -1427,9 +1413,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.write_byte(0x180175, 0x01 if world.bow_mode[player].startswith('retro') else 0x00)  # rupee bow
     rom.write_byte(0x180176, 0x0A if world.bow_mode[player].startswith('retro') else 0x00)  # wood arrow cost
     rom.write_byte(0x180178, 0x32 if world.bow_mode[player].startswith('retro') else 0x00)  # silver arrow cost
-    rom.write_byte(0x301FC, 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)  # rupees replace arrows under pots
-    if enemized:
-        rom.write_byte(0x1B152e, 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)
+    # rupees replace arrows under pots for original and enemizer code
+    rom.write_byte(0x301FC, 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)
+    rom.write_byte(snes_to_pc(0x36837D), 0xDA if world.bow_mode[player].startswith('retro') else 0xE1)
     rom.write_byte(0x30052, 0xDB if world.bow_mode[player].startswith('retro') else 0xE2) # replace arrows in fish prize from bottle merchant
     rom.write_bytes(0xECB4E, [0xA9, 0x00, 0xEA, 0xEA] if world.bow_mode[player].startswith('retro') else [0xAF, 0x77, 0xF3, 0x7E])  # Thief steals rupees instead of arrows
     rom.write_bytes(0xF0D96, [0xA9, 0x00, 0xEA, 0xEA] if world.bow_mode[player].startswith('retro') else [0xAF, 0x77, 0xF3, 0x7E])  # Pikit steals rupees instead of arrows
@@ -1522,6 +1508,9 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         # do this unconditionally - gets overwritten by RoomData in doorShufflemodes
         rom.write_byte(0xFED31, 0x0E)  # preopen bombable exit
         rom.write_byte(0xFEE41, 0x0E)  # preopen bombable exit
+
+    if world.boss_shuffle[player] != 'none':
+        boss_writes(world, player, rom)
 
     # todo: combine this with data_tables for in place edits
     if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player] != 'none'

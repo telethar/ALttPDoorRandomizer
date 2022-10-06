@@ -405,7 +405,7 @@ def init_enemy_stats():
         EnemySprite.GroveOstritch: EnemyStats(EnemySprite.GroveOstritch, True),
         EnemySprite.GroveRabbit: EnemyStats(EnemySprite.GroveRabbit, True),
         EnemySprite.GroveBird: EnemyStats(EnemySprite.GroveBird, True),
-        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, True, 0, health=16),
+        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, False, 0, health=16),
         EnemySprite.Kholdstare: EnemyStats(EnemySprite.Kholdstare, True),
         EnemySprite.KholdstareShell: EnemyStats(EnemySprite.KholdstareShell, True),
         EnemySprite.FallingIce: EnemyStats(EnemySprite.FallingIce, True),
@@ -2169,7 +2169,7 @@ def add_drop_contents(world, player):
                 continue
             elif sprite.sub_type != SpriteType.Overlord:
                 stat = world.data_tables[player].enemy_stats[sprite.kind]
-                if not stat.static and stat.drop_flag:
+                if stat.drop_flag:
                     pack = 0
                     if isinstance(stat.prize_pack, int):
                         pack = stat.prize_pack
@@ -2291,6 +2291,15 @@ def can_ether_kill(world, player, damage, health):
     else:
         return and_rule(has('Ether', player), has_sword(player))
 
+
+def can_bombos_kill(world, player, damage, health):
+    magic_needed = math.ceil(health / damage) * 2
+    if magic_needed > 8:
+        return and_rule(has('Bombos', player), has_sword(player), can_extend_magic(world, player, magic_needed))
+    else:
+        return and_rule(has('Bombos', player), has_sword(player))
+
+
 # main enemy types
 def defeat_rule(world, player, health, class1=1,
                 arrow: typing.Optional[int] = 1, silver=1,
@@ -2359,7 +2368,8 @@ special_rules_check = {
 def special_rules_for_region(world, player, region_name, location, original_rule, enemy):
     if region_name == 'Swamp Waterway':
         stats = world.data_tables[player].enemy_stats[enemy.kind]
-        return or_rule(can_quake_kill(world, player, 64, stats.health), can_ether_kill(world, player, 64, stats.health))
+        return or_rule(can_quake_kill(world, player, 64, stats.health), can_ether_kill(world, player, 16, stats.health),
+                       can_bombos_kill(world, player, 64, stats.health))
     elif region_name in ['Hera Back', 'GT Petting Zoo', 'Mimic Cave']:
         enemy_number = int(location.name.split('#')[1])
         if enemy_number in special_rules_check[region_name]:

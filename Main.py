@@ -315,34 +315,13 @@ def main(args, seed=None, fish=None):
 
     rom_names = []
     jsonout = {}
-    enemized = False
     if not args.suppress_rom or args.bps:
         logger.info(world.fish.translate("cli","cli","patching.rom"))
         for team in range(world.teams):
             for player in range(1, world.players + 1):
-                sprite_random_on_hit = type(args.sprite[player]) is str and args.sprite[player].lower() == 'randomonhit'
-                use_enemizer = (world.boss_shuffle[player] != 'none' or world.enemy_shuffle[player] != 'none'
-                                or world.enemy_health[player] != 'default' or world.enemy_damage[player] != 'default'
-                                or sprite_random_on_hit)
+                rom = JsonRom() if args.jsonout else LocalRom(args.rom)
 
-                rom = JsonRom() if args.jsonout or use_enemizer else LocalRom(args.rom)
-
-                if use_enemizer and (args.enemizercli or not args.jsonout):
-                    local_rom = LocalRom(args.rom)  # update base2current.json (side effect)
-                    if args.rom and not(os.path.isfile(args.rom)):
-                        raise RuntimeError("Could not find valid base rom for enemizing at expected path %s." % args.rom)
-                    if os.path.exists(args.enemizercli):
-                        patch_enemizer(world, player, rom, local_rom, args.enemizercli, sprite_random_on_hit)
-                        enemized = True
-                        if not args.jsonout:
-                            rom = LocalRom.fromJsonRom(rom, args.rom, 0x400000)
-                    else:
-                        enemizerMsg  = world.fish.translate("cli","cli","enemizer.not.found") + ': ' + args.enemizercli + "\n"
-                        enemizerMsg += world.fish.translate("cli","cli","enemizer.nothing.applied")
-                        logging.warning(enemizerMsg)
-                        raise EnemizerError(enemizerMsg)
-
-                patch_rom(world, rom, player, team, enemized, bool(args.mystery))
+                patch_rom(world, rom, player, team, bool(args.mystery))
 
                 if args.race:
                     patch_race_rom(rom)
@@ -417,7 +396,6 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","made.rom") % (YES if (args.create_rom) else NO))
     logger.info(world.fish.translate("cli","cli","made.playthrough") % (YES if (args.calc_playthrough) else NO))
     logger.info(world.fish.translate("cli","cli","made.spoiler") % (YES if (not args.jsonout and args.create_spoiler) else NO))
-    logger.info(world.fish.translate("cli","cli","used.enemizer") % (YES if enemized else NO))
     logger.info(world.fish.translate("cli","cli","seed") + ": %s", world.seed)
     logger.info(world.fish.translate("cli","cli","total.time"), time.perf_counter() - start)
 

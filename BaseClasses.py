@@ -242,6 +242,9 @@ class World(object):
                 return dungeon
         raise RuntimeError('No such dungeon %s for player %d' % (dungeonname, player))
 
+    def get_dungeons(self, player):
+        return [d for d in self.dungeons if d.player == player]
+
     def get_door(self, doorname, player):
         if isinstance(doorname, Door):
             return doorname

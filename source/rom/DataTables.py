@@ -29,9 +29,9 @@ class DataTables:
             header.write_to_rom(rom, snes_to_pc(0x30DA00))  # new header table, bank30, tables.asm
         room_start_address = 0x378000
         for room_id, room in self.room_list.items():
-            rom.write_bytes(0x1F8000 + room_id * 3, int24_as_bytes(room_start_address))
+            rom.write_bytes(snes_to_pc(0x1F8000 + room_id * 3), int24_as_bytes(room_start_address))
             door_start, bytes_written = room.write_to_rom(snes_to_pc(room_start_address), rom)
-            rom.write_bytes(0x1F83C0 + room_id * 3, int24_as_bytes(room_start_address + door_start))
+            rom.write_bytes(snes_to_pc(0x1F83C0 + room_id * 3), int24_as_bytes(room_start_address + door_start))
             room_start_address += bytes_written
             # todo: room data doors pointers at 1F83C0
             if room_start_address > 0x380000:
