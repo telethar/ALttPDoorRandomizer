@@ -35,6 +35,7 @@ from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
 from source.dungeon.EnemyList import EnemySprite
 from source.enemizer.Bossmizer import boss_writes
+from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
@@ -1511,13 +1512,16 @@ def patch_rom(world, rom, player, team, is_mystery=False):
 
     if world.boss_shuffle[player] != 'none':
         boss_writes(world, player, rom)
+    write_enemy_shuffle_settings(world, player, rom)
 
-    # todo: combine this with data_tables for in place edits
     if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player] != 'none'
        or world.pottery[player] != 'none'):
         for room in world.rooms:
             if room.player == player and room.modified:
-                rom.write_bytes(room.address(), room.rom_data())
+                if room.index in world.data_tables[player].room_list:
+                    world.data_tables[player].room_list[room.index].doors = room.doorList
+                else:
+                    rom.write_bytes(room.address(), room.rom_data())
 
     if world.data_tables[player]:
         colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
@@ -1536,8 +1540,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     # 21 bytes
     from Main import __version__
     seedstring = f'{world.seed:09}' if isinstance(world.seed, int) else world.seed
-    # todo: change to DR when Enemizer is okay with DR
-    rom.name = bytearray(f'ER{__version__.split("-")[0].replace(".","")[0:3]}_{team+1}_{player}_{seedstring}\0', 'utf8')[:21]
+    rom.name = bytearray(f'DR{__version__.split("-")[0].replace(".","")[0:3]}_{team+1}_{player}_{seedstring}\0', 'utf8')[:21]
     rom.name.extend([0] * (21 - len(rom.name)))
     rom.write_bytes(0x7FC0, rom.name)
 
@@ -2535,7 +2538,7 @@ def set_inverted_mode(world, player, rom):
                                                  0x190F, 0x9D04, 0x9D04])
     write_int16s(rom, snes_to_pc(0x1bb810), [0x00BE, 0x00C0, 0x013E])
     write_int16s(rom, snes_to_pc(0x1bb836), [0x001B, 0x001B, 0x001B])
-    write_int16(rom, snes_to_pc(0x308300), 0x0140) # new pyramid hole entrance
+    write_int16(rom, snes_to_pc(0x308300), 0x0140)  # new pyramid hole entrance
     write_int16(rom, snes_to_pc(0x308320), 0x001B)
     if world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
         rom.write_byte(snes_to_pc(0x308340), 0x7B)

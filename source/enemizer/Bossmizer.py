@@ -124,6 +124,7 @@ def boss_writes(world, player, rom):
     eye_number = random.randint(0, 8)  # randomize moldorm eyes (var + 1)
     rom.write_byte(snes_to_pc(0x368102), eye_number)  # enemizer flag
     rom.write_byte(snes_to_pc(0x1DDBB3), eye_number)  # loop variable
+    # todo: flag vitreous key fix (prize on the eyes)
     data_tables = world.data_tables[player]
     arrghus_can_swim = True
     water_tiles_on = True

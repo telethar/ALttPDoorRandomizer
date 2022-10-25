@@ -1,9 +1,22 @@
+from collections import defaultdict
+
 from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes
 
 from source.dungeon.EnemyList import EnemyTable, init_vanilla_sprites, vanilla_sprites, init_enemy_stats
 from source.dungeon.RoomHeader import init_room_headers
 from source.dungeon.RoomList import Room0127
+from source.enemizer.OwEnemyList import init_vanilla_sprites_ow, vanilla_sprites_ow
 from source.enemizer.SpriteSheets import init_sprite_sheets, init_sprite_requirements
+
+
+def convert_area_id_to_offset(area_id):
+    if area_id < 0x40:
+        return area_id
+    if 0x40 <= area_id < 0x80:
+        return area_id + 0x40
+    if 0x90 <= area_id < 0xCF:
+        return area_id - 0x50
+    raise Exception(f'{hex(area_id)} is not a valid area id for offset math')
 
 
 class DataTables:
@@ -12,8 +25,9 @@ class DataTables:
         self.room_list = None
         self.sprite_sheets = None
         self.uw_enemy_table = None
-        self.ow_enemy_table = None  # todo : data migration
+        self.ow_enemy_table = None
         self.pot_secret_table = None
+        self.overworld_sprite_sheets = None
 
         # associated data
         self.sprite_requirements = None
@@ -33,7 +47,6 @@ class DataTables:
             door_start, bytes_written = room.write_to_rom(snes_to_pc(room_start_address), rom)
             rom.write_bytes(snes_to_pc(0x1F83C0 + room_id * 3), int24_as_bytes(room_start_address + door_start))
             room_start_address += bytes_written
-            # todo: room data doors pointers at 1F83C0
             if room_start_address > 0x380000:
                 raise Exception('Room list exceeded bank size')
         #  size notes: bank 03 uses 140E bytes
@@ -45,7 +58,19 @@ class DataTables:
         if self.uw_enemy_table.size() > 0x2800:
             raise Exception('Sprite table is too big for current area')
         self.uw_enemy_table.write_sprite_data_to_rom(rom)
-        # todo: write ow enemy table
+        for area_id, sheet_number in self.overworld_sprite_sheets.items():
+            if area_id in [0x80, 0x81]:
+                offset = area_id - 0x80  # 02E575 for special areas?
+                rom.write_byte(snes_to_pc(0x02E576+offset), sheet_number)
+            else:
+                offset = convert_area_id_to_offset(area_id)
+                rom.write_byte(snes_to_pc(0x00FA81+offset), sheet_number)
+            # _00FA81 is LW normal
+            # _00FAC1 is LW post-aga
+            # _00FB01 is DW
+        for area, sprite_list in vanilla_sprites_ow.items():
+            for sprite in sprite_list:
+                rom.write_bytes(snes_to_pc(sprite.original_address), sprite.sprite_data_ow())
 
 
 def init_data_tables(world, player):
@@ -62,4 +87,10 @@ def init_data_tables(world, player):
     for room, sprite_list in vanilla_sprites.items():
         for sprite in sprite_list:
             uw_table.room_map[room].append(sprite.copy())
+    data_tables.overworld_sprite_sheets = {}
+    data_tables.ow_enemy_table = defaultdict(list)
+    init_vanilla_sprites_ow()
+    for area, sprite_list in vanilla_sprites_ow.items():
+        for sprite in sprite_list:
+            data_tables.ow_enemy_table[area].append(sprite.copy())
     return data_tables

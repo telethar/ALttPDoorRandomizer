@@ -1,7 +1,11 @@
 import RaceRandom as random
+from Utils import snes_to_pc
 
 from source.dungeon.EnemyList import SpriteType
-from source.enemizer.SpriteSheets import uw_sub_group_choices, setup_required_dungeon_groups
+from source.dungeon.RoomList import Room010C
+from source.enemizer.SpriteSheets import sub_group_choices, setup_required_dungeon_groups
+from source.enemizer.SpriteSheets import randomize_underworld_sprite_sheets, randomize_overworld_sprite_sheets
+from source.enemizer.TilePattern import tile_patterns
 
 water_rooms = {
     0x16, 0x28, 0x34, 0x36, 0x38, 0x46, 0x66
@@ -52,7 +56,7 @@ def setup_specific_requirements(data_tables):
         if requirement.good_for_uw_water():
             water_groups.update(requirement.groups)
             for i in range(0, 4):
-                limited = [x for x in requirement.sub_groups[i] if x in uw_sub_group_choices[i]]
+                limited = [x for x in requirement.sub_groups[i] if x in sub_group_choices[i]]
                 water_sub_groups[i].update(limited)
         if requirement.good_for_shutter():
             killable_groups.update(requirement.groups)
@@ -76,7 +80,7 @@ def get_possible_sheets(room_id, data_tables, specific, uw_sheets):
     killable_needed = room_id in shutter_sprites
     water_needed = room_id in water_rooms
 
-    for sheet in data_tables.sprite_sheets.values():
+    for sheet in uw_sheets:
         if room_id in sheet.room_set:
             return [sheet]
 
@@ -156,7 +160,18 @@ def get_possible_sheets(room_id, data_tables, specific, uw_sheets):
     return possible_sheets
 
 
-def uw_candidate_sprites(data_tables):
+def get_possible_ow_sheets(area_id, ow_sheets):
+    # requirements = data_tables.sprite_requirements
+
+    for sheet in ow_sheets:
+        if area_id in sheet.room_set:
+            return [sheet]
+
+    # not sure I need to match anything else at this point
+    return ow_sheets
+
+
+def find_candidate_sprites(data_tables, sheet_range):
     requirements = data_tables.sprite_requirements
     uw_sprite_candidates = []
     uw_sheet_candidates = []
@@ -173,7 +188,7 @@ def uw_candidate_sprites(data_tables):
                 candidate_sub_groups[i].update(r.sub_groups[i])
             uw_sprite_candidates.append(k)
 
-    for num in range(65, 124):
+    for num in sheet_range:
         sheet = data_tables.sprite_sheets[num]
         if candidate_groups and sheet not in candidate_groups:
             continue
@@ -196,9 +211,35 @@ def get_possible_enemy_sprites(room_id, sheet, uw_sprites, data_tables):
     return ret
 
 
+def get_possible_enemy_sprites_ow(sheet, sprites, data_tables):
+    ret = []
+    for sprite in sprites:
+        requirement = data_tables.sprite_requirements[sprite]
+        if isinstance(requirement, dict):
+            continue
+        if sheet.valid_sprite(requirement):
+            ret.append(requirement)
+    return ret
+
+
 def get_randomize_able_sprites(room_id, data_tables):
     sprite_table = {}
     for idx, sprite in enumerate(data_tables.uw_enemy_table.room_map[room_id]):
+        sprite_secondary = 0 if sprite.sub_type != SpriteType.Overlord else sprite.sub_type
+        key = (sprite.kind, sprite_secondary)
+        if key not in data_tables.sprite_requirements:
+            continue
+        req = data_tables.sprite_requirements[key]
+        if isinstance(req, dict):
+            continue
+        if not req.static and req.can_randomize:
+            sprite_table[idx] = sprite
+    return sprite_table
+
+
+def get_randomize_able_sprites_ow(area_id, data_tables):
+    sprite_table = {}
+    for idx, sprite in enumerate(data_tables.ow_enemy_table[area_id]):
         sprite_secondary = 0 if sprite.sub_type != SpriteType.Overlord else sprite.sub_type
         key = (sprite.kind, sprite_secondary)
         if key not in data_tables.sprite_requirements:
@@ -217,7 +258,7 @@ def randomize_underworld_rooms(data_tables):
     # randomize room sprite sheets
 
     specific = setup_specific_requirements(data_tables)
-    uw_candidates, uw_sheets = uw_candidate_sprites(data_tables)
+    uw_candidates, uw_sheets = find_candidate_sprites(data_tables, range(65, 124))
     for room_id in range(0, 0x128):
         if room_id in {0, 1, 3, 6, 7, 0xd, 0x14, 0x1c, 0x20, 0x29, 0x30, 0x33,
                        0x4d, 0x5a, 0x7F, 0x90, 0xa4, 0xac, 0xc8, 0xde}:
@@ -228,26 +269,93 @@ def randomize_underworld_rooms(data_tables):
         randomizeable_sprites = get_randomize_able_sprites(room_id, data_tables)
         if randomizeable_sprites:
             candidate_sheets = get_possible_sheets(room_id, data_tables, specific, uw_sheets)
-            chosen_sheet = random.choice(candidate_sheets)
-            data_tables.room_headers[room_id].sprite_sheet = chosen_sheet.id - 0x40
-            candidate_sprites = get_possible_enemy_sprites(room_id, chosen_sheet, uw_candidates, data_tables)
-            if room_id in water_rooms:
-                water_sprites = [x for x in candidate_sprites if x.water_only]
-                for i, sprite in randomizeable_sprites.items():
-                    chosen = random.choice(water_sprites)
-                    sprite.kind = chosen.sprite
-            else:
-                # todo: stal sprites
-                for i, sprite in randomizeable_sprites.items():
-                    if sprite.drops_item:
-                        key_sprites = [x for x in candidate_sprites if x.good_for_key_drop() and not x.water_only]
-                        chosen = random.choice(key_sprites)
-                    elif room_id in shutter_sprites and i in shutter_sprites[room_id]:
-                        killable_sprite = [x for x in candidate_sprites if x.good_for_shutter() and not x.water_only]
-                        chosen = random.choice(killable_sprite)
+            done = False
+            while not done:
+                chosen_sheet = random.choice(candidate_sheets)
+                data_tables.room_headers[room_id].sprite_sheet = chosen_sheet.id - 0x40
+                candidate_sprites = get_possible_enemy_sprites(room_id, chosen_sheet, uw_candidates, data_tables)
+                randomized = True
+                if room_id in water_rooms:
+                    water_sprites = [x for x in candidate_sprites if x.water_only]
+                    if len(water_sprites) == 0:
+                        randomized = False
                     else:
-                        non_water = [x for x in candidate_sprites if not x.water_only]
-                        chosen = random.choice(non_water)
-                    sprite.kind = chosen.sprite
+                        for i, sprite in randomizeable_sprites.items():
+                            chosen = random.choice(water_sprites)
+                            sprite.kind = chosen.sprite
+                else:
+                    # todo: stal sprites
+                    for i, sprite in randomizeable_sprites.items():
+                        if sprite.drops_item:
+                            choice_list = [x for x in candidate_sprites if x.good_for_key_drop() and not x.water_only]
+                        elif room_id in shutter_sprites and i in shutter_sprites[room_id]:
+                            choice_list = [x for x in candidate_sprites if x.good_for_shutter() and not x.water_only]
+                        else:
+                            choice_list = [x for x in candidate_sprites if not x.water_only]
+                        if len(choice_list) == 0:
+                            randomized = False
+                            break
+                        chosen = random.choice(choice_list)
+                        sprite.kind = chosen.sprite
+                done = randomized
         # done with sprites
     # done with rooms
+
+
+def randomize_overworld_enemies(data_tables, randomize_bush_sprites):
+    # todo: decision on stump/bird
+    # original kodongo discovery?
+    # rom.write_byte(snes_to_pc(0x09CF4F), 0x10) //move bird from tree stump in lost woods
+    ow_candidates, ow_sheets = find_candidate_sprites(data_tables, range(1, 64))
+    areas_to_randomize = [0, 2, 3, 5, 7, 0xA, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+                          0x1a, 0x1b, 0x1d, 0x1e, 0x22, 0x25, 0x28, 0x29, 0x2A, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+                          0x30, 0x32, 0x33, 0x34, 0x35, 0x37, 0x3a, 0x3b, 0x3c, 0x3f]
+    area_list = areas_to_randomize + [x + 0x40 for x in areas_to_randomize]  # light world + dark world
+    area_list += [0x80, 0x81] + [x + 0x90 for x in areas_to_randomize]  # specials + post aga LW
+    for area_id in area_list:
+        randomizeable_sprites = get_randomize_able_sprites_ow(area_id, data_tables)
+        if randomizeable_sprites:
+            candidate_sheets = get_possible_ow_sheets(area_id, ow_sheets)
+            chosen_sheet = random.choice(candidate_sheets)
+            data_tables.overworld_sprite_sheets[area_id] = chosen_sheet
+            candidate_sprites = get_possible_enemy_sprites_ow(chosen_sheet, ow_candidates, data_tables)
+            for i, sprite in randomizeable_sprites.items():
+                chosen = random.choice(candidate_sprites)
+                sprite.kind = chosen
+            if randomize_bush_sprites:
+                pass
+                # todo: randomize the bush sprite
+
+
+def randomize_enemies(world, player):
+    if world.enemy_shuffle[player] != 'none':
+        data_tables = world.data_tables[player]
+        randomize_underworld_sprite_sheets(data_tables.sprite_sheets)
+        randomize_underworld_rooms(data_tables)
+        randomize_overworld_sprite_sheets(data_tables.sprite_sheets)
+        randomize_overworld_enemies(data_tables, world.enemy_shuffle[player] == 'random')
+    # todo: health shuffle
+    # todo: damage shuffle
+
+
+def write_enemy_shuffle_settings(world, player, rom):
+    if world.enemy_shuffle[player] != 'none':
+        # killable thief
+        rom.write_byte(snes_to_pc(0x368108), 0xc4)
+        rom.write_byte(snes_to_pc(0x0DB237), 4)  # health value: # todo: thief health value
+
+        # mimic room barriers
+        data_tables = world.data_tables[player]
+        mimic_room = data_tables.room_list[0x10c] = Room010C
+        mimic_room.layer1[40].data[0] = 0x54  # rail adjust
+        mimic_room.layer1[40].data[1] = 0x9C
+        mimic_room.layer1[45].data[1] = 0xB0  # block adjust 1
+        mimic_room.layer1[47].data[1] = 0xD0  # block adjust 2
+    if world.enemy_shuffle[player] == 'random':
+        rom.write_byte(snes_to_pc(0x368100), 1)  # randomize bushes
+        # random tile pattern
+        pattern_name, tile_pattern = random.choice(tile_patterns)
+        rom.write_byte(snes_to_pc(0x9BA1D), len(tile_pattern))
+        for idx, pair in enumerate(tile_pattern):
+            rom.write_byte(snes_to_pc(0x09BA2A + idx), (pair[0] + 3) * 16)
+            rom.write_byte(snes_to_pc(0x09BA40 + idx), (pair[1] + 4) * 16)

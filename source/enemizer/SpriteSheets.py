@@ -554,7 +554,7 @@ def setup_required_dungeon_groups(sheets):
 
         # non-optional
         ([None, None, None, 82], [0x2, 0x58, 0x64, 0x8c, 0x10b]), # pull switches
-        ([None, None, None, 82], [0x1a, 0x3d, 0x44, 0x56, 0x5e, 0x7c, 0x95, 0xc3]),  # collasping bridges
+        ([None, None, None, 82], [0x1a, 0x3d, 0x44, 0x56, 0x5e, 0x7c, 0x95, 0xc3]),  # collapsing bridges
         ([None, None, None, 83], [0x4, 0x3f, 0xce]),  # pull tongue
         ([None, None, None, 83], [0x35, 0x37, 0x76]),  # swamp drains
         ([None, None, 34, None], [0x28]),  # tektike forced? - spawn chest
@@ -593,7 +593,7 @@ def setup_required_dungeon_groups(sheets):
     # roomCollection.LoadRooms()
     # roomCollection.RandomizeRoomSpriteGroups(spriteGroupCollection, optionFlags);
     # more stuff
-uw_sub_group_choices = {
+sub_group_choices = {
     0: [22, 31, 47, 14],  # 70, 72 for guards
     1: [44, 30, 32],  # 73, 13
     2: [12, 18, 23, 24, 28, 46, 34, 35, 39, 40, 38, 41, 36, 37, 42],
@@ -611,9 +611,42 @@ def randomize_underworld_sprite_sheets(sheets):
             sheet.sub_groups[1] = random.choice([13, 73])
         for idx in range(0, 4):
             if not sheet.locked[idx]:
-                sheet.sub_groups[idx] = random.choice(uw_sub_group_choices[idx])
+                sheet.sub_groups[idx] = random.choice(sub_group_choices[idx])
                 # lock the group?
 
+
+def setup_required_overworld_groups(sheets):
+    sheets[7].add_sprite_to_sheet([None, None, 74, None], {0x2})  # lumberjacks
+    sheets[16].add_sprite_to_sheet([None, None, 18, 16], {0x3, 0x93})  # WDM (pre/post-Aga)
+    sheets[7].add_sprite_to_sheet([None, None, None, 17], {0xA, 0x9A})  # DM Foothills? (pre/post-Aga)
+    sheets[4].add_sprite_to_sheet([None, None, None, None], {0xF, 0x9F})  # Waterfall of wishing (pre/post-Aga)
+    sheets[3].add_sprite_to_sheet([None, None, None, 14], {0x14, 0xA4})  # Graveyard (pre/post-Aga)
+    sheets[1].add_sprite_to_sheet([None, None, 76, 63], {0x1B, 0xAB})  # Hyrule Castle (pre/post-Aga)
+    sheets[6].add_sprite_to_sheet([None, None, None, None], {0x22, 0x28, 0xB2, 0xB8})  # Smithy/Race (pre/post-Aga)
+    sheets[8].add_sprite_to_sheet([None, None, 18, None], {0x30, 0xC0})  # Desert (pre/post-Aga)
+    sheets[10].add_sprite_to_sheet([None, None, None, None], {0x3A, 0xCA})  # M-rock (pre/post-Aga)
+    sheets[22].add_sprite_to_sheet([None, None, 24, None], {0x4F, 0xDF})  # Catfish (pre/post-Aga)
+    sheets[21].add_sprite_to_sheet([21, None, None, 21], {0x62, 0xF2})  # Smith DW (pre/post-Aga)
+    sheets[27].add_sprite_to_sheet([None, 42, None, None], {0x68, 0xF8})  # Dig Game (pre/post-Aga)
+    sheets[13].add_sprite_to_sheet([None, None, 76, None], {0x16, 0xA6})  # Witch hut (pre/post-Aga)
+    sheets[29].add_sprite_to_sheet([None, 77, None, 21], {0x69, 0xF9})  # VoO South (pre/post-Aga)
+    sheets[15].add_sprite_to_sheet([None, None, 78, None], {0x2A, 0xBA})  # Haunted Grove (pre/post-Aga)
+    sheets[17].add_sprite_to_sheet([None, None, None, 76], {0x6A, 0xFA})  # Stumpy (pre/post-Aga)
+    sheets[12].add_sprite_to_sheet([None, None, 55, 54], {0x80, 0x110})  # Specials (pre/post-Aga)
+    sheets[14].add_sprite_to_sheet([None, None, 12, 68], {0x81, 0x111})  # Zora's Domain (pre/post-Aga)
+    sheets[26].add_sprite_to_sheet([15, None, None, None], {0x92})  # Lumberjacks post-Aga
+    sheets[23].add_sprite_to_sheet([None, None, None, 25], {0x5E, 0xEE})  # PoD pre/post-Aga
+
+
+def randomize_overworld_sprite_sheets(sheets):
+    setup_required_overworld_groups(sheets)
+
+    for num in range(1, 64):  # sheets 0x1 to 0x3F inclusive
+        sheet = sheets[num]
+        for idx in range(0, 4):
+            if not sheet.locked[idx]:
+                sheet.sub_groups[idx] = random.choice(sub_group_choices[idx])
+                # lock the group?
 
 
 

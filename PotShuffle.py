@@ -1040,7 +1040,7 @@ class PotSecretTable(object):
         self.room_map = defaultdict(list)
         self.multiworld_count = 0
 
-    def write_pot_data_to_rom(self, rom, colorize):
+    def write_pot_data_to_rom(self, rom, colorize, data_tables):
         pointer_address = snes_to_pc(0x09D87E)  # pots currently in bank 9
         data_bank_address = snes_to_pc(0x09DACE)
         # pointer_offset = 0x128 * 2
@@ -1057,9 +1057,13 @@ class PotSecretTable(object):
                     rom.write_bytes(data_pointer + list_idx * 3, pot.pot_data())
                     if pot.location is not None and not pot.location.forced_item:
                         collection_rate_mask |= 1 << (15 - list_idx)
-                        if colorize and pot.obj_ref:
-                            pot.obj_ref.change_type(Shuffled_Pot)
-                            pot.obj_ref.write_to_rom(rom)
+                        if colorize:
+                            if room in data_tables.room_list:
+                                room_object = data_tables.room_list[room]
+                                room_object.find_all_pots()[list_idx].change_type(Shuffled_Pot)
+                            elif pot.obj_ref:
+                                pot.obj_ref.change_type(Shuffled_Pot)
+                                pot.obj_ref.write_to_rom(rom)
                     list_idx += 1
                 rom.write_bytes(data_pointer + list_idx * 3, [0xFF, 0xFF])
                 rom.write_bytes(snes_to_pc(0x28AA60) + room * 2, int16_as_bytes(collection_rate_mask))

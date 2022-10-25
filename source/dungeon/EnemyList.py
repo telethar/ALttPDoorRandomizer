@@ -37,8 +37,6 @@ class EnemyStats:
         # Raven light/dark world
 
 
-
-
 class EnemySprite(FastEnum):
     Raven = 0x00
     Vulture = 0x01
@@ -84,7 +82,7 @@ class EnemySprite(FastEnum):
     TelepathicTile = 0x2d
     FluteKid = 0x2e
     RaceGameLady = 0x2f
-
+    RaceGameGuy = 0x30
     FortuneTeller = 0x31
     ArgueBros = 0x32
     RupeePull = 0x33
@@ -156,6 +154,7 @@ class EnemySprite(FastEnum):
     BottleMerchant = 0x75
     Zelda = 0x76
     Grandma = 0x78
+    Bee = 0x79
     Agahnim = 0x7a
     FloatingSkull = 0x7c
     BigSpike = 0x7d
@@ -203,7 +202,7 @@ class EnemySprite(FastEnum):
     BlueZirro = 0xa9
     Pikit = 0xaa
     CrystalMaiden = 0xab
-    # ... OW
+    Apple = 0xac
     OldMan = 0xad
     PipeDown = 0xae
     PipeUp = 0xaf
@@ -242,17 +241,29 @@ class EnemySprite(FastEnum):
     BunnyBeam = 0xd1
     FloppingFish = 0xd2
     Stal = 0xd3  # alive skull rock?
+    Landmine = 0xd4
     DiggingGameNPC = 0xd5
     Ganon = 0xd6
 
+    SmallHeart = 0xd8
+    BlueRupee = 0xda
+    RedRupee = 0xdb
+    BombRefill1 = 0xdc
+    BombRefill4 = 0xdd
+    BombRefill8 = 0xde
+
+    LargeMagic = 0xe0
     Faerie = 0xe3
     SmallKey = 0xe4
+    Mushroom = 0xe7
     FakeMasterSword = 0xe8
     MagicShopAssistant = 0xe9
     HeartPiece = 0xeb
     SomariaPlatform = 0xed
     CastleMantle = 0xee
     MedallionTablet = 0xf2
+    PositionTarget = 0xf3
+    Boulders = 0xf4
     
     
 class SpriteType(FastEnum):
@@ -488,10 +499,13 @@ class Sprite(object):
         self.drop_item_kind = drop_item_kind
 
         self.location = None
+        self.original_address = None
 
     def copy(self):
-        return Sprite(self.super_tile, self.kind, self.sub_type, self.layer, self.tile_x, self.tile_y, self.region,
-                      self.drops_item, self.drop_item_kind)
+        sprite = Sprite(self.super_tile, self.kind, self.sub_type, self.layer, self.tile_x, self.tile_y, self.region,
+                        self.drops_item, self.drop_item_kind)
+        sprite.original_address = self.original_address
+        return sprite
 
     def sprite_data(self):
         data = [(self.layer << 7) | ((self.sub_type & 0x18) << 2) | self.tile_y,
@@ -506,6 +520,9 @@ class Sprite(object):
             data.append(code)
         return data
 
+    def sprite_data_ow(self):
+        return [self.tile_y, self.tile_x, self.kind]
+
 
 # map of super_tile to list of Sprite objects:
 vanilla_sprites = {}
@@ -519,6 +536,8 @@ def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None
 
 
 def init_vanilla_sprites():
+    if vanilla_sprites:
+        return
     create_sprite(0x0000, EnemySprite.Ganon, 0x00, 0, 0x17, 0x05, 'Pyramid')
     create_sprite(0x0002, EnemySprite.CricketRat, 0x00, 1, 0x12, 0x05, 'Sewers Yet More Rats')
     create_sprite(0x0002, EnemySprite.CricketRat, 0x00, 1, 0x15, 0x06, 'Sewers Yet More Rats')
@@ -2066,7 +2085,6 @@ layered_oam_rooms = {
 class EnemyTable:
     def __init__(self):
         self.room_map = defaultdict(list)
-        self.multiworld_count = 0
 
     def write_sprite_data_to_rom(self, rom):
         pointer_address = snes_to_pc(0x09D62E)
