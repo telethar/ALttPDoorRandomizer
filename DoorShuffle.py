@@ -1018,7 +1018,8 @@ def main_dungeon_generation(dungeon_builders, recombinant_builders, connections_
         find_standard_origins(builder, recombinant_builders, origin_list)
         find_enabled_origins(builder.sectors, enabled_entrances, origin_list, entrances_map, name)
         split_dungeon = treat_split_as_whole_dungeon(split_dungeon, name, origin_list, world, player)
-        if len(origin_list) <= 0 or not pre_validate(builder, origin_list, split_dungeon, world, player):
+        # todo: figure out pre-validate, ensure all needed origins are enabled?
+        if len(origin_list) <= 0:  # or not pre_validate(builder, origin_list, split_dungeon, world, player):
             if last_key == builder.name or loops > 1000:
                 origin_name = world.get_region(origin_list[0], player).entrances[0].parent_region.name if len(origin_list) > 0 else 'no origin'
                 raise GenerationException(f'Infinite loop detected for "{builder.name}" located at {origin_name}')
@@ -1068,14 +1069,14 @@ def determine_entrance_list(world, player):
     connections = {}
     for key, portal_list in dungeon_portals.items():
         entrance_map[key] = []
-        r_names = {}
+        r_names = []
         if key in dungeon_drops.keys():
             for drop in dungeon_drops[key]:
-                r_names[drop] = None
+                r_names.append((drop, None))
         for portal_name in portal_list:
             portal = world.get_portal(portal_name, player)
-            r_names[portal.door.entrance.parent_region.name] = portal
-        for region_name, portal in r_names.items():
+            r_names.append((portal.door.entrance.parent_region.name, portal))
+        for region_name, portal in r_names:
             if portal:
                 region = world.get_region(portal.name + ' Portal', player)
             else:
@@ -2160,11 +2161,16 @@ def find_valid_trap_combination(builder, suggested, start_regions, paths, world,
 # eliminate start region if portal marked as destination
 def filter_start_regions(builder, start_regions, world, player):
     std_flag = world.mode[player] == 'standard' and builder.name == 'Hyrule Castle'
-    excluded = {}
+    excluded = {}   # todo: drop lobbies, might be better to white list instead (two entrances per region)
     for region in start_regions:
         portal = next((x for x in world.dungeon_portals[player] if x.door.entrance.parent_region == region), None)
         if portal and portal.destination:
-            excluded[region] = None
+            # make sure that a drop is not accessible for this "destination"
+            drop_region = next((x.parent_region for x in region.entrances
+                                if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]
+                                or x.parent_region.name == 'Sewer Drop'), None)
+            if not drop_region:
+                excluded[region] = None
         if std_flag and (not portal or portal.find_portal_entrance().parent_region.name != 'Hyrule Castle Courtyard'):
             excluded[region] = None
     return [x for x in start_regions if x not in excluded.keys()]

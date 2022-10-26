@@ -58,15 +58,17 @@ def generate_dungeon_find_proposal(builder, entrance_region_names, split_dungeon
                     excluded[region] = None
         elif split_dungeon and builder.sewers_access and builder.sewers_access.entrance.parent_region == region:
             continue
-        elif len(region.entrances) == 1:  # for holes
-            access_region = next(x.parent_region for x in region.entrances
-                                 if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]
-                                 or x.parent_region.name == 'Sewer Drop')
-            if access_region.name == 'Sewer Drop':
-                access_region = next(x.parent_region for x in access_region.entrances)
-            if (access_region.name in world.inaccessible_regions[player] and
-                 region.name not in world.enabled_entrances[player]):
+        drop_region = next((x.parent_region for x in region.entrances
+                           if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]
+                           or x.parent_region.name == 'Sewer Drop'), None)
+        if drop_region:  # for holes
+            if drop_region.name == 'Sewer Drop':
+                drop_region = next(x.parent_region for x in drop_region.entrances)
+            if (drop_region.name in world.inaccessible_regions[player] and
+               region.name not in world.enabled_entrances[player]):
                 excluded[region] = None
+            elif region in excluded:
+                del excluded[region]
     entrance_regions = [x for x in entrance_regions if x not in excluded.keys()]
     doors_to_connect, idx = {}, 0
     all_regions = set()
@@ -315,9 +317,9 @@ def determine_paths_for_dungeon(world, player, all_regions, name):
             non_hole_portals.append(portal.door.entrance.parent_region.name)
             if portal.destination:
                 paths.append(portal.door.entrance.parent_region.name)
-    if world.mode[player] == 'standard' and name == 'Hyrule Castle':
+    if world.mode[player] == 'standard' and name == 'Hyrule Castle Dungeon':
         paths.append('Hyrule Dungeon Cellblock')
-        paths.append(('Hyrule Dungeon Cellblock', 'Sanctuary'))
+        paths.append(('Hyrule Dungeon Cellblock', 'Hyrule Castle Throne Room'))
     if world.doorShuffle[player] in ['basic'] and name == 'Thieves Town':
         paths.append('Thieves Attic Window')
     elif 'Thieves Attic Window' in all_r_names:

@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '61c296effe6180274721d570d2471e1c'
+RANDOMIZERBASEHASH = '5639de3bfd500ba238d3f27ea78c19e1'
 
 
 class JsonRom(object):
@@ -1492,8 +1492,10 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         if world.doorShuffle[player] not in ['vanilla', 'basic']:
             # Uncle respawn refills (magic, bombs, arrows)
             rom.write_bytes(0x180185, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
-            rom.write_bytes(0x180188, [0x20, 3, 10])  # Zelda respawn refills (magic, bombs, arrows)
-            rom.write_bytes(0x18018B, [0x20, 3, 10])  # Mantle respawn refills (magic, bombs, arrows)
+            # Zelda respawn refills (magic, bombs, arrows)
+            rom.write_bytes(0x180188, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
+            # Mantle respawn refills (magic, bombs, arrows)
+            rom.write_bytes(0x18018B, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
         elif world.doorShuffle[player] == 'basic':  # just in case a bomb is needed to get to a chest
             rom.write_bytes(0x180185, [max(0x00, magic_max), max(3, bomb_max), max(0, bow_max)])
             rom.write_bytes(0x180188, [magic_small, 3, bow_small])  # Zelda respawn refills (magic, bombs, arrows)

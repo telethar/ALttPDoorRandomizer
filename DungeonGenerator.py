@@ -1356,7 +1356,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                 sanc_builder = random.choice(lw_builders)
                 assign_sector(sanc, sanc_builder, candidate_sectors, global_pole)
 
-        bow_sectors, retro_std_flag = {}, world.bow_mode[player].startswith('retro') and world.mode[player] == 'standard'
+        retro_std_flag = world.bow_mode[player].startswith('retro') and world.mode[player] == 'standard'
+        non_hc_sectors = {}
         free_location_sectors = {}
         crystal_switches = {}
         crystal_barriers = {}
@@ -1364,7 +1365,9 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
         neutral_sectors = {}
         for sector in candidate_sectors:
             if retro_std_flag and 'Bow' in sector.item_logic:  # these need to be distributed outside of HC
-                bow_sectors[sector] = None
+                non_hc_sectors[sector] = None
+            elif world.mode[player] == 'standard' and 'Open Floodgate' in sector.item_logic:
+                non_hc_sectors[sector] = None
             elif sector.chest_locations > 0:
                 free_location_sectors[sector] = None
             elif sector.c_switch:
@@ -1375,8 +1378,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                 neutral_sectors[sector] = None
             else:
                 polarized_sectors[sector] = None
-        if bow_sectors:
-            assign_bow_sectors(dungeon_map, bow_sectors, global_pole)
+        if non_hc_sectors:
+            assign_non_hc_sectors(dungeon_map, non_hc_sectors, global_pole)
         leftover = assign_location_sectors_minimal(dungeon_map, free_location_sectors, global_pole, world, player)
         free_location_sectors = scatter_extra_location_sectors(dungeon_map, leftover, global_pole)
         for sector in free_location_sectors:
@@ -1420,7 +1423,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
 def standard_stair_check(dungeon_map, dungeon, candidate_sectors, global_pole):
     # this is because there must be at least one non-dead stairway in hc to get out
     # this check may not be necessary
-    filtered_sectors = [x for x in candidate_sectors if any(y for y in x.outstanding_doors if not y.dead and y.type == DoorType.SpiralStairs)]
+    filtered_sectors = [x for x in candidate_sectors if 'Open Floodgate' not in x.item_logic and
+                        any(y for y in x.outstanding_doors if not y.dead and y.type == DoorType.SpiralStairs)]
     valid = False
     while not valid:
         chosen_sector = random.choice(filtered_sectors)
@@ -1550,7 +1554,7 @@ def define_sector_features(sectors):
                         sector.bk_required = True
             for ext in region.exits:
                 door = ext.door
-                if door is not None:
+                if door is not None and not door.blocked:
                     if door.crystal == CrystalBarrier.Either:
                         sector.c_switch = True
                     elif door.crystal == CrystalBarrier.Orange:
@@ -1562,6 +1566,8 @@ def define_sector_features(sectors):
             if region.name in ['PoD Mimics 2', 'PoD Bow Statue Right', 'PoD Mimics 1', 'GT Mimics 1', 'GT Mimics 2',
                                'Eastern Single Eyegore', 'Eastern Duo Eyegores']:
                 sector.item_logic.add('Bow')
+            if region.name in ['Swamp Lobby', 'Swamp Entrance']:
+                sector.item_logic.add('Open Floodgate')
 
 
 def assign_sector(sector, dungeon, candidate_sectors, global_pole):
@@ -1613,8 +1619,8 @@ def find_sector(r_name, sectors):
     return None
 
 
-def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
-    sector_list = list(bow_sectors)
+def assign_non_hc_sectors(dungeon_map, non_hc_sectors, global_pole):
+    sector_list = list(non_hc_sectors)
     random.shuffle(sector_list)
     population = []
     for name in dungeon_map:
@@ -1623,7 +1629,7 @@ def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
     choices = random.choices(population, k=len(sector_list))
     for i, choice in enumerate(choices):
         builder = dungeon_map[choice]
-        assign_sector(sector_list[i], builder, bow_sectors, global_pole)
+        assign_sector(sector_list[i], builder, non_hc_sectors, global_pole)
 
 
 def scatter_extra_location_sectors(dungeon_map, free_location_sectors, global_pole):
@@ -3511,7 +3517,8 @@ def check_for_valid_layout(builder, sector_list, builder_info):
             for portal in world.dungeon_portals[player]:
                 if not portal.destination and portal.name in dungeon_portals[builder.name]:
                     possible_regions.add(portal.door.entrance.parent_region.name)
-            if builder.name in dungeon_drops.keys():
+            if builder.name in dungeon_drops.keys() and (builder.name != 'Hyrule Castle'
+                                                         or world.mode[player] != 'standard'):
                 possible_regions.update(dungeon_drops[builder.name])
             independents = find_independent_entrances(possible_regions, world, player)
             for name, split_build in builder.split_dungeon_map.items():
