@@ -33,7 +33,7 @@ from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
 
-__version__ = '1.0.1.3-x'
+__version__ = '1.2.0.0-x'
 
 from source.classes.BabelFish import BabelFish
 

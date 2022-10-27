@@ -188,7 +188,7 @@ Currently bugged, not recommended for use.
 
 Same as above but both small keys and bigs keys of the dungeon are not allowed on a boss. (Note: this does not affect universal keys as they are not dungeon-specific)
 
-## Notes and Bug Fixes
+# Bug Fixes and Notes
 
 #### StandardThrone
 
@@ -208,90 +208,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 * Fixed up the GUI selection of the customizer file.
 * Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
 
-#### Unstable
+#### Main
 
-* 1.0.1.3
-  * Fix for rain prevented doors fouling up key doors
-  * Couple minor issues
-* 1.0.1.2
-  * Removed "good bee" as an in-logic way of killing Mothula
-  * Fixed an issue with Mystery generation and Windows path
-  * Fixed an issue with small key bias rework
-  * Fixed an issue where trinity goal would open pyramid unexpectedly. (No longer does so if ER mdoe is shuffling holes). Crystals goal updated to match that behavior.
-  * Fixed a playthrough issue that was not respecting pot rules
-  * Fixed an issue that was conflicting with downstream OWR project
-  * Fixed an issue with inverted and certain pottery settings
-  * Fixed an issue with small keys being shuffled and big keys not (key distribution)
-* 1.0.1.1
-  * Fixed the pots in Mire Storyteller/ Dark Desert Hint to be colorized when they should be
-  * Certain pot items no longer reload when reloading the supertile (matches original pot behavior better)
-  * Changed the key distribution that made small keys placement more random when keys are in their own dungeon
-  * Unique boss shuffle no longer allows repeat bosses in GT (e.g. only one Trinexx in GT, so exactly 3 bosses are repeated in the seed. This is a difference process than full which does affect the probability distribution.)
-  * Removed text color in hints due to vanilla bug
-* 1.0.1.0
-  * Large features
-    * New pottery modes - see notes above
-      * Pot substitutions added for red rupees, 10 bomb packs, 3 bomb packs, and 10 arrows have been added. They use objects that can result from a tree pull or other drop. The 3 bomb pack becomes a 4 bomb pack and the 10 bomb pack becomes an 8 pack. These substitutions are repeatable like all other normal pot contents.
-      * Updated TFH to support up to 850 pieces
-    * New font support
-    * Trinity goal added
-    * Separated Collection Rate counter from experimental
-    * Added MSU Resume option
-    * Support for BPS patch creation and applying patches during adjustment
-    * New option for Boss Shuffle: Unique (Prize bosses will be one of each, but GT bosses can be anything)
-  * Logic Notes
-    * Skull X Room requires Boots or access to Skull Back Drop
-    * GT Falling Torches requires Boots to get over the falling tile gap (this is a stop-gap measure until more sophisticated crystal switch traversal is possible) 
-    * Waterfall of Wishing logic in open. You must have flippers to exit the Waterfall (flippers also required in glitched modes as well)
-    * Fix for GT Crystal Conveyor not requiring Somaria/Bombs to get through
-    * Pedestal goal + vanilla swords places a random sword in the pool
-    * Added a few more places Links House shouldn't go when shuffled
-  * Small features
-    * Added a check for python package requirements before running code. GUI and console both for better error messages. Thanks to mtrethewey for the idea.
-    * Refactored spoiler to generate in stages for better error collection. A meta file will be generated additionally for mystery seeds. Some random settings moved later in the spoiler to have the meta section at the top not spoil certain things. (GT/Ganon requirements.) Thanks to codemann and OWR for most of this work.
-    * Updated tourney winners (included Doors Async League winners)
-    * Some textual changes for hints (capitalization standardization)
-    * Reworked GT Trash Fill. Base rate is 0-75% of locations fill with 7 crystals entrance requirements. Triforce hunt is 75%-100% of locations. The 75% number will decrease based on the crystal entrance requirement. Dungeon_only algorithm caps it based on how many items need to be placed in dungeons. Cross dungeon shuffle will now work with the trash fill.
-    * Expanded Mystery logic options (e.g. owglitches)
-    * Updated indicators on keysanity menu for overworld map option
-  * Bug fixes:
-    * Fix for Zelda (or any follower) going to the maiden cell supertile and the boss is not Blind. The follower will not despawn unless the boss is Blind, then the maiden will spawn as normal.
-    * Bug with 0 GT crystals not opening GT
-    * Fixed a couple issues with dungeon counters and the DungeonCompletion field for autotracking
-    * Settings code fix
-    * Fix for forbidding certain dashable doors (it actually does something this time)
-    * Fix for major item algorithm and pottery
-    * Updated map display on keysanity menu to work better with overworld_map option
-    * Minor bug in crossed doors
-    * Fix for Multiworld forfeits, shops and pot items now included
-    * MultiServer fix for ssl certs and python
-    * forbid certain doors from being dashable when you either can't dash them open (but bombs would work) or you'd fall into a pit from the bonk recoil in OHKO
-    * Fixed a couple rain state issues
-    * Add major_only algorithm to settings code
-    * Fixes for Links House being at certain entrances (did not generate)
-    * Fix for vanilla_fill, it now prioritizes heart container placements
-    * Fix for dungeon counter showing up in AT/HC in crossed dungeon mode
-    * Fixed usestartinventory with mystery
-    * Added double click fix for install.py
-    * Fix for SFX shuffle
-    * Fix for districting + shopsanity
-    * Fix for multiworld progression balancing would place Nothing or Arrow items
-    * Fixed a bug with shopsanity + district algorithm where pre-placed potions messed up the placeholder count
-    * Fixed usestartinventory flag (can be use on a per player basis)
-    * Sprite selector fix for systems with SSL issues
-    * Fix for Standard ER where locations in rain state could be in logic
-* 1.0.0.3
-    * overworld_map=map mode fixed. Location of dungeons with maps are not shown until map is retrieved. (Dungeon that do not have map like Castle Tower are simply never shown)
-    * Aga2 completion on overworld_map now tied to boss defeat flag instead of pyramid hole being opened (fast ganon fix)
-    * Minor issue in dungeon_only algorithm fixed (minorly affected major_only keyshuffle and vanilla fallbacks)
-* 1.0.0.2
-    * Include 1.0.1 fixes
-    * District hint rework
-* 1.0.0.1
-    * Add Light Hype Fairy to bombbag mode as needing bombs
-	
-### From stable DoorDev
-
-* 1.0.1
-	* Fixed a bug with key doors not detecting one side of an interior door
-	* Sprite selector fix for systems with SSL issues
+* 1.1.1
+  * Fixed a logic bug with Bumper Cave where the pots were accessible without Cape or Hookshot from the top entrance
+  * Fixed a pot coloring issue with hammer peg cave
