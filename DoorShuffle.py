@@ -1903,9 +1903,11 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             custom_key_doors = world.custom_door_types[player]['Key Door']
         else:
             custom_key_doors = defaultdict(list)
-
+        total_adjustable = len(pool) > 1
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
+            if not total_adjustable:
+                builder.total_keys = total_keys
             find_small_key_door_candidates(builder, start_regions_map[dungeon], used_doors, world, player)
             if custom_key_doors[dungeon]:
                 builder.candidates.small = filter_key_door_pool(builder.candidates.small, custom_key_doors[dungeon])
@@ -1930,11 +1932,15 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             flex_map[dungeon] = (limit - suggested) if suggested < limit else 0
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
+            if total_adjustable:
+                builder.total_keys = suggestion_map[dungeon]
             valid_doors, small_number = find_valid_combination(builder, suggestion_map[dungeon],
                                                                start_regions_map[dungeon], world, player)
             small_map[dungeon] = valid_doors
             actual_chest_keys = small_number - builder.key_drop_cnt
             if actual_chest_keys < suggestion_map[dungeon]:
+                if total_adjustable:
+                    builder.total_keys = actual_chest_keys
                 flex_map[dungeon] = 0
                 remaining += suggestion_map[dungeon] - actual_chest_keys
             suggestion_map[dungeon] = small_number
@@ -1953,6 +1959,8 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
                 remaining -= 1
                 suggestion_map[dungeon] = increased
                 flex_map[dungeon] -= 1
+                if total_adjustable:
+                    builder.total_keys = actual_chest_keys
                 if flex_map[dungeon] > 0:
                     builder.combo_size = ncr(len(builder.candidates.small), builder.key_doors_num)
                     queue.append(builder)
@@ -2464,7 +2472,8 @@ def reassign_big_key_doors(bk_map, world, player):
                 d = obj
                 if d.type is DoorType.Interior:
                     change_door_to_big_key(d, world, player)
-                    d.dest.bigKey = True  # ensure flag is set
+                    if world.door_type_mode[player] != 'original':
+                        d.dest.bigKey = True  # ensure flag is set when bk doors are double sided
                 elif d.type is DoorType.SpiralStairs:
                     pass  # we don't have spiral stairs candidates yet that aren't already key doors
                 elif d.type is DoorType.Normal:
@@ -2574,7 +2583,6 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     # make changes
     if player not in world.key_logic.keys():
         world.key_logic[player] = {}
-    builder.total_keys = builder.key_doors_num
     analyze_dungeon(key_layout, world, player)
     builder.key_door_proposal = proposal
     world.key_logic[player][builder.name] = key_layout.key_logic
@@ -2620,8 +2628,9 @@ def find_bd_door_candidates(region, checked, used, world, player):
                     room = world.get_room(d.roomIndex, player)
                     position, kind = room.doorList[d.doorListPos]
                     if d.type == DoorType.Interior:
-                        valid = kind in okay_interiors
-                        if valid and d.dest not in candidates:  # interior doors are not separable yet
+                        # interior doors are not separable yet
+                        valid = kind in okay_interiors and d.dest not in used
+                        if valid and d.dest not in candidates:
                             candidates.append(d.dest)
                     elif d.type == DoorType.Normal:
                         valid = kind in okay_normals
@@ -2849,8 +2858,9 @@ def find_key_door_candidates(region, checked, used, world, player):
                     room = world.get_room(d.roomIndex, player)
                     position, kind = room.doorList[d.doorListPos]
                     if d.type == DoorType.Interior:
-                        valid = kind in okay_interiors
-                        if valid and d.dest not in candidates:  # interior doors are not separable yet
+                        valid = kind in okay_interiors and d.dest not in used
+                        # interior doors are not separable yet
+                        if valid and d.dest not in candidates:
                             candidates.append(d.dest)
                     elif d.type == DoorType.SpiralStairs:
                         valid = kind in [DoorKind.StairKey, DoorKind.StairKey2, DoorKind.StairKeyLow]
