@@ -831,7 +831,8 @@ def main_dungeon_pool(dungeon_pool, world, player):
         for name in pool:
             builder = world.dungeon_layouts[player][name]
             region_set = builder.master_sector.region_set()
-            builder.bk_required = builder.bk_door_proposal or any(x in region_set for x in special_bk_regions)
+            builder.bk_required = (builder.bk_door_proposal or any(x in region_set for x in special_bk_regions)
+                                   or len(world.key_logic[player][name].bk_chests) > 0)
             dungeon = world.get_dungeon(name, player)
             if not builder.bk_required or builder.bk_provided:
                 dungeon.big_key = None
@@ -2362,21 +2363,16 @@ def find_big_key_door_candidates(region, checked, used, world, player):
                         if valid and d.dest not in candidates:  # interior doors are not separable yet
                             candidates.append(d.dest)
                     elif d.type == DoorType.Normal:
-                        if decoupled:
-                            valid = kind in okay_normals
-                        else:
+                        valid = kind in okay_normals
+                        if valid and not decoupled:
                             d2 = d.dest
                             if d2 not in candidates and d2 not in used:
                                 if d2.type == DoorType.Normal:
                                     room_b = world.get_room(d2.roomIndex, player)
                                     pos_b, kind_b = room_b.doorList[d2.doorListPos]
-                                    valid = kind in okay_normals and kind_b in okay_normals and valid_key_door_pair(d, d2)
-                                else:
-                                    valid = kind in okay_normals
+                                    valid &= kind_b in okay_normals and valid_key_door_pair(d, d2)
                                 if valid and 0 <= d2.doorListPos < 4:
                                     candidates.append(d2)
-                            else:
-                                valid = True
                 if valid and d not in candidates:
                     candidates.append(d)
                 connected = ext.connected_region
@@ -2628,21 +2624,16 @@ def find_bd_door_candidates(region, checked, used, world, player):
                         if valid and d.dest not in candidates:  # interior doors are not separable yet
                             candidates.append(d.dest)
                     elif d.type == DoorType.Normal:
-                        if decoupled:
-                            valid = kind in okay_normals
-                        else:
+                        valid = kind in okay_normals
+                        if valid and not decoupled:
                             d2 = d.dest
                             if d2 not in candidates and d2 not in used:
                                 if d2.type == DoorType.Normal:
                                     room_b = world.get_room(d2.roomIndex, player)
                                     pos_b, kind_b = room_b.doorList[d2.doorListPos]
-                                    valid = kind in okay_normals and kind_b in okay_normals and valid_key_door_pair(d, d2)
-                                else:
-                                    valid = kind in okay_normals
+                                    valid &= kind_b in okay_normals and valid_key_door_pair(d, d2)
                                 if valid and 0 <= d2.doorListPos < 4:
                                     candidates.append(d2)
-                            else:
-                                valid = True
                 if valid and d not in candidates:
                     candidates.append(d)
                 connected = ext.connected_region
@@ -2702,8 +2693,8 @@ def reassign_bd_doors(bd_map, world, player):
             elif d.type is DoorType.Normal and not_in_proposal(d):
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
-        do_bombable_dashable(flat_bomb_proposal, DoorKind.Bombable, world, player)
-        do_bombable_dashable(flat_dash_proposal, DoorKind.Dashable, world, player)
+        do_bombable_dashable(pair[0], DoorKind.Bombable, world, player)
+        do_bombable_dashable(pair[1], DoorKind.Dashable, world, player)
 
 
 def do_bombable_dashable(proposal, kind, world, player):
@@ -2864,21 +2855,16 @@ def find_key_door_candidates(region, checked, used, world, player):
                     elif d.type == DoorType.SpiralStairs:
                         valid = kind in [DoorKind.StairKey, DoorKind.StairKey2, DoorKind.StairKeyLow]
                     elif d.type == DoorType.Normal:
-                        if decoupled:
-                            valid = kind in okay_normals
-                        else:
+                        valid = kind in okay_normals
+                        if valid and not decoupled:
                             d2 = d.dest
                             if d2 not in candidates and d2 not in used:
                                 if d2.type == DoorType.Normal:
                                     room_b = world.get_room(d2.roomIndex, player)
                                     pos_b, kind_b = room_b.doorList[d2.doorListPos]
-                                    valid = kind in okay_normals and kind_b in okay_normals and valid_key_door_pair(d, d2)
-                                else:
-                                    valid = kind in okay_normals
+                                    valid &= kind_b in okay_normals and valid_key_door_pair(d, d2)
                                 if valid and 0 <= d2.doorListPos < 4:
                                     candidates.append(d2)
-                            else:
-                                valid = True
                 if valid and d not in candidates:
                     candidates.append(d)
                 connected = ext.connected_region
