@@ -787,7 +787,7 @@ class CollectionState(object):
                             door_candidates.append(door.name)
             return door_candidates
         door_candidates, skip = [], set()
-        if state.world.accessibility[player] != 'locations' and remaining_keys == 0:
+        if state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal':
             key_logic = state.world.key_logic[player][dungeon_name]
             for door, paired in key_logic.sm_doors.items():
                 if door.name in key_logic.door_rules:

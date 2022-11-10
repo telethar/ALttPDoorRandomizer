@@ -1744,7 +1744,7 @@ class DoorTypePool:
 
     @staticmethod
     def get_choices(number):
-        return [max(number-i, 0) for i in range(-1, 5)]
+        return [max(number+i, 0) for i in range(-1, 5)]
 
 
 class BuilderDoorCandidates:
@@ -2207,6 +2207,7 @@ def find_bk_special_location(builder, world, player):
             if loc.forced_big_key():
                 return loc
     return None
+
 
 def check_required_paths_with_traps(paths, proposal, dungeon_name, start_regions, world, player):
     cached_initial_state = None
@@ -2673,8 +2674,11 @@ def find_valid_bd_combination(builder, suggested, world, player):
         bd_door_pool = filter_key_door_pool(bd_door_pool, custom_dash_doors)
         dash_doors_needed -= len(custom_dash_doors)
     while len(bd_door_pool) < bomb_doors_needed + dash_doors_needed:
-        bomb_doors_needed = round(len(bd_door_pool) * bomb_doors_needed/ttl_needed)
-        dash_doors_needed = round(len(bd_door_pool) * dash_doors_needed/ttl_needed)
+        test = random.choice([True, False])
+        if test:
+            bomb_doors_needed -= 1
+        else:
+            dash_doors_needed -= 1
     bomb_proposal = random.sample(bd_door_pool, k=bomb_doors_needed)
     bomb_proposal.extend(custom_bomb_doors)
     dash_pool = [x for x in bd_door_pool if x not in bomb_proposal]

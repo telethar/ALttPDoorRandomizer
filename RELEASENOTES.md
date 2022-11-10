@@ -1,215 +1,108 @@
-## New Features
+# New Features
 
-## Pottery Lottery and Key Drop Shuffle Changes
+One major change with this update is that big key doors and certain trap doors are no longer guaranteed to be vanilla in Dungeon Door Shuffle modes even if you choose not to shuffle those types. A newer algorithm for putting dungeons together has been written and it will remove big key doors and trap doors when necessary to ensure progress can be made.
 
-### Pottery
+Please note that retro features are now independently customizable as referenced below. Selecting Retro mode or World State: Retro will change Bow Mode to Retro (Progressive). Take Anys to Random, and Small Keys to Universal.
 
-New pottery option that control which pots (and large blocks) are in the locations pool:
+## Flute Mode
 
-* None: No pots are in the pool, like normal randomizer
-* Key Pots: The pots that have keys are in the pool. This is about half of the old keydropshuffle option
-* Cave Pots: The pots that are not found in dungeons are in the pool. (Includes the large block in Spike Cave). Does
-not include key pots. 
-* CaveKeys: Both non-dungeon pots and pots that used to have keys are in the pool.
-* Reduced: Same as CaveKeys but also roughly a quarter of dungeon pots are added to the location pool picked at random. This is a dynamic mode so pots in the pool will be colored. Pots out of the pool will have vanilla contents.
-* Clustered: Like reduced but pots are grouped by logical sets and roughly 50% of pots are chosen from those group. This is a dynamic mode like the above.
-* Nonempty: All pots that had some sort of objects under them are chosen to be in the location pool. This excludes most large blocks and some pots out of dungeons. 
-* Dungeon Pots: The pots that are in dungeons are in the pool. (Includes serveral large blocks) 
-* Lottery: All pots and large blocks are in the pool
+Normal mode for flute means you need to activate it at the village statue after finding it like usual.
+Activated flute mode mean you can use it immediately upon finding it. the flute SFX plays to let you know this is the case.
 
-By default, switches remain in their vanilla location (unless you turn on the legacy option below)
+## Bow Mode
 
-CLI `--pottery <option>` from `none, keys, cave, cavekeys, reduced, clustered, nonempty, dungeon, lottery`
+Four options here:
 
-Note for multiworld: due to the design of the pottery lottery, only 256 items for other players can be under pots in your world.
+* Progressive. Standard progressive bows.
+* Silvers separate. One bow in the pool and silvers are a separate item.
+* Retro (progressive). Arrows cost rupees. You need to purchase the single arrow item at a shop and there are two progressive bows places.
+* Retro + Silvers. Arrows cost rupees. You need to purchase the single arrow item or find the silvers, there is only one bow, and silvers are a separate item (but count for the quiver if found).
 
-### Colorize Pots
+## Dungeon Shuffle Features
 
-If the pottery mode is dynamic, this option is forced to be on (clustered and reduced). It is allowed to be on in all other pottery modes. Exceptions include "none" where no pots would be colored, and "lottery" where all pots would be. This option colors the pots differently that have been chosen to be part of the location pool. If not specified, you are expected to remember the pottery setting you chose. Note that Mystery will colorize all pots if lottery is chosen randomly.
+### Small Keys
 
-CLI `--colorizepots`
+There are three options now available:
 
-### Shuffle key drops
+* In Dungeon: The small key will be in their own dungeon
+* Randomized: Small keys can be shuffled outside their own dungeon 
+* Universal: Retro keys without the other options
 
-Enemies that drop keys can have their drop shuffled into the pool. This is the other half of the keydropshuffle option.
+### Dungeon Door Shuffle
 
-CLI `--dropshuffle`
+New mode: Partitioned. Partly between basic and crossed, dungeons are shuffled in 3 pools:
 
-#### Legacy options
+* Light World dungeons, Hyrule Castle and Aga Tower are mixed together
+* Palace of Darkness, Swamp Palace, Skull Woods, and Thieves Town are mixed together 
+* The other dark world dungeons including Ganons Tower are mixed together
 
-"Drop and Pot Keys" or `--keydropshuffle` is still availabe for use. This simply sets the pottery to keys and turns dropshuffle on as well to have the same behavior as the old setting.
+### Door Types to Shuffle
 
-The old "Pot Shuffle" option is still available under "Pot Shuffle (Legacy)" or `--shufflepots` and works the same by shuffling all pots on a supertile. It works with the lottery option as well to move the switches to any valid pot on the supertile regardless of the pots chosen in the pottery mode. This may increase the number of pot locations slightly depending on the mode.
+Four options here, and all of them only take effect if Dungeon Door Shuffle is not Vanilla:
 
-#### Tracking Notes
+* Small Key Doors, Bomb Doors, Dash Doors: This is what was normally shuffled previously
+* Adds Big Keys Doors: Big key doors are now shuffled in addition to those above, and Big Key doors are enabled to be on in both vertical directions thanks to a graphic that ended up on the cutting room floor. This does change
+* Adds Trap Doors: All trap doors that are permanently shut in vanilla are shuffled.
+* Increases all Door Types: This is a chaos mode where each door type per dungeon is randomized between 1 less and 4 more.
 
-The sram locations for pots and sprite drops are now final, please reach out for assistance or investigate the rom changes if needed.
+Note: Boss Trap doors are removed currently and not added into the trap door pool as extra trap doors. This may not be a permanent change
 
-## New Options
+### Decouple Doors
 
-### Collection Rate
-
-You can set the collection rate counter on using the "Display Collection Rate" on the Game Options tab are using the CLI option `--collection_rate`. Mystery seeds will not display the total.
-
-### Goal: Trinity
-
-Triforces are placed behind Ganon, on the pedestal, and on Murahdahla with 8/10 triforce pieces required. Recommend to run with 4-5 Crystal requirement for Ganon. Automatically pre-opens the pyramid.
-
-### Boss Shuffle: Unique
-
-At least one boss each of the prize bosses will be present guarding the prizes. GT bosses can be anything.
-
-### MSU Resume
-
-Turns on msu resume support. Found on "Game Options" tab, the "Adjust/Patch" tab, or use the `--msu_resume` CLI option. 
-
-### BPS Patch
-
-Creates a bps patch for the seed. Found on the "Generation Setup" tab called "Create BPS Patches" or `--bps`. Can turn off generating a rom using the existing "Create Patched ROM" option or `--suppress_rom`. There is an option on the Adjust/Patch tab to select a bps file to apply to the Base Rom selected on the Generation Setup tab using the Patch Rom button. Selected adjustments will be applied during patching.
-
-## New Font
-
-Font updated to support lowercase English. Lowercase vs. uppercase typos may exist. Note, you can use lowercase English letters on the file name.
+This is similar to insanity mode in ER where door entrances and exits are not paired anymore. Tends to remove more logic from dungeons as many rooms will not be required to traverse to explore. Hope you like transitions.
 
 ## Customizer
 
-Please refer to [the documentation](docs/Customizer.md) and examples of customizer [here](docs/customizer_example.yaml) and [here](docs/multi_mystery_example.yaml)
-note that entrance customization is only available with experimental features turned on.
+Please see [Customizer documentation](docs/Customizer.md) on how to create custom seeds. 
 
-## Experimental Entrance Shuffle
+## Standard Generation Change
 
-To support customizer and future entrance shuffle modes (perhaps even customizable ones), the entrance shuffle algorithm has been re-written. It is currently in an unstable state, and will use the old method unless you turn experimental features on. I'm currently in the process of evaluating most modes with different combinations of settings and checking the distribution of entrances. Entrance customization is only supported with this new experimental entrance shuffle. The experimental entrance shuffle includes prototypes of Lean and Lite entrance shuffles from the OWR branch.
+Hyrule Castle in standard mode is generated a little differently now. The throne room is guaranteed to be in Hyrule Castle and the Sanctuary is guaranteed to be beyond that. Additionally, the Mirror Scroll will bring you back to Zelda's Cell or the Throne Room depending on what save point you last obtained, this is to make it consistent with where you end up if you die. If you are lucky enough to find the Mirror, it behaves differently and brings you the last entrance used - giving you more options for exploration in Hyrule Castle.
 
-## Restricted Item Placement Algorithm
+## ER Features
 
-The "Item Sorting" option or ```--algorithm``` has been updated with new placement algorithms. Older algorithms have been removed.
- 
- When referenced below, Major Items include all Y items, all A items, all equipment (swords, shields, & armor) and Heart Containers. Dungeon items are considered major if shuffled outside of dungeons. Bomb and arrows upgrades are Major if shopsanity is turned on. The arrow quiver and universal small keys are Major if retro is turned on. Triforce Pieces are Major if that is the goal, and the Bomb Bag is Major if that is enabled.
- 
- Here are the current fill options:
+### New Experimental Algorithm
 
-### Balanced 
+To accommodate future flexibility the ER algorithm was rewritten for easy of use. This allows future modes to be added more easily. This new algorithm is only used when the experimental flag is turned on.
 
-This one stays the same as before and is recommended for the most random distribution of items.
+### Lite/Lean ER (Experimental required)
 
-### Vanilla Fill 
+Designed by Codemann, these are available now (only with experimental turned on - they otherwise fail)
 
-This fill attempts to place all items in their vanilla locations when possible. Obviously shuffling entrances or the dungeon interiors will often prevent items from being placed in their vanilla location. If the vanilla fill is not possible, then other locations are tried in sequence preferring "major" locations (see below), then heart piece locations, then the rest except for GT locations which are preferred last. Note the PoD small key that is normally found in the dark maze in vanilla is move to Harmless Hellway due to the placement algorithm limitation.
+#### Lite
+- Dungeon and multi-entrance caves can only lead to dungeon and multi-entrance caves
+- Dropdowns can only lead to dropdowns, with them staying coupled to their appropriate exits
+- Cave entrances that normally lead to items can only lead to caves that have items (this includes Potion Shop and Big Bomb Shop)
+- All remaining entrances remain vanilla
+- Multi-entrance caves are connected same-world only
+- LW is guaranteed to have HC/EP/DP/ToH/AT and DW: IP/MM/TR/GT
+- Shop locations are included in the Item Cave pool if Shopsanity is enabled
+- Houses with pots are included in the Item Cave pool if Pottery is enabled
 
-### Major Location Restriction
+#### Lean
+- Same grouping/pooling mechanism as in Lite ER
+- Both dungeons and connectors can be cross-world connections
+- No dungeon guarantees like in Lite ER
 
-This fill attempts to place major items in major locations. Major locations are where the major items are found in the vanilla game. This includes the spot next to Uncle in the Sewers, and the Boomerang chest in Hyrule Castle.
+### Back of Tavern Shuffle (Experimental required)
 
-This location pool is expanded to where dungeon items are locations if those dungeon items are shuffled. The Capacity Fairy locations are included if Shopsanity is on. If retro is enabled in addition to shopsanity, then the Old Man Sword Cave and one location in each retro cave is included. Key drop locations can be included if small or big key shuffle is on. This gives a very good balance between overworld and underworld locations though the dungeons ones will be on bosses and in big chests generally. Seeds do become more linear but usually easier to figure out.
+Thanks goes to Catobat which now allows the back of tavern to be shuffled anywhere and any valid cave can be at the back of tavern with this option checked. Available in experimental only for now as it requires the new algorithm to be shuffled properly.
 
-### Dungeon Restriction
+#### Take Any Caves
 
-The fill attempts to place all major items in dungeons. It will overflow to the overworld if there are more items than locations (e.g. Triforce hunt.) This fill does attempt to run the GT trash fill when possible. Seeds are typically very linear but tend to be more difficult.
+These are now independent of retro mode and have three options: None, Random, and Fixed. None disables the caves. Random works as take-any caves did before. Fixed means that the take any caves replace specific fairy caves in the pool and will be at those entrances unless ER is turned on (then they can be shuffled wherever). The fixed entrances are:
 
-### District Restriction
- 
-The world is divided up into different regions or districts. Each dungeon is its own district. The overworld consists of the following districts:
-
-Light world:
-
-* Kakariko (The main screen, blacksmith screen, and library/maze race screens)
-* Northwest Hyrule (The lost woods and fortune teller screens all the way to the river west of the potion shop)
-* Central Hyrule (Hyrule castle, Link's House, the marsh, and the haunted grove)
-* Desert (From the thief to the main desert screen)
-* Lake Hylia (Around the lake)
-* Eastern Hyrule (The eastern wild, the potion shop, and Zora's Domain)
-* Death Mountain
-
-Dark world:
-
-* East Dark World (The pyramid, Palace of darkness, and Catfish)
-* South Dark World (The dark lake, swamp area, to the dig game)
-* Northwest Dark World (Village of Outcasts, to the Dark Sanctuary and screens in between)
-* The Mire
-* Dark Death Mountain
-
-These districts are chosen at random and then filled with major items. If a location is part of a chosen district, but there are no more major items to place, a single green rupee is placed in the extra to indicate that as a placeholder. All other single green rupees are changed to be a blue rupee in order to not give false positives.
-
-In entrance shuffle, what is shuffled to the entrances is considered instead of where the interior was originally. For example, if Blind's Hut is shuffled to the Dam, then the 5 chests in Blind's Hut are part of Central Hyrule instead of Kakariko.
-
-Note: Bombos Tablet, Lake Hylia Island, Bumper Cave Ledge, the Floating Island, Cave 45, the Graveyard Cave, Checkerboard Cave and Mimic Cave are considered part of the light world region rather than the dark world region you mirror from.
-
-In multiworld, the districts chosen apply to all players.  
-
-### CLI values:
-
-```balanced, vanilla_fill, major_only, dungeon_only, district```
-
-## New Hints
-
-Based on the district algorithm above (whether it is enabled or not,) new hints can appear about that district or dungeon. For each district and dungeon, it is evaluated whether it contains vital items and how many. If it has not any vital item, items then it moves onto useful items. Useful items are generally safeties or convenience items: shields, mails, half magic, bottles, medallions that aren't required, etc. If it contains none of those and is an overworld district, then it checks for a couple more things. First, if dungeons are shuffled, it looks to see if any are in the district, if so, one of those dungeons is picked for the hint. Then, if connectors are shuffled, it checks to see if you can get to unique region through a connector in that district. If none of the above apply, the district or dungeon is considered completely foolish.
-
-## Overworld Map shows Dungeon Entrances
-
-Option to move indicators on overworld map to reference dungeon location. The non-default options include indicators for Hyrule Castle, Agahnim's Tower, and Ganon's Tower.
-
-CLI ```--overworld_map```
-
-#### Options
-
-##### default
-
-Status quo. Showing only the prize markers on the vanilla dungeon locations.
-
-##### compass
-
-The compass item controls whether the marker is moved to the dungeons locations. If you possess the compass but not the map, only a glowing X will be present regardless of dungeon prize type, if you only possess the map, the prizes will be shown in predicable locations at the bottom of the overworld map instead of the vanilla location. Light world dungeons on the light world map and dark world dungeons on the dark world map. If you posses both map and compass, then the prize of the dungeon and the location will be on the map.
-
-If you do not shuffle the compass or map outside of the dungeon, the non-shuffled items are not needed to display the information. If a dungeon does not have a map or compass, it is not needed for the information. Talking to the bomb shop or Sahasrahla furnishes you with complete information as well as map information.
-
-##### map
-
-The map item plays double duty in this mode and only possession of the map will show both prize and location of the dungeon. If you do not shuffle maps or the dungeon does not have a map, the information will be displayed without needing to find any items.
-
-## Restricted Dungeon Items on Bosses
-
-You may now restrict the items that can appear on the boss, like the popular ambrosia preset does.
-
-CLI: ```--restrict_boss_items <option>```
-
-#### Options
-
-##### none
-
-As before, the boss may have any item including any dungeon item that could occur there.
-
-##### mapcompass
-
-~~The map and compass are logically required to defeat a boss. This prevents both of those from appearing on the dungeon boss. Note that this does affect item placement logic and the placement algorithm as maps and compasses are considered as required items to beat a boss.~~
-
-Currently bugged, not recommended for use.
-
-##### dungeon
-
-Same as above but both small keys and bigs keys of the dungeon are not allowed on a boss. (Note: this does not affect universal keys as they are not dungeon-specific)
+* Desert Healer Fairy
+* Swamp Healer Fairy (aka Light Hype Cave)
+* Dark Death Mountain Healer Fairy
+* Dark Lake Hylia Ledge Healer Fairy (aka Shopping Mall Bomb)
+* Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
 
-#### StandardThrone
+None yet
 
-* Bug fixes
-	* Fix HC Ledge entrances after rescuing Zelda, also includes the throne spawn point now.
-* Original Release
-	* Changed standard dungeon generation to always have Throne Room in hyrule castle and always have sanctuary behind it
-	* S&Q/death in standard after moving the tapestry but before delivering Zelda will result in spawning at the tapestry
-	* Mirror scroll will return you to Zelda's cell instead of last entrance. This reverts to normal behavior once the tapestry open trigger is reached
+# Known Issues
 
-#### Customizer
-
-* Fixed an issue where Interior Key Doors were missing from custom yaml output
-* Updated lite/lean ER for pottery settings
-
-* Fixed an issue with lite/lean ER not generating
-* Fixed up the GUI selection of the customizer file.
-* Fixed up the item_pool section to skip a lot of pool manipulations. Key items will be added (like the bow) if not detected. Extra dungeon items can be added to the pool and will be confined to the dungeon if possible (and not shuffled). If the pool isn't full, junk items are added to the pool to fill it out.
-
-#### Main
-
-* 1.1.1
-  * Fixed a logic bug with Bumper Cave where the pots were accessible without Cape or Hookshot from the top entrance
-  * Fixed a pot coloring issue with hammer peg cave
+* Standing in the doorway when defeating Aga 1 and being teleported to the Dark World will not clear door state. It may cause issues requiring a Save & Quit to fix.
+* Decoupled doors can lead to situations where you aren't logically supposed to go back through a door without a big key or small key, but you can if you press the correct direction back through the door first. There are some transitions where you may get stuck without a bomb. These problems are planned to be fixed.
