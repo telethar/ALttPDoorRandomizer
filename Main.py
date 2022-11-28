@@ -24,6 +24,7 @@ from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons
 from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
+from Fill import dungeon_tracking
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
 from Utils import output_path, parse_player_names
@@ -69,9 +70,8 @@ def main(args, seed=None, fish=None):
     if args.customizer:
         customized = CustomSettings()
         customized.load_yaml(args.customizer)
-        seed = customized.determine_seed()
-        if seed:
-            seeded = True
+        seed = customized.determine_seed(seed)
+        seeded = True
         customized.adjust_args(args)
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
@@ -89,6 +89,7 @@ def main(args, seed=None, fish=None):
     if args.securerandom:
         world.seed = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(9))
 
+    world.boots_hint = args.boots_hint.copy()
     world.remote_items = args.remote_items.copy()
     world.mapshuffle = args.mapshuffle.copy()
     world.compassshuffle = args.compassshuffle.copy()
@@ -195,6 +196,16 @@ def main(args, seed=None, fish=None):
                 item = ItemFactory(inv_item.strip(), p)
                 if item:
                     world.push_precollected(item)
+                    if item.dungeon:
+                        d = world.get_dungeon(item.dungeon, item.player)
+                        match = next((i for i in d.all_items if i.name == item.name), None)
+                        if match:
+                            if match.map or match.compass:
+                                d.dungeon_items.remove(match)
+                            elif match.smallkey:
+                                d.small_keys.remove(match)
+                            elif match.bigkey:
+                                d.big_key.remove(match)
     if args.print_custom_yaml:
         world.settings.record_info(world)
 
@@ -258,6 +269,7 @@ def main(args, seed=None, fish=None):
     massage_item_pool(world)
     if args.print_custom_yaml:
         world.settings.record_item_pool(world)
+    dungeon_tracking(world)
     fill_specific_items(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 

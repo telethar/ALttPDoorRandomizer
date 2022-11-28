@@ -24,7 +24,6 @@ def promote_dungeon_items(world):
             item.advancement = True
         elif item.map or item.compass:
             item.priority = True
-    dungeon_tracking(world)
 
 
 def dungeon_tracking(world):
@@ -35,7 +34,6 @@ def dungeon_tracking(world):
 
 
 def fill_dungeons_restrictive(world, shuffled_locations):
-    dungeon_tracking(world)
 
     # with shuffled dungeon items they are distributed as part of the normal item pool
     for item in world.get_items():
@@ -73,11 +71,13 @@ def fill_dungeons_restrictive(world, shuffled_locations):
 
 def fill_restrictive(world, base_state, locations, itempool, key_pool=None, single_player_placement=False,
                      vanilla=False):
-    def sweep_from_pool():
+    def sweep_from_pool(placing_item=None):
         new_state = base_state.copy()
         for item in itempool:
             new_state.collect(item, True)
+        new_state.placing_item = placing_item
         new_state.sweep_for_events()
+        new_state.placing_item = None
         return new_state
 
     unplaced_items = []
@@ -94,7 +94,7 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
         while any(player_items.values()) and locations:
             items_to_place = [[itempool.remove(items[-1]), items.pop()][-1] for items in player_items.values() if items]
 
-            maximum_exploration_state = sweep_from_pool()
+            maximum_exploration_state = sweep_from_pool(placing_item=items_to_place[0])
             has_beaten_game = world.has_beaten_game(maximum_exploration_state)
 
             for item_to_place in items_to_place:
@@ -522,10 +522,17 @@ def fast_fill_helper(world, item_pool, fill_locations):
 
 
 def fast_fill(world, item_pool, fill_locations):
-    while item_pool and fill_locations:
+    config = world.item_pool_config
+    fast_pool = [x for x in item_pool if (x.name, x.player) not in config.restricted]
+    filtered_pool = [x for x in item_pool if (x.name, x.player) in config.restricted]
+    filtered_fill(world, filtered_pool, fill_locations)
+    while fast_pool and fill_locations:
         spot_to_fill = fill_locations.pop()
-        item_to_place = item_pool.pop()
+        item_to_place = fast_pool.pop()
         world.push_item(spot_to_fill, item_to_place, False)
+    item_pool.clear()
+    item_pool.extend(filtered_pool)
+    item_pool.extend(fast_pool)
 
 
 def fast_fill_pot_for_multiworld(world, item_pool, fill_locations):

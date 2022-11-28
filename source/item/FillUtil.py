@@ -18,6 +18,8 @@ class ItemPoolConfig(object):
         self.item_pool = None
         self.placeholders = None
         self.reserved_locations = defaultdict(set)
+        self.restricted = {}
+        self.preferred = {}
 
         self.recorded_choices = []
 
@@ -380,8 +382,10 @@ def vanilla_fallback(item_to_place, locations, world):
 
 
 def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion=False):
+    config = world.item_pool_config
+    item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
     if world.algorithm == 'vanilla_fill':
-        config, filtered = world.item_pool_config, []
+        filtered = []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
         if item_name in config.static_placement[item_to_place.player]:
             restricted = config.static_placement[item_to_place.player][item_name]
@@ -418,6 +422,12 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
             if len(filtered) == 0:
                 raise RuntimeError('Can\'t sell potion of a certain type due to district restriction')
             return filtered
+    if (item_name, item_to_place.player) in config.restricted:
+        locs = config.restricted[(item_name, item_to_place.player)]
+        return sorted(locations, key=lambda l: 1 if l.name in locs else 0)
+    if (item_name, item_to_place.player) in config.preferred:
+        locs = config.preferred[(item_name, item_to_place.player)]
+        return sorted(locations, key=lambda l: 0 if l.name in locs else 1)
     return locations
 
 
@@ -814,3 +824,26 @@ pot_items = {
 }
 
 valid_pot_items = {y: x for x, y in pot_items.items()}
+
+
+if __name__ == '__main__':
+    import yaml
+    from yaml.representer import Representer
+    advanced_placements = {'advanced_placements': {}}
+    player_map = advanced_placements['advanced_placements']
+    placement_list = []
+    player_map[1] = placement_list
+    for item, location_list in vanilla_mapping.items():
+        for location in location_list:
+            placement = {}
+            placement['type'] = 'LocationGroup'
+            placement['item'] = item
+            locations = placement['locations'] = []
+            locations.append(location)
+            locations.append('Random')
+            placement_list.append(placement)
+    yaml.add_representer(defaultdict, Representer.represent_dict)
+    with open('fillgen.yaml', 'w') as file:
+        yaml.dump(advanced_placements, file)
+
+

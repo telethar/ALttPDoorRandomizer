@@ -24,15 +24,20 @@ class CustomSettings(object):
         head, filename = os.path.split(file)
         self.relative_dir = head
 
-    def determine_seed(self):
-        if 'meta' not in self.file_source:
-            return None
-        meta = defaultdict(lambda: None, self.file_source['meta'])
-        seed = meta['seed']
-        if seed:
-            random.seed(seed)
-            return seed
-        return None
+    def determine_seed(self, default_seed):
+        if 'meta' in self.file_source:
+            meta = defaultdict(lambda: None, self.file_source['meta'])
+            seed = meta['seed']
+            if seed:
+                random.seed(seed)
+                return seed
+        if default_seed is None:
+            random.seed(None)
+            seed = random.randint(0, 999999999)
+        else:
+            seed = default_seed
+        random.seed(seed)
+        return seed
 
     def determine_players(self):
         if 'meta' not in self.file_source:
@@ -43,7 +48,10 @@ class CustomSettings(object):
     def adjust_args(self, args):
         def get_setting(value, default):
             if value:
-                return value
+                if isinstance(value, dict):
+                    return random.choices(list(value.keys()), list(value.values()), k=1)[0]
+                else:
+                    return value
             return default
         if 'meta' in self.file_source:
             meta = defaultdict(lambda: None, self.file_source['meta'])
@@ -67,6 +75,7 @@ class CustomSettings(object):
                 args.door_shuffle[p] = get_setting(settings['door_shuffle'], args.door_shuffle[p])
                 args.logic[p] = get_setting(settings['logic'], args.logic[p])
                 args.mode[p] = get_setting(settings['mode'], args.mode[p])
+                args.boots_hint[p] = get_setting(settings['boots_hint'], args.boots_hint[p])
                 args.swords[p] = get_setting(settings['swords'], args.swords[p])
                 args.flute_mode[p] = get_setting(settings['flute_mode'], args.flute_mode[p])
                 args.bow_mode[p] = get_setting(settings['bow_mode'], args.bow_mode[p])
@@ -86,6 +95,14 @@ class CustomSettings(object):
                     if args.pottery[p] == 'none':
                         args.pottery[p] = 'keys'
 
+                if args.retro[p] or args.mode[p] == 'retro':
+                    if args.bow_mode[p] == 'progressive':
+                        args.bow_mode[p] = 'retro'
+                    elif args.bow_mode[p] == 'silvers':
+                        args.bow_mode[p] = 'retro_silvers'
+                    args.take_any[p] = 'random' if args.take_any[p] == 'none' else args.take_any[p]
+                    args.keyshuffle[p] = 'universal'
+
                 args.mixed_travel[p] = get_setting(settings['mixed_travel'], args.mixed_travel[p])
                 args.standardize_palettes[p] = get_setting(settings['standardize_palettes'],
                                                            args.standardize_palettes[p])
@@ -104,7 +121,8 @@ class CustomSettings(object):
 
                 if get_setting(settings['keysanity'], args.keysanity):
                     args.bigkeyshuffle[p] = True
-                    args.keyshuffle[p] = True
+                    if args.keyshuffle[p] == 'none':
+                        args.keyshuffle[p] = 'wild'
                     args.mapshuffle[p] = True
                     args.compassshuffle[p] = True
 
@@ -149,6 +167,11 @@ class CustomSettings(object):
             return self.file_source['placements']
         return None
 
+    def get_advanced_placements(self):
+        if 'advanced_placements' in self.file_source:
+            return self.file_source['advanced_placements']
+        return None
+
     def get_entrances(self):
         if 'entrances' in self.file_source:
             return self.file_source['entrances']
@@ -172,6 +195,11 @@ class CustomSettings(object):
     def get_medallions(self):
         if 'medallions' in self.file_source:
             return self.file_source['medallions']
+        return None
+
+    def get_drops(self):
+        if 'drops' in self.file_source:
+            return self.file_source['drops']
         return None
 
     def create_from_world(self, world):

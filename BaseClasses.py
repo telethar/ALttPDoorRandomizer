@@ -514,6 +514,7 @@ class CollectionState(object):
             self.opened_doors = {player: set() for player in range(1, parent.players + 1)}
             self.dungeons_to_check = {player: defaultdict(dict) for player in range(1, parent.players + 1)}
         self.dungeon_limits = None
+        self.placing_item = None
         # self.trace = None
 
     def update_reachable_regions(self, player):
@@ -787,7 +788,8 @@ class CollectionState(object):
                             door_candidates.append(door.name)
             return door_candidates
         door_candidates, skip = [], set()
-        if state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal':
+        if (state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal'
+           and state.placing_item and state.placing_item.name == small_key_name):
             key_logic = state.world.key_logic[player][dungeon_name]
             for door, paired in key_logic.sm_doors.items():
                 if door.name in key_logic.door_rules:
@@ -830,6 +832,7 @@ class CollectionState(object):
             player: defaultdict(dict, {name: copy.copy(checklist)
                                        for name, checklist in self.dungeons_to_check[player].items()})
             for player in range(1, self.world.players + 1)}
+        ret.placing_item = self.placing_item
         return ret
 
     def apply_dungeon_exploration(self, rrp, player, dungeon_name, checklist):

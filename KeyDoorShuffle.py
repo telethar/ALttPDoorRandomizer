@@ -301,10 +301,10 @@ def analyze_dungeon(key_layout, world, player):
                 key_logic.bk_restricted.update(filter_big_chest(key_counter.free_locations))
             # note to self: this is due to the enough_small_locations function in validate_key_layout_sub_loop
             # I don't like this exception here or there
-            elif available < possible_smalls and avail_bigs and non_big_locs > 0:
-                max_ctr = find_max_counter(key_layout)
-                bk_lockdown = [x for x in max_ctr.free_locations if x not in key_counter.free_locations]
-                key_logic.bk_restricted.update(filter_big_chest(bk_lockdown))
+            # elif available < possible_smalls and avail_bigs and non_big_locs > 0:
+            #     max_ctr = find_max_counter(key_layout)
+            #     bk_lockdown = [x for x in max_ctr.free_locations if x not in key_counter.free_locations]
+            #     key_logic.bk_restricted.update(filter_big_chest(bk_lockdown))
         # try to relax the rules here? - smallest requirement that doesn't force a softlock
         child_queue = deque()
         for child in key_counter.child_doors.keys():
@@ -1489,7 +1489,7 @@ def validate_key_layout_sub_loop(key_layout, state, checked_states, flat_proposa
     # todo: allow more key shuffles - refine placement rules
     # if (not smalls_avail or available_small_locations == 0) and (state.big_key_opened or num_bigs == 0 or available_big_locations == 0):
     found_forced_bk = state.found_forced_bk()
-    smalls_done = not smalls_avail or not enough_small_locations(state, available_small_locations)
+    smalls_done = not smalls_avail  # or not enough_small_locations(state, available_small_locations)
     bk_done = state.big_key_opened or num_bigs == 0 or (available_big_locations == 0 and not found_forced_bk)
     # prize door should not be opened if the boss is reachable - but not reached yet
     allow_for_prize_lock = (key_layout.prize_can_lock and

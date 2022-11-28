@@ -1084,9 +1084,14 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x178000 + i, random.randint(0, 255))
 
     # shuffle prize packs
-    prizes = [0xD8, 0xD8, 0xD8, 0xD8, 0xD9, 0xD8, 0xD8, 0xD9, 0xDA, 0xD9, 0xDA, 0xDB, 0xDA, 0xD9, 0xDA, 0xDA, 0xE0, 0xDF, 0xDF, 0xDA, 0xE0, 0xDF, 0xD8, 0xDF,
-              0xDC, 0xDC, 0xDC, 0xDD, 0xDC, 0xDC, 0xDE, 0xDC, 0xE1, 0xD8, 0xE1, 0xE2, 0xE1, 0xD8, 0xE1, 0xE2, 0xDF, 0xD9, 0xD8, 0xE1, 0xDF, 0xDC, 0xD9, 0xD8,
-              0xD8, 0xE3, 0xE0, 0xDB, 0xDE, 0xD8, 0xDB, 0xE2, 0xD9, 0xDA, 0xDB, 0xD9, 0xDB, 0xD9, 0xDB]
+    prizes = [0xD8, 0xD8, 0xD8, 0xD8, 0xD9, 0xD8, 0xD8, 0xD9,
+              0xDA, 0xD9, 0xDA, 0xDB, 0xDA, 0xD9, 0xDA, 0xDA,
+              0xE0, 0xDF, 0xDF, 0xDA, 0xE0, 0xDF, 0xD8, 0xDF,
+              0xDC, 0xDC, 0xDC, 0xDD, 0xDC, 0xDC, 0xDE, 0xDC,
+              0xE1, 0xD8, 0xE1, 0xE2, 0xE1, 0xD8, 0xE1, 0xE2,
+              0xDF, 0xD9, 0xD8, 0xE1, 0xDF, 0xDC, 0xD9, 0xD8,
+              0xD8, 0xE3, 0xE0, 0xDB, 0xDE, 0xD8, 0xDB, 0xE2,
+              0xD9, 0xDA, 0xDB, 0xD9, 0xDB, 0xD9, 0xDB]
     dig_prizes = [0xB2, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8,
                   0xD9, 0xD9, 0xD9, 0xD9, 0xD9, 0xDA, 0xDA, 0xDA, 0xDA, 0xDA,
                   0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDC, 0xDC, 0xDC, 0xDC, 0xDC,
@@ -1099,12 +1104,40 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         return [l[i:i+n] for i in range(0, len(l), n)]
 
     # randomize last 7 slots
-    prizes [-7:] = random.sample(prizes, 7)
+    possible_prizes = {
+        'Small Heart': 0xD8, 'Fairy': 0xE3,
+        'Rupee (1)': 0xD9, 'Rupees (5)': 0xDA, 'Rupees (20)': 0xDB,
+        'Big Magic': 0xE0, 'Small Magic': 0xDF,
+        'Single Bomb': 0xDC, 'Bombs (4)': 0xDD,
+        'Bombs (8)': 0xDE, 'Arrows (5)': 0xE1, 'Arrows (10)': 0xE2
+    }  #weights, if desired 13, 1, 9, 7, 6, 3, 6, 7, 1, 2, 5, 3
+    uniform_prizes = list(possible_prizes.values())
+    prizes[-7:] = random.sample(prizes, 7)
 
     #shuffle order of 7 main packs
     packs = chunk(prizes[:56], 8)
     random.shuffle(packs)
     prizes[:56] = [drop for pack in packs for drop in pack]
+
+    if world.customizer:
+        drops = world.customizer.get_drops()
+        if drops:
+            for player, drop_config in drops.items():
+                for pack_num in range(1, 8):
+                    if f'Pack {pack_num}' in drop_config:
+                        for prize, idx in enumerate(drop_config[f'Pack {pack_num}']):
+                            chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                            prizes[(pack_num-1)*8 + idx] = chosen
+                for tree_pull_tier in range(1, 4):
+                    if f'Tree Pull Tier {tree_pull_tier}' in drop_config:
+                        prize = drop_config[f'Tree Pull Tier {tree_pull_tier}']
+                        chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                        prizes[63-tree_pull_tier] = chosen  # (62 through 60 in reverse)
+                for key, pos in {'Crab Normal': 59, 'Crab Special': 58, 'Stun Prize': 57, 'Fish': 56}.items():
+                    if key in drop_config:
+                        prize = drop_config[key]
+                        chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                        prizes[pos] = chosen
 
     if world.difficulty_adjustments[player] in ['hard', 'expert']:
         prize_replacements = {0xE0: 0xDF, # Fairy -> heart
@@ -2290,7 +2323,24 @@ def write_strings(rom, world, player, team):
     if world.goal[player] in ['dungeons']:
         tt['sign_ganon'] = 'You need to complete all the dungeons.'
 
-    tt['uncle_leaving_text'] = Uncle_texts[random.randint(0, len(Uncle_texts) - 1)]
+    if world.boots_hint[player]:
+        starting_boots = next((i for i in world.precollected_items if i.player == player
+                               and i.name == 'Pegasus Boots'), None)
+        if starting_boots:
+            uncle_text = 'Lonk! Boots\nare on\nyour feet.'
+        else:
+            boots_location = next((l for l in world.get_locations()
+                                   if l.player == player and l.item and l.item.name == 'Pegasus Boots'), None)
+            if boots_location:
+                district = next((d for k, d in world.districts[player].items()
+                                 if boots_location.name in d.locations), 'Zebes')
+                uncle_text = f'Lonk! Boots\nare in {district.name}'
+            else:
+                uncle_text = "I couldn't\nfind the Boots\ntoday.\nRIP me."
+
+        tt['uncle_leaving_text'] = uncle_text
+    else:
+        tt['uncle_leaving_text'] = Uncle_texts[random.randint(0, len(Uncle_texts) - 1)]
     tt['end_triforce'] = "{NOBORDER}\n" + Triforce_texts[random.randint(0, len(Triforce_texts) - 1)]
     tt['bomb_shop_big_bomb'] = BombShop2_texts[random.randint(0, len(BombShop2_texts) - 1)]
 

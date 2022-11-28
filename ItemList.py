@@ -6,7 +6,7 @@ import RaceRandom as random
 from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
 from EntranceShuffle import connect_entrance
 from Regions import shop_to_location_table, retro_shops, shop_table_by_location, valid_pot_location
-from Fill import FillError, fill_restrictive, get_dungeon_item_pool, is_dungeon_item
+from Fill import FillError, fill_restrictive, get_dungeon_item_pool, track_dungeon_items, track_outside_keys
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
@@ -391,8 +391,16 @@ def generate_itempool(world, player):
             custom_medallions = medal_map[player]
             if 'Misery Mire' in custom_medallions:
                 mm_medallion = custom_medallions['Misery Mire']
+                if isinstance(mm_medallion, dict):
+                    mm_medallion = random.choices(list(mm_medallion.keys()), list(mm_medallion.values()), k=1)[0]
+                if mm_medallion == 'Random':
+                    mm_medallion = None
             if 'Turtle Rock' in custom_medallions:
                 tr_medallion = custom_medallions['Turtle Rock']
+                if isinstance(tr_medallion, dict):
+                    tr_medallion = random.choices(list(tr_medallion.keys()), list(tr_medallion.values()), k=1)[0]
+                if tr_medallion == 'Random':
+                    tr_medallion = None
     if not mm_medallion:
         mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     if not tr_medallion:
@@ -1261,31 +1269,86 @@ def fill_specific_items(world):
             for player, placement_list in placements.items():
                 for location, item in placement_list.items():
                     loc = world.get_location(location, player)
-                    item_parts = item.split('#')
-                    item_player = player if len(item_parts) < 2 else int(item_parts[1])
-                    item_name = item_parts[0]
-                    event_flag = False
-                    if is_dungeon_item(item_name, world, item_player):
-                        item_to_place = next(x for x in dungeon_pool
-                                             if x.name == item_name and x.player == item_player)
-                        dungeon_pool.remove(item_to_place)
-                        event_flag = True
-                    elif item_name in prize_set:
-                        item_player = player  # prizes must be for that player
-                        item_to_place = ItemFactory(item_name, item_player)
-                        prize_pool.remove(item_name)
-                        event_flag = True
-                    else:
-                        item_to_place = next((x for x in world.itempool
-                                             if x.name == item_name and x.player == item_player), None)
-                        if item_to_place is None:
-                            item_to_place = ItemFactory(item_name, player)
-                        else:
-                            world.itempool.remove(item_to_place)
-                    world.push_item(loc, item_to_place, False)
-                    # track_outside_keys(item_to_place, spot_to_fill, world)
-                    # track_dungeon_items(item_to_place, spot_to_fill, world)
-                    loc.event = event_flag or item_to_place.advancement
+                    item_to_place, event_flag = get_item_and_event_flag(item, world, player,
+                                                                        dungeon_pool, prize_set, prize_pool)
+                    if item_to_place:
+                        world.push_item(loc, item_to_place, False)
+                        track_outside_keys(item_to_place, loc, world)
+                        track_dungeon_items(item_to_place, loc, world)
+                        loc.event = event_flag or item_to_place.advancement
+        advanced_placements = world.customizer.get_advanced_placements()
+        if advanced_placements:
+            for player, placement_list in advanced_placements.items():
+                for placement in placement_list:
+                    if placement['type'] == 'LocationGroup':
+                        item = placement['item']
+                        item_to_place, event_flag = get_item_and_event_flag(item, world, player,
+                                                                            dungeon_pool, prize_set, prize_pool)
+                        if not item_to_place:
+                            continue
+                        locations = placement['locations']
+                        handled = False
+                        while not handled:
+                            if isinstance(locations, dict):
+                                chosen_loc = random.choices(list(locations.keys()), list(locations.values()), k=1)[0]
+                            else:  # if isinstance(locations, list):
+                                chosen_loc = random.choice(locations)
+                            if chosen_loc == 'Random':
+                                if is_dungeon_item(item_to_place.name, world, item_to_place.player):
+                                    dungeon_pool.append(item_to_place)
+                                elif item_to_place.name in prize_set:
+                                    prize_pool.append(item_to_place.name)
+                                else:
+                                    world.itempool.append(item_to_place)
+                            else:
+                                loc = world.get_location(chosen_loc, player)
+                                if loc.item:
+                                    continue
+                                world.push_item(loc, item_to_place, False)
+                                track_outside_keys(item_to_place, loc, world)
+                                track_dungeon_items(item_to_place, loc, world)
+                                loc.event = (event_flag or item_to_place.advancement
+                                             or item_to_place.bigkey or item_to_place.smallkey)
+                            handled = True
+                    elif placement['type'] == 'NotLocationGroup':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.restricted[(item_name, item_player)] = placement['locations']
+                    elif placement['type'] == 'PreferredLocationGroup':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.preferred[(item_name, item_player)] = placement['locations']
+
+
+def get_item_and_event_flag(item, world, player, dungeon_pool, prize_set, prize_pool):
+    item_parts = item.split('#')
+    item_player = player if len(item_parts) < 2 else int(item_parts[1])
+    item_name = item_parts[0]
+    event_flag = False
+    if is_dungeon_item(item_name, world, item_player):
+        item_to_place = next(x for x in dungeon_pool
+                             if x.name == item_name and x.player == item_player)
+        dungeon_pool.remove(item_to_place)
+        event_flag = True
+    elif item_name in prize_set:
+        item_player = player  # prizes must be for that player
+        item_to_place = ItemFactory(item_name, item_player)
+        prize_pool.remove(item_name)
+        event_flag = True
+    else:
+        matcher = lambda x: x.name == item_name and x.player == item_player
+        if item_name == 'Bottle':
+            matcher = lambda x: x.name.startswith(item_name) and x.player == item_player
+        item_to_place = next((x for x in world.itempool if matcher(x)), None)
+        if item_to_place is None:
+            return None, event_flag
+        else:
+            world.itempool.remove(item_to_place)
+    return item_to_place, event_flag
 
 
 def is_dungeon_item(item, world, player):

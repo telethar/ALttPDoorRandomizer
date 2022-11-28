@@ -34,6 +34,10 @@
       "retro"
     ]
   },
+  "boots_hint": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "swords": {
     "choices": [
       "random",
