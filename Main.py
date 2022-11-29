@@ -308,6 +308,7 @@ def main(args, seed=None, fish=None):
             balance_multiworld_progression(world)
 
     # if we only check for beatable, we can do this sanity check first before creating the rom
+    world.clear_exp_cache()
     if not world.can_beat_game(log_error=True):
         raise RuntimeError(world.fish.translate("cli", "cli", "cannot.beat.game"))
 
@@ -546,10 +547,8 @@ def copy_world(world):
             new_location.item = item
             item.location = new_location
             item.world = ret
-        if location.event:
-            new_location.event = True
-        if location.locked:
-            new_location.locked = True
+        new_location.event = location.event
+        new_location.locked = location.locked
         # these need to be modified properly by set_rules
         new_location.access_rule = lambda state: True
         new_location.item_rule = lambda state: True
@@ -660,8 +659,8 @@ def create_playthrough(world):
             old_item = location.item
             location.item = None
             # todo: this is not very efficient, but I'm not sure how else to do it for this backwards logic
-            # world.clear_exp_cache()
-            if world.can_beat_game(state_cache[num]):
+            world.clear_exp_cache()
+            if world.can_beat_game(state_cache[max(num-1, 0)]):
                 logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is not required')
                 to_delete.add(location)
             else:

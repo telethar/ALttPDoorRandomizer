@@ -796,7 +796,8 @@ class CollectionState(object):
                     rule = key_logic.door_rules[door.name]
                     key = KeyRuleType.AllowSmall
                     if (key in rule.new_rules and key_total >= rule.new_rules[key] and door.name not in skip
-                       and door.name in state.reached_doors[player] and door.name not in state.opened_doors[player]):
+                       and door.name in state.reached_doors[player] and door.name not in state.opened_doors[player]
+                       and rule.small_location.item is None):
                         if paired:
                             door_candidates.append((door.name, paired.name))
                             skip.add(paired.name)
