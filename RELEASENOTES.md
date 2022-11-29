@@ -181,6 +181,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.2
+  * Fixed a logic bug with GT Refill room not requiring boots to access the pots in there.
 * 1.1.1
   * Fixed a logic bug with Bumper Cave where the pots were accessible without Cape or Hookshot from the top entrance
   * Fixed a pot coloring issue with hammer peg cave
