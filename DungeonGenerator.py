@@ -860,7 +860,7 @@ class ExplorationState(object):
         self.crystal = exp_door.crystal
         return exp_door
 
-    def visit_region(self, region, key_region=None, key_checks=False, bk_Flag=False):
+    def visit_region(self, region, key_region=None, key_checks=False, bk_flag=False):
         if region.type != RegionType.Dungeon:
             self.crystal = CrystalBarrier.Orange
         if self.crystal == CrystalBarrier.Either:
@@ -881,7 +881,7 @@ class ExplorationState(object):
                         self.ttl_locations += 1
                 if location not in self.found_locations:
                     self.found_locations.append(location)
-                    if not bk_Flag and (not location.forced_item or 'Big Key' in location.item.name):
+                    if not bk_flag and (not location.forced_item or 'Big Key' in location.item.name):
                         self.bk_found.add(location)
                 if location.name in dungeon_events and location.name not in self.events:
                     if self.flooded_key_check(location):
