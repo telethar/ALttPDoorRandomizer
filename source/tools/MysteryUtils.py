@@ -113,7 +113,9 @@ def roll_settings(weights):
                     'dungeons': 'dungeons',
                     'pedestal': 'pedestal',
                     'triforce-hunt': 'triforcehunt',
-                    'trinity': 'trinity'
+                    'trinity': 'trinity',
+                    'ganonhunt': 'ganonhunt',
+                    'completionist': 'completionist'
                     }[goal]
     ret.openpyramid = goal in ['fast_ganon', 'trinity'] if ret.shuffle in ['vanilla', 'dungeonsfull', 'dungeonssimple'] else False
 

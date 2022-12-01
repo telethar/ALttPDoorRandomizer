@@ -60,6 +60,10 @@ def set_rules(world, player):
         add_rule(world.get_location('Ganon', player), lambda state: state.has('Beat Agahnim 2', player))
     elif world.goal[player] in ['triforcehunt', 'trinity']:
         add_rule(world.get_location('Murahdahla', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'ganonhunt':
+        add_rule(world.get_location('Ganon', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'completionist':
+        add_rule(world.get_location('Ganon', player), lambda state: state.everything(player))
 
     if world.mode[player] != 'inverted':
         set_big_bomb_rules(world, player)

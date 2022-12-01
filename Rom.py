@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'b6fcbc0d61faffa178135545f18fadbd'
+RANDOMIZERBASEHASH = 'fb7f9a0d501ba9ecd0a31066f9a0a973'
 
 
 class JsonRom(object):
@@ -730,7 +730,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     dr_flags = DROptions.Eternal_Mini_Bosses if world.doorShuffle[player] == 'vanilla' else DROptions.Town_Portal
     if world.doorShuffle[player] not in  ['vanilla', 'basic']:
         dr_flags |= DROptions.Map_Info
-    if world.collection_rate[player] and world.goal[player] not in ['triforcehunt', 'trinity']:
+    if ((world.collection_rate[player] or world.goal[player] == 'completionist')
+       and world.goal[player] not in ['triforcehunt', 'trinity', 'ganonhunt']):
         dr_flags |= DROptions.Debug
     if world.doorShuffle[player] not in ['vanilla', 'basic'] and world.logic[player] != 'nologic'\
        and world.mixed_travel[player] == 'prevent':
@@ -1275,7 +1276,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
 
     # set up goals for treasure hunt
     rom.write_bytes(0x180165, [0x0E, 0x28] if world.treasure_hunt_icon[player] == 'Triforce Piece' else [0x0D, 0x28])
-    if world.goal[player] in ['triforcehunt', 'trinity']:
+    if world.goal[player] in ['triforcehunt', 'trinity', 'ganonhunt']:
         rom.write_bytes(0x180167, int16_as_bytes(world.treasure_hunt_count[player]))
     rom.write_byte(0x180194, 1)  # Must turn in triforced pieces (instant win not enabled)
 
@@ -1340,6 +1341,10 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         rom.write_byte(0x18003E, 0x02)  # make ganon invincible until all dungeons are beat
     elif world.goal[player] in ['crystals', 'trinity']:
         rom.write_byte(0x18003E, 0x04)  # make ganon invincible until all crystals
+    elif world.goal[player] in ['ganonhunt']:
+        rom.write_byte(0x18003E, 0x05)  # make ganon invincible until all triforce pieces collected
+    elif world.goal[player] in ['completionist']:
+        rom.write_byte(0x18003E, 0x09)  # make ganon invincible until everything is collected
     else:
         rom.write_byte(0x18003E, 0x03)  # make ganon invincible until all crystals and aga 2 are collected
 
@@ -2362,6 +2367,10 @@ def write_strings(rom, world, player, team):
             trinity_crystal_text = ('%d crystal to beat Ganon.' if world.crystals_needed_for_ganon[player] == 1 else '%d crystals to beat Ganon.') % world.crystals_needed_for_ganon[player]
             tt['sign_ganon'] = 'Three ways to victory! %s Get to it!' % trinity_crystal_text
             tt['murahdahla'] = "Hello @. I\nam Murahdahla, brother of\nSahasrahla and Aginah. Behold the power of\ninvisibility.\n\n\n\n… … …\n\nWait! you can see me? I knew I should have\nhidden in  a hollow tree. If you bring\n%d triforce pieces, I can reassemble it." % int(world.treasure_hunt_count[player])
+        elif world.goal[player] == 'ganonhunt':
+            tt['sign_ganon'] = 'Go find the Triforce pieces to beat Ganon'
+        elif world.goal[player] == 'completionist':
+            tt['sign_ganon'] = 'Ganon only respects those who have done everything'
         tt['ganon_fall_in'] = Ganon1_texts[random.randint(0, len(Ganon1_texts) - 1)]
         tt['ganon_fall_in_alt'] = 'You cannot defeat me until you finish your goal!'
         tt['ganon_phase_3_alt'] = 'Got wax in\nyour ears?\nI can not die!'

@@ -107,7 +107,10 @@
       "Triforce Hunt:  Places 30 Triforce Pieces in the world, collect",
       "                20 of them to beat the game.",
       "Trinity:        Can beat the game by defeating Ganon, pulling",
-      "                Pedestal, or delivering Triforce Pieces."
+      "                Pedestal, or delivering Triforce Pieces.",
+      "Ganon Hunt:     Places 30 Triforce Pieces in the world, collect",
+      "                20 of them then defeat Ganon.",
+      "Completionist:  Find everything then defeat Ganon."
     ],
     "difficulty": [
       "Select game difficulty. Affects available itempool. (default: %(default)s)",

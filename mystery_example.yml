@@ -82,6 +82,8 @@
     pedestal: 2
     triforce-hunt: 2
     trinity: 2
+    ganonhunt: 2
+    completionist: 1
   triforce_goal_min: 10
   triforce_goal_max: 30
   triforce_pool_min: 20

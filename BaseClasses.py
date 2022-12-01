@@ -155,7 +155,9 @@ class World(object):
     def finish_init(self):
         for player in range(1, self.players + 1):
             if self.mode[player] == 'retro':
-                self.mode[player] == 'open'
+                self.mode[player] = 'open'
+            if self.goal[player] == 'completionist':
+                self.accessibility[player] = 'locations'
 
     def get_name_string_for_object(self, obj):
         return obj.name if self.players == 1 else f'{obj.name} ({self.get_player_names(obj.player)})'
@@ -1034,6 +1036,10 @@ class CollectionState(object):
 
     def item_count(self, item, player):
         return self.prog_items[item, player]
+
+    def everything(self, player):
+        return (len([x for x in self.locations_checked if x.player == player])
+                >= len(self.world.get_filled_locations(player)))
 
     def has_crystals(self, count, player):
         crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']
@@ -2587,7 +2593,7 @@ class Spoiler(object):
                 outfile.write('Mode:                            %s\n' % self.metadata['mode'][player])
                 outfile.write('Swords:                          %s\n' % self.metadata['weapons'][player])
                 outfile.write('Goal:                            %s\n' % self.metadata['goal'][player])
-                if self.metadata['goal'][player] in ['triforcehunt', 'trinity']:
+                if self.metadata['goal'][player] in ['triforcehunt', 'trinity', 'ganonhunt']:
                     outfile.write('Triforce Pieces Required:        %s\n' % self.metadata['triforcegoal'][player])
                     outfile.write('Triforce Pieces Total:           %s\n' % self.metadata['triforcepool'][player])
                 outfile.write('Crystals required for GT:        %s\n' % (str(self.world.crystals_gt_orig[player])))
@@ -2867,7 +2873,8 @@ world_mode = {"open": 0, "standard": 1, "inverted": 2}
 sword_mode = {"random": 0,  "assured": 1, "swordless": 2, "vanilla": 3}
 
 # byte 2: GGGD DFFH (goal, diff, item_func, hints)
-goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5}
+goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5,
+             'ganonhunt': 6, 'completionist': 7}
 diff_mode = {"normal": 0, "hard": 1, "expert": 2}
 func_mode = {"normal": 0, "hard": 1, "expert": 2}
 

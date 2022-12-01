@@ -400,7 +400,7 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         else:
             max_trash = gt_count
         scaled_trash = math.floor(max_trash * scale_factor)
-        if world.goal[player] in ['triforcehunt', 'trinity']:
+        if world.goal[player] in ['triforcehunt', 'trinity', 'ganonhunt']:
             gftower_trash_count = random.randint(scaled_trash, max_trash)
         else:
             gftower_trash_count = random.randint(0, scaled_trash)
