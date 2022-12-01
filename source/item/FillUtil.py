@@ -189,26 +189,27 @@ def district_item_pool_config(world):
                 if district.dungeon:
                     adjustment = len([i for i in world.get_dungeon(name, p).all_items
                                       if i.is_inside_dungeon_item(world)])
-                dist_len = len(district.locations) - adjustment
+                dist_adj = adjustment
                 if name not in district_choices:
-                    district_choices[name] = (district.sphere_one, dist_len)
+                    district_choices[name] = (district.sphere_one, dist_adj)
                 else:
                     so, amt = district_choices[name]
-                    district_choices[name] = (so or district.sphere_one, amt + dist_len)
+                    district_choices[name] = (so or district.sphere_one, amt + dist_adj)
 
         chosen_locations = defaultdict(set)
-        location_cnt = 0
+        adjustment_cnt = 0
 
         # choose a sphere one district
         sphere_one_choices = [d for d, info in district_choices.items() if info[0]]
         sphere_one = random.choice(sphere_one_choices)
-        so, amt = district_choices[sphere_one]
-        location_cnt += amt
+        so, adj = district_choices[sphere_one]
         for player in range(1, world.players + 1):
             for location in world.districts[player][sphere_one].locations:
                 chosen_locations[location].add(player)
         del district_choices[sphere_one]
         config.recorded_choices.append(sphere_one)
+        adjustment_cnt += adj
+        location_cnt = len(chosen_locations) - adjustment_cnt
 
         scale_factors = defaultdict(int)
         scale_total = 0
@@ -217,8 +218,9 @@ def district_item_pool_config(world):
             dungeon = world.get_entrance(ent, p).connected_region.dungeon
             if dungeon:
                 scale = world.crystals_needed_for_gt[p]
-                scale_total += scale
-                scale_factors[dungeon.name] += scale
+                if scale > 0:
+                    scale_total += scale
+                    scale_factors[dungeon.name] += scale
         scale_total = max(1, scale_total)
         scale_divisors = defaultdict(lambda: 1)
         scale_divisors.update(scale_factors)
@@ -226,13 +228,15 @@ def district_item_pool_config(world):
         while location_cnt < item_cnt:
             weights = [scale_total / scale_divisors[d] for d in district_choices.keys()]
             choice = random.choices(list(district_choices.keys()), weights=weights, k=1)[0]
-            so, amt = district_choices[choice]
-            location_cnt += amt
+            so, adj = district_choices[choice]
+
             for player in range(1, world.players + 1):
                 for location in world.districts[player][choice].locations:
                     chosen_locations[location].add(player)
             del district_choices[choice]
             config.recorded_choices.append(choice)
+            adjustment_cnt += adj
+            location_cnt = len(chosen_locations) - adjustment_cnt
         config.placeholders = location_cnt - item_cnt
         config.location_groups[0].locations = chosen_locations
 
@@ -383,7 +387,10 @@ def vanilla_fallback(item_to_place, locations, world):
 
 def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion=False):
     config = world.item_pool_config
-    item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
+    if not isinstance(item_to_place, str):
+        item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
+    else:
+        item_name = item_to_place
     if world.algorithm == 'vanilla_fill':
         filtered = []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
@@ -441,7 +448,6 @@ def filter_pot_locations(locations, world):
         filtered = [l for l in locations if l.pot and l.pot.item in [PotItem.Chicken, PotItem.BigMagic]]
         return filtered if len(filtered) > 0 else locations
     return locations
-
 
 
 vanilla_mapping = {
