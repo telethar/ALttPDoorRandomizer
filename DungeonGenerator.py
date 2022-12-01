@@ -10,7 +10,7 @@ import time
 from typing import List
 
 from BaseClasses import DoorType, Direction, CrystalBarrier, RegionType, Polarity, PolSlot, flooded_keys, Sector
-from BaseClasses import Hook, hook_from_door
+from BaseClasses import Hook, hook_from_door, Door
 from Regions import dungeon_events, flooded_keys_reverse
 from Dungeons import dungeon_regions, split_region_starts
 from RoomData import DoorKind
@@ -845,6 +845,14 @@ class ExplorationState(object):
         ret.prize_doors_opened = self.prize_doors_opened
         ret.prize_received = self.prize_received
         return ret
+
+    def init_zelda_event_doors(self, event_starts, player):
+        for entrance in event_starts:
+            event_door = Door(player, entrance.name, DoorType.Logical)
+            event_door.req_event = 'Zelda Drop Off'
+            event_door.entrance = entrance
+            event_door.crystal = CrystalBarrier.Orange  # always start in orange
+            self.append_door_to_list(event_door, self.event_doors)
 
     def next_avail_door(self):
         self.avail_doors.sort(key=lambda x: 0 if x.flag else 1 if x.door.bigKey else 2)

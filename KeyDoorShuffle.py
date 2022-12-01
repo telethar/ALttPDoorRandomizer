@@ -14,6 +14,7 @@ class KeyLayout(object):
     def __init__(self, sector, starts, proposal):
         self.sector = sector
         self.start_regions = starts
+        self.event_starts = []
         self.proposal = proposal
         self.key_logic = KeyLogic(sector.name)
 
@@ -223,13 +224,14 @@ class KeyCounter(object):
         return max(self.used_keys + reserve - len(self.key_only_locations), 0)
 
 
-def build_key_layout(builder, start_regions, proposal, world, player):
+def build_key_layout(builder, start_regions, proposal, event_starts, world, player):
     key_layout = KeyLayout(builder.master_sector, start_regions, proposal)
     key_layout.flat_prop = flatten_pair_list(key_layout.proposal)
     key_layout.max_drops = count_key_drops(key_layout.sector)
     key_layout.max_chests = calc_max_chests(builder, key_layout, world, player)
     key_layout.big_key_special = check_bk_special(key_layout.sector.region_set(), world, player)
     key_layout.all_locations = find_all_locations(key_layout.sector)
+    key_layout.event_starts = list(event_starts.keys())
     return key_layout
 
 
@@ -1455,6 +1457,7 @@ def validate_key_layout(key_layout, world, player):
         return True
     flat_proposal = key_layout.flat_prop
     state = ExplorationState(dungeon=key_layout.sector.name)
+    state.init_zelda_event_doors(key_layout.event_starts, player)
     state.key_locations = key_layout.max_chests
     state.big_key_special = check_bk_special(key_layout.sector.regions, world, player)
     for region in key_layout.start_regions:
@@ -1489,7 +1492,8 @@ def validate_key_layout_sub_loop(key_layout, state, checked_states, flat_proposa
     # todo: allow more key shuffles - refine placement rules
     # if (not smalls_avail or available_small_locations == 0) and (state.big_key_opened or num_bigs == 0 or available_big_locations == 0):
     found_forced_bk = state.found_forced_bk()
-    smalls_done = not smalls_avail  # or not enough_small_locations(state, available_small_locations)
+    smalls_done = not smalls_avail or available_small_locations == 0
+    # or not enough_small_locations(state, available_small_locations)
     bk_done = state.big_key_opened or num_bigs == 0 or (available_big_locations == 0 and not found_forced_bk)
     # prize door should not be opened if the boss is reachable - but not reached yet
     allow_for_prize_lock = (key_layout.prize_can_lock and
@@ -1646,6 +1650,7 @@ def create_key_counters(key_layout, world, player):
     key_layout.found_doors.clear()
     flat_proposal = key_layout.flat_prop
     state = ExplorationState(dungeon=key_layout.sector.name)
+    state.init_zelda_event_doors(key_layout.event_starts, player)
     if world.doorShuffle[player] == 'vanilla':
         builder = world.dungeon_layouts[player][key_layout.sector.name]
         state.key_locations = len(builder.key_door_proposal) - builder.key_drop_cnt

@@ -230,7 +230,7 @@ def vanilla_key_logic(world, player):
         origin_list = entrances_map[builder.name]
         start_regions = convert_regions(origin_list, world, player)
         doors = convert_key_doors(default_small_key_doors[builder.name], world, player)
-        key_layout = build_key_layout(builder, start_regions, doors, world, player)
+        key_layout = build_key_layout(builder, start_regions, doors, {}, world, player)
         valid = validate_key_layout(key_layout, world, player)
         if not valid:
             logging.getLogger('').info('Vanilla key layout not valid %s', builder.name)
@@ -1758,7 +1758,7 @@ class BuilderDoorCandidates:
 def shuffle_door_types(door_type_pools, paths, world, player):
     start_regions_map = {}
     for name, builder in world.dungeon_layouts[player].items():
-        start_regions = convert_regions(builder.path_entrances, world, player)
+        start_regions = convert_regions(find_possible_entrances(world, player, builder), world, player)
         start_regions_map[name] = start_regions
         builder.candidates = BuilderDoorCandidates()
 
@@ -2149,7 +2149,7 @@ def find_valid_trap_combination(builder, suggested, start_regions, paths, world,
     proposal = kth_combination(sample_list[itr], trap_door_pool, trap_doors_needed)
     proposal.extend(custom_trap_doors)
 
-    start_regions = filter_start_regions(builder, start_regions, world, player)
+    start_regions, event_starts = filter_start_regions(builder, start_regions, world, player)
     while not validate_trap_layout(proposal, builder, start_regions, paths, world, player):
         itr += 1
         if itr >= len(sample_list):
@@ -2171,6 +2171,7 @@ def find_valid_trap_combination(builder, suggested, start_regions, paths, world,
 def filter_start_regions(builder, start_regions, world, player):
     std_flag = world.mode[player] == 'standard' and builder.name == 'Hyrule Castle'
     excluded = {}   # todo: drop lobbies, might be better to white list instead (two entrances per region)
+    event_doors = {}
     for region in start_regions:
         portal = next((x for x in world.dungeon_portals[player] if x.door.entrance.parent_region == region), None)
         if portal and portal.destination:
@@ -2180,9 +2181,21 @@ def filter_start_regions(builder, start_regions, world, player):
                                 or x.parent_region.name == 'Sewer Drop'), None)
             if not drop_region:
                 excluded[region] = None
+        if portal and not portal.destination:
+            portal_entrance_region = portal.door.entrance.parent_region.name
+            if portal_entrance_region not in builder.path_entrances:
+                excluded[region] = None
         if std_flag and (not portal or portal.find_portal_entrance().parent_region.name != 'Hyrule Castle Courtyard'):
             excluded[region] = None
-    return [x for x in start_regions if x not in excluded.keys()]
+            if portal is None:
+                entrance = next((x for x in region.entrances
+                                 if x.parent_region.type in [RegionType.LightWorld, RegionType.DarkWorld]
+                                 or x.parent_region.name == 'Sewer Drop'), None)
+                event_doors[entrance] = None
+            else:
+                event_doors[portal.find_portal_entrance()] = None
+
+    return [x for x in start_regions if x not in excluded.keys()], event_doors
 
 
 def validate_trap_layout(proposal, builder, start_regions, paths, world, player):
@@ -2412,7 +2425,7 @@ def find_valid_bk_combination(builder, suggested, start_regions, world, player, 
     proposal = kth_combination(sample_list[itr], bk_door_pool, bk_doors_needed)
     proposal.extend(custom_bk_doors)
 
-    start_regions = filter_start_regions(builder, start_regions, world, player)
+    start_regions, event_starts = filter_start_regions(builder, start_regions, world, player)
     while not validate_bk_layout(proposal, builder, start_regions, world, player):
         itr += 1
         if itr >= len(sample_list):
@@ -2556,9 +2569,9 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     sample_list = build_sample_list(combinations)
     proposal = kth_combination(sample_list[itr], key_door_pool, key_doors_needed)
     proposal.extend(custom_key_doors)
-    start_regions = filter_start_regions(builder, start_regions, world, player)
+    start_regions, event_starts = filter_start_regions(builder, start_regions, world, player)
 
-    key_layout = build_key_layout(builder, start_regions, proposal, world, player)
+    key_layout = build_key_layout(builder, start_regions, proposal, event_starts, world, player)
     determine_prize_lock(key_layout, world, player)
     while not validate_key_layout(key_layout, world, player):
         itr += 1
@@ -3249,6 +3262,14 @@ def find_accessible_entrances(world, player, builder):
             elif connect and connect not in queue and connect not in visited_regions:
                 queue.append(connect)
     return visited_entrances
+
+
+def find_possible_entrances(world, player, builder):
+    entrances = [region.name for region in
+                 (portal.door.entrance.parent_region for portal in world.dungeon_portals[player])
+                 if region.dungeon.name == builder.name]
+    entrances.extend(drop_entrances[builder.name])
+    return entrances
 
 
 def valid_inaccessible_region(r):
