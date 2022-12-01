@@ -106,3 +106,4 @@ None yet
 
 * Standing in the doorway when defeating Aga 1 and being teleported to the Dark World will not clear door state. It may cause issues requiring a Save & Quit to fix.
 * Decoupled doors can lead to situations where you aren't logically supposed to go back through a door without a big key or small key, but you can if you press the correct direction back through the door first. There are some transitions where you may get stuck without a bomb. These problems are planned to be fixed.
+* Logic getting to Skull X room may be wrong if a trap door, big key door, or bombable wall. A bomb jump to get to those pot may be required if you don't have boots to bonk across.
