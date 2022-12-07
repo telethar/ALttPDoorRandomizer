@@ -119,7 +119,7 @@ def get_non_mandatory_exits(inverted):
     if inverted:
         yield 'Desert Palace Entrance (North)'
         yield 'Desert Palace Entrance (West)'
-        yield 'Inverted Ganons Tower'
+        yield 'Agahnims Tower'
         yield 'Hyrule Castle Entrance (West)'
         yield 'Hyrule Castle Entrance (East)'
     else:

@@ -82,16 +82,6 @@ def create_district_helper(world, player):
                      'Cave Shop (Dark Death Mountain)', 'Dark Death Mountain Fairy']
 
     if inverted:
-        south_dw_entrances.remove('Big Bomb Shop')
-        central_lw_entrances.append('Inverted Big Bomb Shop')
-        central_lw_entrances.remove('Links House')
-        south_dw_entrances.append('Inverted Links House')
-        voo_north_entrances.remove('Dark Sanctuary Hint')
-        voo_north_entrances.append('Inverted Dark Sanctuary')
-        ddm_entrances.remove('Ganons Tower')
-        central_lw_entrances.append('Inverted Ganons Tower')
-        central_lw_entrances.remove('Agahnims Tower')
-        ddm_entrances.append('Inverted Agahnims Tower')
         east_dw_entrances.remove('Pyramid Entrance')
         central_lw_entrances.append('Inverted Pyramid Entrance')
         east_dw_entrances.remove('Pyramid Hole')

@@ -20,8 +20,8 @@ class TestInvertedBombRules(TestInverted):
             if entrance_name not in ['Desert Palace Entrance (East)', 'Spectacle Rock Cave', 'Spectacle Rock Cave (Bottom)']:
                 entrance = self.world.get_entrance(entrance_name, 1)
                 entrance.connected_region = None
-                self.world.get_region('Inverted Big Bomb Shop', 1).entrances = []
-                connect_entrance(self.world, entrance, 'Inverted Big Bomb Shop', 1)
+                self.world.get_region('Big Bomb Shop', 1).entrances = []
+                connect_entrance(self.world, entrance, 'Big Bomb Shop', 1)
                 set_inverted_big_bomb_rules(self.world, 1)
                 entrance.connected_region.entrances.remove(entrance)
                 entrance.connected_region = None
@@ -35,8 +35,8 @@ class TestInvertedBombRules(TestInverted):
     def testInvalidEntrances(self):
         for entrance_name in ['Desert Palace Entrance (East)', 'Spectacle Rock Cave', 'Spectacle Rock Cave (Bottom)']:
             entrance = self.world.get_entrance(entrance_name, 1)
-            self.world.get_region('Inverted Big Bomb Shop', 1).entrances = []
-            connect_entrance(self.world, entrance, 'Inverted Big Bomb Shop', 1)
+            self.world.get_region('Big Bomb Shop', 1).entrances = []
+            connect_entrance(self.world, entrance, 'Big Bomb Shop', 1)
             with self.assertRaises(Exception):
                 set_inverted_big_bomb_rules(self.world, 1)
             entrance.connected_region.entrances.remove(entrance)

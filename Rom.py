@@ -783,7 +783,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     if should_be_bunny(sanc_region, world.mode[player]):
         rom.write_bytes(0x13fff2, [0x12, 0x00])
 
-    lh_name = 'Links House' if world.mode[player] != 'inverted' else 'Inverted Links House'
+    lh_name = 'Links House'
     links_house = world.get_region(lh_name, player)
     if should_be_bunny(links_house, world.mode[player]):
         rom.write_bytes(0x13fff0, [0x04, 0x01])
@@ -2044,7 +2044,7 @@ def write_strings(rom, world, player, team):
         entrances_to_hint.update(InconvenientDungeonEntrances)
         if world.shuffle_ganon:
             if world.mode[player] == 'inverted':
-                entrances_to_hint.update({'Inverted Ganons Tower': 'The sealed castle door'})
+                entrances_to_hint.update({'Agahnims Tower': 'The sealed castle door'})
             else:
                 entrances_to_hint.update({'Ganons Tower': 'Ganon\'s Tower'})
         if world.shuffle[player] in ['simple', 'restricted']:
@@ -2077,7 +2077,7 @@ def write_strings(rom, world, player, team):
             entrances_to_hint.update(ConnectorEntrances)
             entrances_to_hint.update(DungeonEntrances)
             if world.mode[player] == 'inverted':
-                entrances_to_hint.update({'Inverted Agahnims Tower': 'The dark mountain tower'})
+                entrances_to_hint.update({'Ganons Tower': 'The dark mountain tower'})
             else:
                 entrances_to_hint.update({'Agahnims Tower': 'The sealed castle door'})
         elif world.shuffle[player] == 'restricted':
@@ -2090,17 +2090,14 @@ def write_strings(rom, world, player, team):
             entrances_to_hint.update(ShopEntrances)
         if world.shufflelinks[player] and world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
             if world.mode[player] == 'inverted':
-                entrances_to_hint.update({'Inverted Links House': 'The hero\'s old residence'})
+                entrances_to_hint.update({'Big Bomb Shop': 'The old hero\'s dark home'})
             else:
                 entrances_to_hint.update({'Links House': 'The hero\'s old residence'})
         if world.shuffletavern[player] and world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
             entrances_to_hint.update({'Tavern North': 'A backdoor'})
         if world.mode[player] == 'inverted':
-            entrances_to_hint.update({'Inverted Dark Sanctuary': 'The dark sanctuary cave'})
-            entrances_to_hint.update({'Inverted Big Bomb Shop': 'The old hero\'s dark home'})
-            entrances_to_hint.update({'Inverted Links House': 'The old hero\'s light home'})
+            entrances_to_hint.update({'Links House': 'The old hero\'s light home'})
         else:
-            entrances_to_hint.update({'Dark Sanctuary Hint': 'The dark sanctuary cave'})
             entrances_to_hint.update({'Big Bomb Shop': 'The old bomb shop'})
         if world.shuffle[player] in ['insanity']:
             entrances_to_hint.update(InsanityEntrances)
@@ -2678,7 +2675,7 @@ def set_inverted_mode(world, player, rom):
     rom.write_bytes(snes_to_pc(0x06B2AB), [0xF0, 0xE1, 0x05])
 
 def patch_shuffled_dark_sanc(world, rom, player):
-    dark_sanc = world.get_region('Inverted Dark Sanctuary', player)
+    dark_sanc = world.get_region('Dark Sanctuary Hint', player)
     dark_sanc_entrance = str([i for i in dark_sanc.entrances if i.parent_region.name != 'Menu'][0].name)
     room_id, ow_area, vram_loc, scroll_y, scroll_x, link_y, link_x, camera_y, camera_x, unknown_1, unknown_2, door_1, door_2 = door_addresses[dark_sanc_entrance][1]
     door_index = door_addresses[str(dark_sanc_entrance)][0]
@@ -2836,7 +2833,8 @@ OtherEntrances = {'Lake Hylia Fairy': 'A cave NE of Lake Hylia',
                   'Dark Lake Hylia Ledge Hint': 'The open cave SE dark Lake Hylia',
                   'Dark Desert Fairy': 'The eastern hut in the mire',
                   'Dark Lake Hylia Ledge Fairy': 'The sealed cave SE dark Lake Hylia',
-                  'Fortune Teller (Dark)': 'The building NE the Village of Outcasts'
+                  'Fortune Teller (Dark)': 'The building NE the Village of Outcasts',
+                  'Dark Sanctuary Hint': 'The dark sanctuary cave'
                   }
 
 InsanityEntrances = {'Sanctuary': 'Sanctuary',

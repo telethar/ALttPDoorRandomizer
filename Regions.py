@@ -6,7 +6,7 @@ from PotShuffle import key_drop_data, vanilla_pots, choose_pots, PotSecretTable
 
 def create_regions(world, player):
     world.regions += [
-        create_menu_region(player, 'Menu', None, ['Links House S&Q', 'Sanctuary S&Q', 'Old Man S&Q']),
+        create_menu_region(player, 'Menu', None, ['Links House S&Q', 'Sanctuary S&Q', 'Old Man S&Q', 'Other World S&Q']),
         create_lw_region(player, 'Light World', ['Mushroom', 'Bottle Merchant', 'Flute Spot', 'Sunken Treasure', 'Purple Chest'],
                          ["Blinds Hideout", "Hyrule Castle Secret Entrance Drop", 'Zoras River', 'Kings Grave Outer Rocks', 'Dam',
                           'Links House', 'Tavern North', 'Chicken House', 'Aginahs Cave', 'Sahasrahlas Hut', 'Kakariko Well Drop', 'Kakariko Well Cave',
@@ -235,7 +235,7 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Desert East Portal', 'Desert Palace', None, ['Desert Palace Exit (East)', 'Enter Desert (East)']),
         create_dungeon_region(player, 'Desert Back Portal', 'Desert Palace', None, ['Desert Palace Exit (North)', 'Enter Desert (North)']),
         create_dungeon_region(player, 'Hera Portal', 'Tower of Hera', None, ['Tower of Hera Exit', 'Enter Hera']),
-        create_dungeon_region(player, 'Agahnims Tower Portal', 'Castle Tower', None, [inv_flag and 'Inverted Agahnims Tower Exit' or 'Agahnims Tower Exit', 'Enter Agahnims Tower']),
+        create_dungeon_region(player, 'Agahnims Tower Portal', 'Castle Tower', None, ['Agahnims Tower Exit', 'Enter Agahnims Tower']),
         create_dungeon_region(player, 'Palace of Darkness Portal', 'Palace of Darkness', None, ['Palace of Darkness Exit', 'Enter Palace of Darkness']),
         create_dungeon_region(player, 'Swamp Portal', 'Swamp Palace', None, ['Swamp Palace Exit', 'Enter Swamp']),
         create_dungeon_region(player, 'Skull 1 Portal', 'Skull Woods', None, ['Skull Woods First Section Exit', 'Enter Skull Woods 1']),
@@ -249,7 +249,7 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'Turtle Rock Lazy Eyes Portal', 'Turtle Rock', None, ['Turtle Rock Ledge Exit (West)', 'Enter Turtle Rock (Lazy Eyes)']),
         create_dungeon_region(player, 'Turtle Rock Chest Portal', 'Turtle Rock', None, ['Turtle Rock Ledge Exit (East)', 'Enter Turtle Rock (Chest)']),
         create_dungeon_region(player, 'Turtle Rock Eye Bridge Portal', 'Turtle Rock', None, ['Turtle Rock Isolated Ledge Exit', 'Enter Turtle Rock (Laser Bridge)']),
-        create_dungeon_region(player, 'Ganons Tower Portal', "Ganon's Tower", None, [inv_flag and 'Inverted Ganons Tower Exit' or 'Ganons Tower Exit', 'Enter Ganons Tower']),
+        create_dungeon_region(player, 'Ganons Tower Portal', "Ganon's Tower", None, ['Ganons Tower Exit', 'Enter Ganons Tower']),
 
         create_dungeon_region(player, 'Hyrule Castle Lobby', 'Hyrule Castle', None,
                               ['Hyrule Castle Lobby W', 'Hyrule Castle Lobby E', 'Hyrule Castle Lobby WN', 'Hyrule Castle Lobby North Stairs', 'Hyrule Castle Lobby S']),
@@ -1087,9 +1087,6 @@ def create_pot_location(pot, pot_index, super_tile, world, player):
                                            and world.pottery[player] not in ['none', 'cave', 'keys', 'cavekeys']))):
         address = pot_address(pot_index, super_tile)
         region = pot.room
-        if world.mode[player] == 'inverted':
-            if region == 'Links House':
-                region = 'Inverted Links House'
         parent = world.get_region(region, player)
         descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
         hint_text = ('under a block' if pot.flags & PotFlags.Block else 'in a pot')

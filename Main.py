@@ -727,10 +727,7 @@ def create_playthrough(world):
         old_world.spoiler.paths.update({location.gen_name(): get_path(state, location.parent_region) for sphere in collection_spheres for location in sphere if location.player == player})
         for path in dict(old_world.spoiler.paths).values():
             if any(exit == 'Pyramid Fairy' for (_, exit) in path):
-                if world.mode[player] != 'inverted':
-                    old_world.spoiler.paths[str(world.get_region('Big Bomb Shop', player))] = get_path(state, world.get_region('Big Bomb Shop', player))
-                else:
-                    old_world.spoiler.paths[str(world.get_region('Inverted Big Bomb Shop', player))] = get_path(state, world.get_region('Inverted Big Bomb Shop', player))
+                old_world.spoiler.paths[str(world.get_region('Big Bomb Shop', player))] = get_path(state, world.get_region('Big Bomb Shop', player))
 
     # we can finally output our playthrough
     old_world.spoiler.playthrough = {"0": [str(item) for item in world.precollected_items if item.advancement]}

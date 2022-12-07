@@ -771,6 +771,8 @@ def pot_rules(world, player):
 
 
 def default_rules(world, player):
+    set_rule(world.get_entrance('Other World S&Q', player), lambda state: state.has_Mirror(player) and state.has('Beat Agahnim 1', player))
+
     # overworld requirements
     set_rule(world.get_entrance('Kings Grave', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('Kings Grave Outer Rocks', player), lambda state: state.can_lift_heavy_rocks(player))
@@ -887,7 +889,7 @@ def default_rules(world, player):
 
 def inverted_rules(world, player):
     # s&q regions. link's house entrance is set to true so the filler knows the chest inside can always be reached
-    set_rule(world.get_entrance('Castle Ledge S&Q', player), lambda state: state.has_Mirror(player) and state.has('Beat Agahnim 1', player))
+    set_rule(world.get_entrance('Other World S&Q', player), lambda state: state.has_Mirror(player) and state.has('Beat Agahnim 1', player))
 
     # overworld requirements 
     set_rule(world.get_location('Ice Rod Cave', player), lambda state: state.has_Pearl(player))
@@ -1034,7 +1036,7 @@ def inverted_rules(world, player):
     if world.swords[player] == 'swordless':
         swordless_rules(world, player)
 
-    set_rule(world.get_entrance('Inverted Ganons Tower', player), lambda state: state.has_crystals(world.crystals_needed_for_gt[player], player))
+    set_rule(world.get_entrance('Agahnims Tower', player), lambda state: state.has_crystals(world.crystals_needed_for_gt[player], player))
 
 
 def no_glitches_rules(world, player):
@@ -1589,7 +1591,7 @@ def set_big_bomb_rules(world, player):
 
 
 def set_inverted_big_bomb_rules(world, player):
-    bombshop_entrance = world.get_region('Inverted Big Bomb Shop', player).entrances[0]
+    bombshop_entrance = world.get_region('Big Bomb Shop', player).entrances[0]
     Normal_LW_entrances = ['Blinds Hideout',
                            'Bonk Fairy (Light)',
                            'Lake Hylia Fairy',
@@ -1634,10 +1636,10 @@ def set_inverted_big_bomb_rules(world, player):
                            'Hyrule Castle Secret Entrance Stairs',
                            'Hyrule Castle Entrance (West)',
                            'Hyrule Castle Entrance (East)',
-                           'Inverted Ganons Tower',
+                           'Agahnims Tower',
                            'Cave 45',
                            'Checkerboard Cave',
-                           'Inverted Big Bomb Shop']
+                           'Links House']
     Isolated_LW_entrances = ['Old Man Cave (East)',
                              'Old Man House (Bottom)',
                              'Old Man House (Top)',
@@ -1665,7 +1667,7 @@ def set_inverted_big_bomb_rules(world, player):
                              'C-Shaped House',
                              'Chest Game',
                              'Dark World Hammer Peg Cave',
-                             'Inverted Dark Sanctuary',
+                             'Dark Sanctuary Hint',
                              'Fortune Teller (Dark)',
                              'Dark World Lumberjack Shop',
                              'Thieves Town',
@@ -1674,7 +1676,7 @@ def set_inverted_big_bomb_rules(world, player):
     Southern_DW_entrances = ['Hype Cave',
                              'Bonk Fairy (Dark)',
                              'Archery Game',
-                             'Inverted Links House',
+                             'Big Bomb Shop',
                              'Dark Lake Hylia Shop',
                              'Swamp Palace']
     Isolated_DW_entrances = ['Spike Cave',
@@ -1691,7 +1693,7 @@ def set_inverted_big_bomb_rules(world, player):
                              'Hookshot Cave',
                              'Turtle Rock Isolated Ledge Entrance',
                              'Hookshot Cave Back Entrance',
-                             'Inverted Agahnims Tower']
+                             'Ganons Tower']
     LW_walkable_entrances = ['Dark Lake Hylia Ledge Fairy',
                              'Dark Lake Hylia Ledge Spike Cave',
                              'Dark Lake Hylia Ledge Hint',
@@ -1708,7 +1710,7 @@ def set_inverted_big_bomb_rules(world, player):
                                  'Spectacle Rock Cave (Bottom)']
 
     set_rule(world.get_entrance('Pyramid Fairy', player),
-             lambda state: state.can_reach('East Dark World', 'Region', player) and state.can_reach('Inverted Big Bomb Shop', 'Region', player) and state.has('Crystal 5', player) and state.has('Crystal 6', player))
+             lambda state: state.can_reach('East Dark World', 'Region', player) and state.can_reach('Big Bomb Shop', 'Region', player) and state.has('Crystal 5', player) and state.has('Crystal 6', player))
 
     # Key for below abbreviations:
     # P = pearl
