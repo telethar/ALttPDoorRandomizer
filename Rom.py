@@ -15,7 +15,7 @@ try:
 except ImportError:
     raise Exception('Could not load BPS module')
 
-from BaseClasses import ShopType, Region, Location, Door, DoorType, RegionType, LocationType, Item
+from BaseClasses import ShopType, Region, Location, Door, DoorType, RegionType, LocationType
 from DoorShuffle import compass_data, DROptions, boss_indicator, dungeon_portals
 from Dungeons import dungeon_music_addresses, dungeon_table
 from Regions import location_table, shop_to_location_table, retro_shops
@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'fb7f9a0d501ba9ecd0a31066f9a0a973'
+RANDOMIZERBASEHASH = '54cfc4c5e85c80fb2958cb458d36ad14'
 
 
 class JsonRom(object):
@@ -1344,7 +1344,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     elif world.goal[player] in ['ganonhunt']:
         rom.write_byte(0x18003E, 0x05)  # make ganon invincible until all triforce pieces collected
     elif world.goal[player] in ['completionist']:
-        rom.write_byte(0x18003E, 0x09)  # make ganon invincible until everything is collected
+        rom.write_byte(0x18003E, 0x0a)  # make ganon invincible until everything is collected
     else:
         rom.write_byte(0x18003E, 0x03)  # make ganon invincible until all crystals and aga 2 are collected
 

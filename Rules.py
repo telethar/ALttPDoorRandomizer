@@ -2075,7 +2075,8 @@ def add_key_logic_rules(world, player):
         for chest in d_logic.bk_chests:
             big_chest = world.get_location(chest.name, player)
             add_rule(big_chest, create_rule(d_logic.bk_name, player))
-            if len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1:
+            if (len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1
+               and world.accessibility[player] != 'locations'):
                 set_always_allow(big_chest, allow_big_key_in_big_chest(d_logic.bk_name, player))
     if world.keyshuffle[player] == 'universal':
         for d_name, layout in world.key_layout[player].items():

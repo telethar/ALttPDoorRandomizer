@@ -6,7 +6,7 @@ from enum import unique, Flag
 from typing import DefaultDict, Dict, List
 from itertools import chain
 
-from BaseClasses import RegionType, Region, Door, DoorType, Direction, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
+from BaseClasses import RegionType, Region, Door, DoorType, Sector, CrystalBarrier, DungeonInfo, dungeon_keys
 from BaseClasses import PotFlags, LocationType, Direction
 from Doors import reset_portals
 from Dungeons import dungeon_regions, region_starts, standard_starts, split_region_starts
@@ -15,12 +15,12 @@ from Items import ItemFactory
 from RoomData import DoorKind, PairedDoor, reset_rooms
 from source.dungeon.DungeonStitcher import GenerationException, generate_dungeon
 from source.dungeon.DungeonStitcher import ExplorationState as ExplorationState2
-from DungeonGenerator import ExplorationState, convert_regions, pre_validate, determine_required_paths, drop_entrances
+from DungeonGenerator import ExplorationState, convert_regions, determine_required_paths, drop_entrances
 from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, simple_dungeon_builder, default_dungeon_entrances
 from DungeonGenerator import dungeon_portals, dungeon_drops, connect_doors, count_reserved_locations
 from DungeonGenerator import valid_region_to_explore
 from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout, determine_prize_lock
-from KeyDoorShuffle import validate_bk_layout, check_bk_special
+from KeyDoorShuffle import validate_bk_layout
 from Utils import ncr, kth_combination
 
 

@@ -12,7 +12,7 @@ from typing import List
 from BaseClasses import DoorType, Direction, CrystalBarrier, RegionType, Polarity, PolSlot, flooded_keys, Sector
 from BaseClasses import Hook, hook_from_door, Door
 from Regions import dungeon_events, flooded_keys_reverse
-from Dungeons import dungeon_regions, split_region_starts
+from Dungeons import split_region_starts
 from RoomData import DoorKind
 
 from source.dungeon.DungeonStitcher import generate_dungeon_find_proposal

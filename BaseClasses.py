@@ -470,7 +470,10 @@ class World(object):
         if self.has_beaten_game(state):
             return True
 
-        prog_locations = [location for location in self.get_locations() if location.item is not None and (location.item.advancement or location.event) and location not in state.locations_checked]
+        prog_locations = [location for location in self.get_locations() if location.item is not None
+                          and (location.item.advancement or location.event
+                               or self.goal[location.player] == 'completionist')
+                          and location not in state.locations_checked]
 
         while prog_locations:
             sphere = []
@@ -1038,8 +1041,10 @@ class CollectionState(object):
         return self.prog_items[item, player]
 
     def everything(self, player):
+        all_locations = self.world.get_filled_locations(player)
+        all_locations.remove(self.world.get_location('Ganon', player))
         return (len([x for x in self.locations_checked if x.player == player])
-                >= len(self.world.get_filled_locations(player)))
+                >= len(all_locations))
 
     def has_crystals(self, count, player):
         crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']

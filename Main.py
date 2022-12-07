@@ -617,7 +617,8 @@ def create_playthrough(world):
     world = copy_world(world)
 
     # get locations containing progress items
-    prog_locations = [location for location in world.get_filled_locations() if location.item.advancement]
+    prog_locations = [location for location in world.get_filled_locations() if location.item.advancement
+                      or world.goal[location.player] == 'completionist']
     optional_locations = ['Trench 1 Switch', 'Trench 2 Switch', 'Ice Block Drop', 'Skull Star Tile']
     state_cache = [None]
     collection_spheres = []
@@ -654,6 +655,8 @@ def create_playthrough(world):
     for num, sphere in reversed(list(enumerate(collection_spheres))):
         to_delete = set()
         for location in sphere:
+            if world.goal[location.player] == 'completionist':
+                continue  # every location for that player is required
             # we remove the item at location and check if game is still beatable
             logging.getLogger('').debug('Checking if %s (Player %d) is required to beat the game.', location.item.name, location.item.player)
             old_item = location.item
