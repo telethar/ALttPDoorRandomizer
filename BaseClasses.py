@@ -110,7 +110,8 @@ class World(object):
             set_player_attr('can_access_trock_front', None)
             set_player_attr('can_access_trock_big_chest', None)
             set_player_attr('can_access_trock_middle', None)
-            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic'] or shuffle[player] in ['crossed', 'insanity'])
+            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic']
+                            or shuffle[player] in ['lean', 'crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
             set_player_attr('keyshuffle', 'none')
@@ -1163,6 +1164,8 @@ class CollectionState(object):
         return self.has('Fire Rod', player) or self.has('Lamp', player)
 
     def can_flute(self, player):
+        if self.world.mode[player] == 'standard' and not self.has('Zelda Delivered', player):
+            return False  # can't flute in rain state
         if any(map(lambda i: i.name in ['Ocarina', 'Ocarina (Activated)'], self.world.precollected_items)):
             return True
         lw = self.world.get_region('Light World', player)
@@ -2619,7 +2622,6 @@ class Spoiler(object):
                     outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                     outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 outfile.write(f"Take Any Caves:                  {self.metadata['take_any'][player]}\n")
-                outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 if self.metadata['goal'][player] != 'trinity':
                     outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
@@ -2920,7 +2922,7 @@ boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique
 flute_mode = {'normal': 0, 'active': 1}
 keyshuffle_mode = {'none': 0, 'wild': 1, 'universal': 2}  # reserved 8 modes?
 take_any_mode = {'none': 0, 'random': 1, 'fixed': 2}
-bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silver': 3}
+bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 
 # additions
 # psuedoboots does not effect code

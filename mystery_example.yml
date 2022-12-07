@@ -97,7 +97,7 @@
     mcu: 1  # map, compass, universal smalls
 # for use when you aren't using the dungeon_items above
 #  smallkey_shuffle:
-#    standard: 5
+#    none: 5
 #    wild: 1
 #    universal: 1
   dungeon_counters:
