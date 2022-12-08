@@ -5,7 +5,7 @@ import time
 from collections import Counter, defaultdict
 
 from source.overworld.EntranceShuffle2 import link_entrances_new
-from EntranceShuffle import link_entrances, link_inverted_entrances
+from EntranceShuffle import link_entrances
 from BaseClasses import World
 from Regions import create_regions, create_dungeon_regions
 from InvertedRegions import create_inverted_regions
@@ -30,10 +30,7 @@ def run_stats():
                     link_entrances_new(world, 1)
 
                 def runner_old(world):
-                    if main_mode == 'inverted':
-                        link_inverted_entrances(world, 1)
-                    else:
-                        link_entrances(world, 1)
+                    link_entrances(world, 1)
                 compare_tests(tests, shuffle_mode, main_mode, ls, runner_old, runner_new)
 
 
@@ -68,10 +65,7 @@ def run_old_stats():
                     continue
 
                 def runner(world):
-                    if main_mode == 'inverted':
-                        link_inverted_entrances(world, 1)
-                    else:
-                        link_entrances(world, 1)
+                    link_entrances(world, 1)
                 run_tests(tests, shuffle_mode, main_mode, ls, runner)
 
 

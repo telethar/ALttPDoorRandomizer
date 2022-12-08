@@ -2,7 +2,7 @@ from BaseClasses import World
 from DoorShuffle import link_doors
 from Doors import create_doors
 from Dungeons import create_dungeons, get_dungeon_item_pool
-from EntranceShuffle import link_inverted_entrances
+from EntranceShuffle import link_entrances
 from InvertedRegions import create_inverted_regions
 from ItemList import generate_itempool, difficulties
 from Items import ItemFactory
@@ -26,7 +26,7 @@ class TestInvertedOWG(TestBase):
         create_rooms(self.world, 1)
         create_dungeons(self.world, 1)
         create_owg_connections(self.world, 1)
-        link_inverted_entrances(self.world, 1)
+        link_entrances(self.world, 1)
         link_doors(self.world, 1)
         generate_itempool(self.world, 1)
         self.world.required_medallions[1] = ['Ether', 'Quake']
