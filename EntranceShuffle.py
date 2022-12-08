@@ -2520,8 +2520,7 @@ default_dungeon_connections = [('Desert Palace Entrance (South)', 'Desert South 
                                ('Turtle Rock Isolated Ledge Entrance', 'Turtle Rock Eye Bridge Portal')
                               ]
 
-open_default_dungeon_connections = [('Hyrule Castle Entrance (South)', 'Hyrule Castle South Portal'),
-                                    ('Agahnims Tower', 'Agahnims Tower Portal'),
+open_default_dungeon_connections = [('Agahnims Tower', 'Agahnims Tower Portal'),
                                     ('Agahnims Tower Exit', 'Hyrule Castle Ledge'),
                                     ('Ice Palace Exit', 'Dark Lake Hylia Central Island'),
                                     ('Turtle Rock Exit (Front)', 'Dark Death Mountain (Top)'),
@@ -2529,8 +2528,7 @@ open_default_dungeon_connections = [('Hyrule Castle Entrance (South)', 'Hyrule C
                                     ('Ganons Tower Exit', 'Dark Death Mountain (Top)')
                                    ]
 
-inverted_default_dungeon_connections = [('Hyrule Castle Entrance (South)', 'Hyrule Castle South Portal'),
-                                        ('Agahnims Tower', 'Ganons Tower Portal'),
+inverted_default_dungeon_connections = [('Agahnims Tower', 'Ganons Tower Portal'),
                                         ('Agahnims Tower Exit', 'Dark Death Mountain'),
                                         ('Ice Palace Exit', 'Dark Lake Hylia'),
                                         ('Turtle Rock Exit (Front)', 'Dark Death Mountain'),
