@@ -112,6 +112,7 @@ These are now independent of retro mode and have three options: None, Random, an
 * 1.2.0.1-u
   * Added new ganonhunt and completionist goals 
   * Fixed the issue when defeating Agahnim and standing in the doorway can cause door state to linger.
+  * Fix for Inverted Lean/Lite ER
   * Fixed many small bugs
 
 # Known Issues
