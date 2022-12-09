@@ -110,7 +110,9 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.2.0.1-u
+  * Added new ganonhunt and completionist goals 
   * Fixed the issue when defeating Agahnim and standing in the doorway can cause door state to linger.
+  * Fixed many small bugs
 
 # Known Issues
 
