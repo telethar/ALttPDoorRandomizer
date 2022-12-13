@@ -4,7 +4,7 @@ from BaseClasses import World
 from Dungeons import create_dungeons
 from EntranceShuffle import connect_entrance, Inverted_LW_Entrances, Inverted_LW_Dungeon_Entrances, Inverted_LW_Single_Cave_Doors, Inverted_Old_Man_Entrances, Inverted_DW_Entrances, Inverted_DW_Dungeon_Entrances, Inverted_DW_Single_Cave_Doors, \
     Inverted_LW_Entrances_Must_Exit, Inverted_LW_Dungeon_Entrances_Must_Exit, Inverted_Bomb_Shop_Multi_Cave_Doors, Inverted_Bomb_Shop_Single_Cave_Doors, Inverted_Blacksmith_Single_Cave_Doors, Inverted_Blacksmith_Multi_Cave_Doors
-from InvertedRegions import create_inverted_regions
+from Regions import create_regions
 from ItemList import difficulties
 from Rules import set_inverted_big_bomb_rules
 from test.inverted.TestInverted import TestInverted

@@ -8,7 +8,6 @@ from source.overworld.EntranceShuffle2 import link_entrances_new
 from EntranceShuffle import link_entrances
 from BaseClasses import World
 from Regions import create_regions, create_dungeon_regions
-from InvertedRegions import create_inverted_regions
 
 
 # tested: open + crossed (lh) Mar. 17 (made changes)
@@ -103,10 +102,8 @@ def test_loop(tests, entrance_set, exit_set, ctr, shuffle_mode, main_mode, links
                       {}, {}, {}, {}, {}, True, {}, {}, [], {})
         world.customizer = False
         world.shufflelinks = {1: links}
-        if world.mode[1] != 'inverted':
-            create_regions(world, 1)
-        else:
-            create_inverted_regions(world, 1)
+        world.shuffletavern = {1: False}
+        create_regions(world, 1)
         create_dungeon_regions(world, 1)
         # print(f'Linking seed {seed}')
         # try:

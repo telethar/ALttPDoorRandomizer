@@ -14,8 +14,7 @@ from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
 from PotShuffle import shuffle_pots, shuffle_pot_switches
-from Regions import create_regions, create_shops, mark_light_world_regions, create_dungeon_regions, adjust_locations
-from InvertedRegions import create_inverted_regions, mark_dark_world_regions
+from Regions import create_regions, create_shops, mark_light_dark_world_regions, create_dungeon_regions, adjust_locations
 from EntranceShuffle import link_entrances
 from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
@@ -176,10 +175,7 @@ def main(args, seed=None, fish=None):
         world.spoiler.mystery_meta_to_file(output_path(f'{outfilebase}_meta.txt'))
 
     for player in range(1, world.players + 1):
-        if world.mode[player] != 'inverted':
-            create_regions(world, player)
-        else:
-            create_inverted_regions(world, player)
+        create_regions(world, player)
         if world.logic[player] in ('owglitches', 'nologic'):
             create_owg_connections(world, player)
         create_dungeon_regions(world, player)
@@ -238,10 +234,7 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         link_doors(world, player)
-        if world.mode[player] != 'inverted':
-            mark_light_world_regions(world, player)
-        else:
-            mark_dark_world_regions(world, player)
+        mark_light_dark_world_regions(world, player)
     if args.print_custom_yaml:
         world.settings.record_doors(world)
     logger.info(world.fish.translate("cli", "cli", "generating.itempool"))
@@ -254,6 +247,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
+    reg = world.get_region('Dark Desert', 1)
     district_item_pool_config(world)
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
@@ -490,10 +484,7 @@ def copy_world(world):
     ret.restrict_boss_items = world.restrict_boss_items.copy()
 
     for player in range(1, world.players + 1):
-        if world.mode[player] != 'inverted':
-            create_regions(ret, player)
-        else:
-            create_inverted_regions(ret, player)
+        create_regions(ret, player)
         create_dungeon_regions(ret, player)
         create_shops(ret, player)
         create_rooms(ret, player)
