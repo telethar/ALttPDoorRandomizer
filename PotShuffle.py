@@ -851,10 +851,10 @@ vanilla_pots = {
             Pot(100, 22, PotItem.Heart, 'Dark Lake Hylia Ledge Spike Cave', obj=RoomObject(0x0AB62A, [0xCB, 0xB3, 0xFA])),
             Pot(88, 28, PotItem.Heart, 'Dark Lake Hylia Ledge Spike Cave', obj=RoomObject(0x0AB633, [0xB3, 0xE3, 0xFA])),
             Pot(100, 28, PotItem.Heart, 'Dark Lake Hylia Ledge Spike Cave', obj=RoomObject(0x0AB636, [0xCB, 0xE3, 0xFA]))],
-    0x127: [Pot(24, 25, PotItem.Nothing, 'Dark World Hammer Peg Cave', obj=RoomObject(0x2B801A, [0x33, 0xCB, 0xFA])),
-            Pot(28, 25, PotItem.Nothing, 'Dark World Hammer Peg Cave', obj=RoomObject(0x2B801D, [0x3B, 0xCB, 0xFA])),
-            Pot(32, 25, PotItem.Nothing, 'Dark World Hammer Peg Cave', obj=RoomObject(0x2B8020, [0x43, 0xCB, 0xFA])),
-            Pot(36, 25, PotItem.Nothing, 'Dark World Hammer Peg Cave', obj=RoomObject(0x2B8023, [0x4B, 0xCB, 0xFA]))],
+    0x127: [Pot(24, 25, PotItem.Nothing, 'Hammer Peg Cave', obj=RoomObject(0x2B801A, [0x33, 0xCB, 0xFA])),
+            Pot(28, 25, PotItem.Nothing, 'Hammer Peg Cave', obj=RoomObject(0x2B801D, [0x3B, 0xCB, 0xFA])),
+            Pot(32, 25, PotItem.Nothing, 'Hammer Peg Cave', obj=RoomObject(0x2B8020, [0x43, 0xCB, 0xFA])),
+            Pot(36, 25, PotItem.Nothing, 'Hammer Peg Cave', obj=RoomObject(0x2B8023, [0x4B, 0xCB, 0xFA]))],
 }
 
 

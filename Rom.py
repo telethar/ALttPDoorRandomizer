@@ -2105,7 +2105,7 @@ def write_strings(rom, world, player, team):
                 if world.mode[player] == 'inverted':
                     entrances_to_hint.update({'Inverted Pyramid Entrance': 'The extra castle passage'})
                 else:
-                    entrances_to_hint.update({'Pyramid Ledge': 'The pyramid ledge'})
+                    entrances_to_hint.update({'Pyramid Entrance': 'The pyramid ledge'})
         hint_count = 4 if world.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull'] else 0
         hint_count -= 2 if world.shuffle[player] not in ['simple', 'restricted'] else 0
         for entrance in all_entrances:
@@ -2723,7 +2723,7 @@ InconvenientDungeonEntrances = {'Turtle Rock': 'Turtle Rock Main',
 
 InconvenientOtherEntrances = {'Death Mountain Return Cave (West)': 'The SW DM foothills cave',
                               'Mimic Cave': 'Mimic Ledge',
-                              'Dark World Hammer Peg Cave': 'The rows of pegs',
+                              'Hammer Peg Cave': 'The rows of pegs',
                               'Pyramid Fairy': 'The crack on the pyramid'
                               }
 
@@ -2792,15 +2792,15 @@ ItemEntrances = {'Blinds Hideout': 'Blind\'s old house',
                  'Chest Game': 'The westmost building in the Village of Outcasts',
                  }
 
-ShopEntrances = {'Cave Shop (Lake Hylia)': 'The cave NW Lake Hylia',
+ShopEntrances = {'Lake Hylia Shop': 'The cave NW Lake Hylia',
                  'Kakariko Shop': 'The old Kakariko shop',
                  'Capacity Upgrade': 'The cave on the island',
                  'Dark Lake Hylia Shop': 'The building NW dark Lake Hylia',
                  'Dark World Shop': 'The hammer sealed building',
                  'Red Shield Shop': 'The fenced in building',
-                 'Cave Shop (Dark Death Mountain)': 'The base of east dark DM',
-                 'Dark World Potion Shop': 'The building near the catfish',
-                 'Dark World Lumberjack Shop': 'The northmost Dark World building'
+                 'Dark Death Mountain Shop': 'The base of east dark DM',
+                 'Dark Potion Shop': 'The building near the catfish',
+                 'Dark Lumberjack Shop': 'The northmost Dark World building'
                  }
 
 OtherEntrances = {'Lake Hylia Fairy': 'A cave NE of Lake Hylia',

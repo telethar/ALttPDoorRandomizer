@@ -3251,7 +3251,7 @@ def find_accessible_entrances(world, player, builder):
             if connect not in queue and connect not in visited_regions:
                 queue.append(connect)
         for ext in next_region.exits:
-            if hc_std and ext.name in ['Hyrule Castle Main Gate (North)', 'Top of Pyramid', 'Hyrule Castle Ledge Drop']:  # just skip it
+            if hc_std and ext.name in ['Hyrule Castle Main Gate (North)', 'Castle Gate Teleporter', 'Hyrule Castle Ledge Drop']:  # just skip it
                 continue
             connect = ext.connected_region
             if connect is None or ext.door and ext.door.blocked:

@@ -34,7 +34,7 @@ def get_invalid_mirror_bunny_entrances():
     yield 'Hype Cave'
     yield 'Bonk Fairy (Dark)'
     yield 'Thieves Town'
-    yield 'Dark World Hammer Peg Cave'
+    yield 'Hammer Peg Cave'
     yield 'Brewery'
     yield 'Hookshot Cave'
     yield 'Dark Lake Hylia Ledge Fairy'
@@ -135,23 +135,23 @@ def get_boots_clip_exits_lw(inverted = False):
     """
 
     yield ('Bat Cave River Clip Spot', 'Light World', 'Bat Cave Ledge')
-    yield ('Light World DMA Clip Spot', 'Light World', 'Death Mountain (West Bottom)')
-    yield ('Hera Ascent', 'Death Mountain (West Bottom)', 'Death Mountain (Top)')
+    yield ('Light World DMA Clip Spot', 'Light World', 'West Death Mountain (Bottom)')
+    yield ('Hera Ascent', 'West Death Mountain (Bottom)', 'West Death Mountain (Top)')
     yield ('Death Mountain Return Ledge Clip Spot', 'Light World', 'Death Mountain Return Ledge')
     yield ('Death Mountain Entrance Clip Spot', 'Light World', 'Death Mountain Entrance')
-    yield ('Death Mountain Glitched Bridge', 'Death Mountain (West Bottom)', 'East Death Mountain (Top)')
+    yield ('Death Mountain Glitched Bridge', 'West Death Mountain (Bottom)', 'East Death Mountain (Top)')
     yield ('Zora Descent Clip Spot', 'East Death Mountain (Top)', 'Zoras Domain')
     yield ('Desert Northern Cliffs', 'Light World', 'Desert Northern Cliffs')
     yield ('Desert Ledge Dropdown', 'Desert Northern Cliffs', 'Desert Ledge')
     yield ('Desert Palace Entrance Dropdown', 'Desert Northern Cliffs', 'Desert Palace Entrance (North) Spot')
     yield ('Lake Hylia Island Clip Spot', 'Light World', 'Lake Hylia Island')
-    yield ('Death Mountain Descent', 'Death Mountain (West Bottom)', 'Light World')
-    yield ('Kings Grave Clip Spot', 'Death Mountain (West Bottom)', 'Kings Grave Area')
+    yield ('Death Mountain Descent', 'West Death Mountain (Bottom)', 'Light World')
+    yield ('Kings Grave Clip Spot', 'West Death Mountain (Bottom)', 'Kings Grave Area')
 
     if not inverted:
-        yield ('Graveyard Ledge Clip Spot', 'Death Mountain (West Bottom)', 'Graveyard Ledge')
+        yield ('Graveyard Ledge Clip Spot', 'West Death Mountain (Bottom)', 'Graveyard Ledge')
         yield ('Desert Ledge (Northeast) Dropdown', 'Desert Northern Cliffs', 'Desert Checkerboard Ledge')
-        yield ('Spectacle Rock Clip Spot', 'Death Mountain (Top)', 'Spectacle Rock')
+        yield ('Spectacle Rock Clip Spot', 'West Death Mountain (Top)', 'Spectacle Rock')
         yield ('Bombos Tablet Clip Spot', 'Light World', 'Bombos Tablet Ledge')
         yield ('Floating Island Clip Spot', 'East Death Mountain (Top)', 'Death Mountain Floating Island')
         yield ('Cave 45 Clip Spot', 'Light World', 'Cave 45 Ledge')
@@ -162,19 +162,19 @@ def get_boots_clip_exits_dw(inverted):
     Special Dark World region exits that require boots clips.
     """
 
-    yield ('Dark World DMA Clip Spot', 'West Dark World', 'Dark Death Mountain (West Bottom)')
+    yield ('Dark World DMA Clip Spot', 'West Dark World', 'West Dark Death Mountain (Bottom)')
     yield ('Bumper Cave Ledge Clip Spot', 'West Dark World', 'Bumper Cave Ledge')
     yield ('Bumper Cave Entrance Clip Spot', 'West Dark World', 'Bumper Cave Entrance')
     yield ('Catfish Descent', 'Dark Death Mountain (Top)', 'Catfish Area')
     yield ('Hammer Pegs River Clip Spot', 'East Dark World', 'Hammer Peg Area')
     yield ('Dark Lake Hylia Ledge Clip Spot', 'East Dark World', 'Southeast Dark World')
     yield ('Dark Desert Cliffs Clip Spot', 'South Dark World', 'Dark Desert')
-    yield ('DW Floating Island Clip Spot', 'Dark Death Mountain (East Bottom)', 'Death Mountain Floating Island (Dark World)')
+    yield ('DW Floating Island Clip Spot', 'East Dark Death Mountain (Bottom)', 'Dark Death Mountain Floating Island')
 
     if not inverted:
-        yield ('Dark Death Mountain Descent', 'Dark Death Mountain (West Bottom)', 'West Dark World')
-        yield ('Ganons Tower Ascent', 'Dark Death Mountain (West Bottom)', 'Dark Death Mountain (Top)')  # This only gets you to the GT entrance
-        yield ('Dark Death Mountain Glitched Bridge', 'Dark Death Mountain (West Bottom)', 'Dark Death Mountain (Top)')
+        yield ('Dark Death Mountain Descent', 'West Dark Death Mountain (Bottom)', 'West Dark World')
+        yield ('Ganons Tower Ascent', 'West Dark Death Mountain (Bottom)', 'Dark Death Mountain (Top)')  # This only gets you to the GT entrance
+        yield ('Dark Death Mountain Glitched Bridge', 'West Dark Death Mountain (Bottom)', 'Dark Death Mountain (Top)')
         yield ('Turtle Rock (Top) Clip Spot', 'Dark Death Mountain (Top)', 'Turtle Rock (Top)')
     else:
         yield ('Dark Desert Teleporter Clip Spot', 'Dark Desert', 'Dark Desert Ledge')
@@ -191,8 +191,8 @@ def get_mirror_clip_spots_dw():
     """
     Out of bounds transitions using the mirror
     """
-    yield ('Dark Death Mountain Bunny Descent Mirror Spot', 'Dark Death Mountain (West Bottom)', 'West Dark World')
-    yield ('Dark Death Mountain Bunny Mirror To East Jump', 'Dark Death Mountain (West Bottom)', 'Dark Death Mountain (East Bottom)')
+    yield ('Dark Death Mountain Bunny Descent Mirror Spot', 'West Dark Death Mountain (Bottom)', 'West Dark World')
+    yield ('Dark Death Mountain Bunny Mirror To East Jump', 'West Dark Death Mountain (Bottom)', 'East Dark Death Mountain (Bottom)')
     yield ('Desert East Mirror Clip', 'Dark Desert', 'Desert Palace Mouth')
 
 
@@ -200,15 +200,15 @@ def get_mirror_offset_spots_dw():
     """
     Mirror shenanigans placing a mirror portal with a broken camera
     """
-    yield ('Dark Death Mountain Offset Mirror', 'Dark Death Mountain (West Bottom)', 'East Dark World')
+    yield ('Dark Death Mountain Offset Mirror', 'West Dark Death Mountain (Bottom)', 'East Dark World')
 
 
 def get_mirror_offset_spots_lw(player):
     """
     Mirror shenanigans placing a mirror portal with a broken camera
     """
-    yield ('Death Mountain Offset Mirror', 'Death Mountain (West Bottom)', 'Light World')
-    yield ('Death Mountain Offset Mirror (Houlihan Exit)', 'Death Mountain (West Bottom)', 'Hyrule Castle Ledge', lambda state: state.has_Mirror(player) and state.can_boots_clip_dw(player) and state.has_Pearl(player))
+    yield ('Death Mountain Offset Mirror', 'West Death Mountain (Bottom)', 'Light World')
+    yield ('Death Mountain Offset Mirror (Houlihan Exit)', 'West Death Mountain (Bottom)', 'Hyrule Castle Ledge', lambda state: state.has_Mirror(player) and state.can_boots_clip_dw(player) and state.has_Pearl(player))
 
 
 def create_owg_connections(world, player):
@@ -256,7 +256,7 @@ def overworld_glitches_rules(world, player):
 
     world.get_entrance('Dark Desert Teleporter', player).access_rule = lambda state: (state.can_flute(player) or state.can_boots_clip_dw(player)) and state.can_lift_heavy_rocks(player)
     add_alternate_rule(world.get_entrance('Dark Witch Rock (North)', player), lambda state: state.can_boots_clip_dw(player))
-    add_alternate_rule(world.get_entrance('East Dark World Broken Bridge Pass', player), lambda state: state.can_boots_clip_dw(player))
+    add_alternate_rule(world.get_entrance('Broken Bridge Pass (Top)', player), lambda state: state.can_boots_clip_dw(player))
     add_alternate_rule(world.get_location('Zora\'s Ledge', player), lambda state: state.can_boots_clip_lw(player)) # assumes access to Waterwalk ability
 
 
