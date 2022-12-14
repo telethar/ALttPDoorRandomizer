@@ -2128,7 +2128,7 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
 
                          ('East Dark World Pier', 'East Dark World'),
                          ('Southeast Dark World Pier', 'Southeast Dark World'),
-                         ('Northeast Dark World River Pier', 'Northeast Dark World'),
+                         ('Northeast Dark World Pier', 'Northeast Dark World'),
                          
                          # terrain
                          ('Master Sword Meadow', 'Master Sword Meadow'),
