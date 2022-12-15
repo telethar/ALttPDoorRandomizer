@@ -3229,7 +3229,7 @@ def find_accessible_entrances(world, player, builder):
         hc_std = True
         start_regions = ['Hyrule Castle Courtyard']
     elif world.mode[player] != 'inverted':
-        start_regions = ['Links House', 'Sanctuary', 'West Dark World']
+        start_regions = ['Links House', 'Sanctuary', 'East Dark World']
     else:
         start_regions = ['Links House', 'Dark Sanctuary Hint', 'Hyrule Castle Ledge']
     regs = convert_regions(start_regions, world, player)

@@ -99,7 +99,7 @@ def test_loop(tests, entrance_set, exit_set, ctr, shuffle_mode, main_mode, links
         # seed = 635441530
         random.seed(seed)
         world = World(1, {1: shuffle_mode}, {1: 'vanilla'}, {1: 'noglitches'}, {1: main_mode}, {}, {}, {},
-                      {}, {}, {}, {}, {}, True, {}, {}, [], {})
+                      {}, {}, {}, {}, {}, True, {}, [], {})
         world.customizer = False
         world.shufflelinks = {1: links}
         world.shuffletavern = {1: False}

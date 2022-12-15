@@ -200,10 +200,6 @@ def global_rules(world, player):
               (state.can_extend_magic(player, 12, True) or
               (state.world.can_take_damage and (state.has_Boots(player) or state.has_hearts(player, 4))))))
              )
-    set_rule(world.get_location('Hookshot Cave - Top Right', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_location('Hookshot Cave - Top Left', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_location('Hookshot Cave - Bottom Right', player), lambda state: state.has('Hookshot', player) or state.has('Pegasus Boots', player))
-    set_rule(world.get_location('Hookshot Cave - Bottom Left', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Hookshot Cave Bonk Path', player), lambda state: state.has('Hookshot', player) or state.has('Pegasus Boots', player))
     set_rule(world.get_entrance('Hookshot Cave Hook Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Bumper Cave Bottom to Top', player), lambda state: state.has('Cape', player))
@@ -215,9 +211,9 @@ def global_rules(world, player):
     set_rule(world.get_entrance('DM Broken Bridge (West)', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('DM Broken Bridge (East)', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Fairy Ascension Rocks', player), lambda state: state.can_lift_heavy_rocks(player))
+    set_rule(world.get_entrance('Death Mountain Entrance Rock', player), lambda state: state.can_lift_rocks(player))
     # can be fake flippered into, but is in weird state inside that might prevent you from doing things.
     set_rule(world.get_entrance('Waterfall Fairy Access', player), lambda state: state.has('Flippers', player))
-    set_rule(world.get_entrance('Death Mountain Entrance Rock', player), lambda state: state.can_lift_rocks(player))
     set_rule(world.get_entrance('Kings Grave Rocks (Outer)', player), lambda state: state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Kings Grave Rocks (Inner)', player), lambda state: state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Potion Shop Rock (North)', player), lambda state: state.can_lift_rocks(player))
@@ -231,11 +227,11 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Bumper Cave Entrance Rock', player), lambda state: state.can_lift_rocks(player))
     set_rule(world.get_entrance('Dark Witch Rock (North)', player), lambda state: state.can_lift_rocks(player))
     set_rule(world.get_entrance('Dark Witch Rock (South)', player), lambda state: state.can_lift_rocks(player))
+    set_rule(world.get_entrance('Grassy Lawn Pegs (Bottom)', player), lambda state: state.has('Hammer', player))
+    set_rule(world.get_entrance('Grassy Lawn Pegs (Top)', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Broken Bridge Pass (Bottom)', player), lambda state: state.can_lift_rocks(player) or state.has('Hammer', player) or state.has('Flippers', player))
     set_rule(world.get_entrance('Broken Bridge Pass (Top)', player), lambda state: state.can_lift_rocks(player) or state.has('Hammer', player))
     set_rule(world.get_entrance('West Dark World Gap', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_entrance('Grassy Lawn Pegs (Bottom)', player), lambda state: state.has('Hammer', player))
-    set_rule(world.get_entrance('Grassy Lawn Pegs (Top)', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Peg Area Rocks (Left)', player), lambda state: state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Peg Area Rocks (Right)', player), lambda state: state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Village of Outcasts Heavy Rock', player), lambda state: state.can_lift_heavy_rocks(player))
@@ -869,15 +865,15 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_entrance('Hyrule Castle Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Bat Cave Drop Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Dig Game Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Cave 45 Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Desert Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Mire To Desert Stairs Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Desert Ledge Rocks Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Mire To Desert Stairs Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Checkerboard Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Bombos Tablet Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Cave 45 Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Lake Hylia Island Mirror Spot', player), lambda state: state.has_Pearl(player) and state.has('Flippers', player) and state.has_Mirror(player)) # force flipper rule since fake flipper cannot mirror
         set_rule(world.get_entrance('Lake Hylia Central Island Mirror Spot', player), lambda state: state.has_Mirror(player))
-
+        
         set_rule(world.get_entrance('East Death Mountain Teleporter', player), lambda state: state.can_lift_heavy_rocks(player))
         set_rule(world.get_entrance('Turtle Rock Teleporter', player), lambda state: state.can_lift_heavy_rocks(player) and state.has('Hammer', player))
         set_rule(world.get_entrance('Kakariko Teleporter', player), lambda state: ((state.has('Hammer', player) and state.can_lift_rocks(player)) or state.can_lift_heavy_rocks(player)) and state.has_Pearl(player)) # bunny cannot lift bushes
@@ -893,8 +889,9 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_entrance('Pyramid Hole', player), lambda state: world.open_pyramid[player] or world.goal[player] == 'trinity' or state.has('Beat Agahnim 2', player))
     else:
         set_rule(world.get_entrance('Skull Woods Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Death Mountain Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('West Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Death Mountain (Top) Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Death Mountain Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('East Death Mountain Mirror Spot (Top)', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Floating Island Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Dark Death Mountain Ledge Mirror Spot (West)', player), lambda state: state.has_Mirror(player))
@@ -903,21 +900,21 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_entrance('East Death Mountain Mirror Spot (Bottom)', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Mountain Exit Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Mountain Entrance Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Catfish Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Graveyard Cave Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Potion Shop Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Catfish Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('West Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Bomb Hut Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Bush Covered Lawn Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Hammer Peg Area Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('East Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Pyramid Uncle Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('South Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('East Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Hammer Peg Area Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Maze Race Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('South Dark World Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Mire Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Dark Desert Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Desert Palace North Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Desert Palace Stairs Mirror Spot', player), lambda state: state.has_Mirror(player))
-        set_rule(world.get_entrance('Lake Hylia Central Island Mirror Spot', player), lambda state: state.has_Mirror(player))
+        set_rule(world.get_entrance('Ice Lake Central Island Mirror Spot', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Shopping Mall Mirror Spot', player), lambda state: state.has_Mirror(player))
 
         set_rule(world.get_entrance('East Dark Death Mountain Teleporter (Top)', player), lambda state: state.can_lift_heavy_rocks(player) and state.has('Hammer', player) and state.has_Pearl(player))  # bunny cannot use hammer
@@ -941,6 +938,31 @@ def ow_bunny_rules(world, player):
     add_bunny_rule(world.get_location('Zora\'s Ledge', player), player)
     add_bunny_rule(world.get_location('Maze Race', player), player)
     add_bunny_rule(world.get_location('Flute Spot', player), player)
+
+    # entrances
+    add_bunny_rule(world.get_entrance('Lost Woods Hideout Drop', player), player)
+    add_bunny_rule(world.get_entrance('Lumberjack Tree Tree', player), player)
+    add_bunny_rule(world.get_entrance('Bonk Rock Cave', player), player)
+    add_bunny_rule(world.get_entrance('Sanctuary Grave', player), player)
+    add_bunny_rule(world.get_entrance('Kings Grave', player), player)
+    add_bunny_rule(world.get_entrance('North Fairy Cave Drop', player), player)
+    add_bunny_rule(world.get_entrance('Hyrule Castle Secret Entrance Drop', player), player)
+    add_bunny_rule(world.get_entrance('Bonk Fairy (Light)', player), player)
+    add_bunny_rule(world.get_entrance('Checkerboard Cave', player), player)
+    add_bunny_rule(world.get_entrance('20 Rupee Cave', player), player)
+    add_bunny_rule(world.get_entrance('50 Rupee Cave', player), player)
+
+    add_bunny_rule(world.get_entrance('Skull Woods First Section Hole (North)', player), player) # bunny cannot lift bush
+    add_bunny_rule(world.get_entrance('Skull Woods Second Section Hole', player), player) # bunny cannot lift bush
+    add_bunny_rule(world.get_entrance('Skull Woods Final Section', player), player) # bunny cannot use fire rod
+    add_bunny_rule(world.get_entrance('Hookshot Cave', player), player)
+    add_bunny_rule(world.get_entrance('Thieves Town', player), player) # bunny cannot pull
+    add_bunny_rule(world.get_entrance('Turtle Rock', player), player)
+    add_bunny_rule(world.get_entrance('Palace of Darkness', player), player) # kiki needs pearl
+    add_bunny_rule(world.get_entrance('Hammer Peg Cave', player), player)
+    add_bunny_rule(world.get_entrance('Bonk Fairy (Dark)', player), player)
+    add_bunny_rule(world.get_entrance('Misery Mire', player), player)
+    add_bunny_rule(world.get_entrance('Dark Lake Hylia Ledge Spike Cave', player), player)
 
     # terrain
     add_bunny_rule(world.get_entrance('DM Hammer Bridge (West)', player), player)
@@ -982,31 +1004,6 @@ def ow_bunny_rules(world, player):
     add_bunny_rule(world.get_entrance('Village of Outcasts Heavy Rock', player), player)
     add_bunny_rule(world.get_entrance('Hammer Bridge Pegs (North)', player), player)
     add_bunny_rule(world.get_entrance('Hammer Bridge Pegs (South)', player), player)
-
-    # entrances
-    add_bunny_rule(world.get_entrance('Lost Woods Hideout Drop', player), player)
-    add_bunny_rule(world.get_entrance('Lumberjack Tree Tree', player), player)
-    add_bunny_rule(world.get_entrance('Bonk Rock Cave', player), player)
-    add_bunny_rule(world.get_entrance('Sanctuary Grave', player), player)
-    add_bunny_rule(world.get_entrance('Kings Grave', player), player)
-    add_bunny_rule(world.get_entrance('North Fairy Cave Drop', player), player)
-    add_bunny_rule(world.get_entrance('Hyrule Castle Secret Entrance Drop', player), player)
-    add_bunny_rule(world.get_entrance('Bonk Fairy (Light)', player), player)
-    add_bunny_rule(world.get_entrance('Checkerboard Cave', player), player)
-    add_bunny_rule(world.get_entrance('20 Rupee Cave', player), player)
-    add_bunny_rule(world.get_entrance('50 Rupee Cave', player), player)
-
-    add_bunny_rule(world.get_entrance('Skull Woods First Section Hole (North)', player), player) # bunny cannot lift bush
-    add_bunny_rule(world.get_entrance('Skull Woods Second Section Hole', player), player) # bunny cannot lift bush
-    add_bunny_rule(world.get_entrance('Skull Woods Final Section', player), player) # bunny cannot use fire rod
-    add_bunny_rule(world.get_entrance('Hookshot Cave', player), player)
-    add_bunny_rule(world.get_entrance('Thieves Town', player), player) # bunny cannot pull
-    add_bunny_rule(world.get_entrance('Turtle Rock', player), player)
-    add_bunny_rule(world.get_entrance('Palace of Darkness', player), player) # kiki needs pearl
-    add_bunny_rule(world.get_entrance('Hammer Peg Cave', player), player)
-    add_bunny_rule(world.get_entrance('Bonk Fairy (Dark)', player), player)
-    add_bunny_rule(world.get_entrance('Misery Mire', player), player)
-    add_bunny_rule(world.get_entrance('Dark Lake Hylia Ledge Spike Cave', player), player)
 
     if not world.is_atgt_swapped(player):
         add_bunny_rule(world.get_entrance('Agahnims Tower', player), player)

@@ -644,7 +644,8 @@ def do_fixed_shuffle(avail, entrance_list):
         elif rules.fixed:
             choice = choices[i]
         elif rules.must_exit_to_lw:
-            lw_exits = default_lw + ['Big Bomb Shop', 'Ganons Tower Exit'] if avail.inverted else ['Links House Exit', 'Agahnims Tower Exit']
+            lw_exits = set(default_lw)
+            lw_exits.update({'Big Bomb Shop', 'Ganons Tower Exit'} if avail.inverted else {'Links House Exit', 'Agahnims Tower Exit'})
             filtered_choices = {i: opt for i, opt in choices.items() if all(t in lw_exits for t in opt[2])}
             index, choice = random.choice(list(filtered_choices.items()))
         else:
@@ -774,7 +775,7 @@ def do_vanilla_connect(pool_def, avail):
     elif pool_def['condition'] == 'pottery':  # this condition involves whether caves with pots are shuffled or not
         if avail.world.pottery[avail.player] not in ['none', 'keys', 'dungeon']:
             return
-    defaults = default_connections + (inverted_default_connections if avail.inverted else open_default_connections)
+    defaults = {**default_connections, **(inverted_default_connections if avail.inverted else open_default_connections)}
     for entrance in pool_def['entrances']:
         if entrance in avail.entrances:
             target = defaults[entrance]
@@ -1883,31 +1884,31 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Ganon Drop', 'Bottom of Pyramid'),
                          
                          # water entry
+                         ('Waterfall Fairy Access', 'Zora Waterfall Entryway'),
+                         ('Zora Waterfall Water Drop', 'Lake Hylia Water'),
                          ('Light World Water Drop', 'Lake Hylia Water'),
                          ('Potion Shop Water Drop', 'Lake Hylia Water'),
                          ('Northeast Light World Water Drop', 'Lake Hylia Water'),
                          ('Lake Hylia Central Island Water Drop', 'Lake Hylia Water'),
-                         ('Zora Waterfall Water Drop', 'Lake Hylia Water'),
 
                          ('West Dark World Water Drop', 'Dark Lake Hylia Water'),
-                         ('South Dark World Water Drop', 'Dark Lake Hylia Water'),
-                         ('East Dark World Water Drop', 'Dark Lake Hylia Water'),
                          ('Northeast Dark World Water Drop', 'Dark Lake Hylia Water'),
-                         ('Southeast Dark World Water Drop', 'Dark Lake Hylia Water'),
                          ('Catfish Water Drop', 'Dark Lake Hylia Water'),
+                         ('East Dark World Water Drop', 'Dark Lake Hylia Water'),
+                         ('South Dark World Water Drop', 'Dark Lake Hylia Water'),
+                         ('Southeast Dark World Water Drop', 'Dark Lake Hylia Water'),
                          ('Ice Palace Leave Water Drop', 'Dark Lake Hylia Water'),
                          
                          # water exit
-                         ('Lake Hylia Central Island Pier', 'Lake Hylia Central Island'),
-                         ('Hobo Pier', 'Hobo Bridge'),
                          ('Light World Pier', 'Light World'), # there are several piers in-game, only one needs to be modeled
                          ('Potion Shop Pier', 'Potion Shop Area'),
+                         ('Hobo Pier', 'Hobo Bridge'),
+                         ('Lake Hylia Central Island Pier', 'Lake Hylia Central Island'),
                          ('Lake Hylia Whirlpool', 'Northeast Light World'),
-                         ('Waterfall Fairy Access', 'Zora Waterfall Entryway'),
 
+                         ('Northeast Dark World Pier', 'Northeast Dark World'),
                          ('East Dark World Pier', 'East Dark World'),
                          ('Southeast Dark World Pier', 'Southeast Dark World'),
-                         ('Northeast Dark World Pier', 'Northeast Dark World'),
                          
                          # terrain
                          ('Master Sword Meadow', 'Master Sword Meadow'),
@@ -1922,14 +1923,14 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Kings Grave Rocks (Inner)', 'Light World'),
                          ('Potion Shop Rock (South)', 'Northeast Light World'),
                          ('Potion Shop Rock (North)', 'Potion Shop Area'),
+                         ('Kakariko Southwest Bush (North)', 'Bomb Hut Area'),
+                         ('Kakariko Southwest Bush (South)', 'Light World'),
                          ('Kakariko Yard Bush (North)', 'Light World'),
                          ('Kakariko Yard Bush (South)', 'Bush Covered Lawn'),
-                         ('Kakariko Southwest Bush (South)', 'Light World'),
-                         ('Kakariko Southwest Bush (North)', 'Bomb Hut Area'),
-                         ('Hyrule Castle Main Gate', 'Hyrule Castle Courtyard'),
-                         ('Hyrule Castle Main Gate (North)', 'Light World'),
                          ('Hyrule Castle Courtyard Bush (North)', 'Hyrule Castle Courtyard'),
                          ('Hyrule Castle Courtyard Bush (South)', 'Hyrule Castle Secret Entrance Area'),
+                         ('Hyrule Castle Main Gate', 'Hyrule Castle Courtyard'),
+                         ('Hyrule Castle Main Gate (North)', 'Light World'),
                          ('Wooden Bridge Bush (North)', 'Light World'),
                          ('Wooden Bridge Bush (South)', 'Potion Shop Area'),
                          ('Bat Cave Ledge Peg', 'Bat Cave Ledge'),
@@ -1942,8 +1943,8 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Bumper Cave Entrance Rock', 'Bumper Cave Entrance'),
                          ('Dark Witch Rock (North)', 'Northeast Dark World'),
                          ('Dark Witch Rock (South)', 'Catfish Area'),
-                         ('Grassy Lawn Pegs (Bottom)', 'Dark Grassy Lawn'),
                          ('Grassy Lawn Pegs (Top)', 'West Dark World'),
+                         ('Grassy Lawn Pegs (Bottom)', 'Dark Grassy Lawn'),
                          ('West Dark World Gap', 'West Dark World'),
                          ('Broken Bridge Pass (Top)', 'East Dark World'),
                          ('Broken Bridge Pass (Bottom)', 'Northeast Dark World'),
@@ -1952,6 +1953,7 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Village of Outcasts Heavy Rock', 'West Dark World'),
                          ('Hammer Bridge Pegs (North)', 'South Dark World'),
                          ('Hammer Bridge Pegs (South)', 'East Dark World'),
+                         ('Ice Island To East Pier', 'East Dark World'),
                          
                          # ledge drops
                          ('Spectacle Rock Drop', 'West Death Mountain (Top)'),
@@ -2017,14 +2019,15 @@ open_mandatory_connections = [('Sanctuary S&Q', 'Sanctuary'),
                               
                               # mirror
                               ('Spectacle Rock Mirror Spot', 'Spectacle Rock'),
-                              ('Fairy Ascension Mirror Spot', 'Fairy Ascension Plateau'),
                               ('East Death Mountain (Top) Mirror Spot', 'East Death Mountain (Top)'),
                               ('Dark Floating Island Mirror Spot', 'Death Mountain Floating Island'),
                               ('Spiral Cave Mirror Spot', 'Spiral Cave Ledge'),
                               ('Mimic Cave Mirror Spot', 'Mimic Cave Ledge'),
                               ('Isolated Ledge Mirror Spot', 'Fairy Ascension Ledge'),
+                              ('Fairy Ascension Mirror Spot', 'Fairy Ascension Plateau'),
                               ('Bumper Cave Ledge Mirror Spot', 'Death Mountain Return Ledge'),
                               ('Bumper Cave Entrance Mirror Spot', 'Death Mountain Entrance'),
+                              ('Graveyard Ledge Mirror Spot', 'Graveyard Ledge'),
                               ('Kings Grave Mirror Spot', 'Kings Grave Area'),
                               ('Dark Grassy Lawn Mirror Spot', 'Bush Covered Lawn'),
                               ('Hyrule Castle Ledge Mirror Spot', 'Hyrule Castle Ledge'),
@@ -2037,8 +2040,7 @@ open_mandatory_connections = [('Sanctuary S&Q', 'Sanctuary'),
                               ('Bombos Tablet Mirror Spot', 'Bombos Tablet Ledge'),
                               ('Cave 45 Mirror Spot', 'Cave 45 Ledge'),
                               ('Lake Hylia Island Mirror Spot', 'Lake Hylia Island'),
-                              ('Lake Hylia Central Island Mirror Spot', 'Lake Hylia Central Island'),
-                              ('Graveyard Ledge Mirror Spot', 'Graveyard Ledge')
+                              ('Lake Hylia Central Island Mirror Spot', 'Lake Hylia Central Island')
                              ]
 
 inverted_mandatory_connections = [('Sanctuary S&Q', 'Dark Sanctuary Hint'),
@@ -2066,25 +2068,25 @@ inverted_mandatory_connections = [('Sanctuary S&Q', 'Dark Sanctuary Hint'),
                                   ('Hammer Peg Area Flute', 'Flute Sky'),
 
                                   # modified terrain
-                                  ('Lake Hylia Island Pier', 'Lake Hylia Island'),
-                                  ('Spectacle Rock Leave', 'West Death Mountain (Top)'),
                                   ('Spectacle Rock Approach', 'Spectacle Rock'),
-                                  ('Checkerboard Ledge Approach', 'Desert Checkerboard Ledge'),
-                                  ('Checkerboard Ledge Leave', 'Light World'),
-                                  ('Cave 45 Approach', 'Cave 45 Ledge'),
-                                  ('Cave 45 Leave', 'Light World'),
-                                  ('Dark Death Mountain Ladder (Bottom)', 'Dark Death Mountain (Top)'),
-                                  ('Dark Death Mountain Ladder (Top)', 'West Dark Death Mountain (Bottom)'),
-                                  ('Ice Palace Approach', 'Dark Lake Hylia Central Island'),
-                                  ('Floating Island Bridge (East)', 'Death Mountain Floating Island'),
+                                  ('Spectacle Rock Leave', 'West Death Mountain (Top)'),
                                   ('Floating Island Bridge (West)', 'East Death Mountain (Top)'),
+                                  ('Floating Island Bridge (East)', 'Death Mountain Floating Island'),
                                   ('Graveyard Ladder (Top)', 'Light World'),
                                   ('Graveyard Ladder (Bottom)', 'Graveyard Ledge'),
                                   ('Mimic Cave Ledge Access', 'Mimic Cave Ledge'),
                                   ('Mimic Cave Ledge Drop', 'East Death Mountain (Bottom)'),
-                                  ('Turtle Rock Tail Drop', 'Turtle Rock (Top)'),
+                                  ('Checkerboard Ledge Approach', 'Desert Checkerboard Ledge'),
+                                  ('Checkerboard Ledge Leave', 'Light World'),
+                                  ('Cave 45 Approach', 'Cave 45 Ledge'),
+                                  ('Cave 45 Leave', 'Light World'),
+                                  ('Lake Hylia Island Pier', 'Lake Hylia Island'),
                                   ('Bombos Tablet Ladder (Top)', 'Light World'),
                                   ('Bombos Tablet Ladder (Bottom)', 'Bombos Tablet Ledge'),
+                                  ('Dark Death Mountain Ladder (Top)', 'West Dark Death Mountain (Bottom)'),
+                                  ('Dark Death Mountain Ladder (Bottom)', 'Dark Death Mountain (Top)'),
+                                  ('Turtle Rock Tail Drop', 'Turtle Rock (Top)'),
+                                  ('Ice Palace Approach', 'Dark Lake Hylia Central Island'),
                                   
                                   # portals
                                   ('Dark Death Mountain Teleporter (West)', 'West Death Mountain (Bottom)'),
@@ -2099,8 +2101,9 @@ inverted_mandatory_connections = [('Sanctuary S&Q', 'Dark Sanctuary Hint'),
 
                                   # mirror
                                   ('Skull Woods Mirror Spot', 'Skull Woods Forest (West)'),
-                                  ('Death Mountain Mirror Spot', 'West Dark Death Mountain (Bottom)'),
+                                  ('West Dark World Mirror Spot', 'West Dark World'),
                                   ('Death Mountain (Top) Mirror Spot', 'Dark Death Mountain (Top)'),
+                                  ('Death Mountain Mirror Spot', 'West Dark Death Mountain (Bottom)'),
                                   ('East Death Mountain Mirror Spot (Top)', 'Dark Death Mountain (Top)'),
                                   ('Floating Island Mirror Spot', 'Dark Death Mountain Floating Island'),
                                   ('Dark Death Mountain Ledge Mirror Spot (East)', 'Dark Death Mountain Ledge'),
@@ -2115,15 +2118,15 @@ inverted_mandatory_connections = [('Sanctuary S&Q', 'Dark Sanctuary Hint'),
                                   ('Bush Covered Lawn Mirror Spot', 'Dark Grassy Lawn'),
                                   ('Bomb Hut Mirror Spot', 'West Dark World'),
                                   ('Pyramid Uncle Mirror Spot', 'East Dark World'),
+                                  ('East Dark World Mirror Spot', 'East Dark World'),
                                   ('Hammer Peg Area Mirror Spot', 'Hammer Peg Area'),
                                   ('Maze Race Mirror Spot', 'South Dark World'),
                                   ('South Dark World Mirror Spot', 'South Dark World'),
                                   ('Mire Mirror Spot', 'Dark Desert'),
+                                  ('Dark Desert Ledge Mirror Spot', 'Dark Desert'),
                                   ('Desert Palace Stairs Mirror Spot', 'Dark Desert'),
                                   ('Desert Palace North Mirror Spot', 'Dark Desert'),
-                                  ('Lake Hylia Central Island Mirror Spot', 'Dark Lake Hylia Central Island'),
-                                  ('East Dark World Mirror Spot', 'East Dark World'),
-                                  ('West Dark World Mirror Spot', 'West Dark World'),
+                                  ('Ice Lake Central Island Mirror Spot', 'Lake Hylia Central Island'),
                                   ('Shopping Mall Mirror Spot', 'Southeast Dark World')
                                  ]
 
@@ -2180,10 +2183,10 @@ default_connections = {'Lost Woods Gamble': 'Lost Woods Gamble',
                        'Kakariko Well Cave': 'Kakariko Well (bottom)',
                        'Kakariko Well Exit': 'Light World',
                        'Blinds Hideout': 'Blinds Hideout',
-                       'Elder House (East)': 'Elder House',
                        'Elder House (West)': 'Elder House',
-                       'Elder House Exit (East)': 'Light World',
+                       'Elder House (East)': 'Elder House',
                        'Elder House Exit (West)': 'Light World',
+                       'Elder House Exit (East)': 'Light World',
                        'Snitch Lady (West)': 'Snitch Lady (West)',
                        'Snitch Lady (East)': 'Snitch Lady (East)',
                        'Bush Covered House': 'Bush Covered House',
@@ -2359,7 +2362,7 @@ open_default_dungeon_connections = [('Agahnims Tower', 'Agahnims Tower Portal'),
                                    ]
 
 inverted_default_dungeon_connections = [('Agahnims Tower', 'Ganons Tower Portal'),
-                                        ('Agahnims Tower Exit', 'Dark Death Mountain'),
+                                        ('Agahnims Tower Exit', 'Dark Death Mountain (Top)'),
                                         ('Ganons Tower', 'Agahnims Tower Portal'),
                                         ('Ganons Tower Exit', 'Hyrule Castle Ledge')
                                        ]
