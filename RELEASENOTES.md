@@ -113,6 +113,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * Added new ganonhunt and completionist goals 
   * Fixed the issue when defeating Agahnim and standing in the doorway can cause door state to linger.
   * Fix for Inverted Lean/Lite ER
+  * Fix for vanilla Doors + Standard + ER
+  * Added a limit per dungeon on small key doors to ensure reasonable generation
   * Fixed many small bugs
 
 # Known Issues

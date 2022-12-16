@@ -1893,6 +1893,7 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world,
 
 
 def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, world, player):
+    max_computation = 11  # this is around 6 billion worse case factorial don't want to exceed this much
     for pool, door_type_pool in door_type_pools:
         ttl = 0
         suggestion_map, small_map, flex_map = {}, {}, {}
@@ -1919,27 +1920,28 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             calculated = int(round(builder.key_doors_num*total_keys/ttl))
             max_keys = max(0, builder.location_cnt - calc_used_dungeon_items(builder, world, player))
             cand_len = max(0, len(builder.candidates.small) - builder.key_drop_cnt)
-            limit = min(max_keys, cand_len)
+            limit = min(max_keys, cand_len, max_computation)
             suggested = min(calculated, limit)
-            combo_size = ncr(len(builder.candidates.small), suggested + builder.key_drop_cnt)
+            key_door_num =  min(suggested + builder.key_drop_cnt, max_computation)
+            combo_size = ncr(len(builder.candidates.small), key_door_num)
             while combo_size > 500000 and suggested > 0:
                 suggested -= 1
-                combo_size = ncr(len(builder.candidates.small), suggested + builder.key_drop_cnt)
-            suggestion_map[dungeon] = builder.key_doors_num = suggested + builder.key_drop_cnt
+                combo_size = ncr(len(builder.candidates.small), key_door_num)
+            suggestion_map[dungeon] = builder.key_doors_num = key_door_num
             remaining -= suggested + builder.key_drop_cnt
             builder.combo_size = combo_size
             flex_map[dungeon] = (limit - suggested) if suggested < limit else 0
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             if total_adjustable:
-                builder.total_keys = suggestion_map[dungeon]
+                builder.total_keys = max(suggestion_map[dungeon], builder.key_drop_cnt)
             valid_doors, small_number = find_valid_combination(builder, suggestion_map[dungeon],
                                                                start_regions_map[dungeon], world, player)
             small_map[dungeon] = valid_doors
             actual_chest_keys = small_number - builder.key_drop_cnt
             if actual_chest_keys < suggestion_map[dungeon]:
                 if total_adjustable:
-                    builder.total_keys = actual_chest_keys
+                    builder.total_keys = actual_chest_keys + builder.key_drop_cnt
                 flex_map[dungeon] = 0
                 remaining += suggestion_map[dungeon] - actual_chest_keys
             suggestion_map[dungeon] = small_number
@@ -1950,6 +1952,8 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             builder = queue.popleft()
             dungeon = builder.name
             increased = suggestion_map[dungeon] + 1
+            if increased > max_computation:
+                continue
             builder.key_doors_num = increased
             valid_doors, small_number = find_valid_combination(builder, increased, start_regions_map[dungeon],
                                                                world, player)
@@ -1959,7 +1963,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
                 suggestion_map[dungeon] = increased
                 flex_map[dungeon] -= 1
                 if total_adjustable:
-                    builder.total_keys = actual_chest_keys
+                    builder.total_keys = max(increased, builder.key_drop_cnt)
                 if flex_map[dungeon] > 0:
                     builder.combo_size = ncr(len(builder.candidates.small), builder.key_doors_num)
                     queue.append(builder)

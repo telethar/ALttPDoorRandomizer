@@ -218,7 +218,6 @@ def modify_proposal(proposed_map, explored_state, doors_to_connect, hash_code_se
     else:
         logger.debug(f'   Re-Linking {attempt.name} -> {new_door.name}')
         logger.debug(f'   Re-Linking {old_attempt.name} -> {old_target.name}')
-    hash_code_set.add(hash_code)
     return proposed_map, hash_code
 
 
