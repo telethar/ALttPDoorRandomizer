@@ -2689,8 +2689,12 @@ def find_valid_bd_combination(builder, suggested, world, player):
         test = random.choice([True, False])
         if test:
             bomb_doors_needed -= 1
+            if bomb_doors_needed < 0:
+                bomb_doors_needed = 0
         else:
             dash_doors_needed -= 1
+            if dash_doors_needed < 0:
+                dash_doors_needed = 0
     bomb_proposal = random.sample(bd_door_pool, k=bomb_doors_needed)
     bomb_proposal.extend(custom_bomb_doors)
     dash_pool = [x for x in bd_door_pool if x not in bomb_proposal]
