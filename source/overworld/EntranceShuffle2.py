@@ -776,12 +776,19 @@ def do_vanilla_connect(pool_def, avail):
         if avail.world.pottery[avail.player] not in ['none', 'keys', 'dungeon']:
             return
     defaults = {**default_connections, **(inverted_default_connections if avail.inverted else open_default_connections)}
+    if avail.inverted:
+        if 'Dark Death Mountain Fairy' in pool_def['entrances']:
+            pool_def['entrances'].remove('Dark Death Mountain Fairy')
+            pool_def['entrances'].append('Bumper Cave (top)')
     for entrance in pool_def['entrances']:
         if entrance in avail.entrances:
             target = defaults[entrance]
-            connect_simple(avail.world, entrance, target, avail.player)
-            avail.entrances.remove(entrance)
-            avail.exits.remove(target)
+            if entrance in avail.default_map:
+                connect_vanilla_two_way(entrance, avail.default_map[entrance], avail)
+            else:
+                connect_simple(avail.world, entrance, target, avail.player)
+                avail.entrances.remove(entrance)
+                avail.exits.remove(target)
 
 
 def do_mandatory_connections(avail, entrances, cave_options, must_exit):
@@ -1223,7 +1230,8 @@ modes = {
                               'Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Dark Desert Hint', 'Links House', 'Tavern North']
+                              'Dark Desert Hint',
+                              'Links House', 'Tavern North']
             },
             'old_man_cave': {  # have to do old man cave first so lw dungeon don't use up everything
                 'special': 'old_man_cave_east',
@@ -1298,7 +1306,8 @@ modes = {
                               'Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Dark Desert Hint', 'Links House', 'Tavern North']
+                              'Dark Desert Hint',
+                              'Links House', 'Tavern North']  # inverted links house gets substituted
             }
         }
     },
@@ -1562,7 +1571,8 @@ entrance_map = {
     'Spectacle Rock Cave': 'Spectacle Rock Cave Exit (Top)',
     'Paradox Cave (Bottom)': 'Paradox Cave Exit (Bottom)',
     'Paradox Cave (Middle)': 'Paradox Cave Exit (Middle)',
-    'Paradox Cave (Top)': 'Paradox Cave Exit (Top)'
+    'Paradox Cave (Top)': 'Paradox Cave Exit (Top)',
+    'Inverted Dark Sanctuary': 'Inverted Dark Sanctuary Exit',
 }
 
 

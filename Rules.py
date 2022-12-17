@@ -59,6 +59,10 @@ def set_rules(world, player):
         add_rule(world.get_location('Ganon', player), lambda state: state.has('Beat Agahnim 2', player))
     elif world.goal[player] in ['triforcehunt', 'trinity']:
         add_rule(world.get_location('Murahdahla', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'ganonhunt':
+        add_rule(world.get_location('Ganon', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'completionist':
+        add_rule(world.get_location('Ganon', player), lambda state: state.everything(player))
 
     if world.mode[player] != 'inverted':
         set_big_bomb_rules(world, player)
@@ -2042,7 +2046,8 @@ def add_key_logic_rules(world, player):
         for chest in d_logic.bk_chests:
             big_chest = world.get_location(chest.name, player)
             add_rule(big_chest, create_rule(d_logic.bk_name, player))
-            if len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1:
+            if (len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1
+               and world.accessibility[player] != 'locations'):
                 set_always_allow(big_chest, allow_big_key_in_big_chest(d_logic.bk_name, player))
     if world.keyshuffle[player] == 'universal':
         for d_name, layout in world.key_layout[player].items():

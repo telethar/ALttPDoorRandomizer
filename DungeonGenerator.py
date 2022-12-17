@@ -12,7 +12,7 @@ from typing import List
 from BaseClasses import DoorType, Direction, CrystalBarrier, RegionType, Polarity, PolSlot, flooded_keys, Sector
 from BaseClasses import Hook, hook_from_door, Door
 from Regions import dungeon_events, flooded_keys_reverse
-from Dungeons import dungeon_regions, split_region_starts
+from Dungeons import split_region_starts
 from RoomData import DoorKind
 
 from source.dungeon.DungeonStitcher import generate_dungeon_find_proposal
@@ -860,7 +860,7 @@ class ExplorationState(object):
         self.crystal = exp_door.crystal
         return exp_door
 
-    def visit_region(self, region, key_region=None, key_checks=False, bk_Flag=False):
+    def visit_region(self, region, key_region=None, key_checks=False, bk_flag=False):
         if region.type != RegionType.Dungeon:
             self.crystal = CrystalBarrier.Orange
         if self.crystal == CrystalBarrier.Either:
@@ -881,7 +881,7 @@ class ExplorationState(object):
                         self.ttl_locations += 1
                 if location not in self.found_locations:
                     self.found_locations.append(location)
-                    if not bk_Flag and (not location.forced_item or 'Big Key' in location.item.name):
+                    if not bk_flag and (not location.forced_item or 'Big Key' in location.item.name):
                         self.bk_found.add(location)
                 if location.name in dungeon_events and location.name not in self.events:
                     if self.flooded_key_check(location):
@@ -1335,8 +1335,9 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                         sector = find_sector(r_name, all_sectors)
                     reverse_d_map[sector] = key
         if world.mode[player] == 'standard':
-            current_dungeon = dungeon_map['Hyrule Castle']
-            standard_stair_check(dungeon_map, current_dungeon, candidate_sectors, global_pole)
+            if 'Hyrule Castle' in dungeon_map:
+                current_dungeon = dungeon_map['Hyrule Castle']
+                standard_stair_check(dungeon_map, current_dungeon, candidate_sectors, global_pole)
 
         complete_dungeons = {x: y for x, y in dungeon_map.items() if sum(len(sector.outstanding_doors) for sector in y.sectors) <= 0}
         [dungeon_map.pop(key) for key in complete_dungeons.keys()]

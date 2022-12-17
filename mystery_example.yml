@@ -82,6 +82,8 @@
     pedestal: 2
     triforce-hunt: 2
     trinity: 2
+    ganonhunt: 2
+    completionist: 1
   triforce_goal_min: 10
   triforce_goal_max: 30
   triforce_pool_min: 20
@@ -95,7 +97,7 @@
     mcu: 1  # map, compass, universal smalls
 # for use when you aren't using the dungeon_items above
 #  smallkey_shuffle:
-#    standard: 5
+#    none: 5
 #    wild: 1
 #    universal: 1
   dungeon_counters:

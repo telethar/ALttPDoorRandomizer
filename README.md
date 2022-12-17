@@ -9,13 +9,16 @@ See https://alttpr.com/ for more details on the normal randomizer.
 2. [Commonly Missed Things](#commonly-missed-things)  (** **Read This If New** **)
 3. [Settings](#settings)
    1. [Dungeon Randomization](#dungeon-settings)
-      1. [Dungeon Door Shuffle](#door-shuffle---doorshuffle)
+      1. [Dungeon Door Shuffle](#door-shuffle)
       2. [Intensity Level](#intensity---intensity-number)
       3. [Key Drop Shuffle (Legacy)](#key-drop-shuffle-legacy---keydropshuffle)
-      4. [Pottery](#pottery)
-      5. [Shuffle Enemy Key Drops](#shuffle-enemy-key-drops---dropshuffle)
-      6. [Experimental Features](#experimental-features)
-      7. [Crossed Dungeon Specific Settings](#crossed-dungeon-specific-settings)
+      4. [Door Type Shuffle](#door-type_shuffle)
+      5. [Decouple Doors](#decouple-doors)
+      6. [Pottery](#pottery)
+      7. [Small Key Shuffle](#small-key-shuffle)
+      8. [Shuffle Enemy Key Drops](#shuffle-enemy-key-drops)
+      9. [Experimental Features](#experimental-features)
+      10. [Crossed Dungeon Specific Settings](#crossed-dungeon-specific-settings)
    2. [Item Randomization Changes](#item-randomization)
       1. [New "Items"](#new-items)
       2. [Shopsanity](#shopsanity)
@@ -23,12 +26,15 @@ See https://alttpr.com/ for more details on the normal randomizer.
       4. [Goal](#goal)
       5. [Item Sorting](#item-sorting)
       6. [Forbidden Boss Items](#forbidden-boss-items)
-   3. [Entrance Randomization](#entrance-randomization)
+   3. [Customizer](#customizer)
+   4. [Entrance Randomization](#entrance-randomization)
       1. [Shuffle Links House](#shuffle-links-house)
       2. [Overworld Map](#overworld-map)
-   4. [Enemizer](#enemizer)
-   5. [Game Options](#game-options)
-   6. [Generation Setup & Miscellaneous](#generation-setup--miscellaneous)
+   5. [Enemizer](#enemizer)
+   6. [Retro Changes](#retro-changes)
+   7. [Standard Changes](#standard-changes)
+   8. [Game Options](#game-options)
+   9. [Generation Setup & Miscellaneous](#generation-setup--miscellaneous)
 
 ## Setup and Installation
 
@@ -105,11 +111,14 @@ You start with a “Mirror Scroll”, a dumbed-down mirror that only works in du
 
 Only extra settings are found here. All entrance randomizer settings are supported. See their [readme](https://github.com/KevinCathcart/ALttPEntranceRandomizer/blob/master/README.md)
 
-### Door Shuffle (--doorShuffle)
+### Door Shuffle
 
 * Vanilla - Doors are not shuffled
 * Basic - Doors are shuffled only within a single dungeon.
+* Paritioned - Dungeons are shuffled in 3 pools: Light World, Early Dark World, Late Dark World. (Late Dark are the four dungeons that require Mitts in vanilla, including Ganons Tower)
 * Crossed - Doors are shuffled between dungeons as well.
+
+CLI: `--doorShuffle [vanilla|basic|partitioned|crossed]`
 
 ### Intensity (--intensity number)
 
@@ -122,7 +131,24 @@ Only extra settings are found here. All entrance randomizer settings are support
 Adds 33 new locations to the randomization pool. The 32 small keys found under pots and dropped by enemies and the Big
 Key drop location are added to the pool. The keys normally found there are added to the item pool. Retro adds
 32 generic keys to the pool instead. This has been can be controlled more granularly with the [Pottery](#pottery) and 
-[Shuffle Enemy Key Drops](#shuffle-enemy-key-drops---dropshuffle) 
+[Shuffle Enemy Key Drops](#shuffle-enemy-key-drops)
+
+### Door Type Shuffle
+
+Four options here, and all of them only take effect if Dungeon Door Shuffle is not vanilla:
+
+* Small Key Doors, Bomb Doors, Dash Doors: This is what was normally shuffled previously
+* Adds Big Keys Doors: Big key doors are now shuffled in addition to those above, and Big Key doors are enabled to be on in both vertical directions thanks to a graphic that ended up on the cutting room floor. This does change
+* Adds Trap Doors: All trap doors that are permanently shut in vanilla are shuffled.
+* Increases all Door Types: This is a chaos mode where each door type per dungeon is randomized between 1 less and 4 more.
+
+CLI: `--door_type_mode [original|big|all|chaos]`
+
+### Decouple Doors
+
+This is similar to insanity mode in ER where door entrances and exits are not paired anymore. Tends to remove more logic from dungeons as many rooms will not be required to traverse to explore. Hope you like transitions.
+
+CLI `--decoupledoors`
 
 ### Pottery
 
@@ -155,10 +181,22 @@ CLI `--colorizepots`
 
 This continues to works the same by shuffling all pots on a supertile. It works with the lottery option as well to move the switches to any valid pot on the supertile regardless of the pots chosen in the pottery mode. This may increase the number of pot locations slightly depending on the mode.
 
-### Shuffle Enemy Key Drops (--dropshuffle)
+### Small Key Shuffle
+
+There are three options now available:
+
+* In Dungeon: The small key will be in their own dungeon
+* Randomized: Small keys can be shuffled outside their own dungeon
+* Universal: Retro keys without the other options
+
+CLI: `--keyshuffle [none|wild|universal]`
+
+### Shuffle Enemy Key Drops
 
 Enemies that drop keys can have their drop shuffled into the pool. This is the one part of the keydropshuffle option.
 See the pottery option for more options involving pots.
+
+CLI: `--dropshuffle`
 
 ### Experimental Features
 
@@ -197,13 +235,34 @@ Rooms adjacent to sanctuary get their coloring to match the Sanctuary's original
 
 ### New "Items"
 
-#### Bombbag (--bombbag)
+#### Bombbag 
 
-Two bomb bags are added to the item pool (They look like +10 Capacity upgrades). Bombs are unable to be used until one is found. Bomb capacity upgrades are otherwise unavailable.
+Two bomb bags are added to the item pool (They look like +10 Capacity upgrades). Bombs are unable to be used until one is found. Bomb capacity upgrades are otherwise unavailable. 
 
-#### Pseudo Boots (--pseudoboots)
+CLI `--bombbag`
+
+#### Pseudo Boots 
 
 Dashing is allowed without the boots item however doors and certain rocks remain un-openable until boots are found. Items that require boots are still unattainable. Specific sequence breaks like hovering and water-walking are not allowed until boots are found. Bonk distance is shortened to prevent certain pits from being crossed. Finding boots restores all normal behavior.
+
+CLI `--pseudoboots`
+
+#### Flute Mode
+
+Normal mode for flute means you need to activate it at the village statue after finding it like usual. Activated flute mode mean you can use it immediately upon finding it. The flute SFX plays to let you know this is the case. 
+
+CLI:`--flute_mode`
+
+#### Bow Mode
+
+Four options here :
+
+* Progressive. Standard progressive bows.
+* Silvers separate. One bow in the pool and silvers are a separate item.
+* Retro (progressive). Arrows cost rupees. You need to purchase the single arrow item at a shop and there are two progressive bows places.
+* Retro + Silvers. Arrows cost rupees. You need to purchase the single arrow item or find the silvers, there is only one bow, and silvers are a separate item (but count for the quiver if found).
+
+CLI: `--bow_mode [progressive|silvers|retro|retro_silvers]`
 
 ### Shopsanity
 
@@ -316,7 +375,12 @@ CLI: `--logic owglitches`
 
 ### Goal
 
-Trinity goal is now supported. Find one of 3 triforces to win. One is at pedestal. One is with Ganon. One is with Murahdahla who wants you to find 8 of 10 triforce pieces to complete.
+New supported goals:
+
+* Trinity: Find one of 3 triforces to win. One is at pedestal. One is with Ganon. One is with Murahdahla who wants you to find 8 of 10 triforce pieces to complete.
+* Triforce Hunt + Ganon: Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
+* Completionist: All dungeons not enough for you? You have to obtain every item in the game too. This option turns on the collection rate counter and forces accessibility to be 100% locations. Finish by defeating Ganon.
+
 
 ### Item Sorting
 
@@ -394,11 +458,23 @@ CLI: ```--restrict_boss_items <option>```
 * mapcompass: ~~The map and compass are logically required to defeat a boss. This prevents both of those from appearing on the dungeon boss. Note that this does affect item placement logic and the placement algorithm as maps and compasses are considered as required items to beat a boss.~~ Currently bugged, not recommended for use.
 * dungeon: Same as above but both small keys and bigs keys of the dungeon are not allowed on a boss. (Note: this does not affect universal keys as they are not dungeon-specific)
 
+## Customizer
+
+Please see [Customizer documentation](docs/Customizer.md) on how to create custom seeds.
+
 ## Entrance Randomization
+
+### New Modes
+
+Lite and Lean ER is now available when Experimental Features are turned on. (todo: bring over documenation of these modes)
 
 ### Shuffle Links House
 
 In certain ER shuffles, (not dungeonssimple or dungeonsfulls), you can now control whether Links House is shuffled or remains vanilla. Previously, inverted seeds had this behavior and would shuffle links house, but now if will only do so if this is specified. Now, also works for open modes, but links house is never shuffled in standard mode.
+
+### Shuffle Back of Tavern
+
+You may shuffle the back of tavern entrance in ER modes when Experimental Features are turned on.
 
 ### Overworld Map
 
@@ -411,7 +487,9 @@ Option to move indicators on overworld map to reference dungeon location. The no
 
 If you do not shuffle the compass or map outside of the dungeon, the non-shuffled items are not needed to display the information. If a dungeon does not have a map or compass, it is not needed for the information. Talking to the bomb shop or Sahasrahla furnishes you with complete information as well as map information.
 
-CLI ```--overworld_map [default, compass, map]```
+CLI ```--overworld_map [default|compass|map]```
+
+
 
 ## Enemizer
 
@@ -422,6 +500,26 @@ At least one boss each of the prize bosses will be present guarding the prizes. 
 ### Blind Note
 
 If bosses are shuffled and Blind is chosen to be the boss of Thieves Town, then bombing the attic and delivering the maiden is still required.
+
+## Standard Changes
+
+When dungeon door shuffle is on, the Sanctuary is guaranteed to be behind the Throne Room and the Mirror Scroll works like death warping instead of the mirror during the escape sequence.
+
+## Retro Changes
+
+Retro can be partially enabled: see Small Key Shuffle and Bow Mode. Retro checkbox or Retro mode still enable all 3 options.
+
+New supported option:
+
+### Take Any Caves
+
+These are now independent of retro mode and have three options: None, Random, and Fixed. None disables the caves. Random works as take-any caves did before. Fixed means that the take any caves replace specific fairy caves in the pool and will be at those entrances unless ER is turned on (then they can be shuffled wherever). The fixed entrances are:
+
+* Desert Healer Fairy
+* Swamp Healer Fairy (aka Light Hype Cave)
+* Dark Death Mountain Healer Fairy
+* Dark Lake Hylia Ledge Healer Fairy (aka Shopping Mall Bomb)
+* Bonk Fairy (Dark)
 
 ## Game Options
 

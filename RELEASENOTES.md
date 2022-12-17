@@ -53,7 +53,16 @@ This is similar to insanity mode in ER where door entrances and exits are not pa
 
 ## Customizer
 
-Please see [Customizer documentation](docs/Customizer.md) on how to create custom seeds. 
+Please see [Customizer documentation](docs/Customizer.md) on how to create custom seeds.
+
+## New Goals
+
+### Triforce Hunt + Ganon
+Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
+
+### Completionist
+All dungeons not enough for you? You have to obtain every item in the game too. This option turns on the collection rate counter and forces accessibility to be 100% locations. Finish by defeating Ganon.
+
 
 ## Standard Generation Change
 
@@ -100,9 +109,15 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
-None yet
+* 1.2.0.1-u
+  * Added new ganonhunt and completionist goals 
+  * Fixed the issue when defeating Agahnim and standing in the doorway can cause door state to linger.
+  * Fix for Inverted Lean/Lite ER
+  * Fix for vanilla Doors + Standard + ER
+  * Added a limit per dungeon on small key doors to ensure reasonable generation
+  * Fixed many small bugs
 
 # Known Issues
 
-* Standing in the doorway when defeating Aga 1 and being teleported to the Dark World will not clear door state. It may cause issues requiring a Save & Quit to fix.
 * Decoupled doors can lead to situations where you aren't logically supposed to go back through a door without a big key or small key, but you can if you press the correct direction back through the door first. There are some transitions where you may get stuck without a bomb. These problems are planned to be fixed.
+* Logic getting to Skull X room may be wrong if a trap door, big key door, or bombable wall is shuffled there. A bomb jump to get to those pot may be required if you don't have boots to bonk across.

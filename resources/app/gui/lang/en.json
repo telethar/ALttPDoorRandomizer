@@ -248,6 +248,8 @@
     "randomizer.item.goal.triforcehunt": "Triforce Hunt",
     "randomizer.item.goal.trinity": "Trinity",
     "randomizer.item.goal.crystals": "Crystals",
+    "randomizer.item.goal.ganonhunt": "Triforce Hunt + Ganon",
+    "randomizer.item.goal.completionist": "Completionist",
 
     "randomizer.item.crystals_gt": "Crystals to open GT",
     "randomizer.item.crystals_gt.0": "0",

@@ -1445,7 +1445,7 @@ def validate_bk_layout(proposal, builder, start_regions, world, player):
             if loc.forced_big_key():
                 return True
     else:
-        return len(state.bk_found) > 0
+        return state.count_locations_exclude_specials(world, player) > 0
     return False
 
 

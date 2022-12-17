@@ -181,8 +181,12 @@ def get_custom_array_key(item):
 
 
 def generate_itempool(world, player):
-    if (world.difficulty[player] not in ['normal', 'hard', 'expert'] or world.goal[player] not in ['ganon', 'pedestal', 'dungeons', 'triforcehunt', 'trinity', 'crystals']
-            or world.mode[player] not in ['open', 'standard', 'inverted'] or world.timer not in ['none', 'display', 'timed', 'timed-ohko', 'ohko', 'timed-countdown'] or world.progressive not in ['on', 'off', 'random']):
+    if (world.difficulty[player] not in ['normal', 'hard', 'expert']
+       or world.goal[player] not in ['ganon', 'pedestal', 'dungeons', 'triforcehunt', 'trinity', 'crystals',
+                                     'ganonhunt', 'completionist']
+       or world.mode[player] not in ['open', 'standard', 'inverted']
+       or world.timer not in ['none', 'display', 'timed', 'timed-ohko', 'ohko', 'timed-countdown']
+       or world.progressive not in ['on', 'off', 'random']):
         raise NotImplementedError('Not supported yet')
 
     if world.timer in ['ohko', 'timed-ohko']:
@@ -344,7 +348,7 @@ def generate_itempool(world, player):
         world.clock_mode = clock_mode
 
     goal = world.goal[player]
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         g, t = set_default_triforce(goal, world.treasure_hunt_count[player], world.treasure_hunt_total[player])
         world.treasure_hunt_count[player], world.treasure_hunt_total[player] = g, t
         world.treasure_hunt_icon[player] = 'Triforce Piece'
@@ -817,15 +821,15 @@ def add_pot_contents(world, player):
                     world.itempool.append(ItemFactory(item, player))
 
 
-def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, bombbag,
-                  door_shuffle, logic, flute_activated):
+def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords,
+                  bombbag, door_shuffle, logic, flute_activated):
     pool = []
     placed_items = {}
     precollected_items = []
     clock_mode = None
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         if treasure_hunt_total == 0:
-            treasure_hunt_total = 30 if goal == 'triforcehunt' else 10
+            treasure_hunt_total = 30 if goal in ['triforcehunt', 'ganonhunt'] else 10
     # triforce pieces max out
     triforcepool = ['Triforce Piece'] * min(treasure_hunt_total, max_goal)
 
@@ -928,7 +932,7 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
     elif timer == 'timed-ohko':
         pool.extend(diff.timedohko)
         clock_mode = 'countdown-ohko'
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         pool.extend(triforcepool)
 
     for extra in diff.extras:
@@ -987,7 +991,7 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         customitemarray["triforce"] = total_items_to_place
 
     # Triforce Pieces
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         g, t = set_default_triforce(goal, customitemarray["triforcepiecesgoal"], customitemarray["triforcepieces"])
         customitemarray["triforcepiecesgoal"], customitemarray["triforcepieces"] = g, t
 
@@ -1025,8 +1029,8 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         treasure_hunt_count = max(min(customitemarray["triforcepiecesgoal"], max_goal), 1)
         treasure_hunt_icon = 'Triforce Piece'
         # Ensure game is always possible to complete here, force sufficient pieces if the player is unwilling.
-        if ((customitemarray["triforcepieces"] < treasure_hunt_count) and (goal in ['triforcehunt', 'trinity'])
-           and (customitemarray["triforce"] == 0)):
+        if ((customitemarray["triforcepieces"] < treasure_hunt_count)
+           and (goal in ['triforcehunt', 'trinity', 'ganonhunt']) and (customitemarray["triforce"] == 0)):
             extrapieces = treasure_hunt_count - customitemarray["triforcepieces"]
             pool.extend(['Triforce Piece'] * extrapieces)
             itemtotal = itemtotal + extrapieces
@@ -1214,7 +1218,7 @@ def get_player_dungeon_item_pool(world, player):
 # location pool doesn't support larger values at this time
 def set_default_triforce(goal, custom_goal, custom_total):
     triforce_goal, triforce_total = 0, 0
-    if goal == 'triforcehunt':
+    if goal in ['triforcehunt', 'ganonhunt']:
         triforce_goal, triforce_total = 20, 30
     elif goal == 'trinity':
         triforce_goal, triforce_total = 8, 10
