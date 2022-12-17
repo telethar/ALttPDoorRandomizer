@@ -1572,7 +1572,6 @@ entrance_map = {
     'Paradox Cave (Bottom)': 'Paradox Cave Exit (Bottom)',
     'Paradox Cave (Middle)': 'Paradox Cave Exit (Middle)',
     'Paradox Cave (Top)': 'Paradox Cave Exit (Top)',
-    'Inverted Dark Sanctuary': 'Inverted Dark Sanctuary Exit',
 }
 
 
