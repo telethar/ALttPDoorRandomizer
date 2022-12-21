@@ -116,6 +116,9 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fix for vanilla Doors + Standard + ER
   * Added a limit per dungeon on small key doors to ensure reasonable generation
   * Fixed many small bugs
+* 1.2.0.2-u
+  * Fixed a bug with certain trap doors missing
+  * Added a hint reference for district hints
 
 # Known Issues
 

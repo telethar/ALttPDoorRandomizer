@@ -2298,7 +2298,7 @@ def find_current_trap_doors(builder):
     for region in builder.master_sector.regions:
         for ext in region.exits:
             d = ext.door
-            if d and d.blocked and d.trapFlag != 0:
+            if d and d.blocked and d.trapFlag != 0:  # could exclude removing boss doors here
                 current_doors.append(d)
     return current_doors
 
@@ -2308,7 +2308,9 @@ def change_door_to_trap(d, world, player):
     if d.type is DoorType.Interior:
         kind = room.kind(d)
         new_kind = None
-        if kind == DoorKind.TrapTriggerable and d.direction in [Direction.South, Direction.East]:
+        if kind == DoorKind.Trap:
+            new_kind = DoorKind.Trap
+        elif kind == DoorKind.TrapTriggerable and d.direction in [Direction.South, Direction.East]:
             new_kind = DoorKind.Trap
         elif kind == DoorKind.Trap2 and d.direction in [Direction.North, Direction.West]:
             new_kind = DoorKind.Trap
