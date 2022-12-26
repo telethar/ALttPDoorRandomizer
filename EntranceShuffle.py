@@ -2160,6 +2160,7 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Desert Ledge Rocks (Inner)', 'Desert Ledge'),
                          
                          ('Skull Woods Forest', 'Skull Woods Forest'),
+                         ('East Dark Death Mountain Bushes', 'East Dark Death Mountain (Bushes)'),
                          ('Bumper Cave Entrance Rock', 'Bumper Cave Entrance'),
                          ('Dark Witch Rock (North)', 'Northeast Dark World'),
                          ('Dark Witch Rock (South)', 'Catfish Area'),
