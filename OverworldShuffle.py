@@ -37,6 +37,8 @@ def create_dynamic_exits(world, player):
 
 
 mirror_connections = {
+    'Skull Woods Forest (West)': ['Light World'],
+
     'West Dark Death Mountain (Bottom)': ['Spectacle Rock'],
     'Dark Death Mountain (Top)': ['East Death Mountain (Top)'],
 
@@ -44,17 +46,20 @@ mirror_connections = {
     'Dark Death Mountain Ledge': ['Spiral Cave Ledge', 'Mimic Cave Ledge'],
     'Dark Death Mountain Isolated Ledge': ['Fairy Ascension Ledge'],
     'East Dark Death Mountain (Bushes)': ['Fairy Ascension Plateau'],
+    'East Dark Death Mountain (Bottom)': ['East Death Mountain (Bottom)'],
     
     'West Dark World': ['Graveyard Ledge', 'Kings Grave Area'],
 
     'Bumper Cave Ledge': ['Death Mountain Return Ledge'],
     'Bumper Cave Entrance': ['Death Mountain Entrance'],
 
+    'Northeast Dark World': ['Potion Shop Area'],
+
     'Dark Grassy Lawn': ['Bush Covered Lawn'],
 
     'Hammer Peg Area': ['Bat Cave Ledge'],
 
-    'East Dark World': ['Hyrule Castle Ledge'],
+    'East Dark World': ['Hyrule Castle Ledge', 'Hyrule Castle Courtyard'],
 
     'Dark Desert': ['Desert Ledge', 'Desert Checkerboard Ledge', 'Desert Palace Stairs', 'Desert Palace Entrance (North) Spot'],
 
@@ -62,6 +67,8 @@ mirror_connections = {
 
     'Dark Lake Hylia Water': ['Lake Hylia Island'],
     'Dark Lake Hylia Central Island': ['Lake Hylia Central Island'],
+
+    'Southeast Dark World': ['Light World'],
 
 
     'Light World': ['Skull Woods Forest (West)', 'West Dark World', 'Hammer Peg Area', 'East Dark World', 'South Dark World', 'Dark Desert', 'Southeast Dark World'],
@@ -82,6 +89,7 @@ mirror_connections = {
     'Northeast Light World': ['Catfish Area'],
 
     'Graveyard Ledge': ['West Dark World'],
+    'Kings Grave Area': ['West Dark World'],
 
     'Potion Shop Area': ['Northeast Dark World'],
 
@@ -92,9 +100,12 @@ mirror_connections = {
 
     'Maze Race Ledge': ['South Dark World'],
 
+    'Cave 45 Ledge': ['South Dark World'],
+
     'Desert Palace Stairs': ['Dark Desert'],
     'Desert Ledge': ['Dark Desert'],
     'Desert Palace Entrance (North) Spot': ['Dark Desert'],
+    'Desert Checkerboard Ledge': ['Dark Desert'],
 
     'Lake Hylia Central Island': ['Dark Lake Hylia Central Island']
 }
