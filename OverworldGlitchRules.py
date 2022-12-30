@@ -208,7 +208,8 @@ def get_mirror_offset_spots_lw(player):
     Mirror shenanigans placing a mirror portal with a broken camera
     """
     yield ('Death Mountain Offset Mirror', 'West Death Mountain (Bottom)', 'Light World')
-    yield ('Death Mountain Offset Mirror (Houlihan Exit)', 'West Death Mountain (Bottom)', 'Hyrule Castle Ledge', lambda state: state.has_Mirror(player) and state.can_boots_clip_dw(player) and state.has_Pearl(player))
+    yield ('Death Mountain Uncle Offset Mirror', 'West Death Mountain (Bottom)', 'Hyrule Castle Secret Entrance Area')
+    yield ('Death Mountain Castle Ledge Offset Mirror', 'West Death Mountain (Bottom)', 'Hyrule Castle Ledge')
 
 
 def create_owg_connections(world, player):
