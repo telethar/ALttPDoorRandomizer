@@ -15,6 +15,7 @@ from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
 from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_dark_world_regions, create_dungeon_regions, adjust_locations
+from OverworldShuffle import create_dynamic_exits
 from EntranceShuffle import link_entrances
 from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
@@ -217,6 +218,7 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
     for player in range(1, world.players + 1):
+        create_dynamic_exits(world, player)
         if world.experimental[player] or world.shuffle[player] in ['lite', 'lean'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
             link_entrances_new(world, player)
         else:
@@ -485,6 +487,7 @@ def copy_world(world):
 
     for player in range(1, world.players + 1):
         create_regions(ret, player)
+        create_dynamic_exits(ret, player)
         create_dungeon_regions(ret, player)
         create_shops(ret, player)
         create_rooms(ret, player)
