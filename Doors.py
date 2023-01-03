@@ -104,7 +104,7 @@ def create_doors(world, player):
         create_door(player, 'Sewers Dark Cross Key Door N', Nrml).dir(No, 0x32, Mid, High).small_key().pos(0),
         create_door(player, 'Sewers Water S', Nrml).dir(So, 0x22, Mid, High).small_key().pos(0).portal(Z, 0x22),
         create_door(player, 'Sewers Water W', Nrml).dir(We, 0x22, Bot, High).pos(1),
-        create_door(player, 'Sewers Key Rat E', Nrml).dir(Ea, 0x21, Bot, High).pos(1),
+        create_door(player, 'Sewers Key Rat E', Nrml).dir(Ea, 0x21, Bot, High).pos(2),
         create_door(player, 'Sewers Key Rat Key Door N', Nrml).dir(No, 0x21, Right, High).small_key().pos(0),
         create_door(player, 'Sewers Secret Room Key Door S', Nrml).dir(So, 0x11, Right, High).small_key().pos(2).portal(X, 0x02),
         create_door(player, 'Sewers Rat Path WS', Intr).dir(We, 0x11, Bot, High).pos(1),
