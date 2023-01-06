@@ -275,7 +275,7 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         # OM Cave entrance in lw/dw if cross_world off
         if 'Old Man Cave Exit (West)' in rem_exits:
             world_limiter = DW_Entrances if avail.inverted else LW_Entrances
-            om_cave_options = [x for x in rem_entrances if x in world_limiter and bonk_fairy_exception(x)]
+            om_cave_options = sorted([x for x in rem_entrances if x in world_limiter and bonk_fairy_exception(x)])
             om_cave_choice = random.choice(om_cave_options)
             if not avail.coupled:
                 connect_exit('Old Man Cave Exit (West)', om_cave_choice, avail)
