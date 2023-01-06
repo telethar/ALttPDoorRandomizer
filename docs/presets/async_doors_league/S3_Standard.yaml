@@ -23,8 +23,3 @@ settings:
     msu_resume: true
     collection_rate: true
     quickswap: true
-start_inventory:
-  1:
-    - Progressive Armor
-    - Pegasus Boots
-    - Boss Heart Container
