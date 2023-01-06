@@ -109,6 +109,14 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.3-u
+  * Starting inventory taken into account with default item pool. (Custom pools must do this themselves)
+  * Fast ROM update
+  * Fix for restricted boss item counting maps & compasses as vital 
+  * Bug fix for vanilla ER + inverted + experimental
+* 1.2.0.2-u
+  * Fixed a bug with certain trap doors missing
+  * Added a hint reference for district hints
 * 1.2.0.1-u
   * Added new ganonhunt and completionist goals 
   * Fixed the issue when defeating Agahnim and standing in the doorway can cause door state to linger.
@@ -116,9 +124,6 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fix for vanilla Doors + Standard + ER
   * Added a limit per dungeon on small key doors to ensure reasonable generation
   * Fixed many small bugs
-* 1.2.0.2-u
-  * Fixed a bug with certain trap doors missing
-  * Added a hint reference for district hints
 
 # Known Issues
 

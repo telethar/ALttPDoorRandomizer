@@ -213,6 +213,7 @@
     "randomizer.generation.print_custom_yaml": "Print Customizer File",
     "randomizer.generation.usestartinventory": "Use Starting Inventory",
     "randomizer.generation.usecustompool": "Use Custom Item Pool",
+    "randomizer.generation.race": "Generate \"Race\" ROM",
 
     "randomizer.generation.saveonexit": "Save Settings on Exit",
     "randomizer.generation.saveonexit.ask": "Ask Me",

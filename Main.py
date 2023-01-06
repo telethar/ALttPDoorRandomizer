@@ -34,7 +34,7 @@ from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
 
-__version__ = '1.2.0.2-u'
+__version__ = '1.2.0.3-u'
 
 from source.classes.BabelFish import BabelFish
 
@@ -150,7 +150,7 @@ def main(args, seed=None, fish=None):
             world.player_names[player].append(name)
     logger.info('')
     world.settings = CustomSettings()
-    world.settings.create_from_world(world)
+    world.settings.create_from_world(world, args.race)
 
     outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
 
@@ -196,16 +196,6 @@ def main(args, seed=None, fish=None):
                 item = ItemFactory(inv_item.strip(), p)
                 if item:
                     world.push_precollected(item)
-                    if item.dungeon:
-                        d = world.get_dungeon(item.dungeon, item.player)
-                        match = next((i for i in d.all_items if i.name == item.name), None)
-                        if match:
-                            if match.map or match.compass:
-                                d.dungeon_items.remove(match)
-                            elif match.smallkey:
-                                d.small_keys.remove(match)
-                            elif match.bigkey:
-                                d.big_key.remove(match)
     if args.print_custom_yaml:
         world.settings.record_info(world)
 

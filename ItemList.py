@@ -962,7 +962,24 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
                 pool.extend(['Small Key (Universal)'])
         else:
             pool.extend(['Small Key (Universal)'])
+    modify_pool_for_start_inventory(pool, world, player)
     return (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms)
+
+
+def modify_pool_for_start_inventory(pool, world, player):
+    for item in world.precollected_items:
+        if item.player == player:
+            pool.remove(item.name)
+            if item.dungeon:
+                d = world.get_dungeon(item.dungeon, item.player)
+                match = next((i for i in d.all_items if i.name == item.name), None)
+                if match:
+                    if match.map or match.compass:
+                        d.dungeon_items.remove(match)
+                    elif match.smallkey:
+                        d.small_keys.remove(match)
+                    elif match.bigkey:
+                        d.big_key.remove(match)
 
 
 def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer, goal, mode, swords, bombbag, customitemarray):

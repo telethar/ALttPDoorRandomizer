@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'f204143853a58e55a5fbc4c5bc87045e'
+RANDOMIZERBASEHASH = '1e1094919d6a9dd151f8bc15c40b35f7'
 
 
 class JsonRom(object):
@@ -2226,7 +2226,7 @@ def write_strings(rom, world, player, team):
             for loc_name in district.locations:
                 location_item = world.get_location(loc_name, player).item
                 if location_item.advancement:
-                    if 'Heart Container' in location_item.name:
+                    if 'Heart Container' in location_item.name or location_item.compass or location_item.map:
                         continue
                     itm_type = 'useful' if useful_item_for_hint(location_item, world) else 'vital'
                     hint_type = 'path'
