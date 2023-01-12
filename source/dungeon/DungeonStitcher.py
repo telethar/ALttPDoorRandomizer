@@ -319,6 +319,8 @@ def determine_paths_for_dungeon(world, player, all_regions, name):
     if world.mode[player] == 'standard' and name == 'Hyrule Castle Dungeon':
         paths.append('Hyrule Dungeon Cellblock')
         paths.append(('Hyrule Dungeon Cellblock', 'Hyrule Castle Throne Room'))
+        entrance = next(x for x in world.dungeon_portals[player] if x.name == 'Hyrule Castle South')
+        paths.append(('Hyrule Dungeon Cellblock', entrance.door.entrance.parent_region.name))
     if world.doorShuffle[player] in ['basic'] and name == 'Thieves Town':
         paths.append('Thieves Attic Window')
     elif 'Thieves Attic Window' in all_r_names:

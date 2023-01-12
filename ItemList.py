@@ -286,6 +286,7 @@ def generate_itempool(world, player):
             for _ in range(0, amt):
                 pool.append('Rupees (20)')
 
+    start_inventory = list(world.precollected_items)
     for item in precollected_items:
         world.push_precollected(ItemFactory(item, player))
 
@@ -434,6 +435,22 @@ def generate_itempool(world, player):
 
     if world.pottery[player] not in ['none', 'keys'] and not skip_pool_adjustments:
         add_pot_contents(world, player)
+
+    # modfiy based on start inventory, if any
+    modify_pool_for_start_inventory(start_inventory, world, player)
+
+    # increase pool if not enough items
+    ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
+    pool_size = count_player_dungeon_item_pool(world, player)
+    pool_size += sum(1 for x in world.itempool if x.player == player)
+
+    if pool_size < ttl_locations:
+        retro_bow = world.bow_mode[player].startswith('retro')
+        amount_to_add = ttl_locations - pool_size
+        filler_additions = random.choices(list(filler_items.keys()), filler_items.values(), k=amount_to_add)
+        for item in filler_additions:
+            item_name = 'Rupees (5)' if retro_bow and item == 'Arrows (10)' else item
+            world.itempool.append(ItemFactory(item_name, player))
 
 
 take_any_locations = [
@@ -962,14 +979,60 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
                 pool.extend(['Small Key (Universal)'])
         else:
             pool.extend(['Small Key (Universal)'])
-    modify_pool_for_start_inventory(pool, world, player)
     return (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms)
 
 
-def modify_pool_for_start_inventory(pool, world, player):
-    for item in world.precollected_items:
+item_alternates = {
+    # Bows
+    'Progressive Bow (Alt)': ('Progressive Bow', 1),
+    'Bow': ('Progressive Bow', 1),
+    'Silver Arrows': ('Progressive Bow', 2),
+    # Gloves
+    'Power Glove': ('Progressive Glove', 1),
+    'Titans Mitts': ('Progressive Glove', 2),
+    # Swords
+    'Sword and Shield': ('Progressive Sword', 1), # could find a way to also remove a shield, but mostly not impactful
+    'Fighter Sword': ('Progressive Sword', 1),
+    'Master Sword': ('Progressive Sword', 2),
+    'Tempered Sword': ('Progressive Sword', 3),
+    'Golden Sword': ('Progressive Sword', 4),
+    # Shields
+    'Blue Shield': ('Progressive Shield', 1),
+    'Red Shield': ('Progressive Shield', 2),
+    'Mirror Shield': ('Progressive Shield', 3),
+    # Armors
+    'Blue Mail': ('Progressive Armor', 1),
+    'Red Mail': ('Progressive Armor', 2),
+
+    'Magic Upgrade (1/4)': ('Magic Upgrade (1/2)', 2),
+    'Ocarina': ('Ocarina (Activated)', 1),
+    'Ocarina (Activated)': ('Ocarina', 1),
+    'Boss Heart Container': ('Sanctuary Heart Container', 1),
+    'Sanctuary Heart Container': ('Boss Heart Container', 1),
+    'Power Star': ('Triforce Piece', 1)
+}
+
+
+def modify_pool_for_start_inventory(start_inventory, world, player):
+    # skips custom item pools - these shouldn't be adjusted
+    if (world.customizer and world.customizer.get_item_pool()) or world.custom:
+        return
+    for item in start_inventory:
         if item.player == player:
-            pool.remove(item.name)
+            if item in world.itempool:
+                world.itempool.remove(item)
+            elif item.name in item_alternates:
+                alt = item_alternates[item.name]
+                i = alt[1]
+                while i > 0:
+                    alt_item = ItemFactory([alt[0]], player)[0]
+                    if alt_item in world.itempool:
+                        world.itempool.remove(alt_item)
+                    i = i-1
+            elif 'Bottle' in item.name:
+                bottle_item = next((x for x in world.itempool if 'Bottle' in item.name and x.player == player), None)
+                if bottle_item is not None:
+                    world.itempool.remove(bottle_item)
             if item.dungeon:
                 d = world.get_dungeon(item.dungeon, item.player)
                 match = next((i for i in d.all_items if i.name == item.name), None)
@@ -1084,6 +1147,22 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         nothings = total_items_to_place - itemtotal
 #        print("Placing " + str(nothings) + " Nothings")
         pool.extend(['Nothing'] * nothings)
+
+    start_inventory = [x for x in world.precollected_items if x.player == player]
+    if not start_inventory:
+        if world.logic[player] in ['owglitches', 'nologic']:
+            precollected_items.append('Pegasus Boots')
+            if 'Pegasus Boots' in pool:
+                pool.remove('Pegasus Boots')
+                pool.append('Rupees (20)')
+        if world.swords[player] == 'assured':
+            precollected_items.append('Progressive Sword')
+            if 'Progressive Sword' in pool:
+                pool.remove('Progressive Sword')
+                pool.append('Rupees (50)')
+            elif 'Fighter Sword' in pool:
+                pool.remove('Fighter Sword')
+                pool.append('Rupees (50)')
 
     return (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms)
 
@@ -1206,12 +1285,20 @@ def make_customizer_pool(world, player):
         if pieces < t:
             pool.extend(['Triforce Piece'] * (t - pieces))
 
-    ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
-    pool_size = len(get_player_dungeon_item_pool(world, player)) + len(pool)
-
-    if pool_size < ttl_locations:
-        amount_to_add = ttl_locations - pool_size
-        pool.extend(random.choices(list(filler_items.keys()), filler_items.values(), k=amount_to_add))
+    if not world.customizer.get_start_inventory():
+        if world.logic[player] in ['owglitches', 'nologic']:
+            precollected_items.append('Pegasus Boots')
+            if 'Pegasus Boots' in pool:
+                pool.remove('Pegasus Boots')
+                pool.append('Rupees (20)')
+        if world.swords[player] == 'assured':
+            precollected_items.append('Progressive Sword')
+            if 'Progressive Sword' in pool:
+                pool.remove('Progressive Sword')
+                pool.append('Rupees (50)')
+            elif 'Fighter Sword' in pool:
+                pool.remove('Fighter Sword')
+                pool.append('Rupees (50)')
 
     return pool, placed_items, precollected_items, clock_mode, 1
 
@@ -1227,9 +1314,9 @@ filler_items = {
 }
 
 
-def get_player_dungeon_item_pool(world, player):
-    return [item for dungeon in world.dungeons for item in dungeon.all_items
-            if dungeon.player == player and item.location is None]
+def count_player_dungeon_item_pool(world, player):
+    return sum(1 for dungeon in world.dungeons for item in dungeon.all_items
+               if dungeon.player == player and item.location is None and is_dungeon_item(item.name, world, player))
 
 
 # location pool doesn't support larger values at this time

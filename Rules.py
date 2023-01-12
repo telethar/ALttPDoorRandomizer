@@ -124,6 +124,10 @@ def or_rule(rule1, rule2):
     return lambda state: rule1(state) or rule2(state)
 
 
+def and_rule(rule1, rule2):
+    return lambda state: rule1(state) and rule2(state)
+
+
 def add_lamp_requirement(spot, player):
     add_rule(spot, lambda state: state.has('Lamp', player, state.world.lamps_needed_for_dark_rooms))
 
@@ -277,8 +281,22 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Skull Big Chest Hookpath', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Skull Torch Room WN', player), lambda state: state.has('Fire Rod', player))
     set_rule(world.get_entrance('Skull Vines NW', player), lambda state: state.has_sword(player))
-    set_rule(world.get_entrance('Skull 2 West Lobby Pits', player), lambda state: state.has_Boots(player) or state.has('Hidden Pits', player))
-    set_rule(world.get_entrance('Skull 2 West Lobby Ledge Pits', player), lambda state: state.has('Hidden Pits', player))
+
+    hidden_pits_door = world.get_door('Skull Small Hall WS', player)
+
+    def hidden_pits_rule(state):
+        return state.has('Hidden Pits', player)
+
+    if hidden_pits_door.bigKey:
+        key_logic = world.key_logic[player][hidden_pits_door.entrance.parent_region.dungeon.name]
+        hidden_pits_rule = and_rule(hidden_pits_rule, create_rule(key_logic.bk_name, player))
+    elif hidden_pits_door.smallKey:
+        d_name = hidden_pits_door.entrance.parent_region.dungeon.name
+        hidden_pits_rule = and_rule(hidden_pits_rule, eval_small_key_door('Skull Small Hall WS', d_name, player))
+
+    set_rule(world.get_entrance('Skull 2 West Lobby Pits', player), lambda state: state.has_Boots(player)
+             or hidden_pits_rule(state))
+    set_rule(world.get_entrance('Skull 2 West Lobby Ledge Pits', player), hidden_pits_rule)
     set_defeat_dungeon_boss_rule(world.get_location('Skull Woods - Boss', player))
     set_defeat_dungeon_boss_rule(world.get_location('Skull Woods - Prize', player))
 

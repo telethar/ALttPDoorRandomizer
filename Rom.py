@@ -2221,7 +2221,7 @@ def write_strings(rom, world, player, team):
         hint_candidates = []
         for name, district in world.districts[player].items():
             hint_type = 'foolish'
-            choice_set = set()
+            choices = []
             item_count, item_type = 0, 'useful'
             for loc_name in district.locations:
                 location_item = world.get_location(loc_name, player).item
@@ -2231,34 +2231,32 @@ def write_strings(rom, world, player, team):
                     itm_type = 'useful' if useful_item_for_hint(location_item, world) else 'vital'
                     hint_type = 'path'
                     if item_type == itm_type:
-                        choice_set.add(location_item)
+                        choices.append(location_item)
                         item_count += 1
                     elif itm_type == 'vital':
                         item_type = 'vital'
                         item_count = 1
-                        choice_set.clear()
-                        choice_set.add(location_item)
+                        choices.clear()
+                        choices.append(location_item)
             if hint_type == 'foolish':
                 if district.dungeons and world.shuffle[player] != 'vanilla':
-                    choice_set.update(district.dungeons)
+                    choices.extend(district.dungeons)
                     hint_type = 'dungeon_path'
                 elif district.access_points and world.shuffle[player] not in ['vanilla', 'dungeonssimple',
                                                                               'dungeonsfull']:
-                    choice_set.update([x.hint_text for x in district.access_points])
+                    choices.extend([x.hint_text for x in district.access_points])
                     hint_type = 'connector'
             if hint_type == 'foolish':
                 hint_candidates.append((hint_type, f'{name} is a foolish choice'))
             elif hint_type == 'dungeon_path':
-                choices = sorted(list(choice_set))
                 dungeon_choice = random.choice(choices)  # prefer required dungeons...
                 hint_candidates.append((hint_type, f'{name} is on the path to {dungeon_choice}'))
             elif hint_type == 'connector':
-                choices = sorted(list(choice_set))
                 access_point = random.choice(choices)  # prefer required access...
                 hint_candidates.append((hint_type, f'{name} can reach {access_point}'))
             elif hint_type == 'path':
                 if item_count == 1:
-                    the_item = text_for_item(next(iter(choice_set)), world, player, team)
+                    the_item = text_for_item(next(iter(choices)), world, player, team)
                     hint_candidates.append((hint_type, f'{name} conceals only {the_item}'))
                 else:
                     hint_candidates.append((hint_type, f'{name} conceals {item_count} {item_type} items'))

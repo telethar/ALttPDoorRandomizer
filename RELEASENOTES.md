@@ -108,7 +108,11 @@ These are now independent of retro mode and have three options: None, Random, an
 * Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
-
+* 1.2.0.4-u
+  * Starting inventory fixes if item not present in the item pool.
+  * Support for Assured sword setting and OWG Boots when using a custom item pool. (Customizer or GUI)
+  * Logic fix for the skull woods star tile that lets you into the X pot room. Now accounts for small key or big key door there blocking the way from the star tile. A trap door is not allowed there.
+  * Standard logic improvement that requires a path from Zelda to the start so that you cannot get softlocked by rescuing Zelda. Standard mirror scroll change may need to be reverted if impossible seed are still generated.
 * 1.2.0.3-u
   * Starting inventory taken into account with default item pool. (Custom pools must do this themselves)
   * Fast ROM update

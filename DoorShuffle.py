@@ -2107,7 +2107,7 @@ def find_trappable_candidates(builder, world, player):
                           if ext.door and ext.door.type in [DoorType.Interior, DoorType.Normal]]
         for d in filtered_doors:
             # I only support the first 3 due to the trapFlag right now
-            if 0 <= d.doorListPos < 3 and not d.entranceFlag:
+            if 0 <= d.doorListPos < 3 and not d.entranceFlag and d.name != 'Skull Small Hall WS':
                 room = world.get_room(d.roomIndex, player)
                 kind = room.kind(d)
                 if d.type == DoorType.Interior:

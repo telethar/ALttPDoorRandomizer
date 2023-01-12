@@ -7,8 +7,6 @@ settings:
     pseudoboots: true
     goal: crystals
     crystals_gt: random
-    shuffle: crossed
-    shufflelinks: true
     keysanity: true
     door_shuffle: crossed
     intensity: 3
@@ -21,3 +19,10 @@ settings:
     msu_resume: true
     collection_rate: true
     quickswap: true
+start_inventory:
+  1:
+    - Pegasus Boots
+    - Ocarina (Activated)
+    - Magic Mirror
+    - Boss Heart Container
+    - Blue Mail
