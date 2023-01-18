@@ -551,7 +551,7 @@ def customizer_portals(master_door_list, world, player):
                 if isinstance(dest, str):
                     door = world.get_door(dest, player)
                     assigned_doors.add(door)
-                else:
+                elif 'dest' in dest:
                     door = world.get_door(dest['dest'], player)
                     assigned_doors.add(door)
     return custom_portals, assigned_doors
@@ -1708,8 +1708,8 @@ def setup_custom_door_types(world, player):
                     if d.type == DoorType.SpiralStairs:
                         type_map[door_kind][dungeon.name].append(d)
                     else:
-                        # check if the
-                        if d.dest.type in [DoorType.Interior, DoorType.Normal]:
+                        # check if the dest is paired
+                        if d.dest.type in [DoorType.Interior, DoorType.Normal] and door_kind != 'Trap Door':
                             type_map[door_kind][dungeon.name].append((d, d.dest))
                         else:
                             type_map[door_kind][dungeon.name].append(d)
@@ -1852,10 +1852,11 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, world,
             ttl += len(builder.candidates.big)
         if ttl == 0:
             continue
+        remaining = max(0, remaining)
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             proportion = len(builder.candidates.big)
-            calc = int(round(proportion * door_type_pool.bigs/ttl))
+            calc = int(round(proportion * remaining/ttl))
             suggested = min(proportion, calc)
             remaining -= suggested
             suggestion_map[dungeon] = suggested
@@ -1909,12 +1910,15 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             if not total_adjustable:
                 builder.total_keys = total_keys
             find_small_key_door_candidates(builder, start_regions_map[dungeon], used_doors, world, player)
+            custom_doors = 0
             if custom_key_doors[dungeon]:
                 builder.candidates.small = filter_key_door_pool(builder.candidates.small, custom_key_doors[dungeon])
-                remaining -= len(custom_key_doors[dungeon])
-            builder.key_doors_num = max(0, len(builder.candidates.small) - builder.key_drop_cnt)
+                custom_doors = len(custom_key_doors[dungeon])
+                remaining -= custom_doors
+            builder.key_doors_num = max(0, len(builder.candidates.small) - builder.key_drop_cnt) + custom_doors
             total_keys -= builder.key_drop_cnt
             ttl += builder.key_doors_num
+        remaining = max(0, remaining)
         for dungeon in pool:
             builder = world.dungeon_layouts[player][dungeon]
             calculated = int(round(builder.key_doors_num*total_keys/ttl))
@@ -1922,7 +1926,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, worl
             cand_len = max(0, len(builder.candidates.small) - builder.key_drop_cnt)
             limit = min(max_keys, cand_len, max_computation)
             suggested = min(calculated, limit)
-            key_door_num =  min(suggested + builder.key_drop_cnt, max_computation)
+            key_door_num = min(suggested + builder.key_drop_cnt, max_computation)
             combo_size = ncr(len(builder.candidates.small), key_door_num)
             while combo_size > 500000 and suggested > 0:
                 suggested -= 1
@@ -2142,6 +2146,7 @@ def find_valid_trap_combination(builder, suggested, start_regions, paths, world,
     if custom_trap_doors:
         trap_door_pool = filter_key_door_pool(trap_door_pool, custom_trap_doors)
         trap_doors_needed -= len(custom_trap_doors)
+        trap_doors_needed = max(0, trap_doors_needed)
     if len(trap_door_pool) < trap_doors_needed:
         if not drop:
             return None, 0
@@ -2420,6 +2425,7 @@ def find_valid_bk_combination(builder, suggested, start_regions, world, player, 
     if custom_bk_doors:
         bk_door_pool = filter_key_door_pool(bk_door_pool, custom_bk_doors)
         bk_doors_needed -= len(custom_bk_doors)
+        bk_doors_needed = max(0, bk_doors_needed)
     if len(bk_door_pool) < bk_doors_needed:
         if not drop:
             return None, 0
@@ -2559,7 +2565,7 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     if custom_key_doors:  # could validate that each custom item is in the candidates
         key_door_pool = filter_key_door_pool(key_door_pool, custom_key_doors)
         key_doors_needed -= len(custom_key_doors)
-
+        key_doors_needed = max(0, key_doors_needed)
     # find valid combination of candidates
     if len(key_door_pool) < key_doors_needed:
         if not drop_keys:
@@ -2574,6 +2580,7 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     sample_list = build_sample_list(combinations)
     proposal = kth_combination(sample_list[itr], key_door_pool, key_doors_needed)
     proposal.extend(custom_key_doors)
+    builder.key_doors_num = len(proposal)
     start_regions, event_starts = filter_start_regions(builder, start_regions, world, player)
 
     key_layout = build_key_layout(builder, start_regions, proposal, event_starts, world, player)
@@ -2606,7 +2613,7 @@ def find_valid_combination(builder, target, start_regions, world, player, drop_k
     builder.key_door_proposal = proposal
     world.key_logic[player][builder.name] = key_layout.key_logic
     world.key_layout[player][builder.name] = key_layout
-    return builder.key_door_proposal, key_doors_needed
+    return builder.key_door_proposal, key_doors_needed + len(custom_key_doors)
 
 
 def find_bd_candidates(builder, start_regions, used, world, player):

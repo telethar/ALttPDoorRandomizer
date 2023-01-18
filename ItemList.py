@@ -1383,7 +1383,8 @@ def fill_specific_items(world):
                         world.push_item(loc, item_to_place, False)
                         track_outside_keys(item_to_place, loc, world)
                         track_dungeon_items(item_to_place, loc, world)
-                        loc.event = event_flag or item_to_place.advancement
+                        loc.event = (event_flag or item_to_place.advancement
+                                     or item_to_place.bigkey or item_to_place.smallkey)
         advanced_placements = world.customizer.get_advanced_placements()
         if advanced_placements:
             for player, placement_list in advanced_placements.items():

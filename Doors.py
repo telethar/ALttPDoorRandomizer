@@ -1473,6 +1473,8 @@ def create_doors(world, player):
     world.get_door('GT Spike Crystal Right to Left Barrier - Orange', player).barrier(CrystalBarrier.Orange)
     world.get_door('GT Spike Crystal Left to Right Bypass', player).barrier(CrystalBarrier.Blue)
 
+    world.get_door('Sanctuary Mirror Route', player).barrier(CrystalBarrier.Orange)
+
     # kill certain doors
     if world.intensity[player] == 1:  # due to ladder & warp being fixed
         world.get_door('PoD Mimics 2 SW', player).kill()
