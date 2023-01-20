@@ -108,6 +108,9 @@ These are now independent of retro mode and have three options: None, Random, an
 * Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
+* 1.2.0.5.u
+  * Logic fix for Sanctuary mirror (it wasn't resetting the crystal state) 
+  * Minor bugfixes for customizer
 * 1.2.0.4-u
   * Starting inventory fixes if item not present in the item pool.
   * Support for Assured sword setting and OWG Boots when using a custom item pool. (Customizer or GUI)

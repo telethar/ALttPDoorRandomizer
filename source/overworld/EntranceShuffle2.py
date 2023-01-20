@@ -311,7 +311,7 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         unused_entrances.update(lw_entrances)
         unused_entrances.update(dw_entrances)
     else:
-        entrance_list = [x for x in rem_entrances if bonk_fairy_exception(x)]
+        entrance_list = sorted([x for x in rem_entrances if bonk_fairy_exception(x)])
         do_cross_world_connectors(entrance_list, multi_exit_caves, avail)
         unused_entrances.update(entrance_list)
 
