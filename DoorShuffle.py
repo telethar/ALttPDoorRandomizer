@@ -797,15 +797,18 @@ def main_dungeon_pool(dungeon_pool, world, player):
                 hc = world.get_dungeon('Hyrule Castle', player)
                 hc_compass = ItemFactory('Compass (Escape)', player)
                 hc_compass.advancement = world.restrict_boss_items[player] != 'none'
-                hc.dungeon_items.append(hc_compass)
+                if hc.dungeon_items.count(hc_compass) < 1:
+                    hc.dungeon_items.append(hc_compass)
             if 'Agahnims Tower' in pool:
                 at = world.get_dungeon('Agahnims Tower', player)
                 at_compass = ItemFactory('Compass (Agahnims Tower)', player)
                 at_compass.advancement = world.restrict_boss_items[player] != 'none'
-                at.dungeon_items.append(at_compass)
+                if at.dungeon_items.count(at_compass) < 1:
+                    at.dungeon_items.append(at_compass)
                 at_map = ItemFactory('Map (Agahnims Tower)', player)
                 at_map.advancement = world.restrict_boss_items[player] != 'none'
-                at.dungeon_items.append(at_map)
+                if at.dungeon_items.count(at_map) < 1:
+                    at.dungeon_items.append(at_map)
             sector_pool = convert_to_sectors(region_list, world, player)
             merge_sectors(sector_pool, world, player)
             # todo: which dungeon to create
@@ -1237,10 +1240,13 @@ def cross_dungeon(world, player):
     if world.restrict_boss_items[player] != 'none':
         hc_compass.advancement = at_compass.advancement = at_map.advancement = True
     hc = world.get_dungeon('Hyrule Castle', player)
-    hc.dungeon_items.append(hc_compass)
+    if hc.dungeon_items.count(hc_compass) < 1:
+        hc.dungeon_items.append(hc_compass)
     at = world.get_dungeon('Agahnims Tower', player)
-    at.dungeon_items.append(at_compass)
-    at.dungeon_items.append(at_map)
+    if at.dungeon_items.count(at_compass) < 1:
+        at.dungeon_items.append(at_compass)
+    if at.dungeon_items.count(at_map) < 1:
+        at.dungeon_items.append(at_map)
 
     setup_custom_door_types(world, player)
     assign_cross_keys(dungeon_builders, world, player)
