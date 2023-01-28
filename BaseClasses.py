@@ -2646,6 +2646,7 @@ class Spoiler(object):
                 outfile.write('Enemy health:                    %s\n' % self.metadata['enemy_health'][player])
                 outfile.write('Enemy damage:                    %s\n' % self.metadata['enemy_damage'][player])
                 outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
+                outfile.write('Race:                            %s\n' % ('Yes' if self.world.settings.world_rep['meta']['race'] else 'No'))
 
             if self.startinventory:
                 outfile.write('Starting Inventory:'.ljust(line_width))
