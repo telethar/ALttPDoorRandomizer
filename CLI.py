@@ -122,6 +122,11 @@ def parse_cli(argv, no_defaults=False):
         defaults = copy.deepcopy(ret)
         for player in range(1, player_num + 1):
             playerargs = parse_cli(shlex.split(getattr(ret, f"p{player}")), True)
+            
+            if playerargs.filename:
+                playersettings = apply_settings_file({}, playerargs.filename)
+                for k, v in playersettings.items():
+                    setattr(playerargs, k, v)
 
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',
                          'flute_mode', 'bow_mode', 'take_any', 'boots_hint',
