@@ -380,6 +380,11 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         random.shuffle(fill_locations)
 
     random.shuffle(world.itempool)
+    if world.item_pool_config.preferred:
+        pref = list(world.item_pool_config.preferred.keys())
+        pref_len = len(pref)
+        world.itempool.sort(key=lambda i: pref_len - pref.index((i.name, i.player))
+                            if (i.name, i.player) in world.item_pool_config.preferred else 0)
     progitempool = [item for item in world.itempool if item.advancement]
     prioitempool = [item for item in world.itempool if not item.advancement and item.priority]
     restitempool = [item for item in world.itempool if not item.advancement and not item.priority]
