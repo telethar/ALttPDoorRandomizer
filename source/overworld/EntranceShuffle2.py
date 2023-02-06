@@ -632,7 +632,7 @@ def do_fixed_shuffle(avail, entrance_list):
         rules = Restrictions()
         rules.size = size
         if ('Hyrule Castle Entrance (South)' in entrances and
-           avail.world.doorShuffle[avail.player] in ['basic', 'crossed']):
+           avail.world.doorShuffle[avail.player] != 'vanilla'):
             rules.must_exit_to_lw = True
         if 'Inverted Ganons Tower' in entrances and not avail.world.shuffle_ganon:
             rules.fixed = True

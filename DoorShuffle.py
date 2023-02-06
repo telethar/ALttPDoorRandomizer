@@ -476,14 +476,14 @@ def choose_portals(world, player):
                 info.required_passage = {x: y for x, y in info.required_passage.items() if len(y) > 0}
             for target_region, possible_portals in info.required_passage.items():
                 candidates = find_portal_candidates(master_door_list, dungeon, custom, allowed, need_passage=True,
-                                                    bk_shuffle=bk_shuffle, rupee_bow=rupee_bow_flag)
+                                                    bk_shuffle=bk_shuffle, standard=std_flag, rupee_bow=rupee_bow_flag)
                 choice, portal = assign_portal(candidates, possible_portals, custom, world, player)
                 portal.destination = True
                 clean_up_portal_assignment(portal_assignment, dungeon, portal, master_door_list, outstanding_portals)
             dead_end_choices = info.total - 1 - len(portal_assignment[dungeon])
             for i in range(0, dead_end_choices):
                 candidates = find_portal_candidates(master_door_list, dungeon, custom, allowed, dead_end_allowed=True,
-                                                    bk_shuffle=bk_shuffle, rupee_bow=rupee_bow_flag)
+                                                    bk_shuffle=bk_shuffle, standard=std_flag, rupee_bow=rupee_bow_flag)
                 possible_portals = outstanding_portals if not info.sole_entrance else [x for x in outstanding_portals if x != info.sole_entrance]
                 choice, portal = assign_portal(candidates, possible_portals, custom, world, player)
                 if choice.deadEnd:
