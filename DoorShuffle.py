@@ -2493,6 +2493,8 @@ def reassign_big_key_doors(bk_map, world, player):
                 if d1.type is DoorType.Interior:
                     change_door_to_big_key(d1, world, player)
                     d2.bigKey = True  # ensure flag is set
+                    if d2.smallKey:
+                        d2.smallKey = False
                 else:
                     world.paired_doors[player].append(PairedDoor(d1.name, d2.name))
                     change_door_to_big_key(d1, world, player)
@@ -2521,6 +2523,8 @@ def reassign_big_key_doors(bk_map, world, player):
 
 def change_door_to_big_key(d, world, player):
     d.bigKey = True
+    if d.smallKey:
+        d.smallKey = False
     room = world.get_room(d.roomIndex, player)
     if room.doorList[d.doorListPos][1] != DoorKind.BigKey:
         verify_door_list_pos(d, room, world, player)
