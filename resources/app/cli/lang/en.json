@@ -63,11 +63,13 @@
     "bps": [ "Output BPS patches instead of ROMs"],
     "logic": [
       "Select Enforcement of Item Requirements. (default: %(default)s)",
-      "No Glitches:    No Glitch knowledge required.",
-      "Minor Glitches: May require Fake Flippers, Bunny Revival",
-      "                and Dark Room Navigation.",
-      "No Logic:       Distribute items without regard for",
-      "                item requirements."
+      "No Glitches:           No Glitch knowledge required.",
+      "Minor Glitches:        May require Fake Flippers, Bunny Revival",
+      "                       and Dark Room Navigation.",
+      "Overworld Glitches:    May require overworld clips and teleports.",
+      "Hybrid Major Glitches: May require underworld clips.",
+      "No Logic:              Distribute items without regard for",
+      "                       item requirements."
     ],
     "mode": [
       "Select game mode. (default: %(default)s)",

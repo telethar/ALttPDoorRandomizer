@@ -111,7 +111,7 @@ class World(object):
             set_player_attr('can_access_trock_front', None)
             set_player_attr('can_access_trock_big_chest', None)
             set_player_attr('can_access_trock_middle', None)
-            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic']
+            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'hybridglitches', 'nologic']
                             or shuffle[player] in ['lean', 'swapped', 'crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
@@ -1099,6 +1099,9 @@ class CollectionState(object):
 
     def can_lift_rocks(self, player):
         return self.has('Power Glove', player) or self.has('Titans Mitts', player)
+    
+    def can_bomb_clip(self, region, player: int) -> bool: 
+        return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player) and self.can_use_bombs(player)
 
     def has_bottle(self, player):
         return self.bottle_count(player) > 0
@@ -2973,7 +2976,7 @@ er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, 
            'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6, 'swapped': 10}
 
 # byte 1: LLLW WSS? (logic, mode, sword)
-logic_mode = {"noglitches": 0, "minorglitches": 1, "nologic": 2, "owglitches": 3, "majorglitches": 4}
+logic_mode = {"noglitches": 0, "minorglitches": 1, "nologic": 2, "owglitches": 3, "majorglitches": 4, "hybridglitches": 5}
 world_mode = {"open": 0, "standard": 1, "inverted": 2}
 sword_mode = {"random": 0, "assured": 1, "swordless": 2, "vanilla": 3}
 

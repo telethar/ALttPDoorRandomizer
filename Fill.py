@@ -175,6 +175,9 @@ def valid_key_placement(item, location, key_pool, collection_state, world):
     if dungeon:
         if dungeon.name not in item.name and (dungeon.name != 'Hyrule Castle' or 'Escape' not in item.name):
             return True
+        # Small key and big key in Swamp and Hera are placed without logic
+        if world.logic[item.player] == 'hybridglitches' and dungeon.name in ['Tower of Hera', 'Swamp Palace'] and dungeon.name in item.name:
+            return True
         key_logic = world.key_logic[item.player][dungeon.name]
         unplaced_keys = len([x for x in key_pool if x.name == key_logic.small_key_name and x.player == item.player])
         prize_loc = None
@@ -398,7 +401,7 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     # fill in gtower locations with trash first
     for player in range(1, world.players + 1):
         if (not gftower_trash or not world.ganonstower_vanilla[player]
-           or world.logic[player] in ['owglitches', 'nologic']):
+           or world.logic[player] in ['owglitches', 'hybridglitches', 'nologic']):
             continue
         gt_count, total_count = calc_trash_locations(world, player)
         scale_factor = .75 * (world.crystals_needed_for_gt[player] / 7)

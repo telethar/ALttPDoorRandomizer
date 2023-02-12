@@ -27,6 +27,7 @@ from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dunge
 from Fill import dungeon_tracking
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
+from UnderworldGlitchRules import create_hybridmajor_connections, create_hybridmajor_connectors
 from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
@@ -205,7 +206,7 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         create_regions(world, player)
-        if world.logic[player] in ('owglitches', 'nologic'):
+        if world.logic[player] in ('owglitches', 'hybridglitches', 'nologic'):
             create_owg_connections(world, player)
         create_dungeon_regions(world, player)
         create_shops(world, player)
@@ -216,6 +217,8 @@ def main(args, seed=None, fish=None):
         world.data_tables[player] = init_data_tables(world, player)
         place_bosses(world, player)
         randomize_enemies(world, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connections(world, player)
         adjust_locations(world, player)
 
     if world.customizer and world.customizer.get_start_inventory():
@@ -245,6 +248,8 @@ def main(args, seed=None, fish=None):
             link_entrances_new(world, player)
         else:
             link_entrances(world, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connectors(world, player)
 
     logger.info(world.fish.translate("cli", "cli", "shuffling.prep"))
     for player in range(1, world.players + 1):
@@ -497,8 +502,11 @@ def copy_world(world):
         create_shops(ret, player)
         create_rooms(ret, player)
         create_dungeons(ret, player)
-        if world.logic[player] in ('owglitches', 'nologic'):
+        if world.logic[player] in ('owglitches', 'hybridglitches', 'nologic'):
             create_owg_connections(ret, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connections(ret, player)
+
 
     # there are region references here they must be migrated to preserve integrity
     # ret.exp_cache = world.exp_cache.copy()
@@ -579,6 +587,8 @@ def copy_world(world):
     ret.sanc_portal = world.sanc_portal
 
     for player in range(1, world.players + 1):
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connectors(ret, player)
         set_rules(ret, player)
 
     return ret

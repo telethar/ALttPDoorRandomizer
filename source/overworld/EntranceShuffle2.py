@@ -957,7 +957,7 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         invalid_connections = Must_Exit_Invalid_Connections.copy()
     invalid_cave_connections = defaultdict(set)
 
-    if avail.world.logic[avail.player] in ['owglitches', 'nologic']:
+    if avail.world.logic[avail.player] in ['owglitches', 'hybridglitches', 'nologic']:
         import OverworldGlitchRules
         for entrance in OverworldGlitchRules.get_non_mandatory_exits(avail.inverted):
             invalid_connections[entrance] = set()

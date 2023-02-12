@@ -8,6 +8,7 @@ from BaseClasses import PotFlags
 from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
+from UnderworldGlitchRules import underworld_glitches_rules
 
 from source.logic.Rule import RuleFactory
 from source.dungeon.EnemyList import EnemySprite, Sprite
@@ -48,7 +49,7 @@ def set_rules(world, player):
         logging.getLogger('').info('Minor Glitches may be buggy still. No guarantee for proper logic checks.')
         no_glitches_rules(world, player)
         fake_flipper_rules(world, player)
-    elif world.logic[player] == 'owglitches':
+    elif world.logic[player] in ['owglitches', 'hybridglitches']:
         logging.getLogger('').info('There is a chance OWG has bugged edge case rulesets, especially in inverted. Definitely file a report on GitHub if you see anything strange.')
         # Initially setting no_glitches_rules to set the baseline rules for some
         # entrances. The overworld_glitches_rules set is primarily additive.
@@ -73,7 +74,7 @@ def set_rules(world, player):
 
     if world.mode[player] != 'inverted':
         set_big_bomb_rules(world, player)
-        if world.logic[player] == 'owglitches' and world.shuffle[player] != 'insanity':
+        if world.logic[player] in ['owglitches', 'hybridglitches'] and world.shuffle[player] != 'insanity':
             path_to_courtyard = mirrorless_path_to_castle_courtyard(world, player)
             add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: state.world.get_entrance('Dark Death Mountain Offset Mirror', player).can_reach(state) and all(rule(state) for rule in path_to_courtyard), 'or')
     else:
@@ -85,7 +86,11 @@ def set_rules(world, player):
 
     set_bunny_rules(world, player, world.mode[player] == 'inverted')
 
-    if world.mode[player] != 'inverted' and world.logic[player] == 'owglitches':
+    # These rules go here because the overwrite/add to some of the above rules
+    if world.logic[player] == 'hybridglitches':
+        underworld_glitches_rules(world, player)
+
+    if world.mode[player] != 'inverted' and world.logic[player] in ['owglitches', 'hybridglitches']:
         add_rule(world.get_entrance('Ganons Tower', player), lambda state: state.world.get_entrance('Ganons Tower Ascent', player).can_reach(state), 'or')
 
 
@@ -1898,7 +1903,7 @@ def set_bunny_rules(world, player, inverted):
     def get_rule_to_add(region, location=None, connecting_entrance=None):
         # In OWG, a location can potentially be superbunny-mirror accessible or
         # bunny revival accessible.
-        if world.logic[player] == 'owglitches':
+        if world.logic[player] in ['owglitches', 'hybridglitches']:
             if region.type != RegionType.Dungeon \
                     and (location is None or location.name not in OverworldGlitchRules.get_superbunny_accessible_locations()) \
                     and not is_link(region):
@@ -1928,7 +1933,7 @@ def set_bunny_rules(world, player, inverted):
                 new_path = path + [entrance.access_rule]
                 new_seen = seen.union({new_region})
                 if not is_link(new_region):
-                    if world.logic[player] == 'owglitches':
+                    if world.logic[player] in ['owglitches', 'hybridglitches']:
                         if region.type == RegionType.Dungeon and new_region.type != RegionType.Dungeon:
                             if entrance.name in OverworldGlitchRules.get_invalid_mirror_bunny_entrances():
                                 continue
@@ -2154,6 +2159,9 @@ def add_key_logic_rules(world, player):
                     add_rule(dep.entrance, eval_func(door_name, d_name, player))
         for location in d_logic.bk_restricted:
             if not location.forced_item:
+                # Skip BK restricted locations in hybrid glitches. Bad, but necessary for now.
+                if world.logic[player] == 'hybridglitches' and d_name in ['Tower of Hera', 'Swamp Palace']:
+                    continue
                 forbid_item(location, d_logic.bk_name, player)
         for location in d_logic.sm_restricted:
             forbid_item(location, d_logic.small_key_name, player)
