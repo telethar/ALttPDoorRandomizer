@@ -116,8 +116,10 @@ def underworld_glitches_rules(world, player):
     Rules.add_rule(world.get_entrance("Hera Startile Corner NW", player), lambda state: mire_clip(state) and state.has("Big Key (Misery Mire)", player), combine="or")
     
     # We need to set _all_ swamp doors to be openable with mire keys, otherwise the small key can't be behind them - 6 keys because of Pots
-    # Flippers required for the doors going _into_ the dungeon
+    # Flippers required for all of these doors to prevent locks when flooding
     for door in [
+        "Swamp Trench 1 Approach ES",
+        "Swamp Hammer Switch SW",
         "Swamp Entrance Down Stairs",
         "Swamp Pot Row WS",
         "Swamp Trench 1 Key Ledge NW",
@@ -129,10 +131,6 @@ def underworld_glitches_rules(world, player):
         "Swamp T SW",
     ]:
         Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6) and state.has('Flippers', player), combine="or")
-
-    # These doors let us go backwards so we don't require flippers
-    for door in [ "Swamp Trench 1 Approach ES", "Swamp Hammer Switch SW",]:
-        Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6), combine="or")
 
     Rules.add_rule(world.get_location("Trench 1 Switch", player), lambda state: mire_clip(state) or hera_clip(state), combine="or")
 
