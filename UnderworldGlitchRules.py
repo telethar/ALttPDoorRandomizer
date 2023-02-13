@@ -99,7 +99,7 @@ def dungeon_reentry_rules(world, player, clip: Entrance, dungeon_region: str, du
 
 def underworld_glitches_rules(world, player):
     # Ice Palace Entrance Clip
-    Rules.add_rule(world.get_entrance("Ice Lobby SE", player), lambda state: state.can_bomb_clip(world.get_region("Ice Lobby", player), player), combine="or")
+    Rules.add_rule(world.get_entrance("Ice Bomb Drop SE", player), lambda state: state.can_bomb_clip(world.get_region("Ice Lobby", player), player), combine="or")
 
     # Kiki Skip
     kks = world.get_entrance("Kiki Skip", player)
