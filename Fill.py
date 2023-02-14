@@ -143,21 +143,24 @@ def verify_spot_to_fill(location, item_to_place, max_exp_state, single_player_pl
                         key_pool, world):
     if item_to_place.smallkey or item_to_place.bigkey:  # a better test to see if a key can go there
         location.item = item_to_place
+        location.event = True
         test_state = max_exp_state.copy()
         test_state.stale[item_to_place.player] = True
     else:
         test_state = max_exp_state
     if not single_player_placement or location.player == item_to_place.player:
+        test_state.sweep_for_events()
         if location.can_fill(test_state, item_to_place, perform_access_check):
-            if valid_key_placement(item_to_place, location, key_pool, world):
+            if valid_key_placement(item_to_place, location, key_pool, test_state, world):
                 if item_to_place.crystal or valid_dungeon_placement(item_to_place, location, world):
                     return location
     if item_to_place.smallkey or item_to_place.bigkey:
         location.item = None
+        location.event = False
     return None
 
 
-def valid_key_placement(item, location, key_pool, world):
+def valid_key_placement(item, location, key_pool, collection_state, world):
     if not valid_reserved_placement(item, location, world):
         return False
     if ((not item.smallkey and not item.bigkey) or item.player != location.player
@@ -174,7 +177,15 @@ def valid_key_placement(item, location, key_pool, world):
             prize_loc = world.get_location(key_logic.prize_location, location.player)
         cr_count = world.crystals_needed_for_gt[location.player]
         wild_keys = world.keyshuffle[item.player] != 'none'
-        return key_logic.check_placement(unplaced_keys, wild_keys, location if item.bigkey else None, prize_loc, cr_count)
+        if wild_keys:
+            reached_keys = {x for x in collection_state.locations_checked
+                            if x.item and x.item.name == key_logic.small_key_name and x.item.player == item.player}
+        else:
+            reached_keys = set()  # will be calculated using key logic in a moment
+        self_locking_keys = sum(1 for d, rule in key_logic.door_rules.items() if rule.allow_small
+                                and rule.small_location.item and rule.small_location.item.name == key_logic.small_key_name)
+        return key_logic.check_placement(unplaced_keys, wild_keys, reached_keys, self_locking_keys,
+                                         location if item.bigkey else None,  prize_loc, cr_count)
     else:
         return not item.is_inside_dungeon_item(world)
 
@@ -205,6 +216,7 @@ def track_outside_keys(item, location, world):
         if loc_dungeon and loc_dungeon.name == item_dungeon:
             return  # this is an inside key
     world.key_logic[item.player][item_dungeon].outside_keys += 1
+    world.key_logic[item.player][item_dungeon].outside_keys_locations.add(location)
 
 
 def track_dungeon_items(item, location, world):
@@ -345,7 +357,9 @@ def find_spot_for_item(item_to_place, locations, world, base_state, pool,
             test_state = maximum_exploration_state
         if (not single_player_placement or location.player == item_to_place.player) \
              and location.can_fill(test_state, item_to_place, perform_access_check) \
-             and valid_key_placement(item_to_place, location, pool if (keys_in_itempool and keys_in_itempool[item_to_place.player]) else world.itempool, world):
+             and valid_key_placement(item_to_place, location,
+                                     pool if (keys_in_itempool and keys_in_itempool[item_to_place.player]) else world.itempool,
+                                     test_state, world):
             return location
         if item_to_place.smallkey or item_to_place.bigkey:
             location.item = old_item
@@ -424,10 +438,16 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     random.shuffle(fill_locations)
     fill_locations.reverse()
 
-    # Make sure the escape small key is placed first in standard with key shuffle to prevent running out of spots
-    # todo: crossed
-    progitempool.sort(key=lambda item: 1 if item.name == 'Small Key (Escape)'
-                      and world.keyshuffle[item.player] != 'none' and world.mode[item.player] == 'standard' else 0)
+    # Make sure the escape keys ire placed first in standard to prevent running out of spots
+    def std_item_sort(item):
+        if world.mode[item.player] == 'standard':
+            if item.name == 'Small Key (Escape)':
+                return 1
+            if item.name == 'Big Key (Escape)':
+                return 2
+        return 0
+
+    progitempool.sort(key=std_item_sort)
     key_pool = [x for x in progitempool if x.smallkey]
 
     # sort maps and compasses to the back -- this may not be viable in equitable & ambrosia

@@ -1423,10 +1423,10 @@ class Region(object):
                                or (item.bigkey and not self.world.bigkeyshuffle[item.player])
                                or (item.map and not self.world.mapshuffle[item.player])
                                or (item.compass and not self.world.compassshuffle[item.player]))
-        sewer_hack = self.world.mode[item.player] == 'standard' and item.name == 'Small Key (Escape)'
-        if sewer_hack or inside_dungeon_item:
+        # not all small keys to escape must be in escape
+        # sewer_hack = self.world.mode[item.player] == 'standard' and item.name == 'Small Key (Escape)'
+        if inside_dungeon_item:
             return self.dungeon and self.dungeon.is_dungeon_item(item) and item.player == self.player
-
         return True
 
     def __str__(self):

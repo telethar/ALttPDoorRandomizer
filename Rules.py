@@ -1288,7 +1288,7 @@ def standard_rules(world, player):
     # zelda should be saved before agahnim is in play
     add_rule(world.get_location('Agahnim 1', player), lambda state: state.has('Zelda Delivered', player))
 
-    # too restrictive for crossed?
+    # uncle can't have keys generally because unplaced items aren't used here
     def uncle_item_rule(item):
         copy_state = CollectionState(world)
         copy_state.collect(item)

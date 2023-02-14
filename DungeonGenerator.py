@@ -772,6 +772,13 @@ def connect_simple_door(exit_door, region):
 
 
 special_big_key_doors = ['Hyrule Dungeon Cellblock Door', "Thieves Blind's Cell Door"]
+std_special_big_key_doors = ['Hyrule Castle Throne Room Tapestry'] + special_big_key_doors
+
+
+def get_special_big_key_doors(world, player):
+    if world.mode[player] == 'standard':
+        return std_special_big_key_doors
+    return special_big_key_doors
 
 
 class ExplorationState(object):
@@ -1002,7 +1009,8 @@ class ExplorationState(object):
             if self.can_traverse(door):
                 if door.controller:
                     door = door.controller
-                if (door in big_key_door_proposal or door.name in special_big_key_doors) and not self.big_key_opened:
+                if (door in big_key_door_proposal
+                   or door.name in get_special_big_key_doors(world, player)) and not self.big_key_opened:
                     if not self.in_door_list(door, self.big_doors):
                         self.append_door_to_list(door, self.big_doors)
                 elif door.req_event is not None and door.req_event not in self.events:
@@ -3554,7 +3562,8 @@ def check_for_valid_layout(builder, sector_list, builder_info):
                 split_list['Sewers'].remove(temp_builder.throne_door.entrance.parent_region.name)
             builder.exception_list = list(sector_list)
             return True, {}, package
-        except (GenerationException, NeutralizingException, OtherGenException):
+        except (GenerationException, NeutralizingException, OtherGenException) as e:
+            logging.getLogger('').info(f'Bailing on this layout for', e)
             builder.split_dungeon_map = None
             builder.valid_proposal = None
             if temp_builder.name == 'Hyrule Castle' and temp_builder.throne_door:

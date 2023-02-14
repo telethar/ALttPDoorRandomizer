@@ -320,7 +320,10 @@ def determine_paths_for_dungeon(world, player, all_regions, name):
         paths.append('Hyrule Dungeon Cellblock')
         paths.append(('Hyrule Dungeon Cellblock', 'Hyrule Castle Throne Room'))
         entrance = next(x for x in world.dungeon_portals[player] if x.name == 'Hyrule Castle South')
+        # todo: in non-er, we can use the other portals too
         paths.append(('Hyrule Dungeon Cellblock', entrance.door.entrance.parent_region.name))
+        paths.append(('Hyrule Castle Throne Room', [entrance.door.entrance.parent_region.name,
+                                                    'Hyrule Dungeon Cellblock']))
     if world.doorShuffle[player] in ['basic'] and name == 'Thieves Town':
         paths.append('Thieves Attic Window')
     elif 'Thieves Attic Window' in all_r_names:
@@ -434,6 +437,13 @@ def connect_simple_door(exit_door, region):
 
 
 special_big_key_doors = ['Hyrule Dungeon Cellblock Door', "Thieves Blind's Cell Door"]
+std_special_big_key_doors = ['Hyrule Castle Throne Room Tapestry'] + special_big_key_doors
+
+
+def get_special_big_key_doors(world, player):
+    if world.mode[player] == 'standard':
+        return std_special_big_key_doors
+    return special_big_key_doors
 
 
 class ExplorationState(object):
@@ -674,7 +684,7 @@ class ExplorationState(object):
                 if door in key_door_proposal and door not in self.opened_doors:
                     if not self.in_door_list(door, self.small_doors):
                         self.append_door_to_list(door, self.small_doors)
-                elif (door.bigKey or door.name in special_big_key_doors) and not self.big_key_opened:
+                elif (door.bigKey or door.name in get_special_big_key_doors(world, player)) and not self.big_key_opened:
                     if not self.in_door_list(door, self.big_doors):
                         self.append_door_to_list(door, self.big_doors)
                 elif door.req_event is not None and door.req_event not in self.events:
