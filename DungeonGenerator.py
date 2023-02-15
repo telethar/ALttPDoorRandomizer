@@ -3517,6 +3517,8 @@ def identify_branching_issues(dungeon_map, builder_info):
             unconnected_builders[name] = builder
             for hook, door_list in unreached_doors.items():
                 builder.unfulfilled[hook] += len(door_list)
+        elif package:
+            builder.throne_door, builder.throne_sector, builder.chosen_lobby = package
     return unconnected_builders
 
 
