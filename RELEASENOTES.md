@@ -108,6 +108,9 @@ These are now independent of retro mode and have three options: None, Random, an
 * Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
+* 1.2.0.8-u
+    * Removed a Triforce text
+    * Fix for Desert Tiles 1 key door
 * 1.2.0.7-u
   * Fix for some misery mire key logic
   * Minor standard generation fix
