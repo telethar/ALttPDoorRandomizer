@@ -31,7 +31,7 @@ from Utils import output_path, parse_player_names
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 from source.tools.BPS import create_bps_from_data
 
-__version__ = '1.1.3-dev'
+__version__ = '1.1.4-dev'
 
 from source.classes.BabelFish import BabelFish
 

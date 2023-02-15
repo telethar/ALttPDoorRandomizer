@@ -181,6 +181,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.4
+  * Removed a Triforce text
+  * Fix for Desert Tiles 1 key door
+  * Fix for Ice Freezors Ledge door position
 * 1.1.3
   * Fixed a typo on a door near the key rat
 * 1.1.2
