@@ -193,6 +193,21 @@
       "chaos"
     ]
   },
+  "trap_door_mode": {
+    "choices": [
+      "vanilla",
+      "boss",
+      "oneway"
+    ]
+  },
+  "key_logic_algorithm": {
+    "choices": [
+      "loose",
+      "default",
+      "partial",
+      "strict"
+    ]
+  },
   "decoupledoors": {
     "action": "store_true",
     "type": "bool"

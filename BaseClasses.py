@@ -29,6 +29,8 @@ class World(object):
         self.doorShuffle = doorShuffle.copy()
         self.intensity = {}
         self.door_type_mode = {}
+        self.trap_door_mode = {}
+        self.key_logic_algorithm = {}
         self.logic = logic.copy()
         self.mode = mode.copy()
         self.swords = swords.copy()
@@ -144,6 +146,8 @@ class World(object):
             set_player_attr('pot_pool', {})
             set_player_attr('decoupledoors', False)
             set_player_attr('door_type_mode', 'original')
+            set_player_attr('trap_door_mode', 'vanilla')
+            set_player_attr('key_logic_algorithm', 'default')
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -2434,6 +2438,8 @@ class Spoiler(object):
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
                          'door_type_mode': self.world.door_type_mode,
+                         'trap_door_mode': self.world.trap_door_mode,
+                         'key_logic': self.world.key_logic_algorithm,
                          'decoupledoors': self.world.decoupledoors,
                          'dungeon_counters': self.world.dungeon_counters,
                          'item_pool': self.world.difficulty,
@@ -2640,6 +2646,8 @@ class Spoiler(object):
                 if self.metadata['door_shuffle'][player] != 'vanilla':
                     outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
                     outfile.write(f"Door Type Mode:                  {self.metadata['door_type_mode'][player]}\n")
+                    outfile.write(f"Trap Door Mode:                  {self.metadata['trap_door_mode'][player]}\n")
+                    outfile.write(f"Key Logic Algorithm:             {self.metadata['key_logic'][player]}\n")
                     outfile.write(f"Decouple Doors:                  {yn(self.metadata['decoupledoors'][player])}\n")
                     outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
                 outfile.write(f"Dungeon Counters:                {self.metadata['dungeon_counters'][player]}\n")
@@ -2931,15 +2939,19 @@ boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique
 
 
 # byte 10: settings_version
-# byte 11: FBBB, TTSS (flute_mode, bow_mode, take_any, small_key_mode)
+# byte 11: FBBB TTSS (flute_mode, bow_mode, take_any, small_key_mode)
 flute_mode = {'normal': 0, 'active': 1}
 keyshuffle_mode = {'none': 0, 'wild': 1, 'universal': 2}  # reserved 8 modes?
 take_any_mode = {'none': 0, 'random': 1, 'fixed': 2}
 bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 
 # additions
-# psuedoboots does not effect code
-# sfx_shuffle and other adjust items does not effect settings code
+# byte 12: POOT TKKK (pseudoboots, overworld_map, trap_door_mode, key_logic_algo)
+overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
+trap_door_mode = {'vanilla': 0, 'boss': 1, 'oneway': 2}
+key_logic_algo = {'loose': 0, 'default': 1, 'partial': 2, 'strict': 4}
+
+# sfx_shuffle and other adjust items does not affect settings code
 
 # Bump this when making changes that are not backwards compatible (nearly all of them)
 settings_version = 1
@@ -2983,7 +2995,10 @@ class Settings(object):
             settings_version,
 
             (flute_mode[w.flute_mode[p]] << 7 | bow_mode[w.bow_mode[p]] << 4
-            | take_any_mode[w.take_any[p]] << 2 | keyshuffle_mode[w.keyshuffle[p]])
+             | take_any_mode[w.take_any[p]] << 2 | keyshuffle_mode[w.keyshuffle[p]]),
+
+            ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 6
+             | trap_door_mode[w.trap_door_mode[p]] << 4 | key_logic_algo[w.key_logic_algorithm[p]]),
             ])
         return base64.b64encode(code, "+-".encode()).decode()
 
@@ -3051,6 +3066,11 @@ class Settings(object):
             args.bow_mode[p] = r(bow_mode)[(settings[11] & 0x70) >> 4]
             args.take_any[p] = r(take_any_mode)[(settings[11] & 0xC) >> 2]
             args.keyshuffle[p] = r(keyshuffle_mode)[settings[11] & 0x3]
+        if len(settings) > 12:
+            args.pseudoboots[p] = True if settings[12] & 0x80 else False
+            args.overworld_map[p] = r(overworld_map_mode)[(settings[12] & 0x60) >> 6]
+            args.trap_door_mode[p] = r(trap_door_mode)[(settings[12] & 0x14) >> 4]
+            args.key_logic_algorithm[p] = r(key_logic_algo)[settings[12] & 0x07]
 
 
 class KeyRuleType(FastEnum):

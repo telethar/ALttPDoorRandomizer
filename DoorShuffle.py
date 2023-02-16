@@ -1781,58 +1781,61 @@ def shuffle_door_types(door_type_pools, paths, world, player):
 def shuffle_trap_doors(door_type_pools, paths, start_regions_map, world, player):
     used_doors = set()
     for pool, door_type_pool in door_type_pools:
-        ttl = 0
-        suggestion_map, trap_map, flex_map = {}, {}, {}
-        remaining = door_type_pool.traps
-        if player in world.custom_door_types:
-            custom_trap_doors = world.custom_door_types[player]['Trap Door']
-        else:
-            custom_trap_doors = defaultdict(list)
+        if world.trap_door_mode[player] != 'oneway':
+            ttl = 0
+            suggestion_map, trap_map, flex_map = {}, {}, {}
+            remaining = door_type_pool.traps
+            if player in world.custom_door_types:
+                custom_trap_doors = world.custom_door_types[player]['Trap Door']
+            else:
+                custom_trap_doors = defaultdict(list)
 
-        for dungeon in pool:
-            builder = world.dungeon_layouts[player][dungeon]
-            find_trappable_candidates(builder, world, player)
-            if custom_trap_doors[dungeon]:
-                builder.candidates.trap = filter_key_door_pool(builder.candidates.trap, custom_trap_doors[dungeon])
-                remaining -= len(custom_trap_doors[dungeon])
-            ttl += len(builder.candidates.trap)
-        if ttl == 0:
-            continue
-        for dungeon in pool:
-            builder = world.dungeon_layouts[player][dungeon]
-            proportion = len(builder.candidates.trap)
-            calc = int(round(proportion * door_type_pool.traps/ttl))
-            suggested = min(proportion, calc)
-            remaining -= suggested
-            suggestion_map[dungeon] = suggested
-            flex_map[dungeon] = (proportion - suggested) if suggested < proportion else 0
-        for dungeon in pool:
-            builder = world.dungeon_layouts[player][dungeon]
-            valid_traps, trap_number = find_valid_trap_combination(builder, suggestion_map[dungeon],
-                                                                   start_regions_map[dungeon], paths, world, player,
-                                                                   drop=True)
-            trap_map[dungeon] = valid_traps
-            if trap_number < suggestion_map[dungeon]:
-                flex_map[dungeon] = 0
-                remaining += suggestion_map[dungeon] - trap_number
-            suggestion_map[dungeon] = trap_number
-        builder_order = [x for x in pool if flex_map[x] > 0]
-        random.shuffle(builder_order)
-        queue = deque(builder_order)
-        while len(queue) > 0 and remaining > 0:
-            dungeon = queue.popleft()
-            builder = world.dungeon_layouts[player][dungeon]
-            increased = suggestion_map[dungeon] + 1
-            valid_traps, trap_number = find_valid_trap_combination(builder, increased, start_regions_map[dungeon],
-                                                                   paths, world, player)
-            if valid_traps:
+            for dungeon in pool:
+                builder = world.dungeon_layouts[player][dungeon]
+                find_trappable_candidates(builder, world, player)  # todo:
+                if custom_trap_doors[dungeon]:
+                    builder.candidates.trap = filter_key_door_pool(builder.candidates.trap, custom_trap_doors[dungeon])
+                    remaining -= len(custom_trap_doors[dungeon])
+                ttl += len(builder.candidates.trap)
+            if ttl == 0:
+                continue
+            for dungeon in pool:
+                builder = world.dungeon_layouts[player][dungeon]
+                proportion = len(builder.candidates.trap)
+                calc = int(round(proportion * door_type_pool.traps/ttl))
+                suggested = min(proportion, calc)
+                remaining -= suggested
+                suggestion_map[dungeon] = suggested
+                flex_map[dungeon] = (proportion - suggested) if suggested < proportion else 0
+            for dungeon in pool:
+                builder = world.dungeon_layouts[player][dungeon]
+                valid_traps, trap_number = find_valid_trap_combination(builder, suggestion_map[dungeon],
+                                                                       start_regions_map[dungeon], paths, world, player,
+                                                                       drop=True)
                 trap_map[dungeon] = valid_traps
-                remaining -= 1
-                suggestion_map[dungeon] = increased
-                flex_map[dungeon] -= 1
-                if flex_map[dungeon] > 0:
-                    queue.append(dungeon)
-        # time to re-assign
+                if trap_number < suggestion_map[dungeon]:
+                    flex_map[dungeon] = 0
+                    remaining += suggestion_map[dungeon] - trap_number
+                suggestion_map[dungeon] = trap_number
+            builder_order = [x for x in pool if flex_map[x] > 0]
+            random.shuffle(builder_order)
+            queue = deque(builder_order)
+            while len(queue) > 0 and remaining > 0:
+                dungeon = queue.popleft()
+                builder = world.dungeon_layouts[player][dungeon]
+                increased = suggestion_map[dungeon] + 1
+                valid_traps, trap_number = find_valid_trap_combination(builder, increased, start_regions_map[dungeon],
+                                                                       paths, world, player)
+                if valid_traps:
+                    trap_map[dungeon] = valid_traps
+                    remaining -= 1
+                    suggestion_map[dungeon] = increased
+                    flex_map[dungeon] -= 1
+                    if flex_map[dungeon] > 0:
+                        queue.append(dungeon)
+            # time to re-assign
+        else:
+            trap_map = {dungeon: [] for dungeon in pool}
         reassign_trap_doors(trap_map, world, player)
         for name, traps in trap_map.items():
             used_doors.update(traps)
@@ -2138,7 +2141,7 @@ def find_trappable_candidates(builder, world, player):
             for ext in world.get_region(r, player).exits:
                 if ext.door:
                     d = ext.door
-                    if d.blocked and d.trapFlag != 0 and 'Boss' not in d.name and 'Agahnim' not in d.name:
+                    if d.blocked and d.trapFlag != 0 and exclude_boss_traps(d):
                         builder.candidates.trap.append(d)
 
 
@@ -2281,7 +2284,7 @@ def reassign_trap_doors(trap_map, world, player):
     logger = logging.getLogger('')
     for name, traps in trap_map.items():
         builder = world.dungeon_layouts[player][name]
-        queue = deque(find_current_trap_doors(builder))
+        queue = deque(find_current_trap_doors(builder, world, player))
         while len(queue) > 0:
             d = queue.pop()
             if d.type is DoorType.Interior and d not in traps:
@@ -2304,12 +2307,21 @@ def reassign_trap_doors(trap_map, world, player):
             logger.debug('Trap Door: %s', d.name)
 
 
-def find_current_trap_doors(builder):
+def exclude_boss_traps(d):
+    return ' Boss ' not in d.name and ' Agahnim ' not in d.name and d.name not in ['Skull Spike Corner SW',
+                                                                                   'Mire Warping Pool ES']
+
+def exclude_logic_traps(d):
+    return d.name != 'Mire Warping Pool ES'
+
+
+def find_current_trap_doors(builder, world, player):
+    checker = exclude_boss_traps if world.trap_door_mode[player] == 'vanilla' else  exclude_logic_traps
     current_doors = []
     for region in builder.master_sector.regions:
         for ext in region.exits:
             d = ext.door
-            if d and d.blocked and d.trapFlag != 0:  # could exclude removing boss doors here
+            if d and d.blocked and d.trapFlag != 0 and checker(d):
                 current_doors.append(d)
     return current_doors
 
@@ -4550,8 +4562,8 @@ door_type_counts = {
     'Agahnims Tower': (4, 0, 1, 0, 0, 1, 0),
     'Swamp Palace': (6, 0, 0, 2, 0, 0, 0),
     'Palace of Darkness': (6, 1, 1, 3, 2, 0, 0),
-    'Misery Mire': (6, 3, 5, 2, 0, 0, 0),
-    'Skull Woods': (5, 0, 2, 2, 0, 1, 0),
+    'Misery Mire': (6, 3, 4, 2, 0, 0, 0),
+    'Skull Woods': (5, 0, 1, 2, 0, 1, 0),
     'Ice Palace': (6, 1, 3, 0, 0, 0, 0),
     'Tower of Hera': (1, 1, 0, 0, 0, 0, 0),
     'Thieves Town': (3, 1, 2, 1, 1, 0, 0),

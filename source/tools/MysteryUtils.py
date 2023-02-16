@@ -84,6 +84,8 @@ def roll_settings(weights):
     ret.door_shuffle = door_shuffle if door_shuffle != 'none' else 'vanilla'
     ret.intensity = get_choice('intensity')
     ret.door_type_mode = get_choice('door_type_mode')
+    ret.trap_door_mode = get_choice('trap_door_mode')
+    ret.key_logic_algorithm = get_choice('key_logic_algorithm')
     ret.decoupledoors = get_choice('decoupledoors') == 'on'
     ret.experimental = get_choice('experimental') == 'on'
     ret.collection_rate = get_choice('collection_rate') == 'on'

@@ -33,7 +33,7 @@
     },
     "door_type_mode": {
       "type": "selectbox",
-      "default": "basic",
+      "default": "original",
       "options": [
         "original",
         "big",
@@ -43,6 +43,25 @@
       "config": {
         "width": 45
       }
+    },
+    "trap_door_mode": {
+      "type": "selectbox",
+      "default": "vanilla",
+      "options": [
+        "vanilla",
+        "boss",
+        "oneway"
+      ]
+    },
+    "key_logic_algorithm": {
+      "type": "selectbox",
+      "default": "default",
+      "options": [
+        "loose",
+        "default",
+        "partial",
+        "strict"
+      ]
     },
     "decoupledoors": { "type": "checkbox" },
     "keydropshuffle": { "type": "checkbox" },

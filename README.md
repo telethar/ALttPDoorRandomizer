@@ -144,6 +144,27 @@ Four options here, and all of them only take effect if Dungeon Door Shuffle is n
 
 CLI: `--door_type_mode [original|big|all|chaos]`
 
+### Trap Door Removal
+
+Three options here for making dungeon traversal nicer. Only applies if door shuffle is not vanilla.
+
+* Normal: This does not remove any trap doors. Note that boss trap doors are never shuffled in this mode.
+* Remove Boss Traps: Boss traps are removed this includes the one near Mothula.
+* Remove All Annoying Traps: This removes all trap doors that are annoying, including boss traps. Note, that the trap door near the mire cutscene chest is left alone because it enforces the use of fire to get to the chest.
+
+CLI: `--trap_door_mode [vanilla|boss|oneway]`
+
+### Key Logic Algorithm
+
+Determines how small key door logic works.
+
+* Loose: Skips placement rules checks. Currently, experimental to see what kinds of problems can arise.
+* Default: Current key logic. Assumes worse case usage, placement checks, but assumes you can't get to a chest until you have sufficient keys. (May assume items are unreachable)
+* Partial Protection: Assumes you always have full inventory and worse case usage. This should account for dark room and bunny revival glitches.
+* Strict: For those would like to glitch and be protected from yourselves. Small keys door require all small keys to be available to be in logic.
+
+CLI: `--key_logic [loose|default|partial|strict]`
+
 ### Decouple Doors
 
 This is similar to insanity mode in ER where door entrances and exits are not paired anymore. Tends to remove more logic from dungeons as many rooms will not be required to traverse to explore. Hope you like transitions.

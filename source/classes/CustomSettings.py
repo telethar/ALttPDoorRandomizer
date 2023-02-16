@@ -109,6 +109,8 @@ class CustomSettings(object):
                                                            args.standardize_palettes[p])
                 args.intensity[p] = get_setting(settings['intensity'], args.intensity[p])
                 args.door_type_mode[p] = get_setting(settings['door_type_mode'], args.door_type_mode[p])
+                args.trap_door_mode[p] = get_setting(settings['trap_door_mode'], args.trap_door_mode[p])
+                args.key_logic_algorithm[p] = get_setting(settings['key_logic_algorithm'], args.key_logic_algorithm[p])
                 args.decoupledoors[p] = get_setting(settings['decoupledoors'], args.decoupledoors[p])
                 args.dungeon_counters[p] = get_setting(settings['dungeon_counters'], args.dungeon_counters[p])
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
@@ -219,6 +221,8 @@ class CustomSettings(object):
             settings_dict[p]['door_shuffle'] = world.doorShuffle[p]
             settings_dict[p]['intensity'] = world.intensity[p]
             settings_dict[p]['door_type_mode'] = world.door_type_mode[p]
+            settings_dict[p]['trap_door_mode'] = world.trap_door_mode[p]
+            settings_dict[p]['key_logic_algorithm'] = world.key_logic_algorithm[p]
             settings_dict[p]['decoupledoors'] = world.decoupledoors[p]
             settings_dict[p]['logic'] = world.logic[p]
             settings_dict[p]['mode'] = world.mode[p]
