@@ -510,6 +510,7 @@ class CollectionState(object):
         self.world = parent
         if not skip_init:
             self.prog_items = Counter()
+            self.forced_keys = Counter()
             self.reachable_regions = {player: dict() for player in range(1, parent.players + 1)}
             self.blocked_connections = {player: dict() for player in range(1, parent.players + 1)}
             self.events = []
@@ -542,12 +543,13 @@ class CollectionState(object):
         queue = deque(self.blocked_connections[player].items())
 
         self.traverse_world(queue, rrp, bc, player)
-        unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
-                             if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
-                             and x not in self.locations_checked and x.can_reach(self)]
-        unresolved_events = self._do_not_flood_the_keys(unresolved_events)
-        if len(unresolved_events) == 0:
-            self.check_key_doors_in_dungeons(rrp, player)
+        if self.world.key_logic_algorithm[player] == 'default':
+            unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
+                                 if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
+                                 and x not in self.locations_checked and x.can_reach(self)]
+            unresolved_events = self._do_not_flood_the_keys(unresolved_events)
+            if len(unresolved_events) == 0:
+                self.check_key_doors_in_dungeons(rrp, player)
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -639,6 +641,7 @@ class CollectionState(object):
 
     def check_key_doors_in_dungeons(self, rrp, player):
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
+            # todo: optimization idea - abort exploration if there are unresolved events now
             if self.apply_dungeon_exploration(rrp, player, dungeon_name, checklist):
                 continue
             init_door_candidates = self.should_explore_child_state(self, dungeon_name, player)
@@ -838,6 +841,7 @@ class CollectionState(object):
     def copy(self):
         ret = CollectionState(self.world, skip_init=True)
         ret.prog_items = self.prog_items.copy()
+        ret.forced_keys = self.forced_keys.copy()
         ret.reachable_regions = {player: copy.copy(self.reachable_regions[player]) for player in range(1, self.world.players + 1)}
         ret.blocked_connections = {player: copy.copy(self.blocked_connections[player]) for player in range(1, self.world.players + 1)}
         ret.events = copy.copy(self.events)
@@ -1045,6 +1049,14 @@ class CollectionState(object):
             return (item, player) in self.prog_items
         return self.prog_items[item, player] >= count
 
+    def has_sm_key_strict(self, item, player, count=1):
+        if self.world.keyshuffle[player] == 'universal':
+            if self.world.mode[player] == 'standard' and self.world.doorShuffle[player] == 'vanilla' and item == 'Small Key (Escape)':
+                return True  # Cannot access the shop until escape is finished.  This is safe because the key is manually placed in make_custom_item_pool
+            return self.can_buy_unlimited('Small Key (Universal)', player)
+        obtained = self.prog_items[item, player] - self.forced_keys[item, player]
+        return obtained >= count
+
     def can_buy_unlimited(self, item, player):
         for shop in self.world.shops[player]:
             if shop.region.player == player and shop.has_unlimited(item) and shop.region.can_reach(self):
@@ -1241,6 +1253,8 @@ class CollectionState(object):
     def collect(self, item, event=False, location=None):
         if location:
             self.locations_checked.add(location)
+            if item and item.smallkey and location.forced_item is not None:
+                self.forced_keys[item.name, item.player] += 1
         if not item:
             return
         changed = False
@@ -2949,7 +2963,7 @@ bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 # byte 12: POOT TKKK (pseudoboots, overworld_map, trap_door_mode, key_logic_algo)
 overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
 trap_door_mode = {'vanilla': 0, 'boss': 1, 'oneway': 2}
-key_logic_algo = {'loose': 0, 'default': 1, 'partial': 2, 'strict': 4}
+key_logic_algo = {'default': 0, 'partial': 1, 'strict': 2}
 
 # sfx_shuffle and other adjust items does not affect settings code
 

@@ -202,7 +202,6 @@
   },
   "key_logic_algorithm": {
     "choices": [
-      "loose",
       "default",
       "partial",
       "strict"

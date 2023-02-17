@@ -20,6 +20,9 @@ class ItemPoolConfig(object):
         self.reserved_locations = defaultdict(set)
         self.restricted = {}
         self.preferred = {}
+        self.verify = {}
+        self.verify_count = 0
+        self.verify_target = 0
 
         self.recorded_choices = []
 
@@ -434,6 +437,9 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
         return sorted(locations, key=lambda l: 1 if l.name in locs else 0)
     if (item_name, item_to_place.player) in config.preferred:
         locs = config.preferred[(item_name, item_to_place.player)]
+        return sorted(locations, key=lambda l: 0 if l.name in locs else 1)
+    if (item_name, item_to_place.player) in config.verify:
+        locs = config.verify[(item_name, item_to_place.player)].keys()
         return sorted(locations, key=lambda l: 0 if l.name in locs else 1)
     return locations
 

@@ -27,7 +27,6 @@
     boss: 0
     oneway: 0
   key_logic_algorithm:
-    loose: 0
     default: 1
     partial: 0
     strict: 0

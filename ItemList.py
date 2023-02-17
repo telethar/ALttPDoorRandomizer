@@ -1431,6 +1431,13 @@ def fill_specific_items(world):
                         item_player = player if len(item_parts) < 2 else int(item_parts[1])
                         item_name = item_parts[0]
                         world.item_pool_config.preferred[(item_name, item_player)] = placement['locations']
+                    elif placement['type'] == 'Verification':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.verify[(item_name, item_player)] = placement['locations']
+                        world.item_pool_config.verify_target += len(placement['locations'])
 
 
 def get_item_and_event_flag(item, world, player, dungeon_pool, prize_set, prize_pool):

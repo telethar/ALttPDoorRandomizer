@@ -97,7 +97,6 @@
     "randomizer.dungeon.trap_door_mode.oneway": "Remove Annoying Traps",
 
     "randomizer.dungeon.key_logic_algorithm": "Key Logic Algorithm",
-    "randomizer.dungeon.key_logic_algorithm.loose": "Loose",
     "randomizer.dungeon.key_logic_algorithm.default": "Default",
     "randomizer.dungeon.key_logic_algorithm.partial": "Partial Protection",
     "randomizer.dungeon.key_logic_algorithm.strict": "Strict",

@@ -247,7 +247,6 @@
     ],
     "key_logic_algorithm": [
       "Key Logic Algorithm (default: %(default)s)",
-      "loose:   Allow more randomization",
       "default: Balance between safety and randomization",
       "partial: Partial protection when using certain minor glitches",
       "strict:  Ensure small keys are available"
