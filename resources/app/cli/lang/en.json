@@ -242,8 +242,9 @@
     "trap_door_mode" : [
       "Trap Door Removal (default: %(default)s)",
       "vanilla:  No trap door removal",
-      "boss:     Remove boss traps",
-      "oneway:   Remove annoying trap doors"
+      "optional: Trap doors removed if blocking",
+      "boss:     Also remove boss traps",
+      "oneway:   Remove all annoying trap doors"
     ],
     "key_logic_algorithm": [
       "Key Logic Algorithm (default: %(default)s)",

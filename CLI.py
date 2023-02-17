@@ -215,7 +215,7 @@ def parse_settings():
         'door_shuffle': 'vanilla',
         'intensity': 2,
         'door_type_mode': 'original',
-        'trap_door_mode': 'vanilla',
+        'trap_door_mode': 'optional',
         'key_logic_algorithm': 'default',
         'decoupledoors': False,
         'experimental': False,

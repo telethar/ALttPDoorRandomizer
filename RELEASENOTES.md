@@ -109,8 +109,14 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 * 1.2.0.8-u
-    * Removed a Triforce text
-    * Fix for Desert Tiles 1 key door
+  * New Features: trap_door_mode and key_logic_algorithm 
+  * Change S&Q in door shuffle + standard during escape to spawn as Uncle
+  * Fix for vanilla doors + certain ER modes
+  * Fix for unintentional decoupled door in standard
+  * Fix a problem with BK doors being one-sided
+  * Change to how wilds keys are placed in standard, better randomization
+  * Removed a Triforce text
+  * Fix for Desert Tiles 1 key door
 * 1.2.0.7-u
   * Fix for some misery mire key logic
   * Minor standard generation fix

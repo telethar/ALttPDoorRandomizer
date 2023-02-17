@@ -146,7 +146,7 @@ class World(object):
             set_player_attr('pot_pool', {})
             set_player_attr('decoupledoors', False)
             set_player_attr('door_type_mode', 'original')
-            set_player_attr('trap_door_mode', 'vanilla')
+            set_player_attr('trap_door_mode', 'optional')
             set_player_attr('key_logic_algorithm', 'default')
 
             set_player_attr('shopsanity', False)
@@ -1905,6 +1905,9 @@ class Door(object):
             return world.get_room(self.roomIndex, self.player).kind(self)
         return None
 
+    def dungeon_name(self):
+        return self.entrance.parent_region.dungeon.name if self.entrance.parent_region.dungeon else 'Cave'
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.name == other.name
 
@@ -2962,7 +2965,7 @@ bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 # additions
 # byte 12: POOT TKKK (pseudoboots, overworld_map, trap_door_mode, key_logic_algo)
 overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
-trap_door_mode = {'vanilla': 0, 'boss': 1, 'oneway': 2}
+trap_door_mode = {'vanilla': 0, 'optional': 1, 'boss': 2, 'oneway': 3}
 key_logic_algo = {'default': 0, 'partial': 1, 'strict': 2}
 
 # sfx_shuffle and other adjust items does not affect settings code

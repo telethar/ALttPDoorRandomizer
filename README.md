@@ -139,20 +139,25 @@ Four options here, and all of them only take effect if Dungeon Door Shuffle is n
 
 * Small Key Doors, Bomb Doors, Dash Doors: This is what was normally shuffled previously
 * Adds Big Keys Doors: Big key doors are now shuffled in addition to those above, and Big Key doors are enabled to be on in both vertical directions thanks to a graphic that ended up on the cutting room floor. This does change
-* Adds Trap Doors: All trap doors that are permanently shut in vanilla are shuffled.
+* Adds Trap Doors: All trap doors that are permanently shut in vanilla are shuffled, excluding those by bosses.
 * Increases all Door Types: This is a chaos mode where each door type per dungeon is randomized between 1 less and 4 more.
 
 CLI: `--door_type_mode [original|big|all|chaos]`
 
 ### Trap Door Removal
 
-Three options here for making dungeon traversal nicer. Only applies if door shuffle is not vanilla.
+Options here for making dungeon traversal nicer. Only applies if door shuffle is not vanilla.
 
-* Normal: This does not remove any trap doors. Note that boss trap doors are never shuffled in this mode.
-* Remove Boss Traps: Boss traps are removed this includes the one near Mothula.
-* Remove All Annoying Traps: This removes all trap doors that are annoying, including boss traps. Note, that the trap door near the mire cutscene chest is left alone because it enforces the use of fire to get to the chest.
+* No Removal: This does not remove any trap doors.
+* Removed If Blocking Path: Dungeon generation is relaxed to allow annoying trap doors to be removed if necessary. Note that boss trap doors are never shuffled in this mode.
+* Remove Boss Traps: Boss traps are removed, this includes the one near Mothula.
+* Remove All Annoying Traps: This removes all trap doors that are annoying, including boss traps.
 
-CLI: `--trap_door_mode [vanilla|boss|oneway]`
+If trap doors are shuffled the first two option behave the same. The last option overrides the shuffle because there is nothing left to shuffle. Boss traps are never shuffled.
+
+In all cases, that the trap door near the mire cutscene chest (Mire Warping Pool ES) is left alone because it enforces the use of fire to get to the chest.
+
+CLI: `--trap_door_mode [vanilla|optional|boss|oneway]`
 
 ### Key Logic Algorithm
 

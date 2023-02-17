@@ -46,12 +46,16 @@
     },
     "trap_door_mode": {
       "type": "selectbox",
-      "default": "vanilla",
+      "default": "optional",
       "options": [
         "vanilla",
+        "optional",
         "boss",
         "oneway"
-      ]
+      ],
+      "config": {
+        "width": 30
+      }
     },
     "key_logic_algorithm": {
       "type": "selectbox",
