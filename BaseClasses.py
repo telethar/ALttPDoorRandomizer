@@ -1102,6 +1102,9 @@ class CollectionState(object):
     
     def can_bomb_clip(self, region, player: int) -> bool: 
         return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player) and self.can_use_bombs(player)
+    
+    def can_dash_clip(self, region, player: int) -> bool: 
+        return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player)
 
     def has_bottle(self, player):
         return self.bottle_count(player) > 0
