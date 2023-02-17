@@ -304,7 +304,8 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
     unused_entrances = set()
     if not cross_world:
         lw_entrances, dw_entrances = [], []
-        for x in rem_entrances:
+        left = sorted(rem_entrances)
+        for x in left:
             if bonk_fairy_exception(x):
                 lw_entrances.append(x) if x in LW_Entrances else dw_entrances.append(x)
         do_same_world_connectors(lw_entrances, dw_entrances, multi_exit_caves, avail)
