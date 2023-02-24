@@ -2094,6 +2094,12 @@ def validate_key_placement(key_layout, world, player):
     if world.bigkeyshuffle[player]:
         max_counter = find_max_counter(key_layout)
         big_key_outside = bigkey_name not in (l.item.name for l in max_counter.free_locations if l.item)
+    for i in world.precollected_items:
+        if i.player == player and i.name == bigkey_name:
+            big_key_outside = True
+            break
+        if i.player == player and i.name == smallkey_name:
+            keys_outside += 1
 
     for code, counter in key_layout.key_counters.items():
         if len(counter.child_doors) == 0:

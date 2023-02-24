@@ -1014,8 +1014,19 @@ item_alternates = {
 
 
 def modify_pool_for_start_inventory(start_inventory, world, player):
-    # skips custom item pools - these shouldn't be adjusted
     if (world.customizer and world.customizer.get_item_pool()) or world.custom:
+        # custom item pools only adjust in dungeon items
+        for item in start_inventory:
+            if item.dungeon:
+                d = world.get_dungeon(item.dungeon, item.player)
+                match = next((i for i in d.all_items if i.name == item.name), None)
+                if match:
+                    if match.map or match.compass:
+                        d.dungeon_items.remove(match)
+                    elif match.smallkey:
+                        d.small_keys.remove(match)
+                    elif match.bigkey and d.big_key == match:
+                        d.big_key = None
         return
     for item in start_inventory:
         if item.player == player:
@@ -1041,8 +1052,8 @@ def modify_pool_for_start_inventory(start_inventory, world, player):
                         d.dungeon_items.remove(match)
                     elif match.smallkey:
                         d.small_keys.remove(match)
-                    elif match.bigkey:
-                        d.big_key.remove(match)
+                    elif match.bigkey and d.big_key == match:
+                        d.big_key = None
 
 
 def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer, goal, mode, swords, bombbag, customitemarray):
