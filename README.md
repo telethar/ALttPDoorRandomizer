@@ -12,13 +12,15 @@ See https://alttpr.com/ for more details on the normal randomizer.
       1. [Dungeon Door Shuffle](#door-shuffle)
       2. [Intensity Level](#intensity---intensity-number)
       3. [Key Drop Shuffle (Legacy)](#key-drop-shuffle-legacy---keydropshuffle)
-      4. [Door Type Shuffle](#door-type_shuffle)
-      5. [Decouple Doors](#decouple-doors)
-      6. [Pottery](#pottery)
-      7. [Small Key Shuffle](#small-key-shuffle)
-      8. [Shuffle Enemy Key Drops](#shuffle-enemy-key-drops)
-      9. [Experimental Features](#experimental-features)
-      10. [Crossed Dungeon Specific Settings](#crossed-dungeon-specific-settings)
+      4. [Door Type Shuffle](#door-type-shuffle)
+      5. [Trap Door Removal](#trap-door-removal)
+      6. [Key Logic Algorithm](#key-logic-algorithm)
+      7. [Decouple Doors](#decouple-doors)
+      8. [Pottery](#pottery)
+      9. [Small Key Shuffle](#small-key-shuffle)
+      10. [Shuffle Enemy Key Drops](#shuffle-enemy-key-drops)
+      11. [Experimental Features](#experimental-features)
+      12. [Crossed Dungeon Specific Settings](#crossed-dungeon-specific-settings)
    2. [Item Randomization Changes](#item-randomization)
       1. [New "Items"](#new-items)
       2. [Shopsanity](#shopsanity)
@@ -40,7 +42,7 @@ See https://alttpr.com/ for more details on the normal randomizer.
 
 ### Feedback and Bug Reports
 
-Please just DM me on discord for now. I (Aerinon) can be found at the [ALTTP Randomizer discord](https://discordapp.com/invite/alttprandomizer).
+You can use the #bug-reports or #door-rando channel at the [ALTTP Randomizer discord](https://discordapp.com/invite/alttprandomizer) to provide feedback or bug reports.
 
 ### Installation
 
@@ -73,15 +75,14 @@ Most of these apply only when the door shuffle is not vanilla.
 
 ### Starting Item
 
-You start with a “Mirror Scroll”, a dumbed-down mirror that only works in dungeons, not the overworld and can’t erase blocks like the Mirror.
+You start with a “Mirror Scroll” (it looks like a map), a dumbed-down mirror that only works in dungeons, not the overworld, and can’t erase blocks like the Mirror.
 
 ### Navigation
 
-* The Pinball Room’s trap door can be removed in the case where it is required to go through to get to the back of Skull Woods.
 * Holes in Mire Torches Top and Mire Torches Bottom fall through to rooms below (you only need fire to get the chest)
 * You can Hookshot from the left Mire wooden Bridge to the right one.
 * In the PoD Arena, you can bonk with Boots between the two blue crystal barriers against the ladder to reach the Arena Bridge chest and door. (Bomb Jump also possible but not in logic - Boots are required)
-* Flooded Rooms in Swamp can be traversed backward and may be required.
+* Flooded Rooms in Swamp can be traversed backward and may be required. The flippers are needed to get out of the water.
 
 ### Other Logic
 

@@ -1824,6 +1824,7 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
     for name, builder in dungeon_map.items():
         if builder.c_switch_present and builder.c_switch_required and not builder.c_locked:
             invalid_builders.append(builder)
+    random.shuffle(invalid_builders)
     while len(invalid_builders) > 0:
         valid_builders = []
         for builder in invalid_builders:
@@ -1849,6 +1850,7 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
                     if eq.c_switch:
                         reachable_crystals[hook_from_door(eq.door)] = True
             valid_ent_sectors = []
+            random.shuffle(entrance_sectors)
             for entrance_sector in entrance_sectors:
                 other_sectors = [x for x in builder.sectors if x != entrance_sector]
                 reachable, access = is_c_switch_reachable(entrance_sector, reachable_crystals, other_sectors)
@@ -1866,7 +1868,12 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
                     while not valid:
                         if len(candidates) <= 0:
                             raise GenerationException(f'need to provide more sophisticated crystal connection for {entrance_sector}')
-                        sector, which_list = random.choice(list(candidates.items()))
+                        # prioritize candidates
+                        if any(x == 'Crystals' for x in candidates.values()):
+                            cand_list = [x for x in candidates.items() if x[1] == 'Crystals']
+                        else:
+                            cand_list = list(candidates.items())
+                        sector, which_list = random.choice(cand_list)
                         del candidates[sector]
                         valid = global_pole.is_valid_choice(dungeon_map, builder, [sector])
                     if which_list == 'Polarized':

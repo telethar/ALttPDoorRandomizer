@@ -163,7 +163,7 @@ def create_item_pool_config(world):
         dungeon_set = (mode_grouping['Big Chests'] + mode_grouping['Dungeon Trash'] + mode_grouping['Big Keys'] +
                        mode_grouping['Heart Containers'] + mode_grouping['GT Trash'] + mode_grouping['Small Keys'] +
                        mode_grouping['Compasses'] + mode_grouping['Maps'] + mode_grouping['Key Drops'] +
-                       mode_grouping['Big Key Drops'])
+                       mode_grouping['Pot Keys'] + mode_grouping['Big Key Drops'])
         for player in range(1, world.players + 1):
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(dungeon_set)

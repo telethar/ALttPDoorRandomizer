@@ -108,6 +108,19 @@ These are now independent of retro mode and have three options: None, Random, an
 * Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
+* 1.2.0.9-u
+  * Disallowed standard exits (due to ER) are now graphically half blocked instead of missing
+  * Graphical issues with Sanctuary and Swamp Hub lobbies are fixed
+  * Fixes an issue surrounding door state and decoupled doors leading to blocked doors
+  * Customizer improvements:
+    * Better logic around customized lobbies
+    * Better logic around customized door types
+  * Fix to key doors that was causing extra key doors
+  * Generation improvement around crystal switches
+  * Fix bug in dungeon_only that wasn't using pot key locations (known issue still exists in pottery modes)
+  * Fixes for multiworld:
+    * Fixes an issue when keys are found in own dungeon for another player when using the bizhawk plugin.
+    * Fixes an issue with absorbables for another player also being received by the player picking it up.
 * 1.2.0.8-u
   * New Features: trap_door_mode and key_logic_algorithm 
   * Change S&Q in door shuffle + standard during escape to spawn as Uncle

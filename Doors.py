@@ -66,7 +66,7 @@ def create_doors(world, player):
         create_door(player, 'Hyrule Castle Back Hall Down Stairs', Sprl).dir(Dn, 0x01, 0, HTL).ss(A, 0x2a, 0x00),
         create_door(player, 'Hyrule Castle Throne Room Tapestry', Lgcl),
         create_door(player, 'Hyrule Castle Tapestry Backwards', Lgcl),
-        create_door(player, 'Hyrule Castle Throne Room N', Nrml).dir(No, 0x51, Mid, High).pos(1),
+        create_door(player, 'Hyrule Castle Throne Room N', Nrml).dir(No, 0x51, Mid, High).pos(0),
         create_door(player, 'Hyrule Castle Throne Room South Stairs', StrS).dir(So, 0x51, Mid, Low),
 
         # hyrule dungeon level
