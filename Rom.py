@@ -1585,9 +1585,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         Room0127.write_to_rom(snes_to_pc(0x2B8000), rom)
 
     if world.pot_contents[player]:
-        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
-                                       and (world.colorizepots[player]
-                                            or world.pottery[player] in ['reduced', 'clustered']))
+        colorize_pots = (world.pottery[player] != 'vanilla'
+                         and (world.colorizepots[player] or world.pottery[player] in ['reduced', 'clustered']))
         if world.pot_contents[player].size() > 0x2800:
             raise Exception('Pot table is too big for current area')
         world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)

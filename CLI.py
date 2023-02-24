@@ -205,7 +205,7 @@ def parse_settings():
         'keydropshuffle': False,
         'dropshuffle': False,
         'pottery': 'none',
-        'colorizepots': False,
+        'colorizepots': True,
         'shufflepots': False,
         'mapshuffle': False,
         'compassshuffle': False,

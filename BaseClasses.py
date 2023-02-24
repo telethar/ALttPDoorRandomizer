@@ -142,7 +142,7 @@ class World(object):
             set_player_attr('pot_contents', None)
             set_player_attr('pseudoboots', False)
             set_player_attr('collection_rate', False)
-            set_player_attr('colorizepots', False)
+            set_player_attr('colorizepots', True)
             set_player_attr('pot_pool', {})
             set_player_attr('decoupledoors', False)
             set_player_attr('door_type_mode', 'original')
