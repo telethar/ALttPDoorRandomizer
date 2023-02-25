@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 
 from source.item.District import resolve_districts
-from BaseClasses import PotItem, PotFlags
+from BaseClasses import PotItem, PotFlags, LocationType
 from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
@@ -82,8 +82,8 @@ def create_item_pool_config(world):
                         if pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]:
                             item = pot_items[pot.item]
                             descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
-                            location = f'{pot.room} {descriptor}'
-                            config.static_placement[player][item].append(location)
+                            loc = f'{pot.room} {descriptor}'
+                            config.static_placement[player][item].append(loc)
             if world.shopsanity[player]:
                 for item, locs in shop_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
@@ -164,6 +164,10 @@ def create_item_pool_config(world):
                        mode_grouping['Heart Containers'] + mode_grouping['GT Trash'] + mode_grouping['Small Keys'] +
                        mode_grouping['Compasses'] + mode_grouping['Maps'] + mode_grouping['Key Drops'] +
                        mode_grouping['Pot Keys'] + mode_grouping['Big Key Drops'])
+        dungeon_set = set(dungeon_set)
+        for loc in world.get_locations():
+            if loc.parent_region.dungeon and loc.type in [LocationType.Pot, LocationType.Drop]:
+                dungeon_set.add(loc.name)
         for player in range(1, world.players + 1):
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(dungeon_set)
