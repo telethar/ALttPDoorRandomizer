@@ -2110,6 +2110,8 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
     if state.is_door_open(door_name, player):
         return True
     key_logic = state.world.key_logic[player][dungeon]
+    if door_name not in key_logic.door_rules:
+        return False
     door_rule = key_logic.door_rules[door_name]
     door_openable = False
     for ruleType, number in door_rule.new_rules.items():

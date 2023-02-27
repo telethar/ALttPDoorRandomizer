@@ -3572,7 +3572,7 @@ def check_for_valid_layout(builder, sector_list, builder_info):
             builder.exception_list = list(sector_list)
             return True, {}, package
         except (GenerationException, NeutralizingException, OtherGenException) as e:
-            logging.getLogger('').info(f'Bailing on this layout for {builder.name}', exc_info=1)
+            logging.getLogger('').debug(f'Bailing on this layout for {builder.name}', exc_info=1)
             builder.split_dungeon_map = None
             builder.valid_proposal = None
             if temp_builder.name == 'Hyrule Castle' and temp_builder.throne_door:
