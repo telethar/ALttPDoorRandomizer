@@ -1630,7 +1630,7 @@ default_dw = {
     'Palace of Darkness Exit', 'Swamp Palace Exit', 'Turtle Rock Exit (Front)', 'Turtle Rock Ledge Exit (West)',
     'Turtle Rock Ledge Exit (East)', 'Turtle Rock Isolated Ledge Exit', 'Bumper Cave Exit (Top)',
     'Bumper Cave Exit (Bottom)', 'Superbunny Cave Exit (Top)', 'Superbunny Cave Exit (Bottom)',
-    'Hookshot Cave Front Exit', 'Hookshot Cave Back Exit', 'Ganons Tower Exit', 'Pyramid Exit',
+    'Hookshot Cave Front Exit', 'Hookshot Cave Back Exit', 'Ganons Tower Exit', 'Pyramid Exit', 'Bonk Fairy (Dark)',
     'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Dark Desert Healer Fairy',
     'Dark Death Mountain Healer Fairy', 'Cave Shop (Dark Death Mountain)', 'Pyramid Fairy', 'East Dark World Hint',
     'Palace of Darkness Hint', 'Big Bomb Shop', 'Village of Outcasts Shop', 'Dark Lake Hylia Shop',
@@ -1653,7 +1653,7 @@ default_lw = {
     'Spectacle Rock Cave Exit (Top)', 'Spectacle Rock Cave Exit (Peak)', 'Paradox Cave Exit (Bottom)',
     'Paradox Cave Exit (Middle)', 'Paradox Cave Exit (Top)', 'Fairy Ascension Cave Exit (Bottom)',
     'Fairy Ascension Cave Exit (Top)', 'Spiral Cave Exit', 'Spiral Cave Exit (Top)', 'Waterfall of Wishing', 'Dam',
-    'Blinds Hideout', 'Lumberjack House', 'Bonk Fairy (Light)', 'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy',
+    'Blinds Hideout', 'Lumberjack House', 'Bonk Fairy (Light)', 'Lake Hylia Healer Fairy',
     'Swamp Healer Fairy', 'Desert Healer Fairy', 'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Kings Grave', 'Tavern',
     'Chicken House', 'Aginahs Cave', 'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Capacity Upgrade', 'Blacksmiths Hut',
     'Sick Kids House', 'Lost Woods Gamble', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House',
@@ -1698,7 +1698,7 @@ DW_Entrances = ['Bumper Cave (Bottom)', 'Superbunny Cave (Top)',  'Superbunny Ca
                 'Dark Lake Hylia Ledge Hint', 'Chest Game', 'Dark Desert Fairy', 'Dark Lake Hylia Ledge Fairy',
                 'Fortune Teller (Dark)', 'Dark World Hammer Peg Cave', 'Pyramid Entrance',
                 'Skull Woods First Section Door', 'Skull Woods Second Section Door (East)',
-                'Skull Woods Second Section Door (West)',
+                'Skull Woods Second Section Door (West)', 'Ganons Tower',
                 'Inverted Dark Sanctuary', 'Inverted Links House', 'Inverted Agahnims Tower']
 
 LW_Must_Exit = ['Desert Palace Entrance (East)']
