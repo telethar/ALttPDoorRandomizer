@@ -108,6 +108,14 @@ These are now independent of retro mode and have three options: None, Random, an
 * Bonk Fairy (Dark)
 
 # Bug Fixes and Notes
+* 1.2.0.10u
+  * Fixed overrun issues with edge transitions
+  * Better support for customized start_inventory with dungeon items
+  * Colorized pots now available with lottery. Default is on.
+  * Dungeon_only support pottery
+  * Fix AllowAccidentalGlitches flag in OWG
+  * Potential fix for mirror portal and entering cave on same frame
+  * A few other minor issues, generation and graphical
 * 1.2.0.9-u
   * Disallowed standard exits (due to ER) are now graphically half blocked instead of missing
   * Graphical issues with Sanctuary and Swamp Hub lobbies are fixed
