@@ -220,10 +220,10 @@ def underworld_glitches_rules(world, player):
     # Collecting left chests in Paradox Cave using a dash clip -> dash citrus, 1f right, teleport up
     paradox_left_chests = ['Paradox Cave Lower - Far Left', 'Paradox Cave Lower - Left', 'Paradox Cave Lower - Middle']
     for location in paradox_left_chests:
-        Rules.add_rule(world.get_location(location, player), lambda state: state.can_dash_clip(world.get_location(location, player)), 'or')
+        Rules.add_rule(world.get_location(location, player), lambda state: state.can_dash_clip(world.get_location(location, player).parent_region, player), 'or')
      
     # Collecting right chests in Paradox Cave using a dash clip on left side -> dash citrus, 1f right, teleport up, then hitting the switch
     paradox_right_chests = ['Paradox Cave Lower - Right', 'Paradox Cave Lower - Far Right']
     for location in paradox_right_chests:
-        Rules.add_rule(world.get_location(location, player), lambda state: (state.can_dash_clip(world.get_location(location, player)) and state.can_hit_crystal(player)), 'or')
+        Rules.add_rule(world.get_location(location, player), lambda state: (state.can_dash_clip(world.get_location(location, player).parent_region, player) and state.can_hit_crystal(player)), 'or')
     
