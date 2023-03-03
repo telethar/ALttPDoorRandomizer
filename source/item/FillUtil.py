@@ -426,7 +426,8 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
             return filtered if len(filtered) > 0 else locations
     if world.algorithm == 'district':
         config = world.item_pool_config
-        if item_to_place == 'Placeholder' or item_to_place.name in config.item_pool[item_to_place.player]:
+        if ((isinstance(item_to_place,str) and item_to_place == 'Placeholder')
+           or item_to_place.name in config.item_pool[item_to_place.player]):
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name in restricted and l.player in restricted[l.name]]
             return filtered if len(filtered) > 0 else locations
