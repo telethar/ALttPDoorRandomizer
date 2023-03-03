@@ -372,21 +372,7 @@ def generate_itempool(world, player):
         for i in range(4):
             next(adv_heart_pieces).advancement = True
 
-    beeweights = {'0': {None: 100},
-                  '1': {None: 75, 'trap': 25},
-                  '2': {None: 40, 'trap': 40, 'bee': 20},
-                  '3': {'trap': 50, 'bee': 50},
-                  '4': {'trap': 100}}
-    def beemizer(item):
-        if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
-            choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
-            return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
-        return item
-
-    if not skip_pool_adjustments:
-        world.itempool += [beemizer(item) for item in items]
-    else:
-        world.itempool += items
+    world.itempool += items
 
     # shuffle medallions
     mm_medallion, tr_medallion = None, None
@@ -438,6 +424,20 @@ def generate_itempool(world, player):
 
     # modfiy based on start inventory, if any
     modify_pool_for_start_inventory(start_inventory, world, player)
+
+    beeweights = {'0': {None: 100},
+                  '1': {None: 75, 'trap': 25},
+                  '2': {None: 40, 'trap': 40, 'bee': 20},
+                  '3': {'trap': 50, 'bee': 50},
+                  '4': {'trap': 100}}
+    def beemizer(item):
+        if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
+            choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
+            return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
+        return item
+
+    if not skip_pool_adjustments:
+        world.itempool = [beemizer(item) for item in world.itempool]
 
     # increase pool if not enough items
     ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
