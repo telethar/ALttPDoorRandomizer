@@ -873,6 +873,9 @@ def default_rules(world, player):
     set_rule(world.get_entrance('Graveyard Ledge Mirror Spot', player), lambda state: state.has_Pearl(player) and state.has_Mirror(player))
     set_rule(world.get_entrance('Bumper Cave Entrance Rock', player), lambda state: state.has_Pearl(player) and state.can_lift_rocks(player))
     set_rule(world.get_entrance('Bumper Cave Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
+    # this more like an ohko rule - dependent on bird being present too - so enemizer could turn this off?
+    set_rule(world.get_entrance('Bumper Cave Ledge Drop', player), lambda state: state.has_Pearl(player) and
+             (state.has('Cape', player) or state.has('Cane of Byrna', player) or state.has_sword(player)))
     set_rule(world.get_entrance('Bat Cave Drop Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
     set_rule(world.get_entrance('Dark World Hammer Peg Cave', player), lambda state: state.has_Pearl(player) and state.has('Hammer', player))
     set_rule(world.get_entrance('Village of Outcasts Eastern Rocks', player), lambda state: state.has_Pearl(player) and state.can_lift_heavy_rocks(player))
