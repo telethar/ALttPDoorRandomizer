@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'd981a1fc7408ecbb30fa44135c7239b7'
+RANDOMIZERBASEHASH = 'badc0c787f7ab5e0ad05fb517953849a'
 
 
 class JsonRom(object):
@@ -1591,6 +1591,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
             raise Exception('Pot table is too big for current area')
         world.pot_contents[player].write_pot_data_to_rom(rom, colorize_pots)
 
+    write_enemizer_tweaks(rom, world, player)
     write_strings(rom, world, player, team)
 
     # write initial sram
@@ -1680,6 +1681,11 @@ def write_custom_shops(rom, world, player):
     items_data.extend([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
     rom.write_bytes(0x184900, items_data)
 
+
+def write_enemizer_tweaks(rom, world, player):
+    if world.enemy_shuffle[player] != 'none':
+        rom.write_byte(snes_to_pc(0x1DF6D8, 0))  # lets enemies walk on water instead of clipping into infinity?
+        rom.write_byte(snes_to_pc(0x0DB6B3, 0x82))  # hovers don't need water necessarily?
 
 def hud_format_text(text):
     output = bytes()
