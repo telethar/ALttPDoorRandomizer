@@ -1684,8 +1684,8 @@ def write_custom_shops(rom, world, player):
 
 def write_enemizer_tweaks(rom, world, player):
     if world.enemy_shuffle[player] != 'none':
-        rom.write_byte(snes_to_pc(0x1DF6D8, 0))  # lets enemies walk on water instead of clipping into infinity?
-        rom.write_byte(snes_to_pc(0x0DB6B3, 0x82))  # hovers don't need water necessarily?
+        rom.write_byte(snes_to_pc(0x1DF6D8), 0)  # lets enemies walk on water instead of clipping into infinity?
+        rom.write_byte(snes_to_pc(0x0DB6B3), 0x82)  # hovers don't need water necessarily?
 
 def hud_format_text(text):
     output = bytes()

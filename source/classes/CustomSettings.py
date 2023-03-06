@@ -129,8 +129,8 @@ class CustomSettings(object):
                     args.mapshuffle[p] = True
                     args.compassshuffle[p] = True
 
-                args.shufflebosses[p] = get_setting(settings['shufflebosses'], args.shufflebosses[p])
-                args.shuffleenemies[p] = get_setting(settings['shuffleenemies'], args.shuffleenemies[p])
+                args.shufflebosses[p] = get_setting(settings['boss_shuffle'], args.shufflebosses[p])
+                args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], args.shuffleenemies[p])
                 args.enemy_health[p] = get_setting(settings['enemy_health'], args.enemy_health[p])
                 args.enemy_damage[p] = get_setting(settings['enemy_damage'], args.enemy_damage[p])
                 args.shufflepots[p] = get_setting(settings['shufflepots'], args.shufflepots[p])
