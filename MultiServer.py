@@ -285,9 +285,9 @@ async def process_client_cmd(ctx : Context, client : Client, cmd, args):
             notify_all(ctx, get_connected_players_string(ctx))
         if args.startswith('!forfeit'):
             if ctx.disable_client_forfeit:
-                notify_client(client, 'Forfeit is currently disabled server-side.')
-                return
-            forfeit_player(ctx, client.team, client.slot)
+                notify_client(client, 'Client-initiated forfeits are disabled.  Please ask the host of this game to forfeit on your behalf.')
+            else:
+                forfeit_player(ctx, client.team, client.slot)
         if args.startswith('!countdown'):
             try:
                 timer = int(args.split()[1])
