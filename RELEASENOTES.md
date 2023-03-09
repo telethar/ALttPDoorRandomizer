@@ -181,6 +181,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.5
+  * MultiServer can not disable forfeits if desired
 * 1.1.4
   * Removed a Triforce text
   * Fix for Desert Tiles 1 key door
