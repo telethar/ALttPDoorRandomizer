@@ -976,7 +976,6 @@ def find_entrances_and_exits(avail_pool, entrance_pool):
 
 
 inverted_sub_table = {
-    #TODO: Confirm this is correct
     #'Ganons Tower':  'Agahnims Tower',
     #'Agahnims Tower': 'Ganons Tower',
     #'Links House': 'Big Bomb Shop',

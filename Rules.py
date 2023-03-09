@@ -246,6 +246,10 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Hammer Bridge Pegs (North)', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Hammer Bridge Pegs (South)', player), lambda state: state.has('Hammer', player))
 
+    # this more like an ohko rule - dependent on bird being present too - so enemizer could turn this off?
+    set_rule(world.get_entrance('Bumper Cave Ledge Drop', player), lambda state: state.has_Pearl(player) and
+            (state.has('Cape', player) or state.has('Cane of Byrna', player) or state.has_sword(player)))
+
     # entrance rules
     # Caution: If king's grave is relaxed at all to account for reaching it via a two way cave's exit in insanity mode, then the bomb shop logic will need to be updated (that would involve create a small ledge-like Region for it)
     # TODO: Not sure if this ^ is true anymore since Kings Grave is its own region now
@@ -899,11 +903,6 @@ def ow_inverted_rules(world, player):
                                                                (state.has_Pearl(player) or state.has('Beat Agahnim 1', player))
                                                                     or (state.can_reach('Light World', 'Region', player) and state.has_Mirror(player)))  # Need LW access using Mirror or Portal
         set_rule(world.get_entrance('Inverted Pyramid Hole', player), lambda state: world.open_pyramid[player] or world.goal[player] == 'trinity' or state.has('Beat Agahnim 2', player))
-
-    # todo: this needs a new home
-    # # this more like an ohko rule - dependent on bird being present too - so enemizer could turn this off?
-    # set_rule(world.get_entrance('Bumper Cave Ledge Drop', player), lambda state: state.has_Pearl(player) and
-    #                                                                              (state.has('Cape', player) or state.has('Cane of Byrna', player) or state.has_sword(player)))
 
 
 def ow_bunny_rules(world, player):

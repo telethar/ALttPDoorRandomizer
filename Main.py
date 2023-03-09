@@ -241,7 +241,6 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         set_rules(world, player)
 
-    reg = world.get_region('Dark Desert', 1)
     district_item_pool_config(world)
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
