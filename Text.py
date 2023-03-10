@@ -91,7 +91,6 @@ Triforce_texts = [
     'Who stole the fourth triangle?',
     'Trifource?\nMore Like Tritrice, am I right?'
     '\n    Well Done!',
-    'You just wasted 2 hours of your life.',
     'This was meant to be a trapezoid',
     # these ones are from web randomizer
     "\n       G G",
@@ -1716,7 +1715,7 @@ class TextTable(object):
         text['game_shooting_choice'] = CompressedTextMapper.convert("20 rupees.\n5 arrows.\nWin rupees!\nWant to play?\n  ≥ Yes\n    No\n{CHOICE}")
         text['game_shooting_yes'] = CompressedTextMapper.convert("Let's do this!")
         text['game_shooting_no'] = CompressedTextMapper.convert("Where are you going? Straight up!")
-        text['game_shooting_continue'] = CompressedTextMapper.convert("Keep playing?\n  ≥ yes\n    no\n{CHOICE}")
+        text['game_shooting_continue'] = CompressedTextMapper.convert("Keep playing?\n  ≥ Yes\n    No\n{CHOICE}")
         text['pond_of_wishing'] = CompressedTextMapper.convert("-Wishing Pond-\n\n On Vacation")
         text['pond_item_select'] = CompressedTextMapper.convert("Pick something\nto throw in.\n{ITEMSELECT}")
         text['pond_item_test'] = CompressedTextMapper.convert("You toss this?\n  ≥ Yup\n    Wrong\n{CHOICE}")

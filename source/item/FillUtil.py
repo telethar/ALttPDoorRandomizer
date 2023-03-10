@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 
 from source.item.District import resolve_districts
-from BaseClasses import PotItem, PotFlags
+from BaseClasses import PotItem, PotFlags, LocationType
 from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
@@ -18,6 +18,11 @@ class ItemPoolConfig(object):
         self.item_pool = None
         self.placeholders = None
         self.reserved_locations = defaultdict(set)
+        self.restricted = {}
+        self.preferred = {}
+        self.verify = {}
+        self.verify_count = 0
+        self.verify_target = 0
 
         self.recorded_choices = []
 
@@ -77,8 +82,8 @@ def create_item_pool_config(world):
                         if pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]:
                             item = pot_items[pot.item]
                             descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
-                            location = f'{pot.room} {descriptor}'
-                            config.static_placement[player][item].append(location)
+                            loc = f'{pot.room} {descriptor}'
+                            config.static_placement[player][item].append(loc)
             if world.shopsanity[player]:
                 for item, locs in shop_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
@@ -158,7 +163,11 @@ def create_item_pool_config(world):
         dungeon_set = (mode_grouping['Big Chests'] + mode_grouping['Dungeon Trash'] + mode_grouping['Big Keys'] +
                        mode_grouping['Heart Containers'] + mode_grouping['GT Trash'] + mode_grouping['Small Keys'] +
                        mode_grouping['Compasses'] + mode_grouping['Maps'] + mode_grouping['Key Drops'] +
-                       mode_grouping['Big Key Drops'])
+                       mode_grouping['Pot Keys'] + mode_grouping['Big Key Drops'])
+        dungeon_set = set(dungeon_set)
+        for loc in world.get_locations():
+            if loc.parent_region.dungeon and loc.type in [LocationType.Pot, LocationType.Drop]:
+                dungeon_set.add(loc.name)
         for player in range(1, world.players + 1):
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(dungeon_set)
@@ -187,26 +196,27 @@ def district_item_pool_config(world):
                 if district.dungeon:
                     adjustment = len([i for i in world.get_dungeon(name, p).all_items
                                       if i.is_inside_dungeon_item(world)])
-                dist_len = len(district.locations) - adjustment
+                dist_adj = adjustment
                 if name not in district_choices:
-                    district_choices[name] = (district.sphere_one, dist_len)
+                    district_choices[name] = (district.sphere_one, dist_adj)
                 else:
                     so, amt = district_choices[name]
-                    district_choices[name] = (so or district.sphere_one, amt + dist_len)
+                    district_choices[name] = (so or district.sphere_one, amt + dist_adj)
 
         chosen_locations = defaultdict(set)
-        location_cnt = 0
+        adjustment_cnt = 0
 
         # choose a sphere one district
         sphere_one_choices = [d for d, info in district_choices.items() if info[0]]
         sphere_one = random.choice(sphere_one_choices)
-        so, amt = district_choices[sphere_one]
-        location_cnt += amt
+        so, adj = district_choices[sphere_one]
         for player in range(1, world.players + 1):
             for location in world.districts[player][sphere_one].locations:
                 chosen_locations[location].add(player)
         del district_choices[sphere_one]
         config.recorded_choices.append(sphere_one)
+        adjustment_cnt += adj
+        location_cnt = len(chosen_locations) - adjustment_cnt
 
         scale_factors = defaultdict(int)
         scale_total = 0
@@ -215,8 +225,9 @@ def district_item_pool_config(world):
             dungeon = world.get_entrance(ent, p).connected_region.dungeon
             if dungeon:
                 scale = world.crystals_needed_for_gt[p]
-                scale_total += scale
-                scale_factors[dungeon.name] += scale
+                if scale > 0:
+                    scale_total += scale
+                    scale_factors[dungeon.name] += scale
         scale_total = max(1, scale_total)
         scale_divisors = defaultdict(lambda: 1)
         scale_divisors.update(scale_factors)
@@ -224,13 +235,15 @@ def district_item_pool_config(world):
         while location_cnt < item_cnt:
             weights = [scale_total / scale_divisors[d] for d in district_choices.keys()]
             choice = random.choices(list(district_choices.keys()), weights=weights, k=1)[0]
-            so, amt = district_choices[choice]
-            location_cnt += amt
+            so, adj = district_choices[choice]
+
             for player in range(1, world.players + 1):
                 for location in world.districts[player][choice].locations:
                     chosen_locations[location].add(player)
             del district_choices[choice]
             config.recorded_choices.append(choice)
+            adjustment_cnt += adj
+            location_cnt = len(chosen_locations) - adjustment_cnt
         config.placeholders = location_cnt - item_cnt
         config.location_groups[0].locations = chosen_locations
 
@@ -380,8 +393,13 @@ def vanilla_fallback(item_to_place, locations, world):
 
 
 def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion=False):
+    config = world.item_pool_config
+    if not isinstance(item_to_place, str):
+        item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
+    else:
+        item_name = item_to_place
     if world.algorithm == 'vanilla_fill':
-        config, filtered = world.item_pool_config, []
+        filtered = []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
         if item_name in config.static_placement[item_to_place.player]:
             restricted = config.static_placement[item_to_place.player][item_name]
@@ -408,7 +426,8 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
             return filtered if len(filtered) > 0 else locations
     if world.algorithm == 'district':
         config = world.item_pool_config
-        if item_to_place == 'Placeholder' or item_to_place.name in config.item_pool[item_to_place.player]:
+        if ((isinstance(item_to_place,str) and item_to_place == 'Placeholder')
+           or item_to_place.name in config.item_pool[item_to_place.player]):
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name in restricted and l.player in restricted[l.name]]
             return filtered if len(filtered) > 0 else locations
@@ -418,6 +437,15 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
             if len(filtered) == 0:
                 raise RuntimeError('Can\'t sell potion of a certain type due to district restriction')
             return filtered
+    if (item_name, item_to_place.player) in config.restricted:
+        locs = config.restricted[(item_name, item_to_place.player)]
+        return sorted(locations, key=lambda l: 1 if l.name in locs else 0)
+    if (item_name, item_to_place.player) in config.preferred:
+        locs = config.preferred[(item_name, item_to_place.player)]
+        return sorted(locations, key=lambda l: 0 if l.name in locs else 1)
+    if (item_name, item_to_place.player) in config.verify:
+        locs = config.verify[(item_name, item_to_place.player)].keys()
+        return sorted(locations, key=lambda l: 0 if l.name in locs else 1)
     return locations
 
 
@@ -815,3 +843,26 @@ pot_items = {
 }
 
 valid_pot_items = {y: x for x, y in pot_items.items()}
+
+
+if __name__ == '__main__':
+    import yaml
+    from yaml.representer import Representer
+    advanced_placements = {'advanced_placements': {}}
+    player_map = advanced_placements['advanced_placements']
+    placement_list = []
+    player_map[1] = placement_list
+    for item, location_list in vanilla_mapping.items():
+        for location in location_list:
+            placement = {}
+            placement['type'] = 'LocationGroup'
+            placement['item'] = item
+            locations = placement['locations'] = []
+            locations.append(location)
+            locations.append('Random')
+            placement_list.append(placement)
+    yaml.add_representer(defaultdict, Representer.represent_dict)
+    with open('fillgen.yaml', 'w') as file:
+        yaml.dump(advanced_placements, file)
+
+

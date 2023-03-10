@@ -10,9 +10,9 @@ import time
 from typing import List
 
 from BaseClasses import DoorType, Direction, CrystalBarrier, RegionType, Polarity, PolSlot, flooded_keys, Sector
-from BaseClasses import Hook, hook_from_door
+from BaseClasses import Hook, hook_from_door, Door
 from Regions import dungeon_events, flooded_keys_reverse
-from Dungeons import dungeon_regions, split_region_starts
+from Dungeons import split_region_starts
 from RoomData import DoorKind
 
 from source.dungeon.DungeonStitcher import generate_dungeon_find_proposal
@@ -772,6 +772,13 @@ def connect_simple_door(exit_door, region):
 
 
 special_big_key_doors = ['Hyrule Dungeon Cellblock Door', "Thieves Blind's Cell Door"]
+std_special_big_key_doors = ['Hyrule Castle Throne Room Tapestry'] + special_big_key_doors
+
+
+def get_special_big_key_doors(world, player):
+    if world.mode[player] == 'standard':
+        return std_special_big_key_doors
+    return special_big_key_doors
 
 
 class ExplorationState(object):
@@ -846,13 +853,21 @@ class ExplorationState(object):
         ret.prize_received = self.prize_received
         return ret
 
+    def init_zelda_event_doors(self, event_starts, player):
+        for entrance in event_starts:
+            event_door = Door(player, entrance.name, DoorType.Logical)
+            event_door.req_event = 'Zelda Drop Off'
+            event_door.entrance = entrance
+            event_door.crystal = CrystalBarrier.Orange  # always start in orange
+            self.append_door_to_list(event_door, self.event_doors)
+
     def next_avail_door(self):
         self.avail_doors.sort(key=lambda x: 0 if x.flag else 1 if x.door.bigKey else 2)
         exp_door = self.avail_doors.pop()
         self.crystal = exp_door.crystal
         return exp_door
 
-    def visit_region(self, region, key_region=None, key_checks=False, bk_Flag=False):
+    def visit_region(self, region, key_region=None, key_checks=False, bk_flag=False):
         if region.type != RegionType.Dungeon:
             self.crystal = CrystalBarrier.Orange
         if self.crystal == CrystalBarrier.Either:
@@ -873,7 +888,7 @@ class ExplorationState(object):
                         self.ttl_locations += 1
                 if location not in self.found_locations:
                     self.found_locations.append(location)
-                    if not bk_Flag and (not location.forced_item or 'Big Key' in location.item.name):
+                    if not bk_flag and (not location.forced_item or 'Big Key' in location.item.name):
                         self.bk_found.add(location)
                 if location.name in dungeon_events and location.name not in self.events:
                     if self.flooded_key_check(location):
@@ -994,7 +1009,8 @@ class ExplorationState(object):
             if self.can_traverse(door):
                 if door.controller:
                     door = door.controller
-                if (door in big_key_door_proposal or door.name in special_big_key_doors) and not self.big_key_opened:
+                if (door in big_key_door_proposal
+                   or door.name in get_special_big_key_doors(world, player)) and not self.big_key_opened:
                     if not self.in_door_list(door, self.big_doors):
                         self.append_door_to_list(door, self.big_doors)
                 elif door.req_event is not None and door.req_event not in self.events:
@@ -1327,8 +1343,9 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                         sector = find_sector(r_name, all_sectors)
                     reverse_d_map[sector] = key
         if world.mode[player] == 'standard':
-            current_dungeon = dungeon_map['Hyrule Castle']
-            standard_stair_check(dungeon_map, current_dungeon, candidate_sectors, global_pole)
+            if 'Hyrule Castle' in dungeon_map:
+                current_dungeon = dungeon_map['Hyrule Castle']
+                standard_stair_check(dungeon_map, current_dungeon, candidate_sectors, global_pole)
 
         complete_dungeons = {x: y for x, y in dungeon_map.items() if sum(len(sector.outstanding_doors) for sector in y.sectors) <= 0}
         [dungeon_map.pop(key) for key in complete_dungeons.keys()]
@@ -1356,7 +1373,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                 sanc_builder = random.choice(lw_builders)
                 assign_sector(sanc, sanc_builder, candidate_sectors, global_pole)
 
-        bow_sectors, retro_std_flag = {}, world.bow_mode[player].startswith('retro') and world.mode[player] == 'standard'
+        retro_std_flag = world.bow_mode[player].startswith('retro') and world.mode[player] == 'standard'
+        non_hc_sectors = {}
         free_location_sectors = {}
         crystal_switches = {}
         crystal_barriers = {}
@@ -1364,7 +1382,9 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
         neutral_sectors = {}
         for sector in candidate_sectors:
             if retro_std_flag and 'Bow' in sector.item_logic:  # these need to be distributed outside of HC
-                bow_sectors[sector] = None
+                non_hc_sectors[sector] = None
+            elif world.mode[player] == 'standard' and 'Open Floodgate' in sector.item_logic:
+                non_hc_sectors[sector] = None
             elif sector.chest_locations > 0:
                 free_location_sectors[sector] = None
             elif sector.c_switch:
@@ -1375,8 +1395,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
                 neutral_sectors[sector] = None
             else:
                 polarized_sectors[sector] = None
-        if bow_sectors:
-            assign_bow_sectors(dungeon_map, bow_sectors, global_pole)
+        if non_hc_sectors:
+            assign_non_hc_sectors(dungeon_map, non_hc_sectors, global_pole)
         leftover = assign_location_sectors_minimal(dungeon_map, free_location_sectors, global_pole, world, player)
         free_location_sectors = scatter_extra_location_sectors(dungeon_map, leftover, global_pole)
         for sector in free_location_sectors:
@@ -1420,7 +1440,8 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
 def standard_stair_check(dungeon_map, dungeon, candidate_sectors, global_pole):
     # this is because there must be at least one non-dead stairway in hc to get out
     # this check may not be necessary
-    filtered_sectors = [x for x in candidate_sectors if any(y for y in x.outstanding_doors if not y.dead and y.type == DoorType.SpiralStairs)]
+    filtered_sectors = [x for x in candidate_sectors if 'Open Floodgate' not in x.item_logic and
+                        any(y for y in x.outstanding_doors if not y.dead and y.type == DoorType.SpiralStairs)]
     valid = False
     while not valid:
         chosen_sector = random.choice(filtered_sectors)
@@ -1550,7 +1571,7 @@ def define_sector_features(sectors):
                         sector.bk_required = True
             for ext in region.exits:
                 door = ext.door
-                if door is not None:
+                if door is not None and not door.blocked:
                     if door.crystal == CrystalBarrier.Either:
                         sector.c_switch = True
                     elif door.crystal == CrystalBarrier.Orange:
@@ -1562,6 +1583,8 @@ def define_sector_features(sectors):
             if region.name in ['PoD Mimics 2', 'PoD Bow Statue Right', 'PoD Mimics 1', 'GT Mimics 1', 'GT Mimics 2',
                                'Eastern Single Eyegore', 'Eastern Duo Eyegores']:
                 sector.item_logic.add('Bow')
+            if region.name in ['Swamp Lobby', 'Swamp Entrance']:
+                sector.item_logic.add('Open Floodgate')
 
 
 def assign_sector(sector, dungeon, candidate_sectors, global_pole):
@@ -1613,8 +1636,8 @@ def find_sector(r_name, sectors):
     return None
 
 
-def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
-    sector_list = list(bow_sectors)
+def assign_non_hc_sectors(dungeon_map, non_hc_sectors, global_pole):
+    sector_list = list(non_hc_sectors)
     random.shuffle(sector_list)
     population = []
     for name in dungeon_map:
@@ -1623,7 +1646,7 @@ def assign_bow_sectors(dungeon_map, bow_sectors, global_pole):
     choices = random.choices(population, k=len(sector_list))
     for i, choice in enumerate(choices):
         builder = dungeon_map[choice]
-        assign_sector(sector_list[i], builder, bow_sectors, global_pole)
+        assign_sector(sector_list[i], builder, non_hc_sectors, global_pole)
 
 
 def scatter_extra_location_sectors(dungeon_map, free_location_sectors, global_pole):
@@ -1801,6 +1824,7 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
     for name, builder in dungeon_map.items():
         if builder.c_switch_present and builder.c_switch_required and not builder.c_locked:
             invalid_builders.append(builder)
+    random.shuffle(invalid_builders)
     while len(invalid_builders) > 0:
         valid_builders = []
         for builder in invalid_builders:
@@ -1826,6 +1850,7 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
                     if eq.c_switch:
                         reachable_crystals[hook_from_door(eq.door)] = True
             valid_ent_sectors = []
+            random.shuffle(entrance_sectors)
             for entrance_sector in entrance_sectors:
                 other_sectors = [x for x in builder.sectors if x != entrance_sector]
                 reachable, access = is_c_switch_reachable(entrance_sector, reachable_crystals, other_sectors)
@@ -1843,7 +1868,12 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
                     while not valid:
                         if len(candidates) <= 0:
                             raise GenerationException(f'need to provide more sophisticated crystal connection for {entrance_sector}')
-                        sector, which_list = random.choice(list(candidates.items()))
+                        # prioritize candidates
+                        if any(x == 'Crystals' for x in candidates.values()):
+                            cand_list = [x for x in candidates.items() if x[1] == 'Crystals']
+                        else:
+                            cand_list = list(candidates.items())
+                        sector, which_list = random.choice(cand_list)
                         del candidates[sector]
                         valid = global_pole.is_valid_choice(dungeon_map, builder, [sector])
                     if which_list == 'Polarized':
@@ -3494,6 +3524,8 @@ def identify_branching_issues(dungeon_map, builder_info):
             unconnected_builders[name] = builder
             for hook, door_list in unreached_doors.items():
                 builder.unfulfilled[hook] += len(door_list)
+        elif package:
+            builder.throne_door, builder.throne_sector, builder.chosen_lobby = package
     return unconnected_builders
 
 
@@ -3511,7 +3543,8 @@ def check_for_valid_layout(builder, sector_list, builder_info):
             for portal in world.dungeon_portals[player]:
                 if not portal.destination and portal.name in dungeon_portals[builder.name]:
                     possible_regions.add(portal.door.entrance.parent_region.name)
-            if builder.name in dungeon_drops.keys():
+            if builder.name in dungeon_drops.keys() and (builder.name != 'Hyrule Castle'
+                                                         or world.mode[player] != 'standard'):
                 possible_regions.update(dungeon_drops[builder.name])
             independents = find_independent_entrances(possible_regions, world, player)
             for name, split_build in builder.split_dungeon_map.items():
@@ -3538,7 +3571,8 @@ def check_for_valid_layout(builder, sector_list, builder_info):
                 split_list['Sewers'].remove(temp_builder.throne_door.entrance.parent_region.name)
             builder.exception_list = list(sector_list)
             return True, {}, package
-        except (GenerationException, NeutralizingException, OtherGenException):
+        except (GenerationException, NeutralizingException, OtherGenException) as e:
+            logging.getLogger('').debug(f'Bailing on this layout for {builder.name}', exc_info=1)
             builder.split_dungeon_map = None
             builder.valid_proposal = None
             if temp_builder.name == 'Hyrule Castle' and temp_builder.throne_door:

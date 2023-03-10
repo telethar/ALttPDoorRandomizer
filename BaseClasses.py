@@ -29,6 +29,8 @@ class World(object):
         self.doorShuffle = doorShuffle.copy()
         self.intensity = {}
         self.door_type_mode = {}
+        self.trap_door_mode = {}
+        self.key_logic_algorithm = {}
         self.logic = logic.copy()
         self.mode = mode.copy()
         self.swords = swords.copy()
@@ -110,7 +112,8 @@ class World(object):
             set_player_attr('can_access_trock_front', None)
             set_player_attr('can_access_trock_big_chest', None)
             set_player_attr('can_access_trock_middle', None)
-            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic'] or shuffle[player] in ['crossed', 'insanity'])
+            set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic']
+                            or shuffle[player] in ['lean', 'crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
             set_player_attr('keyshuffle', 'none')
@@ -139,10 +142,12 @@ class World(object):
             set_player_attr('pot_contents', None)
             set_player_attr('pseudoboots', False)
             set_player_attr('collection_rate', False)
-            set_player_attr('colorizepots', False)
+            set_player_attr('colorizepots', True)
             set_player_attr('pot_pool', {})
             set_player_attr('decoupledoors', False)
             set_player_attr('door_type_mode', 'original')
+            set_player_attr('trap_door_mode', 'optional')
+            set_player_attr('key_logic_algorithm', 'default')
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -156,7 +161,9 @@ class World(object):
     def finish_init(self):
         for player in range(1, self.players + 1):
             if self.mode[player] == 'retro':
-                self.mode[player] == 'open'
+                self.mode[player] = 'open'
+            if self.goal[player] == 'completionist':
+                self.accessibility[player] = 'locations'
 
     def get_name_string_for_object(self, obj):
         return obj.name if self.players == 1 else f'{obj.name} ({self.get_player_names(obj.player)})'
@@ -472,7 +479,10 @@ class World(object):
         if self.has_beaten_game(state):
             return True
 
-        prog_locations = [location for location in self.get_locations() if location.item is not None and (location.item.advancement or location.event) and location not in state.locations_checked]
+        prog_locations = [location for location in self.get_locations() if location.item is not None
+                          and (location.item.advancement or location.event
+                               or self.goal[location.player] == 'completionist')
+                          and location not in state.locations_checked]
 
         while prog_locations:
             sphere = []
@@ -504,6 +514,7 @@ class CollectionState(object):
         self.world = parent
         if not skip_init:
             self.prog_items = Counter()
+            self.forced_keys = Counter()
             self.reachable_regions = {player: dict() for player in range(1, parent.players + 1)}
             self.blocked_connections = {player: dict() for player in range(1, parent.players + 1)}
             self.events = []
@@ -518,6 +529,7 @@ class CollectionState(object):
             self.opened_doors = {player: set() for player in range(1, parent.players + 1)}
             self.dungeons_to_check = {player: defaultdict(dict) for player in range(1, parent.players + 1)}
         self.dungeon_limits = None
+        self.placing_item = None
         # self.trace = None
 
     def update_reachable_regions(self, player):
@@ -535,12 +547,13 @@ class CollectionState(object):
         queue = deque(self.blocked_connections[player].items())
 
         self.traverse_world(queue, rrp, bc, player)
-        unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
-                             if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
-                             and x not in self.locations_checked and x.can_reach(self)]
-        unresolved_events = self._do_not_flood_the_keys(unresolved_events)
-        if len(unresolved_events) == 0:
-            self.check_key_doors_in_dungeons(rrp, player)
+        if self.world.key_logic_algorithm[player] == 'default':
+            unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
+                                 if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
+                                 and x not in self.locations_checked and x.can_reach(self)]
+            unresolved_events = self._do_not_flood_the_keys(unresolved_events)
+            if len(unresolved_events) == 0:
+                self.check_key_doors_in_dungeons(rrp, player)
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -632,6 +645,7 @@ class CollectionState(object):
 
     def check_key_doors_in_dungeons(self, rrp, player):
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
+            # todo: optimization idea - abort exploration if there are unresolved events now
             if self.apply_dungeon_exploration(rrp, player, dungeon_name, checklist):
                 continue
             init_door_candidates = self.should_explore_child_state(self, dungeon_name, player)
@@ -740,6 +754,15 @@ class CollectionState(object):
                 rrp[k] = missing_regions[k]
                 possible_path = terminal_states[0].path[k]
                 self.path[k] = paths[k] = possible_path
+                for conn in k.exits:
+                    if self.is_small_door(conn):
+                        door = conn.door if conn.door.smallKey else conn.door.controller
+                        key_logic = self.world.key_logic[player][dungeon_name]
+                        if door.name not in self.reached_doors[player]:
+                            self.door_counter[player][0][dungeon_name] += 1
+                            self.reached_doors[player].add(door.name)
+                            if key_logic.sm_doors[door]:
+                                self.reached_doors[player].add(key_logic.sm_doors[door].name)
             missing_bc = {}
             for blocked, crystal in common_bc.items():
                 if (blocked not in bc and blocked.parent_region in rrp
@@ -790,7 +813,23 @@ class CollectionState(object):
                         else:
                             door_candidates.append(door.name)
             return door_candidates
-        return None
+        door_candidates, skip = [], set()
+        if (state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal'
+           and state.placing_item and state.placing_item.name == small_key_name):
+            key_logic = state.world.key_logic[player][dungeon_name]
+            for door, paired in key_logic.sm_doors.items():
+                if door.name in key_logic.door_rules:
+                    rule = key_logic.door_rules[door.name]
+                    key = KeyRuleType.AllowSmall
+                    if (key in rule.new_rules and key_total >= rule.new_rules[key] and door.name not in skip
+                       and door.name in state.reached_doors[player] and door.name not in state.opened_doors[player]
+                       and rule.small_location.item is None):
+                        if paired:
+                            door_candidates.append((door.name, paired.name))
+                            skip.add(paired.name)
+                        else:
+                            door_candidates.append(door.name)
+        return door_candidates if door_candidates else None
 
     @staticmethod
     def print_rrp(rrp):
@@ -806,6 +845,7 @@ class CollectionState(object):
     def copy(self):
         ret = CollectionState(self.world, skip_init=True)
         ret.prog_items = self.prog_items.copy()
+        ret.forced_keys = self.forced_keys.copy()
         ret.reachable_regions = {player: copy.copy(self.reachable_regions[player]) for player in range(1, self.world.players + 1)}
         ret.blocked_connections = {player: copy.copy(self.blocked_connections[player]) for player in range(1, self.world.players + 1)}
         ret.events = copy.copy(self.events)
@@ -820,6 +860,7 @@ class CollectionState(object):
             player: defaultdict(dict, {name: copy.copy(checklist)
                                        for name, checklist in self.dungeons_to_check[player].items()})
             for player in range(1, self.world.players + 1)}
+        ret.placing_item = self.placing_item
         return ret
 
     def apply_dungeon_exploration(self, rrp, player, dungeon_name, checklist):
@@ -929,29 +970,30 @@ class CollectionState(object):
         checked_locations = set([l for l in locations if l in self.locations_checked])
         reachable_events = [location for location in locations if location.event and location.can_reach(self)]
         reachable_events = self._do_not_flood_the_keys(reachable_events)
+        found_new = False
         for event in reachable_events:
             if event not in checked_locations:
                 self.events.append((event.name, event.player))
                 self.collect(event.item, True, event)
-        return len(reachable_events) > len(checked_locations)
+                found_new = True
+        return found_new
 
     def sweep_for_events(self, key_only=False, locations=None):
         # this may need improvement
         if locations is None:
             locations = self.world.get_filled_locations()
         new_locations = True
-        checked_locations = 0
         while new_locations:
             reachable_events = [location for location in locations if location.event and
                                 (not key_only or (self.world.keyshuffle[location.item.player] == 'none' and location.item.smallkey) or (not self.world.bigkeyshuffle[location.item.player] and location.item.bigkey))
                                 and location.can_reach(self)]
             reachable_events = self._do_not_flood_the_keys(reachable_events)
+            new_locations = False
             for event in reachable_events:
                 if (event.name, event.player) not in self.events:
                     self.events.append((event.name, event.player))
                     self.collect(event.item, True, event)
-            new_locations = len(reachable_events) > checked_locations
-            checked_locations = len(reachable_events)
+                    new_locations = True
 
 
     def can_reach_blue(self, region, player):
@@ -1011,6 +1053,14 @@ class CollectionState(object):
             return (item, player) in self.prog_items
         return self.prog_items[item, player] >= count
 
+    def has_sm_key_strict(self, item, player, count=1):
+        if self.world.keyshuffle[player] == 'universal':
+            if self.world.mode[player] == 'standard' and self.world.doorShuffle[player] == 'vanilla' and item == 'Small Key (Escape)':
+                return True  # Cannot access the shop until escape is finished.  This is safe because the key is manually placed in make_custom_item_pool
+            return self.can_buy_unlimited('Small Key (Universal)', player)
+        obtained = self.prog_items[item, player] - self.forced_keys[item, player]
+        return obtained >= count
+
     def can_buy_unlimited(self, item, player):
         for shop in self.world.shops[player]:
             if shop.region.player == player and shop.has_unlimited(item) and shop.region.can_reach(self):
@@ -1019,6 +1069,12 @@ class CollectionState(object):
 
     def item_count(self, item, player):
         return self.prog_items[item, player]
+
+    def everything(self, player):
+        all_locations = self.world.get_filled_locations(player)
+        all_locations.remove(self.world.get_location('Ganon', player))
+        return (len([x for x in self.locations_checked if x.player == player])
+                >= len(all_locations))
 
     def has_crystals(self, count, player):
         crystals = ['Crystal 1', 'Crystal 2', 'Crystal 3', 'Crystal 4', 'Crystal 5', 'Crystal 6', 'Crystal 7']
@@ -1137,6 +1193,8 @@ class CollectionState(object):
         return self.has('Fire Rod', player) or self.has('Lamp', player)
 
     def can_flute(self, player):
+        if self.world.mode[player] == 'standard' and not self.has('Zelda Delivered', player):
+            return False  # can't flute in rain state
         if any(map(lambda i: i.name in ['Ocarina', 'Ocarina (Activated)'], self.world.precollected_items)):
             return True
         lw = self.world.get_region('Light World', player)
@@ -1199,6 +1257,8 @@ class CollectionState(object):
     def collect(self, item, event=False, location=None):
         if location:
             self.locations_checked.add(location)
+            if item and item.smallkey and location.forced_item is not None:
+                self.forced_keys[item.name, item.player] += 1
         if not item:
             return
         changed = False
@@ -1385,10 +1445,10 @@ class Region(object):
                                or (item.bigkey and not self.world.bigkeyshuffle[item.player])
                                or (item.map and not self.world.mapshuffle[item.player])
                                or (item.compass and not self.world.compassshuffle[item.player]))
-        sewer_hack = self.world.mode[item.player] == 'standard' and item.name == 'Small Key (Escape)'
-        if sewer_hack or inside_dungeon_item:
+        # not all small keys to escape must be in escape
+        # sewer_hack = self.world.mode[item.player] == 'standard' and item.name == 'Small Key (Escape)'
+        if inside_dungeon_item:
             return self.dungeon and self.dungeon.is_dungeon_item(item) and item.player == self.player
-
         return True
 
     def __str__(self):
@@ -1849,6 +1909,9 @@ class Door(object):
             return world.get_room(self.roomIndex, self.player).kind(self)
         return None
 
+    def dungeon_name(self):
+        return self.entrance.parent_region.dungeon.name if self.entrance.parent_region.dungeon else 'Cave'
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.name == other.name
 
@@ -2260,6 +2323,9 @@ class Item(object):
     def __unicode__(self):
         return self.world.get_name_string_for_object(self) if self.world else f'{self.name} (Player {self.player})'
 
+    def __eq__(self, other):
+        return self.name == other.name and self.player == other.player
+
 
 # have 6 address that need to be filled
 class Crystal(Item):
@@ -2395,6 +2461,8 @@ class Spoiler(object):
                          'door_shuffle': self.world.doorShuffle,
                          'intensity': self.world.intensity,
                          'door_type_mode': self.world.door_type_mode,
+                         'trap_door_mode': self.world.trap_door_mode,
+                         'key_logic': self.world.key_logic_algorithm,
                          'decoupledoors': self.world.decoupledoors,
                          'dungeon_counters': self.world.dungeon_counters,
                          'item_pool': self.world.difficulty,
@@ -2574,7 +2642,7 @@ class Spoiler(object):
                 outfile.write('Mode:                            %s\n' % self.metadata['mode'][player])
                 outfile.write('Swords:                          %s\n' % self.metadata['weapons'][player])
                 outfile.write('Goal:                            %s\n' % self.metadata['goal'][player])
-                if self.metadata['goal'][player] in ['triforcehunt', 'trinity']:
+                if self.metadata['goal'][player] in ['triforcehunt', 'trinity', 'ganonhunt']:
                     outfile.write('Triforce Pieces Required:        %s\n' % self.metadata['triforcegoal'][player])
                     outfile.write('Triforce Pieces Total:           %s\n' % self.metadata['triforcepool'][player])
                 outfile.write('Crystals required for GT:        %s\n' % (str(self.world.crystals_gt_orig[player])))
@@ -2595,13 +2663,14 @@ class Spoiler(object):
                     outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                     outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 outfile.write(f"Take Any Caves:                  {self.metadata['take_any'][player]}\n")
-                outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 if self.metadata['goal'][player] != 'trinity':
                     outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 if self.metadata['door_shuffle'][player] != 'vanilla':
                     outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
                     outfile.write(f"Door Type Mode:                  {self.metadata['door_type_mode'][player]}\n")
+                    outfile.write(f"Trap Door Mode:                  {self.metadata['trap_door_mode'][player]}\n")
+                    outfile.write(f"Key Logic Algorithm:             {self.metadata['key_logic'][player]}\n")
                     outfile.write(f"Decouple Doors:                  {yn(self.metadata['decoupledoors'][player])}\n")
                     outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
                 outfile.write(f"Dungeon Counters:                {self.metadata['dungeon_counters'][player]}\n")
@@ -2617,6 +2686,7 @@ class Spoiler(object):
                 outfile.write('Enemy health:                    %s\n' % self.metadata['enemy_health'][player])
                 outfile.write('Enemy damage:                    %s\n' % self.metadata['enemy_damage'][player])
                 outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
+                outfile.write('Race:                            %s\n' % ('Yes' if self.world.settings.world_rep['meta']['race'] else 'No'))
 
             if self.startinventory:
                 outfile.write('Starting Inventory:'.ljust(line_width))
@@ -2854,7 +2924,8 @@ world_mode = {"open": 0, "standard": 1, "inverted": 2}
 sword_mode = {"random": 0,  "assured": 1, "swordless": 2, "vanilla": 3}
 
 # byte 2: GGGD DFFH (goal, diff, item_func, hints)
-goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5}
+goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5,
+             'ganonhunt': 6, 'completionist': 7}
 diff_mode = {"normal": 0, "hard": 1, "expert": 2}
 func_mode = {"normal": 0, "hard": 1, "expert": 2}
 
@@ -2892,15 +2963,19 @@ boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique
 
 
 # byte 10: settings_version
-# byte 11: FBBB, TTSS (flute_mode, bow_mode, take_any, small_key_mode)
+# byte 11: FBBB TTSS (flute_mode, bow_mode, take_any, small_key_mode)
 flute_mode = {'normal': 0, 'active': 1}
 keyshuffle_mode = {'none': 0, 'wild': 1, 'universal': 2}  # reserved 8 modes?
 take_any_mode = {'none': 0, 'random': 1, 'fixed': 2}
-bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silver': 3}
+bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 
 # additions
-# psuedoboots does not effect code
-# sfx_shuffle and other adjust items does not effect settings code
+# byte 12: POOT TKKK (pseudoboots, overworld_map, trap_door_mode, key_logic_algo)
+overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
+trap_door_mode = {'vanilla': 0, 'optional': 1, 'boss': 2, 'oneway': 3}
+key_logic_algo = {'default': 0, 'partial': 1, 'strict': 2}
+
+# sfx_shuffle and other adjust items does not affect settings code
 
 # Bump this when making changes that are not backwards compatible (nearly all of them)
 settings_version = 1
@@ -2944,7 +3019,10 @@ class Settings(object):
             settings_version,
 
             (flute_mode[w.flute_mode[p]] << 7 | bow_mode[w.bow_mode[p]] << 4
-            | take_any_mode[w.take_any[p]] << 2 | keyshuffle_mode[w.keyshuffle[p]])
+             | take_any_mode[w.take_any[p]] << 2 | keyshuffle_mode[w.keyshuffle[p]]),
+
+            ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 6
+             | trap_door_mode[w.trap_door_mode[p]] << 4 | key_logic_algo[w.key_logic_algorithm[p]]),
             ])
         return base64.b64encode(code, "+-".encode()).decode()
 
@@ -3012,6 +3090,11 @@ class Settings(object):
             args.bow_mode[p] = r(bow_mode)[(settings[11] & 0x70) >> 4]
             args.take_any[p] = r(take_any_mode)[(settings[11] & 0xC) >> 2]
             args.keyshuffle[p] = r(keyshuffle_mode)[settings[11] & 0x3]
+        if len(settings) > 12:
+            args.pseudoboots[p] = True if settings[12] & 0x80 else False
+            args.overworld_map[p] = r(overworld_map_mode)[(settings[12] & 0x60) >> 6]
+            args.trap_door_mode[p] = r(trap_door_mode)[(settings[12] & 0x14) >> 4]
+            args.key_logic_algorithm[p] = r(key_logic_algo)[settings[12] & 0x07]
 
 
 class KeyRuleType(FastEnum):

@@ -22,6 +22,14 @@
     big: 2
     all: 1
     chaos: 1
+  trap_door_mode:
+    vanilla: 1
+    boss: 0
+    oneway: 0
+  key_logic_algorithm:
+    default: 1
+    partial: 0
+    strict: 0
   decoupledoors: off
   dropshuffle:
     none: 4
@@ -83,6 +91,8 @@
     pedestal: 2
     triforce-hunt: 2
     trinity: 2
+    ganonhunt: 2
+    completionist: 1
   triforce_goal_min: 10
   triforce_goal_max: 30
   triforce_pool_min: 20
@@ -96,7 +106,7 @@
     mcu: 1  # map, compass, universal smalls
 # for use when you aren't using the dungeon_items above
 #  smallkey_shuffle:
-#    standard: 5
+#    none: 5
 #    wild: 1
 #    universal: 1
   dungeon_counters:

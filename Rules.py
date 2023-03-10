@@ -63,6 +63,10 @@ def set_rules(world, player):
         add_rule(world.get_location('Ganon', player), lambda state: state.has('Beat Agahnim 2', player))
     elif world.goal[player] in ['triforcehunt', 'trinity']:
         add_rule(world.get_location('Murahdahla', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'ganonhunt':
+        add_rule(world.get_location('Ganon', player), lambda state: state.item_count('Triforce Piece', player) + state.item_count('Power Star', player) >= int(state.world.treasure_hunt_count[player]))
+    elif world.goal[player] == 'completionist':
+        add_rule(world.get_location('Ganon', player), lambda state: state.everything(player))
 
     if world.mode[player] != 'inverted':
         set_big_bomb_rules(world, player)
@@ -121,6 +125,10 @@ def add_rule(spot, rule, combine='and'):
 
 def or_rule(rule1, rule2):
     return lambda state: rule1(state) or rule2(state)
+
+
+def and_rule(rule1, rule2):
+    return lambda state: rule1(state) and rule2(state)
 
 
 def add_lamp_requirement(spot, player):
@@ -276,8 +284,22 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Skull Big Chest Hookpath', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Skull Torch Room WN', player), lambda state: state.has('Fire Rod', player))
     set_rule(world.get_entrance('Skull Vines NW', player), lambda state: state.has_sword(player))
-    set_rule(world.get_entrance('Skull 2 West Lobby Pits', player), lambda state: state.has_Boots(player) or state.has('Hidden Pits', player))
-    set_rule(world.get_entrance('Skull 2 West Lobby Ledge Pits', player), lambda state: state.has('Hidden Pits', player))
+
+    hidden_pits_door = world.get_door('Skull Small Hall WS', player)
+
+    def hidden_pits_rule(state):
+        return state.has('Hidden Pits', player)
+
+    if hidden_pits_door.bigKey:
+        key_logic = world.key_logic[player][hidden_pits_door.entrance.parent_region.dungeon.name]
+        hidden_pits_rule = and_rule(hidden_pits_rule, create_rule(key_logic.bk_name, player))
+    elif hidden_pits_door.smallKey:
+        d_name = hidden_pits_door.entrance.parent_region.dungeon.name
+        hidden_pits_rule = and_rule(hidden_pits_rule, eval_small_key_door('Skull Small Hall WS', d_name, player))
+
+    set_rule(world.get_entrance('Skull 2 West Lobby Pits', player), lambda state: state.has_Boots(player)
+             or hidden_pits_rule(state))
+    set_rule(world.get_entrance('Skull 2 West Lobby Ledge Pits', player), hidden_pits_rule)
     set_defeat_dungeon_boss_rule(world.get_location('Skull Woods - Boss', player))
     set_defeat_dungeon_boss_rule(world.get_location('Skull Woods - Prize', player))
 
@@ -389,7 +411,8 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Mimics 1 ES', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('GT Mimics 2 WS', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('GT Mimics 2 NE', player), lambda state: state.can_shoot_arrows(player))
-    # consider access to refill room
+    # consider access to refill room - interior doors would need a change
+    set_rule(world.get_entrance('GT Cannonball Bridge SE', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('GT Gauntlet 1 WN', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('GT Gauntlet 2 EN', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('GT Gauntlet 2 SW', player), lambda state: state.can_kill_most_things(player))
@@ -649,7 +672,7 @@ def bomb_rules(world, player):
         ('Hyrule Dungeon Armory S', True), # One green guard
         ('Hyrule Dungeon Armory ES', True), # One green guard
         ('Hyrule Dungeon Armory Boomerang WS', True), # One blue guard
-        ('Desert Compass NW', True), # Three popos
+        ('Desert Compass NE', True), # Three popos
         ('Desert Four Statues NW', True), # Four popos
         ('Desert Four Statues ES', True), # Four popos
         ('Hera Beetles WS', False), # Three blue beetles and only two pots, and bombs don't work.
@@ -869,14 +892,17 @@ def default_rules(world, player):
     set_rule(world.get_entrance('Graveyard Ledge Mirror Spot', player), lambda state: state.has_Pearl(player) and state.has_Mirror(player))
     set_rule(world.get_entrance('Bumper Cave Entrance Rock', player), lambda state: state.has_Pearl(player) and state.can_lift_rocks(player))
     set_rule(world.get_entrance('Bumper Cave Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
+    # this more like an ohko rule - dependent on bird being present too - so enemizer could turn this off?
+    set_rule(world.get_entrance('Bumper Cave Ledge Drop', player), lambda state: state.has_Pearl(player) and
+             (state.has('Cape', player) or state.has('Cane of Byrna', player) or state.has_sword(player)))
     set_rule(world.get_entrance('Bat Cave Drop Ledge Mirror Spot', player), lambda state: state.has_Mirror(player))
     set_rule(world.get_entrance('Dark World Hammer Peg Cave', player), lambda state: state.has_Pearl(player) and state.has('Hammer', player))
     set_rule(world.get_entrance('Village of Outcasts Eastern Rocks', player), lambda state: state.has_Pearl(player) and state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Peg Area Rocks', player), lambda state: state.has_Pearl(player) and state.can_lift_heavy_rocks(player))
     set_rule(world.get_entrance('Village of Outcasts Pegs', player), lambda state: state.has_Pearl(player) and state.has('Hammer', player))
     set_rule(world.get_entrance('Grassy Lawn Pegs', player), lambda state: state.has_Pearl(player) and state.has('Hammer', player))
-    set_rule(world.get_entrance('Bumper Cave Exit (Top)', player), lambda state: state.has('Cape', player))
-    set_rule(world.get_entrance('Bumper Cave Exit (Bottom)', player), lambda state: state.has('Cape', player) or state.has('Hookshot', player))
+    set_rule(world.get_entrance('Bumper Cave Bottom to Top', player), lambda state: state.has('Cape', player))
+    set_rule(world.get_entrance('Bumper Cave Top To Bottom', player), lambda state: state.has('Cape', player) or state.has('Hookshot', player))
 
     set_rule(world.get_entrance('Skull Woods Final Section', player), lambda state: state.has('Fire Rod', player) and state.has_Pearl(player)) # bunny cannot use fire rod
     set_rule(world.get_entrance('Misery Mire', player), lambda state: state.has_Pearl(player) and state.has_sword(player) and state.has_misery_mire_medallion(player))  # sword required to cast magic (!)
@@ -1233,7 +1259,7 @@ std_kill_rooms = {
     'Hyrule Dungeon Armory Main': ['Hyrule Dungeon Armory S', 'Hyrule Dungeon Armory ES'], # One green guard
     'Hyrule Dungeon Armory Boomerang': ['Hyrule Dungeon Armory Boomerang WS'], # One blue guard
     'Eastern Stalfos Spawn': ['Eastern Stalfos Spawn ES', 'Eastern Stalfos Spawn NW'], # Can use pots
-    'Desert Compass Room': ['Desert Compass NW'], # Three popos
+    'Desert Compass Room': ['Desert Compass NE'], # Three popos
     'Desert Four Statues': ['Desert Four Statues NW', 'Desert Four Statues ES'], # Four popos
     'Hera Beetles': ['Hera Beetles WS'], # Three blue beetles and only two pots, and bombs don't work.
     'Tower Gold Knights': ['Tower Gold Knights SW', 'Tower Gold Knights EN'], # Two ball and chain 
@@ -1284,7 +1310,7 @@ def standard_rules(world, player):
     # zelda should be saved before agahnim is in play
     add_rule(world.get_location('Agahnim 1', player), lambda state: state.has('Zelda Delivered', player))
 
-    # too restrictive for crossed?
+    # uncle can't have keys generally because unplaced items aren't used here
     def uncle_item_rule(item):
         copy_state = CollectionState(world)
         copy_state.collect(item)
@@ -1803,8 +1829,8 @@ def set_bunny_rules(world, player, inverted):
 
     # regions for the exits of multi-entrace caves/drops that bunny cannot pass
     # Note spiral cave may be technically passible, but it would be too absurd to require since OHKO mode is a thing.
-    bunny_impassable_caves = ['Bumper Cave', 'Two Brothers House', 'Hookshot Cave (Middle)',
-                              'Pyramid', 'Spiral Cave (Top)', 'Fairy Ascension Cave (Drop)']
+    bunny_impassable_caves = ['Bumper Cave (top)', 'Bumper Cave (bottom)', 'Two Brothers House',
+                              'Hookshot Cave (Middle)', 'Pyramid', 'Spiral Cave (Top)', 'Fairy Ascension Cave (Drop)']
     bunny_accessible_locations = ['Link\'s Uncle', 'Sahasrahla', 'Sick Kid', 'Lost Woods Hideout', 'Lumberjack Tree',
                                   'Checkerboard Cave', 'Potion Shop', 'Spectacle Rock Cave', 'Pyramid',
                                   'Hype Cave - Generous Guy', 'Peg Cave', 'Bumper Cave Ledge', 'Dark Blacksmith Ruins',
@@ -2008,7 +2034,7 @@ bunny_impassible_doors = {
     'Eastern Map Balcony Hook Path', 'Eastern Stalfos Spawn ES', 'Eastern Stalfos Spawn NW',
     'Eastern Darkness S', 'Eastern Darkness NE', 'Eastern Darkness Up Stairs',
     'Eastern Attic Start WS', 'Eastern Single Eyegore NE', 'Eastern Duo Eyegores NE', 'Desert Main Lobby Left Path',
-    'Desert Main Lobby Right Path', 'Desert Left Alcove Path', 'Desert Right Alcove Path', 'Desert Compass NW',
+    'Desert Main Lobby Right Path', 'Desert Left Alcove Path', 'Desert Right Alcove Path', 'Desert Compass NE',
     'Desert West Lobby NW', 'Desert Back Lobby NW', 'Desert Four Statues NW',  'Desert Four Statues ES',
     'Desert Beamos Hall WS', 'Desert Beamos Hall NE', 'Desert Wall Slide NW',
     'Hera Lobby to Front Barrier - Blue', 'Hera Front to Lobby Barrier - Blue', 'Hera Front to Down Stairs Barrier - Blue',
@@ -2073,13 +2099,16 @@ bunny_impassible_doors = {
 
 def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
+    eval_func = eval_small_key_door
+    if world.key_logic_algorithm[player] == 'strict' and world.keyshuffle[player] == 'wild':
+         eval_func = eval_small_key_door_strict
     for d_name, d_logic in key_logic.items():
         for door_name, rule in d_logic.door_rules.items():
             door_entrance = world.get_entrance(door_name, player)
-            add_rule(door_entrance, eval_small_key_door(door_name, d_name, player))
+            add_rule(door_entrance, eval_func(door_name, d_name, player))
             if door_entrance.door.dependents:
                 for dep in door_entrance.door.dependents:
-                    add_rule(dep.entrance, eval_small_key_door(door_name, d_name, player))
+                    add_rule(dep.entrance, eval_func(door_name, d_name, player))
         for location in d_logic.bk_restricted:
             if not location.forced_item:
                 forbid_item(location, d_logic.bk_name, player)
@@ -2090,7 +2119,8 @@ def add_key_logic_rules(world, player):
         for chest in d_logic.bk_chests:
             big_chest = world.get_location(chest.name, player)
             add_rule(big_chest, create_rule(d_logic.bk_name, player))
-            if len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1:
+            if (len(d_logic.bk_doors) == 0 and len(d_logic.bk_chests) <= 1
+               and world.accessibility[player] != 'locations'):
                 set_always_allow(big_chest, allow_big_key_in_big_chest(d_logic.bk_name, player))
     if world.keyshuffle[player] == 'universal':
         for d_name, layout in world.key_layout[player].items():
@@ -2103,6 +2133,8 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
     if state.is_door_open(door_name, player):
         return True
     key_logic = state.world.key_logic[player][dungeon]
+    if door_name not in key_logic.door_rules:
+        return False
     door_rule = key_logic.door_rules[door_name]
     door_openable = False
     for ruleType, number in door_rule.new_rules.items():
@@ -2111,9 +2143,9 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
         if ruleType == KeyRuleType.WorstCase:
             door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
         elif ruleType == KeyRuleType.AllowSmall:
-            if (door_rule.small_location.item and door_rule.small_location.item.name == key_logic.small_key_name
-               and door_rule.small_location.item.player == player):
-                return True  # always okay if allow small is on
+            small_loc_item = door_rule.small_location.item
+            if small_loc_item and small_loc_item.name == key_logic.small_key_name and small_loc_item.player == player:
+                door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
         elif isinstance(ruleType, tuple):
             lock, lock_item = ruleType
             # this doesn't track logical locks yet, i.e. hammer locks the item and hammer is there, but the item isn't
@@ -2125,8 +2157,22 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
     return door_openable
 
 
+def eval_small_key_door_strict_main(state, door_name, dungeon, player):
+    if state.is_door_open(door_name, player):
+        return True
+    key_layout = state.world.key_layout[player][dungeon]
+    number = key_layout.max_chests
+    if number <= 0:
+        return True
+    return state.has_sm_key_strict(key_layout.key_logic.small_key_name, player, number)
+
+
 def eval_small_key_door(door_name, dungeon, player):
     return lambda state: eval_small_key_door_main(state, door_name, dungeon, player)
+
+
+def eval_small_key_door_strict(door_name, dungeon, player):
+    return lambda state: eval_small_key_door_strict_main(state, door_name, dungeon, player)
 
 
 def allow_big_key_in_big_chest(bk_name, player):

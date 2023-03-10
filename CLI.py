@@ -122,9 +122,14 @@ def parse_cli(argv, no_defaults=False):
         defaults = copy.deepcopy(ret)
         for player in range(1, player_num + 1):
             playerargs = parse_cli(shlex.split(getattr(ret, f"p{player}")), True)
+            
+            if playerargs.filename:
+                playersettings = apply_settings_file({}, playerargs.filename)
+                for k, v in playersettings.items():
+                    setattr(playerargs, k, v)
 
             for name in ['logic', 'mode', 'swords', 'goal', 'difficulty', 'item_functionality',
-                         'flute_mode', 'bow_mode', 'take_any',
+                         'flute_mode', 'bow_mode', 'take_any', 'boots_hint',
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
                          'usestartinventory', 'bombbag', 'overworld_map', 'restrict_boss_items',
@@ -135,7 +140,8 @@ def parse_cli(argv, no_defaults=False):
                          'ow_palettes', 'uw_palettes', 'sprite', 'disablemusic', 'quickswap', 'fastmenu', 'heartcolor',
                          'heartbeep', 'remote_items', 'shopsanity', 'dropshuffle', 'pottery', 'keydropshuffle',
                          'mixed_travel', 'standardize_palettes', 'code', 'reduce_flashing', 'shuffle_sfx',
-                         'msu_resume', 'collection_rate', 'colorizepots', 'decoupledoors', 'door_type_mode']:
+                         'msu_resume', 'collection_rate', 'colorizepots', 'decoupledoors', 'door_type_mode',
+                         'trap_door_mode', 'key_logic_algorithm']:
                 value = getattr(defaults, name) if getattr(playerargs, name) is None else getattr(playerargs, name)
                 if player == 1:
                     setattr(ret, name, {1: value})
@@ -161,6 +167,7 @@ def parse_settings():
         "retro": False,
         "bombbag": False,
         "mode": "open",
+        "boots_hint": False,
         "logic": "noglitches",
         "goal": "ganon",
         "crystals_gt": "7",
@@ -198,7 +205,7 @@ def parse_settings():
         'keydropshuffle': False,
         'dropshuffle': 'none',
         'pottery': 'none',
-        'colorizepots': False,
+        'colorizepots': True,
         'shufflepots': False,
         'mapshuffle': False,
         'compassshuffle': False,
@@ -208,6 +215,8 @@ def parse_settings():
         'door_shuffle': 'vanilla',
         'intensity': 2,
         'door_type_mode': 'original',
+        'trap_door_mode': 'optional',
+        'key_logic_algorithm': 'default',
         'decoupledoors': False,
         'experimental': False,
         'dungeon_counters': 'default',

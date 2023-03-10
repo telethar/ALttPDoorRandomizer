@@ -24,6 +24,7 @@ from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons
 from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_items
+from Fill import dungeon_tracking
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
 from Utils import output_path, parse_player_names
@@ -35,7 +36,7 @@ from source.classes.CustomSettings import CustomSettings
 from source.rom.DataTables import init_data_tables
 
 
-__version__ = '1.0.1.3-x'
+__version__ = '1.3.0.0-x'
 
 from source.classes.BabelFish import BabelFish
 
@@ -71,9 +72,8 @@ def main(args, seed=None, fish=None):
     if args.customizer:
         customized = CustomSettings()
         customized.load_yaml(args.customizer)
-        seed = customized.determine_seed()
-        if seed:
-            seeded = True
+        seed = customized.determine_seed(seed)
+        seeded = True
         customized.adjust_args(args)
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
@@ -91,6 +91,7 @@ def main(args, seed=None, fish=None):
     if args.securerandom:
         world.seed = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(9))
 
+    world.boots_hint = args.boots_hint.copy()
     world.remote_items = args.remote_items.copy()
     world.mapshuffle = args.mapshuffle.copy()
     world.compassshuffle = args.compassshuffle.copy()
@@ -111,6 +112,8 @@ def main(args, seed=None, fish=None):
     world.beemizer = args.beemizer.copy()
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.door_type_mode = args.door_type_mode.copy()
+    world.trap_door_mode = args.trap_door_mode.copy()
+    world.key_logic_algorithm = args.key_logic_algorithm.copy()
     world.decoupledoors = args.decoupledoors.copy()
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
@@ -151,7 +154,7 @@ def main(args, seed=None, fish=None):
             world.player_names[player].append(name)
     logger.info('')
     world.settings = CustomSettings()
-    world.settings.create_from_world(world)
+    world.settings.create_from_world(world, args.race)
 
     outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
 
@@ -261,6 +264,7 @@ def main(args, seed=None, fish=None):
     massage_item_pool(world)
     if args.print_custom_yaml:
         world.settings.record_item_pool(world)
+    dungeon_tracking(world)
     fill_specific_items(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 
@@ -299,6 +303,7 @@ def main(args, seed=None, fish=None):
             balance_multiworld_progression(world)
 
     # if we only check for beatable, we can do this sanity check first before creating the rom
+    world.clear_exp_cache()
     if not world.can_beat_game(log_error=True):
         raise RuntimeError(world.fish.translate("cli", "cli", "cannot.beat.game"))
 
@@ -518,10 +523,8 @@ def copy_world(world):
             new_location.item = item
             item.location = new_location
             item.world = ret
-        if location.event:
-            new_location.event = True
-        if location.locked:
-            new_location.locked = True
+        new_location.event = location.event
+        new_location.locked = location.locked
         # these need to be modified properly by set_rules
         new_location.access_rule = lambda state: True
         new_location.item_rule = lambda state: True
@@ -590,7 +593,8 @@ def create_playthrough(world):
     world = copy_world(world)
 
     # get locations containing progress items
-    prog_locations = [location for location in world.get_filled_locations() if location.item.advancement]
+    prog_locations = [location for location in world.get_filled_locations() if location.item.advancement
+                      or world.goal[location.player] == 'completionist']
     optional_locations = ['Trench 1 Switch', 'Trench 2 Switch', 'Ice Block Drop', 'Skull Star Tile']
     state_cache = [None]
     collection_spheres = []
@@ -627,13 +631,15 @@ def create_playthrough(world):
     for num, sphere in reversed(list(enumerate(collection_spheres))):
         to_delete = set()
         for location in sphere:
+            if world.goal[location.player] == 'completionist':
+                continue  # every location for that player is required
             # we remove the item at location and check if game is still beatable
             logging.getLogger('').debug('Checking if %s (Player %d) is required to beat the game.', location.item.name, location.item.player)
             old_item = location.item
             location.item = None
             # todo: this is not very efficient, but I'm not sure how else to do it for this backwards logic
-            # world.clear_exp_cache()
-            if world.can_beat_game(state_cache[num]):
+            world.clear_exp_cache()
+            if world.can_beat_game(state_cache[max(num-1, 0)]):
                 logging.getLogger('').debug(f'{old_item.name} (Player {old_item.player}) is not required')
                 to_delete.add(location)
             else:

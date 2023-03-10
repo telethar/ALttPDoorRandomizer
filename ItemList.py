@@ -6,7 +6,7 @@ import RaceRandom as random
 from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
 from EntranceShuffle import connect_entrance
 from Regions import shop_to_location_table, retro_shops, shop_table_by_location, valid_pot_location
-from Fill import FillError, fill_restrictive, get_dungeon_item_pool, is_dungeon_item
+from Fill import FillError, fill_restrictive, get_dungeon_item_pool, track_dungeon_items, track_outside_keys
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
@@ -182,8 +182,12 @@ def get_custom_array_key(item):
 
 
 def generate_itempool(world, player):
-    if (world.difficulty[player] not in ['normal', 'hard', 'expert'] or world.goal[player] not in ['ganon', 'pedestal', 'dungeons', 'triforcehunt', 'trinity', 'crystals']
-            or world.mode[player] not in ['open', 'standard', 'inverted'] or world.timer not in ['none', 'display', 'timed', 'timed-ohko', 'ohko', 'timed-countdown'] or world.progressive not in ['on', 'off', 'random']):
+    if (world.difficulty[player] not in ['normal', 'hard', 'expert']
+       or world.goal[player] not in ['ganon', 'pedestal', 'dungeons', 'triforcehunt', 'trinity', 'crystals',
+                                     'ganonhunt', 'completionist']
+       or world.mode[player] not in ['open', 'standard', 'inverted']
+       or world.timer not in ['none', 'display', 'timed', 'timed-ohko', 'ohko', 'timed-countdown']
+       or world.progressive not in ['on', 'off', 'random']):
         raise NotImplementedError('Not supported yet')
 
     if world.timer in ['ohko', 'timed-ohko']:
@@ -283,6 +287,7 @@ def generate_itempool(world, player):
             for _ in range(0, amt):
                 pool.append('Rupees (20)')
 
+    start_inventory = list(world.precollected_items)
     for item in precollected_items:
         world.push_precollected(ItemFactory(item, player))
 
@@ -345,7 +350,7 @@ def generate_itempool(world, player):
         world.clock_mode = clock_mode
 
     goal = world.goal[player]
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         g, t = set_default_triforce(goal, world.treasure_hunt_count[player], world.treasure_hunt_total[player])
         world.treasure_hunt_count[player], world.treasure_hunt_total[player] = g, t
         world.treasure_hunt_icon[player] = 'Triforce Piece'
@@ -368,21 +373,7 @@ def generate_itempool(world, player):
         for i in range(4):
             next(adv_heart_pieces).advancement = True
 
-    beeweights = {'0': {None: 100},
-                  '1': {None: 75, 'trap': 25},
-                  '2': {None: 40, 'trap': 40, 'bee': 20},
-                  '3': {'trap': 50, 'bee': 50},
-                  '4': {'trap': 100}}
-    def beemizer(item):
-        if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
-            choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
-            return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
-        return item
-
-    if not skip_pool_adjustments:
-        world.itempool += [beemizer(item) for item in items]
-    else:
-        world.itempool += items
+    world.itempool += items
 
     # shuffle medallions
     mm_medallion, tr_medallion = None, None
@@ -392,8 +383,16 @@ def generate_itempool(world, player):
             custom_medallions = medal_map[player]
             if 'Misery Mire' in custom_medallions:
                 mm_medallion = custom_medallions['Misery Mire']
+                if isinstance(mm_medallion, dict):
+                    mm_medallion = random.choices(list(mm_medallion.keys()), list(mm_medallion.values()), k=1)[0]
+                if mm_medallion == 'Random':
+                    mm_medallion = None
             if 'Turtle Rock' in custom_medallions:
                 tr_medallion = custom_medallions['Turtle Rock']
+                if isinstance(tr_medallion, dict):
+                    tr_medallion = random.choices(list(tr_medallion.keys()), list(tr_medallion.values()), k=1)[0]
+                if tr_medallion == 'Random':
+                    tr_medallion = None
     if not mm_medallion:
         mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     if not tr_medallion:
@@ -426,6 +425,38 @@ def generate_itempool(world, player):
 
     if world.dropshuffle[player] == 'underworld' and not skip_pool_adjustments:
         add_drop_contents(world, player)
+
+    # modfiy based on start inventory, if any
+    modify_pool_for_start_inventory(start_inventory, world, player)
+
+    beeweights = {'0': {None: 100},
+                  '1': {None: 75, 'trap': 25},
+                  '2': {None: 40, 'trap': 40, 'bee': 20},
+                  '3': {'trap': 50, 'bee': 50},
+                  '4': {'trap': 100}}
+    def beemizer(item):
+        if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
+            choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
+            return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
+        return item
+
+    if not skip_pool_adjustments:
+        world.itempool = [beemizer(item) for item in world.itempool]
+
+    # increase pool if not enough items
+    ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
+    pool_size = count_player_dungeon_item_pool(world, player)
+    pool_size += sum(1 for x in world.itempool if x.player == player)
+
+    if pool_size < ttl_locations:
+        retro_bow = world.bow_mode[player].startswith('retro')
+        amount_to_add = ttl_locations - pool_size
+        filler_additions = random.choices(list(filler_items.keys()), filler_items.values(), k=amount_to_add)
+        for item in filler_additions:
+            item_name = 'Rupees (5)' if retro_bow and item == 'Arrows (10)' else item
+            world.itempool.append(ItemFactory(item_name, player))
+
+
 
 
 take_any_locations = [
@@ -813,15 +844,15 @@ def add_pot_contents(world, player):
                     world.itempool.append(ItemFactory(item, player))
 
 
-def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords, bombbag,
-                  door_shuffle, logic, flute_activated):
+def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt_total, timer, goal, mode, swords,
+                  bombbag, door_shuffle, logic, flute_activated):
     pool = []
     placed_items = {}
     precollected_items = []
     clock_mode = None
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         if treasure_hunt_total == 0:
-            treasure_hunt_total = 30 if goal == 'triforcehunt' else 10
+            treasure_hunt_total = 30 if goal in ['triforcehunt', 'ganonhunt'] else 10
     # triforce pieces max out
     triforcepool = ['Triforce Piece'] * min(treasure_hunt_total, max_goal)
 
@@ -924,7 +955,7 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
     elif timer == 'timed-ohko':
         pool.extend(diff.timedohko)
         clock_mode = 'countdown-ohko'
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         pool.extend(triforcepool)
 
     for extra in diff.extras:
@@ -957,6 +988,80 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
     return (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms)
 
 
+item_alternates = {
+    # Bows
+    'Progressive Bow (Alt)': ('Progressive Bow', 1),
+    'Bow': ('Progressive Bow', 1),
+    'Silver Arrows': ('Progressive Bow', 2),
+    # Gloves
+    'Power Glove': ('Progressive Glove', 1),
+    'Titans Mitts': ('Progressive Glove', 2),
+    # Swords
+    'Sword and Shield': ('Progressive Sword', 1), # could find a way to also remove a shield, but mostly not impactful
+    'Fighter Sword': ('Progressive Sword', 1),
+    'Master Sword': ('Progressive Sword', 2),
+    'Tempered Sword': ('Progressive Sword', 3),
+    'Golden Sword': ('Progressive Sword', 4),
+    # Shields
+    'Blue Shield': ('Progressive Shield', 1),
+    'Red Shield': ('Progressive Shield', 2),
+    'Mirror Shield': ('Progressive Shield', 3),
+    # Armors
+    'Blue Mail': ('Progressive Armor', 1),
+    'Red Mail': ('Progressive Armor', 2),
+
+    'Magic Upgrade (1/4)': ('Magic Upgrade (1/2)', 2),
+    'Ocarina': ('Ocarina (Activated)', 1),
+    'Ocarina (Activated)': ('Ocarina', 1),
+    'Boss Heart Container': ('Sanctuary Heart Container', 1),
+    'Sanctuary Heart Container': ('Boss Heart Container', 1),
+    'Power Star': ('Triforce Piece', 1)
+}
+
+
+def modify_pool_for_start_inventory(start_inventory, world, player):
+    if (world.customizer and world.customizer.get_item_pool()) or world.custom:
+        # custom item pools only adjust in dungeon items
+        for item in start_inventory:
+            if item.dungeon:
+                d = world.get_dungeon(item.dungeon, item.player)
+                match = next((i for i in d.all_items if i.name == item.name), None)
+                if match:
+                    if match.map or match.compass:
+                        d.dungeon_items.remove(match)
+                    elif match.smallkey:
+                        d.small_keys.remove(match)
+                    elif match.bigkey and d.big_key == match:
+                        d.big_key = None
+        return
+    for item in start_inventory:
+        if item.player == player:
+            if item in world.itempool:
+                world.itempool.remove(item)
+            elif item.name in item_alternates:
+                alt = item_alternates[item.name]
+                i = alt[1]
+                while i > 0:
+                    alt_item = ItemFactory([alt[0]], player)[0]
+                    if alt_item in world.itempool:
+                        world.itempool.remove(alt_item)
+                    i = i-1
+            elif 'Bottle' in item.name:
+                bottle_item = next((x for x in world.itempool if 'Bottle' in item.name and x.player == player), None)
+                if bottle_item is not None:
+                    world.itempool.remove(bottle_item)
+            if item.dungeon:
+                d = world.get_dungeon(item.dungeon, item.player)
+                match = next((i for i in d.all_items if i.name == item.name), None)
+                if match:
+                    if match.map or match.compass:
+                        d.dungeon_items.remove(match)
+                    elif match.smallkey:
+                        d.small_keys.remove(match)
+                    elif match.bigkey and d.big_key == match:
+                        d.big_key = None
+
+
 def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer, goal, mode, swords, bombbag, customitemarray):
     if isinstance(customitemarray,dict) and 1 in customitemarray:
         customitemarray = customitemarray[1]
@@ -983,7 +1088,7 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         customitemarray["triforce"] = total_items_to_place
 
     # Triforce Pieces
-    if goal in ['triforcehunt', 'trinity']:
+    if goal in ['triforcehunt', 'trinity', 'ganonhunt']:
         g, t = set_default_triforce(goal, customitemarray["triforcepiecesgoal"], customitemarray["triforcepieces"])
         customitemarray["triforcepiecesgoal"], customitemarray["triforcepieces"] = g, t
 
@@ -1021,8 +1126,8 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         treasure_hunt_count = max(min(customitemarray["triforcepiecesgoal"], max_goal), 1)
         treasure_hunt_icon = 'Triforce Piece'
         # Ensure game is always possible to complete here, force sufficient pieces if the player is unwilling.
-        if ((customitemarray["triforcepieces"] < treasure_hunt_count) and (goal in ['triforcehunt', 'trinity'])
-           and (customitemarray["triforce"] == 0)):
+        if ((customitemarray["triforcepieces"] < treasure_hunt_count)
+           and (goal in ['triforcehunt', 'trinity', 'ganonhunt']) and (customitemarray["triforce"] == 0)):
             extrapieces = treasure_hunt_count - customitemarray["triforcepieces"]
             pool.extend(['Triforce Piece'] * extrapieces)
             itemtotal = itemtotal + extrapieces
@@ -1059,6 +1164,22 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         nothings = total_items_to_place - itemtotal
 #        print("Placing " + str(nothings) + " Nothings")
         pool.extend(['Nothing'] * nothings)
+
+    start_inventory = [x for x in world.precollected_items if x.player == player]
+    if not start_inventory:
+        if world.logic[player] in ['owglitches', 'nologic']:
+            precollected_items.append('Pegasus Boots')
+            if 'Pegasus Boots' in pool:
+                pool.remove('Pegasus Boots')
+                pool.append('Rupees (20)')
+        if world.swords[player] == 'assured':
+            precollected_items.append('Progressive Sword')
+            if 'Progressive Sword' in pool:
+                pool.remove('Progressive Sword')
+                pool.append('Rupees (50)')
+            elif 'Fighter Sword' in pool:
+                pool.remove('Fighter Sword')
+                pool.append('Rupees (50)')
 
     return (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms)
 
@@ -1144,37 +1265,35 @@ def make_customizer_pool(world, player):
         place_item('Master Sword Pedestal', 'Triforce')
 
     guaranteed_items = alwaysitems + ['Magic Mirror', 'Moon Pearl']
+    missing_items = []
     if world.shopsanity[player]:
         guaranteed_items.extend(['Blue Potion', 'Green Potion', 'Red Potion'])
         if world.keyshuffle[player] == 'universal':
             guaranteed_items.append('Small Key (Universal)')
     for item in guaranteed_items:
         if item not in pool:
-            pool.append(item)
+            missing_items.append(item)
 
     glove_count = sum(1 for i in pool if i == 'Progressive Glove')
     glove_count = 2 if next((i for i in pool if i == 'Titans Glove'), None) is not None else glove_count
     for i in range(glove_count, 2):
-        pool.append('Progressive Glove')
+        missing_items.append('Progressive Glove')
 
     if world.bombbag[player]:
         if 'Bomb Upgrade (+10)' not in pool:
-            pool.append('Bomb Upgrade (+10)')
+            missing_items.append('Bomb Upgrade (+10)')
 
     if world.swords[player] != 'swordless':
         beam_swords = {'Master Sword', 'Tempered Sword', 'Golden Sword'}
         sword_count = sum(1 for i in pool if i in 'Progressive Sword')
         sword_count = 2 if next((i for i in pool if i in beam_swords), None) is not None else sword_count
         for i in range(sword_count, 2):
-            pool.append('Progressive Sword')
+            missing_items.append('Progressive Sword')
 
     bow_found = next((i for i in pool if i in {'Bow', 'Progressive Bow'}), None)
     if not bow_found:
-        pool.append('Progressive Bow')
-
-    heart_found = next((i for i in pool if i in {'Boss Heart Container', 'Sanctuary Heart Container'}), None)
-    if heart_found is None:
-        pool.append('Boss Heart Container')
+        missing_items.append('Progressive Bow')
+    logging.getLogger('').warning(f'The following items are not in the custom item pool {", ".join(missing_items)}')
 
     g, t = set_default_triforce(world.goal[player], world.treasure_hunt_count[player],
                                 world.treasure_hunt_total[player])
@@ -1183,12 +1302,20 @@ def make_customizer_pool(world, player):
         if pieces < t:
             pool.extend(['Triforce Piece'] * (t - pieces))
 
-    ttl_locations = sum(1 for x in world.get_unfilled_locations(player) if '- Prize' not in x.name)
-    pool_size = len(get_player_dungeon_item_pool(world, player)) + len(pool)
-
-    if pool_size < ttl_locations:
-        amount_to_add = ttl_locations - pool_size
-        pool.extend(random.choices(list(filler_items.keys()), filler_items.values(), k=amount_to_add))
+    if not world.customizer.get_start_inventory():
+        if world.logic[player] in ['owglitches', 'nologic']:
+            precollected_items.append('Pegasus Boots')
+            if 'Pegasus Boots' in pool:
+                pool.remove('Pegasus Boots')
+                pool.append('Rupees (20)')
+        if world.swords[player] == 'assured':
+            precollected_items.append('Progressive Sword')
+            if 'Progressive Sword' in pool:
+                pool.remove('Progressive Sword')
+                pool.append('Rupees (50)')
+            elif 'Fighter Sword' in pool:
+                pool.remove('Fighter Sword')
+                pool.append('Rupees (50)')
 
     return pool, placed_items, precollected_items, clock_mode, 1
 
@@ -1204,15 +1331,15 @@ filler_items = {
 }
 
 
-def get_player_dungeon_item_pool(world, player):
-    return [item for dungeon in world.dungeons for item in dungeon.all_items
-            if dungeon.player == player and item.location is None]
+def count_player_dungeon_item_pool(world, player):
+    return sum(1 for dungeon in world.dungeons for item in dungeon.all_items
+               if dungeon.player == player and item.location is None and is_dungeon_item(item.name, world, player))
 
 
 # location pool doesn't support larger values at this time
 def set_default_triforce(goal, custom_goal, custom_total):
     triforce_goal, triforce_total = 0, 0
-    if goal == 'triforcehunt':
+    if goal in ['triforcehunt', 'ganonhunt']:
         triforce_goal, triforce_total = 20, 30
     elif goal == 'trinity':
         triforce_goal, triforce_total = 8, 10
@@ -1267,31 +1394,94 @@ def fill_specific_items(world):
             for player, placement_list in placements.items():
                 for location, item in placement_list.items():
                     loc = world.get_location(location, player)
-                    item_parts = item.split('#')
-                    item_player = player if len(item_parts) < 2 else int(item_parts[1])
-                    item_name = item_parts[0]
-                    event_flag = False
-                    if is_dungeon_item(item_name, world, item_player):
-                        item_to_place = next(x for x in dungeon_pool
-                                             if x.name == item_name and x.player == item_player)
-                        dungeon_pool.remove(item_to_place)
-                        event_flag = True
-                    elif item_name in prize_set:
-                        item_player = player  # prizes must be for that player
-                        item_to_place = ItemFactory(item_name, item_player)
-                        prize_pool.remove(item_name)
-                        event_flag = True
-                    else:
-                        item_to_place = next((x for x in world.itempool
-                                             if x.name == item_name and x.player == item_player), None)
-                        if item_to_place is None:
-                            item_to_place = ItemFactory(item_name, player)
-                        else:
-                            world.itempool.remove(item_to_place)
-                    world.push_item(loc, item_to_place, False)
-                    # track_outside_keys(item_to_place, spot_to_fill, world)
-                    # track_dungeon_items(item_to_place, spot_to_fill, world)
-                    loc.event = event_flag or item_to_place.advancement
+                    item_to_place, event_flag = get_item_and_event_flag(item, world, player,
+                                                                        dungeon_pool, prize_set, prize_pool)
+                    if item_to_place:
+                        world.push_item(loc, item_to_place, False)
+                        track_outside_keys(item_to_place, loc, world)
+                        track_dungeon_items(item_to_place, loc, world)
+                        loc.event = (event_flag or item_to_place.advancement
+                                     or item_to_place.bigkey or item_to_place.smallkey)
+        advanced_placements = world.customizer.get_advanced_placements()
+        if advanced_placements:
+            for player, placement_list in advanced_placements.items():
+                for placement in placement_list:
+                    if placement['type'] == 'LocationGroup':
+                        item = placement['item']
+                        item_to_place, event_flag = get_item_and_event_flag(item, world, player,
+                                                                            dungeon_pool, prize_set, prize_pool)
+                        if not item_to_place:
+                            continue
+                        locations = placement['locations']
+                        handled = False
+                        while not handled:
+                            if isinstance(locations, dict):
+                                chosen_loc = random.choices(list(locations.keys()), list(locations.values()), k=1)[0]
+                            else:  # if isinstance(locations, list):
+                                chosen_loc = random.choice(locations)
+                            if chosen_loc == 'Random':
+                                if is_dungeon_item(item_to_place.name, world, item_to_place.player):
+                                    dungeon_pool.append(item_to_place)
+                                elif item_to_place.name in prize_set:
+                                    prize_pool.append(item_to_place.name)
+                                else:
+                                    world.itempool.append(item_to_place)
+                            else:
+                                loc = world.get_location(chosen_loc, player)
+                                if loc.item:
+                                    continue
+                                world.push_item(loc, item_to_place, False)
+                                track_outside_keys(item_to_place, loc, world)
+                                track_dungeon_items(item_to_place, loc, world)
+                                loc.event = (event_flag or item_to_place.advancement
+                                             or item_to_place.bigkey or item_to_place.smallkey)
+                            handled = True
+                    elif placement['type'] == 'NotLocationGroup':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.restricted[(item_name, item_player)] = placement['locations']
+                    elif placement['type'] == 'PreferredLocationGroup':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.preferred[(item_name, item_player)] = placement['locations']
+                    elif placement['type'] == 'Verification':
+                        item = placement['item']
+                        item_parts = item.split('#')
+                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                        item_name = item_parts[0]
+                        world.item_pool_config.verify[(item_name, item_player)] = placement['locations']
+                        world.item_pool_config.verify_target += len(placement['locations'])
+
+
+def get_item_and_event_flag(item, world, player, dungeon_pool, prize_set, prize_pool):
+    item_parts = item.split('#')
+    item_player = player if len(item_parts) < 2 else int(item_parts[1])
+    item_name = item_parts[0]
+    event_flag = False
+    if is_dungeon_item(item_name, world, item_player):
+        item_to_place = next(x for x in dungeon_pool
+                             if x.name == item_name and x.player == item_player)
+        dungeon_pool.remove(item_to_place)
+        event_flag = True
+    elif item_name in prize_set:
+        item_player = player  # prizes must be for that player
+        item_to_place = ItemFactory(item_name, item_player)
+        prize_pool.remove(item_name)
+        event_flag = True
+    else:
+        matcher = lambda x: x.name == item_name and x.player == item_player
+        if item_name == 'Bottle':
+            matcher = lambda x: x.name.startswith(item_name) and x.player == item_player
+        item_to_place = next((x for x in world.itempool if matcher(x)), None)
+        if item_to_place is None:
+            return None, event_flag
+        else:
+            world.itempool.remove(item_to_place)
+    return item_to_place, event_flag
 
 
 def is_dungeon_item(item, world, player):

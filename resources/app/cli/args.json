@@ -34,6 +34,10 @@
       "retro"
     ]
   },
+  "boots_hint": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "swords": {
     "choices": [
       "random",
@@ -63,7 +67,9 @@
       "dungeons",
       "triforcehunt",
       "trinity",
-      "crystals"
+      "crystals",
+      "ganonhunt",
+      "completionist"
     ]
   },
   "difficulty": {
@@ -188,6 +194,21 @@
       "big",
       "all",
       "chaos"
+    ]
+  },
+  "trap_door_mode": {
+    "choices": [
+      "vanilla",
+      "optional",
+      "boss",
+      "oneway"
+    ]
+  },
+  "key_logic_algorithm": {
+    "choices": [
+      "default",
+      "partial",
+      "strict"
     ]
   },
   "decoupledoors": {

@@ -15,7 +15,7 @@ try:
 except ImportError:
     raise Exception('Could not load BPS module')
 
-from BaseClasses import ShopType, Region, Location, Door, DoorType, RegionType, LocationType, Item
+from BaseClasses import ShopType, Region, Location, Door, DoorType, RegionType, LocationType
 from DoorShuffle import compass_data, DROptions, boss_indicator, dungeon_portals
 from Dungeons import dungeon_music_addresses, dungeon_table
 from Regions import location_table, shop_to_location_table, retro_shops
@@ -561,7 +561,7 @@ class Sprite(object):
 
 def handle_native_dungeon(location, itemid):
     # Keys in their native dungeon should use the original item code for keys
-    if location.parent_region.dungeon:
+    if location.parent_region.dungeon and location.player == location.item.player:
         if location.parent_region.dungeon.name == location.item.dungeon:
             if location.item.bigkey:
                 return 0x32
@@ -708,7 +708,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     dr_flags = DROptions.Eternal_Mini_Bosses if world.doorShuffle[player] == 'vanilla' else DROptions.Town_Portal
     if world.doorShuffle[player] not in  ['vanilla', 'basic']:
         dr_flags |= DROptions.Map_Info
-    if world.collection_rate[player] and world.goal[player] not in ['triforcehunt', 'trinity']:
+    if ((world.collection_rate[player] or world.goal[player] == 'completionist')
+       and world.goal[player] not in ['triforcehunt', 'trinity', 'ganonhunt']):
         dr_flags |= DROptions.Debug
     if world.doorShuffle[player] not in ['vanilla', 'basic'] and world.logic[player] != 'nologic'\
        and world.mixed_travel[player] == 'prevent':
@@ -1062,9 +1063,14 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         rom.write_byte(0x178000 + i, random.randint(0, 255))
 
     # shuffle prize packs
-    prizes = [0xD8, 0xD8, 0xD8, 0xD8, 0xD9, 0xD8, 0xD8, 0xD9, 0xDA, 0xD9, 0xDA, 0xDB, 0xDA, 0xD9, 0xDA, 0xDA, 0xE0, 0xDF, 0xDF, 0xDA, 0xE0, 0xDF, 0xD8, 0xDF,
-              0xDC, 0xDC, 0xDC, 0xDD, 0xDC, 0xDC, 0xDE, 0xDC, 0xE1, 0xD8, 0xE1, 0xE2, 0xE1, 0xD8, 0xE1, 0xE2, 0xDF, 0xD9, 0xD8, 0xE1, 0xDF, 0xDC, 0xD9, 0xD8,
-              0xD8, 0xE3, 0xE0, 0xDB, 0xDE, 0xD8, 0xDB, 0xE2, 0xD9, 0xDA, 0xDB, 0xD9, 0xDB, 0xD9, 0xDB]
+    prizes = [0xD8, 0xD8, 0xD8, 0xD8, 0xD9, 0xD8, 0xD8, 0xD9,
+              0xDA, 0xD9, 0xDA, 0xDB, 0xDA, 0xD9, 0xDA, 0xDA,
+              0xE0, 0xDF, 0xDF, 0xDA, 0xE0, 0xDF, 0xD8, 0xDF,
+              0xDC, 0xDC, 0xDC, 0xDD, 0xDC, 0xDC, 0xDE, 0xDC,
+              0xE1, 0xD8, 0xE1, 0xE2, 0xE1, 0xD8, 0xE1, 0xE2,
+              0xDF, 0xD9, 0xD8, 0xE1, 0xDF, 0xDC, 0xD9, 0xD8,
+              0xD8, 0xE3, 0xE0, 0xDB, 0xDE, 0xD8, 0xDB, 0xE2,
+              0xD9, 0xDA, 0xDB, 0xD9, 0xDB, 0xD9, 0xDB]
     dig_prizes = [0xB2, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8, 0xD8,
                   0xD9, 0xD9, 0xD9, 0xD9, 0xD9, 0xDA, 0xDA, 0xDA, 0xDA, 0xDA,
                   0xDB, 0xDB, 0xDB, 0xDB, 0xDB, 0xDC, 0xDC, 0xDC, 0xDC, 0xDC,
@@ -1077,12 +1083,40 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         return [l[i:i+n] for i in range(0, len(l), n)]
 
     # randomize last 7 slots
-    prizes [-7:] = random.sample(prizes, 7)
+    possible_prizes = {
+        'Small Heart': 0xD8, 'Fairy': 0xE3,
+        'Rupee (1)': 0xD9, 'Rupees (5)': 0xDA, 'Rupees (20)': 0xDB,
+        'Big Magic': 0xE0, 'Small Magic': 0xDF,
+        'Single Bomb': 0xDC, 'Bombs (4)': 0xDD,
+        'Bombs (8)': 0xDE, 'Arrows (5)': 0xE1, 'Arrows (10)': 0xE2
+    }  #weights, if desired 13, 1, 9, 7, 6, 3, 6, 7, 1, 2, 5, 3
+    uniform_prizes = list(possible_prizes.values())
+    prizes[-7:] = random.sample(prizes, 7)
 
     #shuffle order of 7 main packs
     packs = chunk(prizes[:56], 8)
     random.shuffle(packs)
     prizes[:56] = [drop for pack in packs for drop in pack]
+
+    if world.customizer:
+        drops = world.customizer.get_drops()
+        if drops:
+            for player, drop_config in drops.items():
+                for pack_num in range(1, 8):
+                    if f'Pack {pack_num}' in drop_config:
+                        for prize, idx in enumerate(drop_config[f'Pack {pack_num}']):
+                            chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                            prizes[(pack_num-1)*8 + idx] = chosen
+                for tree_pull_tier in range(1, 4):
+                    if f'Tree Pull Tier {tree_pull_tier}' in drop_config:
+                        prize = drop_config[f'Tree Pull Tier {tree_pull_tier}']
+                        chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                        prizes[63-tree_pull_tier] = chosen  # (62 through 60 in reverse)
+                for key, pos in {'Crab Normal': 59, 'Crab Special': 58, 'Stun Prize': 57, 'Fish': 56}.items():
+                    if key in drop_config:
+                        prize = drop_config[key]
+                        chosen = random.choice(uniform_prizes) if prize == 'Random' else possible_prizes[prize]
+                        prizes[pos] = chosen
 
     if world.difficulty_adjustments[player] in ['hard', 'expert']:
         prize_replacements = {0xE0: 0xDF, # Fairy -> heart
@@ -1220,7 +1254,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
 
     # set up goals for treasure hunt
     rom.write_bytes(0x180165, [0x0E, 0x28] if world.treasure_hunt_icon[player] == 'Triforce Piece' else [0x0D, 0x28])
-    if world.goal[player] in ['triforcehunt', 'trinity']:
+    if world.goal[player] in ['triforcehunt', 'trinity', 'ganonhunt']:
         rom.write_bytes(0x180167, int16_as_bytes(world.treasure_hunt_count[player]))
     rom.write_byte(0x180194, 1)  # Must turn in triforced pieces (instant win not enabled)
 
@@ -1283,6 +1317,10 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         rom.write_byte(0x18003E, 0x02)  # make ganon invincible until all dungeons are beat
     elif world.goal[player] in ['crystals', 'trinity']:
         rom.write_byte(0x18003E, 0x04)  # make ganon invincible until all crystals
+    elif world.goal[player] in ['ganonhunt']:
+        rom.write_byte(0x18003E, 0x05)  # make ganon invincible until all triforce pieces collected
+    elif world.goal[player] in ['completionist']:
+        rom.write_byte(0x18003E, 0x0a)  # make ganon invincible until everything is collected
     else:
         rom.write_byte(0x18003E, 0x03)  # make ganon invincible until all crystals and aga 2 are collected
 
@@ -1427,7 +1465,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     rom.write_byte(0x1800A3, 0x01)  # enable correct world setting behaviour after agahnim kills
     rom.write_byte(0x1800A4, 0x01 if world.logic[player] != 'nologic' else 0x00)  # enable POD EG fix
     rom.write_byte(0x180042, 0x01 if world.save_and_quit_from_boss else 0x00)  # Allow Save and Quit after boss kill
-    rom.write_byte(0x180358, 0x01 if world.logic[player] == 'nologic' else 0x00)
+    rom.write_byte(0x180358, 0x01 if (world.logic[player] in ['owglitches', 'nologic']) else 0x00)
 
     # remove shield from uncle
     rom.write_bytes(0x6D253, [0x00, 0x00, 0xf6, 0xff, 0x00, 0x0E])
@@ -1468,8 +1506,10 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         if world.doorShuffle[player] not in ['vanilla', 'basic']:
             # Uncle respawn refills (magic, bombs, arrows)
             rom.write_bytes(0x180185, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
-            rom.write_bytes(0x180188, [0x20, 3, 10])  # Zelda respawn refills (magic, bombs, arrows)
-            rom.write_bytes(0x18018B, [0x20, 3, 10])  # Mantle respawn refills (magic, bombs, arrows)
+            # Zelda respawn refills (magic, bombs, arrows)
+            rom.write_bytes(0x180188, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
+            # Mantle respawn refills (magic, bombs, arrows)
+            rom.write_bytes(0x18018B, [max(0x20, magic_max), max(3, bomb_max), max(10, bow_max)])
         elif world.doorShuffle[player] == 'basic':  # just in case a bomb is needed to get to a chest
             rom.write_bytes(0x180185, [max(0x00, magic_max), max(3, bomb_max), max(0, bow_max)])
             rom.write_bytes(0x180188, [magic_small, 3, bow_small])  # Zelda respawn refills (magic, bombs, arrows)
@@ -1524,11 +1564,11 @@ def patch_rom(world, rom, player, team, is_mystery=False):
                     rom.write_bytes(room.address(), room.rom_data())
 
     if world.data_tables[player]:
-        colorize_pots = is_mystery or (world.pottery[player] not in ['vanilla', 'lottery']
-                                       and (world.colorizepots[player]
-                                            or world.pottery[player] in ['reduced', 'clustered']))
+        colorize_pots = (world.pottery[player] != 'vanilla', 'lottery'
+                         and (world.colorizepots[player] or world.pottery[player] in ['reduced', 'clustered']))
         world.data_tables[player].write_to_rom(rom, colorize_pots)
 
+    write_enemizer_tweaks(rom, world, player)
     write_strings(rom, world, player, team)
 
     # write initial sram
@@ -1617,6 +1657,11 @@ def write_custom_shops(rom, world, player):
     items_data.extend([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
     rom.write_bytes(0x184900, items_data)
 
+
+def write_enemizer_tweaks(rom, world, player):
+    if world.enemy_shuffle[player] != 'none':
+        rom.write_byte(snes_to_pc(0x1DF6D8), 0)  # lets enemies walk on water instead of clipping into infinity?
+        rom.write_byte(snes_to_pc(0x0DB6B3), 0x82)  # hovers don't need water necessarily?
 
 def hud_format_text(text):
     output = bytes()
@@ -2157,44 +2202,42 @@ def write_strings(rom, world, player, team):
         hint_candidates = []
         for name, district in world.districts[player].items():
             hint_type = 'foolish'
-            choice_set = set()
+            choices = []
             item_count, item_type = 0, 'useful'
             for loc_name in district.locations:
                 location_item = world.get_location(loc_name, player).item
                 if location_item.advancement:
-                    if 'Heart Container' in location_item.name:
+                    if 'Heart Container' in location_item.name or location_item.compass or location_item.map:
                         continue
                     itm_type = 'useful' if useful_item_for_hint(location_item, world) else 'vital'
                     hint_type = 'path'
                     if item_type == itm_type:
-                        choice_set.add(location_item)
+                        choices.append(location_item)
                         item_count += 1
                     elif itm_type == 'vital':
                         item_type = 'vital'
                         item_count = 1
-                        choice_set.clear()
-                        choice_set.add(location_item)
+                        choices.clear()
+                        choices.append(location_item)
             if hint_type == 'foolish':
                 if district.dungeons and world.shuffle[player] != 'vanilla':
-                    choice_set.update(district.dungeons)
+                    choices.extend(district.dungeons)
                     hint_type = 'dungeon_path'
                 elif district.access_points and world.shuffle[player] not in ['vanilla', 'dungeonssimple',
                                                                               'dungeonsfull']:
-                    choice_set.update([x.hint_text for x in district.access_points])
+                    choices.extend([x.hint_text for x in district.access_points])
                     hint_type = 'connector'
             if hint_type == 'foolish':
                 hint_candidates.append((hint_type, f'{name} is a foolish choice'))
             elif hint_type == 'dungeon_path':
-                choices = sorted(list(choice_set))
                 dungeon_choice = random.choice(choices)  # prefer required dungeons...
                 hint_candidates.append((hint_type, f'{name} is on the path to {dungeon_choice}'))
             elif hint_type == 'connector':
-                choices = sorted(list(choice_set))
                 access_point = random.choice(choices)  # prefer required access...
                 hint_candidates.append((hint_type, f'{name} can reach {access_point}'))
             elif hint_type == 'path':
                 if item_count == 1:
-                    the_item = text_for_item(next(iter(choice_set)), world, player, team)
+                    the_item = text_for_item(next(iter(choices)), world, player, team)
                     hint_candidates.append((hint_type, f'{name} conceals only {the_item}'))
                 else:
                     hint_candidates.append((hint_type, f'{name} conceals {item_count} {item_type} items'))
@@ -2264,7 +2307,24 @@ def write_strings(rom, world, player, team):
     if world.goal[player] in ['dungeons']:
         tt['sign_ganon'] = 'You need to complete all the dungeons.'
 
-    tt['uncle_leaving_text'] = Uncle_texts[random.randint(0, len(Uncle_texts) - 1)]
+    if world.boots_hint[player]:
+        starting_boots = next((i for i in world.precollected_items if i.player == player
+                               and i.name == 'Pegasus Boots'), None)
+        if starting_boots:
+            uncle_text = 'Lonk! Boots\nare on\nyour feet.'
+        else:
+            boots_location = next((l for l in world.get_locations()
+                                   if l.player == player and l.item and l.item.name == 'Pegasus Boots'), None)
+            if boots_location:
+                district = next((d for k, d in world.districts[player].items()
+                                 if boots_location.name in d.locations), 'Zebes')
+                uncle_text = f'Lonk! Boots\nare in {district.name}'
+            else:
+                uncle_text = "I couldn't\nfind the Boots\ntoday.\nRIP me."
+
+        tt['uncle_leaving_text'] = uncle_text
+    else:
+        tt['uncle_leaving_text'] = Uncle_texts[random.randint(0, len(Uncle_texts) - 1)]
     tt['end_triforce'] = "{NOBORDER}\n" + Triforce_texts[random.randint(0, len(Triforce_texts) - 1)]
     tt['bomb_shop_big_bomb'] = BombShop2_texts[random.randint(0, len(BombShop2_texts) - 1)]
 
@@ -2286,6 +2346,10 @@ def write_strings(rom, world, player, team):
             trinity_crystal_text = ('%d crystal to beat Ganon.' if world.crystals_needed_for_ganon[player] == 1 else '%d crystals to beat Ganon.') % world.crystals_needed_for_ganon[player]
             tt['sign_ganon'] = 'Three ways to victory! %s Get to it!' % trinity_crystal_text
             tt['murahdahla'] = "Hello @. I\nam Murahdahla, brother of\nSahasrahla and Aginah. Behold the power of\ninvisibility.\n\n\n\n… … …\n\nWait! you can see me? I knew I should have\nhidden in  a hollow tree. If you bring\n%d triforce pieces, I can reassemble it." % int(world.treasure_hunt_count[player])
+        elif world.goal[player] == 'ganonhunt':
+            tt['sign_ganon'] = 'Go find the Triforce pieces to beat Ganon'
+        elif world.goal[player] == 'completionist':
+            tt['sign_ganon'] = 'Ganon only respects those who have done everything'
         tt['ganon_fall_in'] = Ganon1_texts[random.randint(0, len(Ganon1_texts) - 1)]
         tt['ganon_fall_in_alt'] = 'You cannot defeat me until you finish your goal!'
         tt['ganon_phase_3_alt'] = 'Got wax in\nyour ears?\nI can not die!'

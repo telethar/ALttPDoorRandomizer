@@ -66,6 +66,8 @@ def link_entrances_new(world, player):
         default_map['Old Man Cave (East)'] = 'Death Mountain Return Cave Exit (West)'
         one_way_map['Bumper Cave (Top)'] = 'Dark Death Mountain Healer Fairy'
         del default_map['Bumper Cave (Top)']
+        del one_way_map['Big Bomb Shop']
+        one_way_map['Inverted Big Bomb Shop'] = 'Inverted Big Bomb Shop'
     avail_pool.default_map = default_map
     avail_pool.one_way_map = one_way_map
 
@@ -273,7 +275,7 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         # OM Cave entrance in lw/dw if cross_world off
         if 'Old Man Cave Exit (West)' in rem_exits:
             world_limiter = DW_Entrances if avail.inverted else LW_Entrances
-            om_cave_options = [x for x in rem_entrances if x in world_limiter and bonk_fairy_exception(x)]
+            om_cave_options = sorted([x for x in rem_entrances if x in world_limiter and bonk_fairy_exception(x)])
             om_cave_choice = random.choice(om_cave_options)
             if not avail.coupled:
                 connect_exit('Old Man Cave Exit (West)', om_cave_choice, avail)
@@ -302,14 +304,15 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
     unused_entrances = set()
     if not cross_world:
         lw_entrances, dw_entrances = [], []
-        for x in rem_entrances:
+        left = sorted(rem_entrances)
+        for x in left:
             if bonk_fairy_exception(x):
                 lw_entrances.append(x) if x in LW_Entrances else dw_entrances.append(x)
         do_same_world_connectors(lw_entrances, dw_entrances, multi_exit_caves, avail)
         unused_entrances.update(lw_entrances)
         unused_entrances.update(dw_entrances)
     else:
-        entrance_list = [x for x in rem_entrances if bonk_fairy_exception(x)]
+        entrance_list = sorted([x for x in rem_entrances if bonk_fairy_exception(x)])
         do_cross_world_connectors(entrance_list, multi_exit_caves, avail)
         unused_entrances.update(entrance_list)
 
@@ -630,7 +633,7 @@ def do_fixed_shuffle(avail, entrance_list):
         rules = Restrictions()
         rules.size = size
         if ('Hyrule Castle Entrance (South)' in entrances and
-           avail.world.doorShuffle[avail.player] in ['basic', 'crossed']):
+           avail.world.doorShuffle[avail.player] != 'vanilla'):
             rules.must_exit_to_lw = True
         if 'Inverted Ganons Tower' in entrances and not avail.world.shuffle_ganon:
             rules.fixed = True
@@ -774,12 +777,19 @@ def do_vanilla_connect(pool_def, avail):
         if avail.world.pottery[avail.player] not in ['none', 'keys', 'dungeon']:
             return
     defaults = inverted_default_connections if avail.inverted else default_connections
+    if avail.inverted:
+        if 'Dark Death Mountain Fairy' in pool_def['entrances']:
+            pool_def['entrances'].remove('Dark Death Mountain Fairy')
+            pool_def['entrances'].append('Bumper Cave (top)')
     for entrance in pool_def['entrances']:
         if entrance in avail.entrances:
             target = defaults[entrance]
-            connect_simple(avail.world, entrance, target, avail.player)
-            avail.entrances.remove(entrance)
-            avail.exits.remove(target)
+            if entrance in avail.default_map:
+                connect_vanilla_two_way(entrance, avail.default_map[entrance], avail)
+            else:
+                connect_simple(avail.world, entrance, target, avail.player)
+                avail.entrances.remove(entrance)
+                avail.exits.remove(target)
 
 
 def do_mandatory_connections(avail, entrances, cave_options, must_exit):
@@ -1013,12 +1023,15 @@ def connect_custom(avail_pool, world, player):
     if world.customizer and world.customizer.get_entrances():
         custom_entrances = world.customizer.get_entrances()
         player_key = player
-        for ent_name, exit_name in custom_entrances[player_key]['two-way'].items():
-            connect_two_way(ent_name, exit_name, avail_pool)
-        for ent_name, exit_name in custom_entrances[player_key]['entrances'].items():
-            connect_entrance(ent_name, exit_name, avail_pool)
-        for ent_name, exit_name in custom_entrances[player_key]['exits'].items():
-            connect_exit(exit_name, ent_name, avail_pool)
+        if 'two-way' in custom_entrances[player_key]:
+            for ent_name, exit_name in custom_entrances[player_key]['two-way'].items():
+                connect_two_way(ent_name, exit_name, avail_pool)
+        if 'entrances' in custom_entrances[player_key]:
+            for ent_name, exit_name in custom_entrances[player_key]['entrances'].items():
+                connect_entrance(ent_name, exit_name, avail_pool)
+        if 'exits' in custom_entrances[player_key]:
+            for ent_name, exit_name in custom_entrances[player_key]['exits'].items():
+                connect_exit(exit_name, ent_name, avail_pool)
 
 
 def connect_simple(world, exit_name, region_name, player):
@@ -1228,7 +1241,7 @@ modes = {
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
                               'Dark Desert Hint',
-                              'Links House', 'Inverted Links House', 'Tavern North']
+                              'Links House', 'Tavern North']
             },
             'old_man_cave': {  # have to do old man cave first so lw dungeon don't use up everything
                 'special': 'old_man_cave_east',
@@ -1304,7 +1317,7 @@ modes = {
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
                               'Dark Desert Hint',
-                              'Links House', 'Inverted Links House', 'Tavern North']
+                              'Links House', 'Tavern North']  # inverted links house gets substituted
             }
         }
     },
@@ -1572,6 +1585,7 @@ entrance_map = {
     'Paradox Cave (Bottom)': 'Paradox Cave Exit (Bottom)',
     'Paradox Cave (Middle)': 'Paradox Cave Exit (Middle)',
     'Paradox Cave (Top)': 'Paradox Cave Exit (Top)',
+    'Inverted Dark Sanctuary': 'Inverted Dark Sanctuary Exit',
 }
 
 
@@ -1607,7 +1621,7 @@ single_entrance_map = {
     'Lake Hylia Fortune Teller': 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy': 'Lake Hylia Healer Fairy',
     'Bonk Fairy (Light)': 'Bonk Fairy (Light)', 'Lumberjack House': 'Lumberjack House', 'Dam': 'Dam',
     'Blinds Hideout': 'Blinds Hideout', 'Waterfall of Wishing': 'Waterfall of Wishing',
-    'Inverted Bomb Shop': 'Inverted Bomb Shop', 'Inverted Dark Sanctuary': 'Inverted Dark Sanctuary',
+    'Inverted Bomb Shop': 'Inverted Bomb Shop'
 }
 
 default_dw = {
@@ -1616,7 +1630,7 @@ default_dw = {
     'Palace of Darkness Exit', 'Swamp Palace Exit', 'Turtle Rock Exit (Front)', 'Turtle Rock Ledge Exit (West)',
     'Turtle Rock Ledge Exit (East)', 'Turtle Rock Isolated Ledge Exit', 'Bumper Cave Exit (Top)',
     'Bumper Cave Exit (Bottom)', 'Superbunny Cave Exit (Top)', 'Superbunny Cave Exit (Bottom)',
-    'Hookshot Cave Front Exit', 'Hookshot Cave Back Exit', 'Ganons Tower Exit', 'Pyramid Exit',
+    'Hookshot Cave Front Exit', 'Hookshot Cave Back Exit', 'Ganons Tower Exit', 'Pyramid Exit', 'Bonk Fairy (Dark)',
     'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Dark Desert Healer Fairy',
     'Dark Death Mountain Healer Fairy', 'Cave Shop (Dark Death Mountain)', 'Pyramid Fairy', 'East Dark World Hint',
     'Palace of Darkness Hint', 'Big Bomb Shop', 'Village of Outcasts Shop', 'Dark Lake Hylia Shop',
@@ -1639,7 +1653,7 @@ default_lw = {
     'Spectacle Rock Cave Exit (Top)', 'Spectacle Rock Cave Exit (Peak)', 'Paradox Cave Exit (Bottom)',
     'Paradox Cave Exit (Middle)', 'Paradox Cave Exit (Top)', 'Fairy Ascension Cave Exit (Bottom)',
     'Fairy Ascension Cave Exit (Top)', 'Spiral Cave Exit', 'Spiral Cave Exit (Top)', 'Waterfall of Wishing', 'Dam',
-    'Blinds Hideout', 'Lumberjack House', 'Bonk Fairy (Light)', 'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy',
+    'Blinds Hideout', 'Lumberjack House', 'Bonk Fairy (Light)', 'Lake Hylia Healer Fairy',
     'Swamp Healer Fairy', 'Desert Healer Fairy', 'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Kings Grave', 'Tavern',
     'Chicken House', 'Aginahs Cave', 'Sahasrahlas Hut', 'Cave Shop (Lake Hylia)', 'Capacity Upgrade', 'Blacksmiths Hut',
     'Sick Kids House', 'Lost Woods Gamble', 'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House',
@@ -1684,7 +1698,7 @@ DW_Entrances = ['Bumper Cave (Bottom)', 'Superbunny Cave (Top)',  'Superbunny Ca
                 'Dark Lake Hylia Ledge Hint', 'Chest Game', 'Dark Desert Fairy', 'Dark Lake Hylia Ledge Fairy',
                 'Fortune Teller (Dark)', 'Dark World Hammer Peg Cave', 'Pyramid Entrance',
                 'Skull Woods First Section Door', 'Skull Woods Second Section Door (East)',
-                'Skull Woods Second Section Door (West)',
+                'Skull Woods Second Section Door (West)', 'Ganons Tower',
                 'Inverted Dark Sanctuary', 'Inverted Links House', 'Inverted Agahnims Tower']
 
 LW_Must_Exit = ['Desert Palace Entrance (East)']
@@ -1938,6 +1952,8 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Bumper Cave Entrance Mirror Spot', 'Death Mountain Entrance'),
                          ('Bumper Cave Ledge Drop', 'West Dark World'),
                          ('Bumper Cave Ledge Mirror Spot', 'Death Mountain Return Ledge'),
+                         ('Bumper Cave Top To Bottom', 'Bumper Cave (bottom)'),
+                         ('Bumper Cave Bottom to Top', 'Bumper Cave (top)'),
                          ('Skull Woods Forest', 'Skull Woods Forest'),
                          ('Desert Ledge Mirror Spot', 'Desert Ledge'),
                          ('Desert Ledge (Northeast) Mirror Spot', 'Desert Ledge (Northeast)'),
@@ -2066,6 +2082,8 @@ inverted_mandatory_connections = [('Links House S&Q', 'Inverted Links House'),
                                   ('Bumper Cave Entrance Rock', 'Bumper Cave Entrance'),
                                   ('Bumper Cave Entrance Drop', 'West Dark World'),
                                   ('Bumper Cave Ledge Drop', 'West Dark World'),
+                                  ('Bumper Cave Top To Bottom', 'Bumper Cave (bottom)'),
+                                  ('Bumper Cave Bottom to Top', 'Bumper Cave (top)'),
                                   ('Skull Woods Forest', 'Skull Woods Forest'),
                                   ('Paradox Cave Push Block Reverse', 'Paradox Cave Chest Area'),
                                   ('Paradox Cave Push Block', 'Paradox Cave Front'),
@@ -2290,8 +2308,8 @@ default_connections = {'Links House': 'Links House',
                        'C-Shaped House': 'C-Shaped House',
                        'Chest Game': 'Chest Game',
                        'Dark World Hammer Peg Cave': 'Dark World Hammer Peg Cave',
-                       'Bumper Cave (Bottom)': 'Bumper Cave',
-                       'Bumper Cave (Top)': 'Bumper Cave',
+                       'Bumper Cave (Bottom)': 'Bumper Cave (bottom)',
+                       'Bumper Cave (Top)': 'Bumper Cave (top)',
                        'Red Shield Shop': 'Red Shield Shop',
                        'Dark Sanctuary Hint': 'Dark Sanctuary Hint',
                        'Fortune Teller (Dark)': 'Fortune Teller (Dark)',
@@ -2452,7 +2470,7 @@ inverted_default_connections = {'Waterfall of Wishing': 'Waterfall of Wishing',
                                 'Inverted Big Bomb Shop': 'Inverted Big Bomb Shop',
                                 'Inverted Dark Sanctuary': 'Inverted Dark Sanctuary',
                                 'Inverted Dark Sanctuary Exit': 'West Dark World',
-                                'Old Man Cave (West)': 'Bumper Cave',
+                                'Old Man Cave (West)': 'Bumper Cave (bottom)',
                                 'Old Man Cave (East)': 'Death Mountain Return Cave (left)',
                                 'Old Man Cave Exit (West)': 'West Dark World',
                                 'Old Man Cave Exit (East)': 'Dark Death Mountain',
@@ -2461,7 +2479,7 @@ inverted_default_connections = {'Waterfall of Wishing': 'Waterfall of Wishing',
                                 'Bumper Cave (Top)': 'Dark Death Mountain Healer Fairy',
                                 'Bumper Cave Exit (Top)': 'Death Mountain Return Ledge',
                                 'Bumper Cave Exit (Bottom)': 'Light World',
-                                'Death Mountain Return Cave (West)': 'Bumper Cave',
+                                'Death Mountain Return Cave (West)': 'Bumper Cave (top)',
                                 'Death Mountain Return Cave (East)': 'Death Mountain Return Cave (right)',
                                 'Death Mountain Return Cave Exit (West)': 'Death Mountain',
                                 'Death Mountain Return Cave Exit (East)': 'Death Mountain',
