@@ -166,7 +166,7 @@ class EnemySprite(FastEnum):
     GreenEyegoreMimic = 0x83
     RedEyegoreMimic = 0x84
     YellowStalfos = 0x85  # falling stalfos that shoots head
-    Kondongo = 0x86
+    Kodongo = 0x86
     Mothula = 0x88
     SpikeBlock = 0x8a
     Gibdo = 0x8b
@@ -391,7 +391,7 @@ def init_enemy_stats():
         EnemySprite.GreenEyegoreMimic: EnemyStats(EnemySprite.GreenEyegoreMimic, False, True, 5, health=16),
         EnemySprite.RedEyegoreMimic: EnemyStats(EnemySprite.RedEyegoreMimic, False, True, 5, health=8),
         EnemySprite.YellowStalfos: EnemyStats(EnemySprite.YellowStalfos, True, health=8),
-        EnemySprite.Kondongo: EnemyStats(EnemySprite.Kondongo, False, True, 6, health=1),
+        EnemySprite.Kodongo: EnemyStats(EnemySprite.Kodongo, False, True, 6, health=1),
         EnemySprite.Mothula: EnemyStats(EnemySprite.Mothula, True),
         EnemySprite.SpikeBlock: EnemyStats(EnemySprite.SpikeBlock, False, False),
         EnemySprite.Gibdo: EnemyStats(EnemySprite.Gibdo, False, True, 3, health=32),
@@ -668,10 +668,10 @@ def init_vanilla_sprites():
     create_sprite(0x0017, EnemySprite.HardhatBeetle, 0x00, 0, 0x12, 0x11, 'Hera 5F')
     create_sprite(0x0017, EnemySprite.HardhatBeetle, 0x00, 0, 0x0b, 0x17, 'Hera 5F')
     create_sprite(0x0017, EnemySprite.HardhatBeetle, 0x00, 0, 0x17, 0x17, 'Hera 5F')
-    create_sprite(0x0019, EnemySprite.Kondongo, 0x00, 0, 0x16, 0x0a, 'PoD Dark Maze')
-    create_sprite(0x0019, EnemySprite.Kondongo, 0x00, 0, 0x1a, 0x0e, 'PoD Dark Maze')
-    create_sprite(0x0019, EnemySprite.Kondongo, 0x00, 0, 0x16, 0x10, 'PoD Dark Maze')
-    create_sprite(0x0019, EnemySprite.Kondongo, 0x00, 0, 0x18, 0x16, 'PoD Dark Maze')
+    create_sprite(0x0019, EnemySprite.Kodongo, 0x00, 0, 0x16, 0x0a, 'PoD Dark Maze')
+    create_sprite(0x0019, EnemySprite.Kodongo, 0x00, 0, 0x1a, 0x0e, 'PoD Dark Maze')
+    create_sprite(0x0019, EnemySprite.Kodongo, 0x00, 0, 0x16, 0x10, 'PoD Dark Maze')
+    create_sprite(0x0019, EnemySprite.Kodongo, 0x00, 0, 0x18, 0x16, 'PoD Dark Maze')
     create_sprite(0x001a, EnemySprite.MiniHelmasaur, 0x00, 0, 0x08, 0x06, 'PoD Falling Bridge Mid')
     create_sprite(0x001a, EnemySprite.Terrorpin, 0x00, 0, 0x16, 0x06, 'PoD Compass Room')
     create_sprite(0x001a, EnemySprite.Terrorpin, 0x00, 0, 0x19, 0x06, 'PoD Compass Room')
@@ -763,8 +763,8 @@ def init_vanilla_sprites():
     create_sprite(0x0027, EnemySprite.MiniMoldorm, 0x00, 0, 0x1b, 0x13, 'Hera 4F')
     create_sprite(0x0027, EnemySprite.MiniMoldorm, 0x00, 0, 0x0c, 0x1a, 'Hera 4F')
     create_sprite(0x0027, EnemySprite.SparkCW, 0x00, 0, 0x0f, 0x06, 'Hera Big Chest Landing')
-    create_sprite(0x0027, EnemySprite.Kondongo, 0x00, 0, 0x05, 0x0e, 'Hera 4F')
-    create_sprite(0x0027, EnemySprite.Kondongo, 0x00, 0, 0x04, 0x16, 'Hera 4F')
+    create_sprite(0x0027, EnemySprite.Kodongo, 0x00, 0, 0x05, 0x0e, 'Hera 4F')
+    create_sprite(0x0027, EnemySprite.Kodongo, 0x00, 0, 0x04, 0x16, 'Hera 4F')
     create_sprite(0x0028, EnemySprite.Kyameron, 0x00, 0, 0x0a, 0x06, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x08, 0x08, 'Swamp Entrance')
     create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Entrance')
@@ -1257,8 +1257,8 @@ def init_vanilla_sprites():
     create_sprite(0x0077, EnemySprite.CrystalSwitch, 0x00, 1, 0x10, 0x18)
     create_sprite(0x0077, EnemySprite.CrystalSwitch, 0x00, 1, 0x09, 0x1a)
     create_sprite(0x0077, EnemySprite.CrystalSwitch, 0x00, 1, 0x16, 0x1a)
-    create_sprite(0x0077, EnemySprite.Kondongo, 0x00, 1, 0x07, 0x0a, 'Hera Back')
-    create_sprite(0x0077, EnemySprite.Kondongo, 0x00, 1, 0x17, 0x0a, 'Hera Back')
+    create_sprite(0x0077, EnemySprite.Kodongo, 0x00, 1, 0x07, 0x0a, 'Hera Back')
+    create_sprite(0x0077, EnemySprite.Kodongo, 0x00, 1, 0x17, 0x0a, 'Hera Back')
     create_sprite(0x007b, EnemySprite.BlueBari, 0x00, 0, 0x0b, 0x07, 'GT Conveyor Star Pits')
     create_sprite(0x007b, EnemySprite.BlueBari, 0x00, 0, 0x16, 0x09, 'GT Conveyor Star Pits')
     create_sprite(0x007b, EnemySprite.FourWayShooter, 0x00, 0, 0x04, 0x15, 'GT DMs Room')
@@ -2055,7 +2055,7 @@ def kill_rules(world, player, stats):
                                                    arrow=2, silver=2, fire=None),
         EnemySprite.RedEyegoreMimic: can_bow_kill(world, player, arrow_damage[1], silver_damage[1],
                                                   h(EnemySprite.RedEyegoreMimic)),
-        EnemySprite.Kondongo: defeat_rule(world, player, h(EnemySprite.Kondongo), bomb=None, fire=1),
+        EnemySprite.Kodongo: defeat_rule(world, player, h(EnemySprite.Kodongo), bomb=None, fire=1),
         EnemySprite.Gibdo: defeat_rule(world, player, h(EnemySprite.Gibdo), arrow=0),
         EnemySprite.Terrorpin: has('Hammer', player),
         EnemySprite.Blob: defeat_rule(world, player, h(EnemySprite.Blob), hook=True, bomb=2),
@@ -2405,10 +2405,6 @@ def special_rules_for_region(world, player, region_name, location, original_rule
         else:
             return original_rule
     return original_rule
-
-
-
-
 
 
 enemy_names = {

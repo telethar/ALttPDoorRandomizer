@@ -280,7 +280,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.GreenEyegoreMimic).sub_group(2, 0x2e),
         SpriteRequirement(EnemySprite.RedEyegoreMimic).sub_group(2, 0x2e),
         # kodongos apparently broken?
-        SpriteRequirement(EnemySprite.Kondongo).skip().sub_group(2, 0x2a),
+        SpriteRequirement(EnemySprite.Kodongo).skip().sub_group(2, 0x2a),
         SpriteRequirement(EnemySprite.Mothula).exalt().sub_group(2, 0x38).sub_group(3, 0x52),
         SpriteRequirement(EnemySprite.SpikeBlock).immune().sub_group(3, [0x52, 0x53]).exclude(NoBeamosOrTrapRooms)
         .exclude({0x28}),  # why exclude sp entrance?
