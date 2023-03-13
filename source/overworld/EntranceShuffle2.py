@@ -3001,7 +3001,7 @@ ow_prize_table = {'Links House': (0x8b1, 0xb2d), 'Inverted Big Bomb Shop': (0x8b
                   'Lost Woods Gamble': (0x240, 0x080),
                   'Fortune Teller (Light)': (0x2c0, 0x4c0),
                   'Snitch Lady (East)': (0x310, 0x7a0),
-                  'Snitch Lady (West)': (0x800, 0x7a0),
+                  'Snitch Lady (West)': (0x080, 0x7a0),
                   'Bush Covered House': (0x2e0, 0x880),
                   'Tavern (Front)': (0x270, 0x980),
                   'Light World Bomb Hut': (0x070, 0x980),
