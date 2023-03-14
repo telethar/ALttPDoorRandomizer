@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '15edc718abbbd94ee34e15ae24b219a3'
+RANDOMIZERBASEHASH = '29863ca305a8474c452cd13b3f921898'
 
 
 class JsonRom(object):
@@ -1607,6 +1607,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     rom.name = bytearray(f'ER{__version__.split("-")[0].replace(".","")[0:3]}_{team+1}_{player}_{seedstring}\0', 'utf8')[:21]
     rom.name.extend([0] * (21 - len(rom.name)))
     rom.write_bytes(0x7FC0, rom.name)
+
+    rom.write_bytes(0x138010, bytearray(__version__, 'utf8'))
 
     # set player names
     for p in range(1, min(world.players, 255) + 1):
