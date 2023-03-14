@@ -1813,7 +1813,8 @@ def shuffle_door_types(door_type_pools, paths, world, player):
             for dungeon, doors in custom_dict.items():
                 all_custom[dungeon].extend(doors)
 
-    world.paired_doors[player].clear()
+    for pd in world.paired_doors[player]:
+        pd.pair = False
     used_doors = shuffle_trap_doors(door_type_pools, paths, start_regions_map, all_custom, world, player)
     # big keys
     used_doors = shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, all_custom, world, player)
