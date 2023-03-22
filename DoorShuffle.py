@@ -322,6 +322,11 @@ def connect_simple_door(world, exit_name, region_name, player):
         d.dest = region
 
 
+def connect_simple_door_to_region(exit_door, region):
+    exit_door.entrance.connect(region)
+    exit_door.dest = region
+
+
 def connect_door_only(world, exit_name, region, player):
     d = world.check_for_door(exit_name, player)
     if d is not None:
@@ -354,6 +359,12 @@ def connect_two_way(world, entrancename, exitname, player):
         x.dest = y
     if y is not None:
         y.dest = x
+    if x.dependents:
+        for dep in x.dependents:
+            connect_simple_door_to_region(dep, ext.parent_region)
+    if y.dependents:
+        for dep in y.dependents:
+            connect_simple_door_to_region(dep, entrance.parent_region)
 
 
 def connect_one_way(world, entrancename, exitname, player):
@@ -373,6 +384,9 @@ def connect_one_way(world, entrancename, exitname, player):
     y = world.check_for_door(exitname, player)
     if x is not None:
         x.dest = y
+    if x.dependents:
+        for dep in x.dependents:
+            connect_simple_door_to_region(dep, ext.parent_region)
 
 def unmark_ugly_smalls(world, player):
     for d in ['Eastern Hint Tile Blocked Path SE', 'Eastern Darkness S', 'Thieves Hallway SE', 'Mire Left Bridge S',

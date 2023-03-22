@@ -1561,13 +1561,18 @@ def validate_key_layout_sub_loop(key_layout, state, checked_states, flat_proposa
 def invalid_self_locking_key(key_layout, state, prev_state, prev_avail, world, player):
     if prev_state is None or state.used_smalls == prev_state.used_smalls:
         return False
-    new_bk_doors = set(state.big_doors).difference(set(prev_state.big_doors))
-    state_copy = state.copy()
-    while len(new_bk_doors) > 0:
-        for door in new_bk_doors:
-            open_a_door(door.door, state_copy, key_layout.flat_prop, world, player)
-        new_bk_doors = set(state_copy.big_doors).difference(set(prev_state.big_doors))
-    expand_key_state(state_copy, key_layout.flat_prop, world, player)
+    if state.found_forced_bk() and not prev_state.found_forced_bk():
+        return False
+    if state.big_key_opened:
+        new_bk_doors = set(state.big_doors).difference(set(prev_state.big_doors))
+        state_copy = state.copy()
+        while len(new_bk_doors) > 0:
+            for door in new_bk_doors:
+                open_a_door(door.door, state_copy, key_layout.flat_prop, world, player)
+            new_bk_doors = set(state_copy.big_doors).difference(set(prev_state.big_doors))
+        expand_key_state(state_copy, key_layout.flat_prop, world, player)
+    else:
+        state_copy = state
     new_locations = set(state_copy.found_locations).difference(set(prev_state.found_locations))
     important_found = False
     for loc in new_locations:

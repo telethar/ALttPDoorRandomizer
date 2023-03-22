@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.14u
+  * Small fix for key logic validation (got rid of a false negative)
+  * Customized doors in ice cross work properly now
 * 1.2.0.13u
   * Allow green/blue potion refills to be customized
   * OW Map showing dungeon entrance at Snitch Lady (West) fixed (instead of @ HC Courtyard)
