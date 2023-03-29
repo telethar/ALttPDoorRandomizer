@@ -133,7 +133,7 @@ class World(object):
             set_player_attr('crystals_needed_for_gt', 7)
             set_player_attr('crystals_ganon_orig', {})
             set_player_attr('crystals_gt_orig', {})
-            set_player_attr('open_pyramid', False)
+            set_player_attr('open_pyramid', 'auto')
             set_player_attr('take_any', 'none')
             set_player_attr('treasure_hunt_icon', 'Triforce Piece')
             set_player_attr('treasure_hunt_count', 0)
@@ -274,6 +274,19 @@ class World(object):
 
     def is_atgt_swapped(self, player):
         return self.mode[player] == 'inverted'
+
+    def is_pyramid_open(self, player):
+        if self.open_pyramid[player] == 'yes':
+            return True
+        elif self.open_pyramid[player] == 'no':
+            return False
+        else:
+            if self.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
+                return False
+            elif self.goal[player] in ['crystals', 'trinity']:
+                return True
+            else:
+                return False
 
     def check_for_door(self, doorname, player):
         if isinstance(doorname, Door):
@@ -2659,7 +2672,7 @@ class Spoiler(object):
                     outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                 outfile.write(f"Take Any Caves:                  {self.metadata['take_any'][player]}\n")
                 if self.metadata['goal'][player] != 'trinity':
-                    outfile.write('Pyramid hole pre-opened:         %s\n' % ('Yes' if self.metadata['open_pyramid'][player] else 'No'))
+                    outfile.write('Pyramid hole pre-opened:         %s\n' % (self.metadata['open_pyramid'][player]))
                 outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                 if self.metadata['door_shuffle'][player] != 'vanilla':
                     outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
@@ -2997,7 +3010,7 @@ class Settings(object):
             | (counter_mode[w.dungeon_counters[p]] << 1) | (1 if w.experimental[p] else 0),
 
             ((8 if w.crystals_ganon_orig[p] == "random" else int(w.crystals_ganon_orig[p])) << 3)
-            | (0x4 if w.open_pyramid[p] else 0) | access_mode[w.accessibility[p]],
+            | (0x4 if w.is_pyramid_open[p] else 0) | access_mode[w.accessibility[p]],
 
             (0x80 if w.bigkeyshuffle[p] else 0)
             | (0x20 if w.mapshuffle[p] else 0) | (0x10 if w.compassshuffle[p] else 0)

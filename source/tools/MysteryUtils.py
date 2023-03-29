@@ -119,7 +119,7 @@ def roll_settings(weights):
                     'ganonhunt': 'ganonhunt',
                     'completionist': 'completionist'
                     }[goal]
-    ret.openpyramid = goal in ['fast_ganon', 'trinity'] if ret.shuffle in ['vanilla', 'dungeonsfull', 'dungeonssimple'] else False
+    ret.openpyramid = get_choice('open_pyramid') if 'open_pyramid' in weights else 'auto'
 
     ret.crystals_gt = get_choice('tower_open')
 

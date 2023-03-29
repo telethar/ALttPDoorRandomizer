@@ -902,7 +902,7 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_location('Frog', player), lambda state: state.can_lift_heavy_rocks(player) and
                                                                (state.has_Pearl(player) or state.has('Beat Agahnim 1', player))
                                                                     or (state.can_reach('Light World', 'Region', player) and state.has_Mirror(player)))  # Need LW access using Mirror or Portal
-        set_rule(world.get_entrance('Inverted Pyramid Hole', player), lambda state: world.open_pyramid[player] or world.goal[player] == 'trinity' or state.has('Beat Agahnim 2', player))
+        set_rule(world.get_entrance('Inverted Pyramid Hole', player), lambda state: world.is_pyramid_open(player) or state.has('Beat Agahnim 2', player))
 
 
 def ow_bunny_rules(world, player):
