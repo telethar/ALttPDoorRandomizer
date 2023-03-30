@@ -9,7 +9,10 @@ from Dungeons import dungeon_table
 from RoomData import DoorKind
 from OverworldGlitchRules import overworld_glitches_rules
 
-from source.dungeon.EnemyList import kill_rules, special_rules_check, special_rules_for_region
+from source.logic.Rule import RuleFactory
+from source.dungeon.EnemyList import EnemySprite, Sprite
+from source.enemizer.EnemyLogic import special_rules_check, special_rules_for_region, defeat_rule_single
+from source.enemizer.EnemyLogic import defeat_rule_multiple, and_rule as and_rule_new, or_rule as or_rule_new
 
 
 def set_rules(world, player):
@@ -38,6 +41,7 @@ def set_rules(world, player):
     bomb_rules(world, player)
     pot_rules(world, player)
     drop_rules(world, player)
+    challenge_room_rules(world, player)
 
     if world.logic[player] == 'noglitches':
         no_glitches_rules(world, player)
@@ -112,8 +116,18 @@ def set_defeat_dungeon_boss_rule(location):
     # Lambda required to defer evaluation of dungeon.boss since it will change later if boos shuffle is used
     set_rule(location, lambda state: location.parent_region.dungeon.boss.can_defeat(state))
 
+
 def set_always_allow(spot, rule):
     spot.always_allow = rule
+
+
+def add_rule_new(spot, rule, combine='and'):
+    if combine == 'and':
+        spot.verbose_rule = and_rule_new(*[spot.verbose_rule, rule])
+    else:
+        spot.verbose_rule = or_rule_new(*[spot.verbose_rule, rule])
+    add_rule(spot, rule.rule_lambda, combine)
+
 
 def add_rule(spot, rule, combine='and'):
     old_rule = spot.access_rule
@@ -201,8 +215,8 @@ def global_rules(world, player):
 
     # Eastern Palace
     # Eyegore room needs a bow
-    set_rule(world.get_entrance('Eastern Duo Eyegores NE', player), lambda state: state.can_shoot_arrows(player))
-    set_rule(world.get_entrance('Eastern Single Eyegore NE', player), lambda state: state.can_shoot_arrows(player))
+    # set_rule(world.get_entrance('Eastern Duo Eyegores NE', player), lambda state: state.can_shoot_arrows(player))
+    # set_rule(world.get_entrance('Eastern Single Eyegore NE', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('Eastern Map Balcony Hook Path', player), lambda state: state.has('Hookshot', player))
 
     # Boss rules. Same as below but no BK or arrow requirement.
@@ -222,19 +236,12 @@ def global_rules(world, player):
     set_defeat_dungeon_boss_rule(world.get_location('Tower of Hera - Prize', player))
 
     # Castle Tower
-    set_rule(world.get_entrance('Tower Gold Knights SW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('Tower Gold Knights EN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('Tower Dark Archers WN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('Tower Red Spears WN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('Tower Red Guards EN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('Tower Red Guards SW', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('Tower Altar NW', player), lambda state: state.has_sword(player))
     set_defeat_dungeon_boss_rule(world.get_location('Agahnim 1', player))
 
-
     set_rule(world.get_entrance('PoD Arena Landing Bonk Path', player), lambda state: state.has_Boots(player))
-    set_rule(world.get_entrance('PoD Mimics 1 NW', player), lambda state: state.can_shoot_arrows(player))
-    set_rule(world.get_entrance('PoD Mimics 2 NW', player), lambda state: state.can_shoot_arrows(player))
+    # set_rule(world.get_entrance('PoD Mimics 1 NW', player), lambda state: state.can_shoot_arrows(player))
+    # set_rule(world.get_entrance('PoD Mimics 2 NW', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('PoD Bow Statue Down Ladder', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('PoD Map Balcony Drop Down', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('PoD Dark Pegs Landing to Right', player), lambda state: state.has('Hammer', player))
@@ -413,19 +420,6 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Mimics 2 NE', player), lambda state: state.can_shoot_arrows(player))
     # consider access to refill room - interior doors would need a change
     set_rule(world.get_entrance('GT Cannonball Bridge SE', player), lambda state: state.has_Boots(player))
-    set_rule(world.get_entrance('GT Gauntlet 1 WN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 2 EN', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 2 SW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 3 NW', player), lambda state: state.can_kill_most_things(player))
-    if not world.get_door('GT Gauntlet 3 SW', player).entranceFlag:
-        set_rule(world.get_entrance('GT Gauntlet 3 SW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 4 NW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 4 SW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 5 NW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Gauntlet 5 WS', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Wizzrobes 1 SW', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Wizzrobes 2 SE', player), lambda state: state.can_kill_most_things(player))
-    set_rule(world.get_entrance('GT Wizzrobes 2 NE', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('GT Lanmolas 2 ES', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
     set_rule(world.get_entrance('GT Lanmolas 2 NW', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
     set_rule(world.get_entrance('GT Torch Cross ES', player), lambda state: state.has_fire_source(player))
@@ -656,64 +650,11 @@ def bomb_rules(world, player):
     for location in bonkable_items:
         add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
     for location in bombable_items:
-        add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player)) 
-
-    cave_kill_locations = ['Mini Moldorm Cave - Far Left', 'Mini Moldorm Cave - Far Right', 'Mini Moldorm Cave - Left', 'Mini Moldorm Cave - Right', 'Mini Moldorm Cave - Generous Guy', 'Spiral Cave']
-    for location in cave_kill_locations:
-        add_rule(world.get_location(location, player), lambda state: state.can_kill_most_things(player) or state.can_use_bombs(player))
-    add_rule(world.get_entrance('Spiral Cave (top to bottom)', player), lambda state: state.can_kill_most_things(player) or state.can_use_bombs(player))
+        add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player))
 
     paradox_switch_chests = ['Paradox Cave Lower - Far Left', 'Paradox Cave Lower - Left', 'Paradox Cave Lower - Right', 'Paradox Cave Lower - Far Right', 'Paradox Cave Lower - Middle']
     for location in paradox_switch_chests:
         add_rule(world.get_location(location, player), lambda state: state.can_hit_crystal_through_barrier(player))
-
-    # Dungeon bomb logic
-    easy_kill_rooms = [ # Door, bool-bombable
-        ('Hyrule Dungeon Armory S', True), # One green guard
-        ('Hyrule Dungeon Armory ES', True), # One green guard
-        ('Hyrule Dungeon Armory Boomerang WS', True), # One blue guard
-        ('Desert Compass NE', True), # Three popos
-        ('Desert Four Statues NW', True), # Four popos
-        ('Desert Four Statues ES', True), # Four popos
-        ('Hera Beetles WS', False), # Three blue beetles and only two pots, and bombs don't work.
-        ('Thieves Basement Block WN', True), # One blue and one red zazak and one Stalfos. Two pots. Need to kill the third enemy somehow.
-        ('Ice Pengator Trap NE', False), # Five pengators. Bomb-doable?
-        ('TR Twin Pokeys EN', False), # Two pokeys
-        ('TR Twin Pokeys SW', False), # Two pokeys
-        ('GT Petting Zoo SE', False), # Dont make anyone do this room with bombs and/or pots.
-        ('GT DMs Room SW', False) # Four red stalfos
-    ]
-    for killdoor,bombable in easy_kill_rooms:
-        if bombable:
-            add_rule(world.get_entrance(killdoor, player), lambda state: (state.can_use_bombs(player) or state.can_kill_most_things(player)))
-        else:
-            add_rule(world.get_entrance(killdoor, player), lambda state: state.can_kill_most_things(player))
-    add_rule(world.get_entrance('Ice Stalfos Hint SE', player), lambda state: state.can_use_bombs(player)) # Need bombs for big stalfos knights
-    add_rule(world.get_entrance('Mire Cross ES', player), lambda state: state.can_kill_most_things(player)) # 4 Sluggulas. Bombs don't work // or (state.can_use_bombs(player) and state.has('Magic Powder'), player) 
-
-    enemy_kill_drops = [ # Location, bool-bombable
-        ('Hyrule Castle - Map Guard Key Drop', True),
-        ('Hyrule Castle - Boomerang Guard Key Drop', True),
-        ('Hyrule Castle - Key Rat Key Drop', True),
-#        ('Hyrule Castle - Big Key Drop', True), # Pots are available
-#        ('Eastern Palace - Dark Eyegore Key Drop', True), # Pots are available
-        ('Castle Tower - Dark Archer Key Drop', True),
-#        ('Castle Tower - Circle of Pots Key Drop', True), # Pots are available 
-#        ('Skull Woods - Spike Corner Key Drop', True), # Pots are available
-        ('Ice Palace - Jelly Key Drop', True),
-        ('Ice Palace - Conveyor Key Drop', True),
-        ('Misery Mire - Conveyor Crystal Key Drop', True),
-        ('Turtle Rock - Pokey 1 Key Drop', True),
-        ('Turtle Rock - Pokey 2 Key Drop', True),
-#        ('Ganons Tower - Mini Helmasaur Key Drop', True) # Pots are available
-        ('Castle Tower - Room 03', True), # Two spring soliders
-        ('Ice Palace - Compass Chest', True) # Pengators
-    ]
-    for location,bombable in enemy_kill_drops:
-        if bombable:
-            add_rule(world.get_location(location, player), lambda state: state.can_use_bombs(player) or state.can_kill_most_things(player)) 
-        else:
-            add_rule(world.get_location(location, player), lambda state: state.can_kill_most_things(player))
 
     add_rule(world.get_location('Attic Cracked Floor', player), lambda state: state.can_use_bombs(player)) 
     bombable_floors = ['PoD Pit Room Bomb Hole', 'Ice Bomb Drop Hole', 'Ice Freezors Bomb Hole', 'GT Bob\'s Room Hole']
@@ -749,6 +690,45 @@ def bomb_rules(world, player):
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
             elif door.kind(world) in [DoorKind.Bombable]:
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player))
+
+
+def challenge_room_rules(world, player):
+    room_map = world.data_tables[player].uw_enemy_table.room_map
+    stats = world.data_tables[player].enemy_stats
+    for region, data in std_kill_rooms.items():
+        entrances, room_id, enemy_list = data
+        rule = get_challenge_rule(world, player, room_map, stats, room_id, enemy_list, region)
+        for ent in entrances:
+            entrance = world.get_entrance(ent, player)
+            if not entrance.door or not entrance.door.entranceFlag:
+                add_rule_new(world.get_entrance(ent, player), rule)
+    for region, data in kill_chests.items():
+        locations, room_id, enemy_list = data
+        rule = get_challenge_rule(world, player, room_map, stats, room_id, enemy_list, region)
+        for loc in locations:
+            add_rule_new(world.get_location(loc, player), rule)
+
+
+def get_challenge_rule(world, player, room_map, stats, room_id, enemy_list, region):
+    sprite_list = room_map[room_id]
+    sprite_region_pairs = []
+    for idx, sprite in enumerate(sprite_list):
+        if idx in enemy_list:
+            if not stats[sprite.kind].ignore_for_kill_room:
+                sprite_region_pairs.append((sprite, world.get_region(sprite.region, player)))
+    if region == 'Eastern Stalfos Spawn':
+        stalfos_spawn_exception(sprite_region_pairs, stats, world, player)
+    if sprite_region_pairs:
+        return defeat_rule_multiple(world, player, sprite_region_pairs)
+    return RuleFactory.static_rule(True)
+
+
+def stalfos_spawn_exception(sprite_region_pairs, stats, world, player):
+    if stats[EnemySprite.Stalfos].health * 4 > 40:
+        for x in range(0, 4):
+            sprite_region_pairs.append((Sprite(0x00a8, EnemySprite.Stalfos, 0, 0, 0, 0, 'Eastern Stalfos Spawn'),
+                                       world.get_region('Eastern Stalfos Spawn', player)))
+    return sprite_region_pairs
 
 
 def pot_rules(world, player):
@@ -798,17 +778,14 @@ def pot_rules(world, player):
 
 def drop_rules(world, player):
     data_tables = world.data_tables[player]
-    defeat_rules = kill_rules(world, player, data_tables.enemy_stats)
     for super_tile, enemy_list in data_tables.uw_enemy_table.room_map.items():
         for enemy in enemy_list:
             if enemy.location:
-                # could handle odd health rules here? assume harder variant for now
-                verbose_rule = defeat_rules[enemy.kind]
+                rule = defeat_rule_single(world, player, enemy, enemy.location.parent_region)
                 if enemy.location.parent_region.name in special_rules_check:
-                    verbose_rule = special_rules_for_region(world, player,  enemy.location.parent_region.name,
-                                                            enemy.location, verbose_rule, enemy)
-                enemy.location.verbose_rule = verbose_rule
-                add_rule(enemy.location, verbose_rule.rule_lambda)
+                    rule = special_rules_for_region(world, player, enemy.location.parent_region.name,
+                                                    enemy.location, rule)
+                add_rule_new(enemy.location, rule)
 
 
 def default_rules(world, player):
@@ -1256,34 +1233,88 @@ def swordless_rules(world, player):
 
 
 std_kill_rooms = {
-    'Hyrule Dungeon Armory Main': ['Hyrule Dungeon Armory S', 'Hyrule Dungeon Armory ES'], # One green guard
-    'Hyrule Dungeon Armory Boomerang': ['Hyrule Dungeon Armory Boomerang WS'], # One blue guard
-    'Eastern Stalfos Spawn': ['Eastern Stalfos Spawn ES', 'Eastern Stalfos Spawn NW'], # Can use pots
-    'Desert Compass Room': ['Desert Compass NE'], # Three popos
-    'Desert Four Statues': ['Desert Four Statues NW', 'Desert Four Statues ES'], # Four popos
-    'Hera Beetles': ['Hera Beetles WS'], # Three blue beetles and only two pots, and bombs don't work.
-    'Tower Gold Knights': ['Tower Gold Knights SW', 'Tower Gold Knights EN'], # Two ball and chain 
-    'Tower Dark Archers': ['Tower Dark Archers WN'],  # Not a kill room
-    'Tower Red Spears': ['Tower Red Spears WN'],  # Two spear soldiers 
-    'Tower Red Guards': ['Tower Red Guards EN', 'Tower Red Guards SW'], # Two usain bolts
-    'Tower Circle of Pots': ['Tower Circle of Pots NW'], # Two spear soldiers. Plenty of pots.
-    'PoD Turtle Party': ['PoD Turtle Party ES', 'PoD Turtle Party NW'],  # Lots of turtles.
-    'Thieves Basement Block': ['Thieves Basement Block WN'], # One blue and one red zazak and one Stalfos. Two pots. Need weapon. 
-    'Ice Stalfos Hint': ['Ice Stalfos Hint SE'], # Need bombs for big stalfos knights
-    'Ice Pengator Trap': ['Ice Pengator Trap NE'], # Five pengators. Bomb-doable?
-    'Mire 2': ['Mire 2 NE'], # Wizzrobes. Bombs dont work.
-    'Mire Cross': ['Mire Cross ES'], # 4 Sluggulas. Bombs don't work
-    'TR Twin Pokeys': ['TR Twin Pokeys EN', 'TR Twin Pokeys SW'], # Two pokeys
-    'GT Petting Zoo': ['GT Petting Zoo SE'], # Dont make anyone do this room with bombs.
-    'GT DMs Room': ['GT DMs Room SW'], # Four red stalfos
-    'GT Gauntlet 1': ['GT Gauntlet 1 WN'], # Stalfos/zazaks
-    'GT Gauntlet 2': ['GT Gauntlet 2 EN', 'GT Gauntlet 2 SW'], # Red stalfos
-    'GT Gauntlet 3': ['GT Gauntlet 3 NW', 'GT Gauntlet 3 SW'], # Blue zazaks
-    'GT Gauntlet 4': ['GT Gauntlet 4 NW', 'GT Gauntlet 4 SW'], # Red zazaks
-    'GT Gauntlet 5': ['GT Gauntlet 5 NW', 'GT Gauntlet 5 WS'], # Stalfos and zazak
-    'GT Wizzrobes 1': ['GT Wizzrobes 1 SW'], # Wizzrobes. Bombs don't work
-    'GT Wizzrobes 2': ['GT Wizzrobes 2 SE', 'GT Wizzrobes 2 NE'] # Wizzrobes. Bombs don't work
-}  # all trap rooms?
+    'Hyrule Dungeon Armory Main':  # One green guard
+        (['Hyrule Dungeon Armory S', 'Hyrule Dungeon Armory ES'], 0x71, [0]),
+    'Hyrule Dungeon Armory Boomerang':  # One blue guard
+        (['Hyrule Dungeon Armory Boomerang WS'], 0x71, [1]),
+    'Eastern Stalfos Spawn':  # Can use pots up to a point see stalfos_spawn_exception
+        (['Eastern Stalfos Spawn ES', 'Eastern Stalfos Spawn NW'], 0xa8, []),
+    'Eastern Single Eyegore':
+        (['Eastern Single Eyegore NE'], 0xd8, [8, 9, 10]),
+    'Eastern Duo Eyegores':
+        (['Eastern Duo Eyegores NE'], 0xd8, [0, 1, 2, 3, 4, 5, 6, 7]),
+    'Desert Compass Room':  # Three popos (beamos)
+        (['Desert Compass NE'], 0x085, [2, 3, 4, 5]),
+    'Desert Four Statues':  # Four popos (beamos)
+        (['Desert Four Statues NW', 'Desert Four Statues ES'], 0x53, [5, 6, 8, 9, 10]),
+    'Hera Beetles':  # Three blue beetles and only two pots, and bombs don't work.
+        (['Hera Beetles WS'], 0x31, [7, 8, 10]),
+    'Tower Gold Knights':  # Two ball and chain
+        (['Tower Gold Knights SW', 'Tower Gold Knights EN'], 0xe0, [0, 1]),
+    'Tower Dark Archers':  # Backwards kill room
+        (['Tower Dark Archers WN'], 0xc0, [0, 1, 3]),
+    'Tower Red Spears':  # Two spear soldiers
+        (['Tower Red Spears WN'], 0xb0, [1, 2, 3, 4]),
+    'Tower Red Guards':  # Two usain bolts
+        (['Tower Red Guards EN', 'Tower Red Guards SW'], 0xb0, [0, 5]),
+    'Tower Circle of Pots':  # Two spear soldiers. Plenty of pots.
+        (['Tower Circle of Pots NW'], 0xb0, [7, 8, 9, 10]),
+    'PoD Mimics 1':
+        (['PoD Mimics 1 NW'], 0x4b, [0, 3, 4]),
+    'PoD Mimics 2':
+        (['PoD Mimics 2 NW'], 0x1b, [3, 4, 5]),
+    'PoD Turtle Party':  # Lots of turtles.
+        (['PoD Turtle Party ES', 'PoD Turtle Party NW'], 0x0b, [4, 5, 6, 7, 8, 9]),
+    'Thieves Basement Block':  # One blue and one red zazak and one Stalfos. Two pots. Need weapon.
+        (['Thieves Basement Block WN'], 0x45, [1, 2, 3]),
+    'Ice Jelly Key':
+        (['Ice Jelly Key ES'], 0x0e, [1, 2, 3]),
+    'Ice Stalfos Hint':  # Need bombs for big stalfos knights
+        (['Ice Stalfos Hint SE'], 0x3e, [1, 2]),
+    'Ice Pengator Trap':  # Five pengators. Bomb-doable?
+        (['Ice Pengator Trap NE'], 0x6e, [0, 1, 2, 3, 4]),
+    'Mire 2':  # Wizzrobes. Bombs dont work.
+        (['Mire 2 NE'], 0xd2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+    'Mire Cross':  # 4 Sluggulas. Bombs don't work
+        (['Mire Cross ES'], 0xb2, [5, 6, 7, 10, 11]),
+    'TR Twin Pokeys':  # Two pokeys
+        (['TR Twin Pokeys EN', 'TR Twin Pokeys SW'], 0x24, [3, 4, 5, 6]),
+    'TR Tongue Pull':  # Kill zols for money
+        (['TR Tongue Pull NE'], 0x04, [9, 13, 14]),
+    'GT Petting Zoo':  # Don't make anyone do this room with bombs.
+        (['GT Petting Zoo SE'], 0x7d, [4, 5, 6, 7, 8, 10]),
+    'GT DMs Room':  # Four red stalfos
+        (['GT DMs Room SW'], 0x7b, [2, 3, 4, 5, 8, 9, 10]),
+    'GT Gauntlet 1':  # Stalfos/zazaks
+        (['GT Gauntlet 1 WN'], 0x5d, [3, 4, 5, 6]),
+    'GT Gauntlet 2':  # Red stalfos
+        (['GT Gauntlet 2 EN', 'GT Gauntlet 2 SW'], 0x5d, [0, 1, 2, 7]),
+    'GT Gauntlet 3':  # Blue zazaks
+        (['GT Gauntlet 3 NW', 'GT Gauntlet 3 SW'], 0x5d, [8, 9, 10, 11, 12]),
+    'GT Gauntlet 4':  # Red zazaks
+        (['GT Gauntlet 4 NW', 'GT Gauntlet 4 SW'], 0x6d, [0, 1, 2, 3]),
+    'GT Gauntlet 5':  # Stalfos and zazak
+        (['GT Gauntlet 5 NW', 'GT Gauntlet 5 WS'], 0x6d, [4, 5, 6, 7, 8]),
+    'GT Wizzrobes 1':  # Wizzrobes. Bombs don't work
+        (['GT Wizzrobes 1 SW'], 0xa5, [2, 3, 7]),
+    'GT Wizzrobes 2':  # Wizzrobes. Bombs don't work
+        (['GT Wizzrobes 2 SE', 'GT Wizzrobes 2 NE'], 0xa5, [0, 1, 4, 5, 6]),
+    'Spiral Cave (Top)':  # for traversal in enemizer at low health
+        (['Spiral Cave (top to bottom)'], 0xEE, [0, 1, 2, 3, 4]),
+}  # all trap rooms? (Desert Trap Room, Thieves Trap Room currently subtile only)
+
+kill_chests = {
+    'Tower Room 03': (['Castle Tower - Room 03'], 0xe0, [2, 3]),
+    'Ice Compass Room': (['Ice Palace - Compass Chest'], 0x2e, [0, 1, 2, 3, 4, 5]),
+    'Swamp Entrance': (['Swamp Palace - Entrance'], 0x28, [0, 1, 2, 3, 4]),
+    'GT Tile Room': (['Ganons Tower - Tile Room'], 0x8d, [1, 2, 3, 4]),
+    'Mini Moldorm Cave':
+        (['Mini Moldorm Cave - Far Left', 'Mini Moldorm Cave - Far Right', 'Mini Moldorm Cave - Left',
+          'Mini Moldorm Cave - Right', 'Mini Moldorm Cave - Generous Guy'], 0x123, [0, 1, 2, 3]),
+    'Mimic Cave':
+        (['Mimic Cave'], 0x10c, [4, 5, 6, 7]),
+}
+
 
 def add_connection(parent_name, target_name, entrance_name, world, player):
     parent = world.get_region(parent_name, player)

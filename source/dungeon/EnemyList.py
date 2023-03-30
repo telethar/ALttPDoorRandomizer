@@ -1,6 +1,8 @@
 from collections import defaultdict
-import math
 import typing
+
+import yaml
+from yaml.representer import Representer
 
 try:
     from fast_enum import FastEnum
@@ -11,26 +13,29 @@ import RaceRandom as random
 from BaseClasses import Location, LocationType
 from Items import ItemFactory
 from Utils import snes_to_pc, pc_to_snes, int16_as_bytes
-from source.logic.Rule import RuleFactory
-
-# todo: bosses shifted coordinates
 
 
 class EnemyStats:
     def __init__(self, sprite, static, drop_flag=False, prize_pack: typing.Union[tuple, int] = 0,
-                 sub_type=0, health=None):
+                 sub_type=0, health=None, ignore=False, dmg=None, dmask=0):
         self.sprite = sprite
         self.sub_type = sub_type
         self.static = static
         self.health = health
-        # self.damage = damage
+        self.damage = dmg  # this is a damage group, notably 0-9 (9 is reserved for ganon)
+        self.dmask = dmask  # mask that is written out with the above damage class, same byte
         self.drop_flag = drop_flag
         self.prize_pack = prize_pack
 
+        # todo: write this bit for cucco (False), antifairy (True)
+        # rotating firebars (False) rollers (False)
+        self.ignore_for_kill_room = ignore
+
         # health special cases:
         # Octorok light/dark world
-        # Hardhat Beetle - starting position
-        # Tektike - starting position?
+        # check the 0000 000x of the x coordinate
+        # Hardhat Beetle - (000b bit of x coordinate?) (blue if set, red otherwise)
+        # Tektite - starting position? - (000r bit of x coordinate) (red if set, blue otherwise)
         # RatCricket light/dark world
         # Keese light/dark world
         # Rope light/dark world
@@ -116,6 +121,7 @@ class EnemySprite(FastEnum):
     Popo = 0x4e
     Popo2 = 0x4f
 
+    Cannonball = 0x50
     ArmosStatue = 0x51
     KingZora = 0x52
     ArmosKnight = 0x53
@@ -167,6 +173,7 @@ class EnemySprite(FastEnum):
     RedEyegoreMimic = 0x84
     YellowStalfos = 0x85  # falling stalfos that shoots head
     Kodongo = 0x86
+    KodongoFire = 0x87
     Mothula = 0x88
     SpikeBlock = 0x8a
     Gibdo = 0x8b
@@ -273,199 +280,216 @@ class SpriteType(FastEnum):
 
 def init_enemy_stats():
     stats = {
-        EnemySprite.CorrectPullSwitch: EnemyStats(EnemySprite.CorrectPullSwitch, True),
-        EnemySprite.WrongPullSwitch: EnemyStats(EnemySprite.WrongPullSwitch, True),
-        EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2, health=4),
-        EnemySprite.Moldorm: EnemyStats(EnemySprite.Moldorm, True, False),
-        EnemySprite.Cucco: EnemyStats(EnemySprite.Cucco, False, False),
+        EnemySprite.Raven: EnemyStats(EnemySprite.Raven, False, True, (6, 2), health=(4, 8), dmg=(1, 8), dmask=0x80),
+        EnemySprite.Vulture: EnemyStats(EnemySprite.Vulture, False, True, 6, health=6, dmg=3, dmask=0x80),
+        EnemySprite.CorrectPullSwitch: EnemyStats(EnemySprite.CorrectPullSwitch, True, ignore=True, dmg=2),
+        EnemySprite.WrongPullSwitch: EnemyStats(EnemySprite.WrongPullSwitch, True, ignore=True, dmg=2),
+        EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2, health=(2, 4), dmg=(3, 5)),
+        EnemySprite.Moldorm: EnemyStats(EnemySprite.Moldorm, True, False, dmg=3, dmask=0x10),
+        EnemySprite.Octorok4Way: EnemyStats(EnemySprite.Octorok4Way, False, True, 2, health=(2, 4), dmg=(3, 5)),
+        EnemySprite.Cucco: EnemyStats(EnemySprite.Cucco, False, False, ignore=True, dmg=1),
+        EnemySprite.Buzzblob: EnemyStats(EnemySprite.Buzzblob, False, True, 3, health=3, dmg=1),
+        EnemySprite.Snapdragon: EnemyStats(EnemySprite.Snapdragon, False, True, 7, health=12, dmg=8),
 
-        EnemySprite.Octoballoon: EnemyStats(EnemySprite.Octoballoon, False, False, 0, health=2),
-        EnemySprite.OctoballoonBaby: EnemyStats(EnemySprite.OctoballoonBaby, False),
-        EnemySprite.Hinox: EnemyStats(EnemySprite.Hinox, False, True, 4, health=20),
-        EnemySprite.Moblin: EnemyStats(EnemySprite.Moblin, False, True, 1, health=4),
-        EnemySprite.MiniHelmasaur: EnemyStats(EnemySprite.MiniHelmasaur, False, True, 7, health=4),
-        EnemySprite.ThievesTownGrate: EnemyStats(EnemySprite.ThievesTownGrate, True),
-        EnemySprite.AntiFairy: EnemyStats(EnemySprite.AntiFairy, False, False),
-        EnemySprite.Wiseman: EnemyStats(EnemySprite.Wiseman, True),
-        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, False, health=2),
-        EnemySprite.MiniMoldorm: EnemyStats(EnemySprite.MiniMoldorm, False, True, 2, health=3),
-        EnemySprite.Poe: EnemyStats(EnemySprite.Poe, False, True, 6, health=8),
-        EnemySprite.Smithy: EnemyStats(EnemySprite.Smithy, True),
-        EnemySprite.Arrow: EnemyStats(EnemySprite.Arrow, True),
-        EnemySprite.Statue: EnemyStats(EnemySprite.Statue, True),
-        EnemySprite.FluteQuest: EnemyStats(EnemySprite.FluteQuest, True),
-        EnemySprite.CrystalSwitch: EnemyStats(EnemySprite.CrystalSwitch, True),
-        EnemySprite.SickKid: EnemyStats(EnemySprite.SickKid, True),
-        EnemySprite.Sluggula: EnemyStats(EnemySprite.Sluggula, False, True, 4, health=8),
-        EnemySprite.WaterSwitch: EnemyStats(EnemySprite.WaterSwitch, True),
-        EnemySprite.Ropa: EnemyStats(EnemySprite.Ropa, False, True, 2, health=8),
-        EnemySprite.RedBari: EnemyStats(EnemySprite.RedBari, False, True, 6, 2, health=2),
-        EnemySprite.BlueBari: EnemyStats(EnemySprite.BlueBari, False, True, 6, 2, health=2),
-        EnemySprite.TalkingTree: EnemyStats(EnemySprite.TalkingTree, True),
-        EnemySprite.HardhatBeetle: EnemyStats(EnemySprite.HardhatBeetle, False, True, (2, 6), health=32),
-        EnemySprite.Deadrock: EnemyStats(EnemySprite.Deadrock, False, False),
-        EnemySprite.DarkWorldHintNpc: EnemyStats(EnemySprite.DarkWorldHintNpc, True),
-        EnemySprite.AdultNpc: EnemyStats(EnemySprite.AdultNpc, True),
-        EnemySprite.SweepingLady: EnemyStats(EnemySprite.SweepingLady, True),
-        EnemySprite.Hobo: EnemyStats(EnemySprite.Hobo, True),
-        EnemySprite.Lumberjacks: EnemyStats(EnemySprite.Lumberjacks, True),
-        EnemySprite.TelepathicTile: EnemyStats(EnemySprite.TelepathicTile, True),
-        EnemySprite.FluteKid: EnemyStats(EnemySprite.FluteKid, True),
-        EnemySprite.RaceGameLady: EnemyStats(EnemySprite.RaceGameLady, True),
+        EnemySprite.Octoballoon: EnemyStats(EnemySprite.Octoballoon, False, False, 0, health=2, dmg=1),
+        EnemySprite.OctoballoonBaby: EnemyStats(EnemySprite.OctoballoonBaby, False, dmg=1),
+        EnemySprite.Hinox: EnemyStats(EnemySprite.Hinox, False, True, 4, health=20, dmg=8),
+        EnemySprite.Moblin: EnemyStats(EnemySprite.Moblin, False, True, 1, health=4, dmg=5),
+        EnemySprite.MiniHelmasaur: EnemyStats(EnemySprite.MiniHelmasaur, False, True, 7, health=4, dmg=3),
+        EnemySprite.ThievesTownGrate: EnemyStats(EnemySprite.ThievesTownGrate, True, dmg=0, dmask=0x40),
+        EnemySprite.AntiFairy: EnemyStats(EnemySprite.AntiFairy, False, False, dmg=4),
+        EnemySprite.Wiseman: EnemyStats(EnemySprite.Wiseman, True, dmg=0),
+        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, False, health=2, dmg=2),
+        EnemySprite.MiniMoldorm: EnemyStats(EnemySprite.MiniMoldorm, False, True, 2, health=3, dmg=3),
+        EnemySprite.Poe: EnemyStats(EnemySprite.Poe, False, True, 6, health=8, dmg=5, dmask=0x80),
+        EnemySprite.Smithy: EnemyStats(EnemySprite.Smithy, True, dmg=0),
+        EnemySprite.Arrow: EnemyStats(EnemySprite.Arrow, True, ignore=True, dmg=1),
+        EnemySprite.Statue: EnemyStats(EnemySprite.Statue, True, ignore=True, dmg=0),
+        EnemySprite.FluteQuest: EnemyStats(EnemySprite.FluteQuest, True, dmg=0, dmask=0x40),
+        EnemySprite.CrystalSwitch: EnemyStats(EnemySprite.CrystalSwitch, True, ignore=True, dmg=0),
+        EnemySprite.SickKid: EnemyStats(EnemySprite.SickKid, True, dmg=0),
+        EnemySprite.Sluggula: EnemyStats(EnemySprite.Sluggula, False, True, 4, health=8, dmg=6),
+        EnemySprite.WaterSwitch: EnemyStats(EnemySprite.WaterSwitch, True, dmg=0),
+        EnemySprite.Ropa: EnemyStats(EnemySprite.Ropa, False, True, 2, health=8, dmg=5),
+        EnemySprite.RedBari: EnemyStats(EnemySprite.RedBari, False, True, 6, 2, health=2, dmg=3),
+        EnemySprite.BlueBari: EnemyStats(EnemySprite.BlueBari, False, True, 6, 2, health=2, dmg=1),
+        EnemySprite.TalkingTree: EnemyStats(EnemySprite.TalkingTree, True, dmg=0),
+        EnemySprite.HardhatBeetle: EnemyStats(EnemySprite.HardhatBeetle, False, True, (2, 6), health=32, dmg=0),
+        EnemySprite.Deadrock: EnemyStats(EnemySprite.Deadrock, False, True, dmg=3, health=255),
+        EnemySprite.DarkWorldHintNpc: EnemyStats(EnemySprite.DarkWorldHintNpc, True, dmg=0),
+        EnemySprite.AdultNpc: EnemyStats(EnemySprite.AdultNpc, True, dmg=0),
+        EnemySprite.SweepingLady: EnemyStats(EnemySprite.SweepingLady, True, dmg=0),
+        EnemySprite.Hobo: EnemyStats(EnemySprite.Hobo, True, dmg=0),
+        EnemySprite.Lumberjacks: EnemyStats(EnemySprite.Lumberjacks, True, dmg=0),
+        EnemySprite.TelepathicTile: EnemyStats(EnemySprite.TelepathicTile, True, dmg=0),
+        EnemySprite.FluteKid: EnemyStats(EnemySprite.FluteKid, True, dmg=0),
+        EnemySprite.RaceGameLady: EnemyStats(EnemySprite.RaceGameLady, True, dmg=0),
 
-        EnemySprite.FortuneTeller: EnemyStats(EnemySprite.FortuneTeller, True),
-        EnemySprite.ArgueBros: EnemyStats(EnemySprite.ArgueBros, True),
-        EnemySprite.RupeePull: EnemyStats(EnemySprite.RupeePull, True),
-        EnemySprite.YoungSnitch: EnemyStats(EnemySprite.YoungSnitch, True),
-        EnemySprite.Innkeeper: EnemyStats(EnemySprite.Innkeeper, True),
-        EnemySprite.Witch: EnemyStats(EnemySprite.Witch, True),
-        EnemySprite.Waterfall: EnemyStats(EnemySprite.Waterfall, True),
-        EnemySprite.EyeStatue: EnemyStats(EnemySprite.EyeStatue, True),
-        EnemySprite.Locksmith: EnemyStats(EnemySprite.Locksmith, True),
-        EnemySprite.MagicBat: EnemyStats(EnemySprite.MagicBat, True),
-        EnemySprite.BonkItem: EnemyStats(EnemySprite.BonkItem, True),
-        EnemySprite.KidInKak: EnemyStats(EnemySprite.KidInKak, True),
-        EnemySprite.OldSnitch: EnemyStats(EnemySprite.OldSnitch, True),
-        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, False, health=2),
-        EnemySprite.TutorialGuard: EnemyStats(EnemySprite.TutorialGuard, True),
+        EnemySprite.FortuneTeller: EnemyStats(EnemySprite.FortuneTeller, True, dmg=0),
+        EnemySprite.ArgueBros: EnemyStats(EnemySprite.ArgueBros, True, dmg=0),
+        EnemySprite.RupeePull: EnemyStats(EnemySprite.RupeePull, True, dmg=0),
+        EnemySprite.YoungSnitch: EnemyStats(EnemySprite.YoungSnitch, True, dmg=0),
+        EnemySprite.Innkeeper: EnemyStats(EnemySprite.Innkeeper, True, dmg=0),
+        EnemySprite.Witch: EnemyStats(EnemySprite.Witch, True, dmg=0),
+        EnemySprite.Waterfall: EnemyStats(EnemySprite.Waterfall, True, ignore=True, dmg=0, dmask=0x40),
+        EnemySprite.EyeStatue: EnemyStats(EnemySprite.EyeStatue, True, dmg=0),
+        EnemySprite.Locksmith: EnemyStats(EnemySprite.Locksmith, True, dmg=0),
+        EnemySprite.MagicBat: EnemyStats(EnemySprite.MagicBat, True, dmg=0),
+        EnemySprite.BonkItem: EnemyStats(EnemySprite.BonkItem, True, dmg=0),
+        EnemySprite.KidInKak: EnemyStats(EnemySprite.KidInKak, True, dmg=0),
+        EnemySprite.OldSnitch: EnemyStats(EnemySprite.OldSnitch, True, dmg=0),
+        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, False, health=2, dmg=2),
+        EnemySprite.TutorialGuard: EnemyStats(EnemySprite.TutorialGuard, True, dmg=2),
 
-        EnemySprite.LightningGate: EnemyStats(EnemySprite.LightningGate, True),
-        EnemySprite.BlueGuard: EnemyStats(EnemySprite.BlueGuard, False, True, 1, health=6),
-        EnemySprite.GreenGuard: EnemyStats(EnemySprite.GreenGuard, False, True, 1, health=4),
-        EnemySprite.RedSpearGuard: EnemyStats(EnemySprite.RedSpearGuard, False, True, 1, health=8),
-        EnemySprite.BluesainBolt: EnemyStats(EnemySprite.BluesainBolt, False, True, 7, health=6),
-        EnemySprite.UsainBolt: EnemyStats(EnemySprite.UsainBolt, False, True, 1, health=8),
-        EnemySprite.BlueArcher: EnemyStats(EnemySprite.BlueArcher, False, True, 5, health=6),
-        EnemySprite.GreenBushGuard: EnemyStats(EnemySprite.GreenBushGuard, False, True, 5, health=4),
-        EnemySprite.RedJavelinGuard: EnemyStats(EnemySprite.RedJavelinGuard, False, True, 3, health=8),
-        EnemySprite.RedBushGuard: EnemyStats(EnemySprite.RedBushGuard, False, True, 7, health=8),
-        EnemySprite.BombGuard: EnemyStats(EnemySprite.BombGuard, False, True, 4, health=8),
-        EnemySprite.GreenKnifeGuard: EnemyStats(EnemySprite.GreenKnifeGuard, False, True, 1, health=4),
-        EnemySprite.Geldman: EnemyStats(EnemySprite.Geldman, False, True, 2, health=4),
-        EnemySprite.Popo: EnemyStats(EnemySprite.Popo, False, True, 2, health=2),
-        EnemySprite.Popo2: EnemyStats(EnemySprite.Popo2, False, True, 2, health=2),
+        EnemySprite.LightningGate: EnemyStats(EnemySprite.LightningGate, True, dmg=0),
+        EnemySprite.BlueGuard: EnemyStats(EnemySprite.BlueGuard, False, True, 1, health=6, dmg=1),
+        EnemySprite.GreenGuard: EnemyStats(EnemySprite.GreenGuard, False, True, 1, health=4, dmg=1),
+        EnemySprite.RedSpearGuard: EnemyStats(EnemySprite.RedSpearGuard, False, True, 1, health=8, dmg=3),
+        EnemySprite.BluesainBolt: EnemyStats(EnemySprite.BluesainBolt, False, True, 7, health=6, dmg=1),
+        EnemySprite.UsainBolt: EnemyStats(EnemySprite.UsainBolt, False, True, 1, health=8, dmg=3),
+        EnemySprite.BlueArcher: EnemyStats(EnemySprite.BlueArcher, False, True, 5, health=6, dmg=1),
+        EnemySprite.GreenBushGuard: EnemyStats(EnemySprite.GreenBushGuard, False, True, 5, health=4, dmg=1),
+        EnemySprite.RedJavelinGuard: EnemyStats(EnemySprite.RedJavelinGuard, False, True, 3, health=8, dmg=3),
+        EnemySprite.RedBushGuard: EnemyStats(EnemySprite.RedBushGuard, False, True, 7, health=8, dmg=3),
+        EnemySprite.BombGuard: EnemyStats(EnemySprite.BombGuard, False, True, 4, health=8, dmg=3),
+        EnemySprite.GreenKnifeGuard: EnemyStats(EnemySprite.GreenKnifeGuard, False, True, 1, health=4, dmg=1),
+        EnemySprite.Geldman: EnemyStats(EnemySprite.Geldman, False, True, 2, health=4, dmg=3),
+        EnemySprite.Toppo: EnemyStats(EnemySprite.Toppo, False, False, 1, health=2, dmg=1),
+        EnemySprite.Popo: EnemyStats(EnemySprite.Popo, False, True, 2, health=2, dmg=1),
+        EnemySprite.Popo2: EnemyStats(EnemySprite.Popo2, False, True, 2, health=2, dmg=1),
 
-        EnemySprite.ArmosKnight: EnemyStats(EnemySprite.ArmosKnight, True, False),
-        EnemySprite.Lanmolas: EnemyStats(EnemySprite.Lanmolas, True, False),
-        EnemySprite.Zora: EnemyStats(EnemySprite.Zora, False, True, 4),
-        EnemySprite.DesertStatue: EnemyStats(EnemySprite.DesertStatue, True),
-        EnemySprite.Crab: EnemyStats(EnemySprite.Crab, False, True, 1, health=2),
-        EnemySprite.LostWoodsBird: EnemyStats(EnemySprite.LostWoodsBird, True),
-        EnemySprite.LostWoodsSquirrel: EnemyStats(EnemySprite.LostWoodsSquirrel, True),
-        EnemySprite.SparkCW: EnemyStats(EnemySprite.SparkCW, False, False),
-        EnemySprite.SparkCCW: EnemyStats(EnemySprite.SparkCCW, False, False),
-        EnemySprite.RollerVerticalUp: EnemyStats(EnemySprite.RollerVerticalUp, False, False),
-        EnemySprite.RollerVerticalDown: EnemyStats(EnemySprite.RollerVerticalDown, False, False),
-        EnemySprite.RollerHorizontalLeft: EnemyStats(EnemySprite.RollerHorizontalLeft, False, False),
-        EnemySprite.RollerHorizontalRight: EnemyStats(EnemySprite.RollerHorizontalRight, False, False),
-        EnemySprite.Beamos: EnemyStats(EnemySprite.Beamos, False, False),
-        EnemySprite.MasterSword: EnemyStats(EnemySprite.MasterSword, True),
-        EnemySprite.DebirandoPit: EnemyStats(EnemySprite.DebirandoPit, False, True, 2, health=4),
-        EnemySprite.Debirando: EnemyStats(EnemySprite.Debirando, False, True, 2, health=4),
-        EnemySprite.ArcheryNpc: EnemyStats(EnemySprite.ArcheryNpc, True),
-        EnemySprite.WallCannonVertLeft: EnemyStats(EnemySprite.WallCannonVertLeft, True),
-        EnemySprite.WallCannonVertRight: EnemyStats(EnemySprite.WallCannonVertRight, True),
-        EnemySprite.WallCannonHorzTop: EnemyStats(EnemySprite.WallCannonHorzTop, True),
-        EnemySprite.WallCannonHorzBottom: EnemyStats(EnemySprite.WallCannonHorzBottom, True),
-        EnemySprite.BallNChain: EnemyStats(EnemySprite.BallNChain, False, True, 2, health=16),
-        EnemySprite.CannonTrooper: EnemyStats(EnemySprite.CannonTrooper, False, True, 1, health=3),
-        EnemySprite.CricketRat: EnemyStats(EnemySprite.CricketRat, False, True, 2, health=8),
-        EnemySprite.Snake: EnemyStats(EnemySprite.Snake, False, True, (1, 7), health=8),
-        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, True, (0, 7), health=4),
+        EnemySprite.Cannonball: EnemyStats(EnemySprite.Cannonball, True, health=255, dmg=1),
+        EnemySprite.ArmosStatue: EnemyStats(EnemySprite.ArmosStatue, False, True, 5, health=8),
+        EnemySprite.ArmosKnight: EnemyStats(EnemySprite.ArmosKnight, True, False, dmg=1, dmask=0x10),
+        EnemySprite.Lanmolas: EnemyStats(EnemySprite.Lanmolas, True, False, dmg=4, dmask=0x10),
+        EnemySprite.FireballZora: EnemyStats(EnemySprite.Zora, False, True, 4, health=8, dmg=1),
+        EnemySprite.Zora: EnemyStats(EnemySprite.Zora, False, True, 4, health=8, dmg=1),
+        EnemySprite.DesertStatue: EnemyStats(EnemySprite.DesertStatue, True, dmg=2),
+        EnemySprite.Crab: EnemyStats(EnemySprite.Crab, False, True, 1, health=2, dmg=5),
+        EnemySprite.LostWoodsBird: EnemyStats(EnemySprite.LostWoodsBird, True, dmg=0),
+        EnemySprite.LostWoodsSquirrel: EnemyStats(EnemySprite.LostWoodsSquirrel, True, dmg=0),
+        EnemySprite.SparkCW: EnemyStats(EnemySprite.SparkCW, False, False, ignore=True, dmg=4),
+        EnemySprite.SparkCCW: EnemyStats(EnemySprite.SparkCCW, False, False, ignore=True, dmg=4),
+        EnemySprite.RollerVerticalUp: EnemyStats(EnemySprite.RollerVerticalUp, False, False, dmg=8),
+        EnemySprite.RollerVerticalDown: EnemyStats(EnemySprite.RollerVerticalDown, False, False, dmg=8),
+        EnemySprite.RollerHorizontalLeft: EnemyStats(EnemySprite.RollerHorizontalLeft, False, False, dmg=8),
+        EnemySprite.RollerHorizontalRight: EnemyStats(EnemySprite.RollerHorizontalRight, False, False, dmg=8),
+        EnemySprite.Beamos: EnemyStats(EnemySprite.Beamos, False, False, ignore=True, dmg=4),
+        EnemySprite.MasterSword: EnemyStats(EnemySprite.MasterSword, True, dmg=0),
+        EnemySprite.DebirandoPit: EnemyStats(EnemySprite.DebirandoPit, False, True, 2, health=4, ignore=True, dmg=4),
+        EnemySprite.Debirando: EnemyStats(EnemySprite.Debirando, False, True, 2, health=4, dmg=3),
+        EnemySprite.ArcheryNpc: EnemyStats(EnemySprite.ArcheryNpc, True, dmg=2),
+        EnemySprite.WallCannonVertLeft: EnemyStats(EnemySprite.WallCannonVertLeft, True, dmg=2),
+        EnemySprite.WallCannonVertRight: EnemyStats(EnemySprite.WallCannonVertRight, True, dmg=2),
+        EnemySprite.WallCannonHorzTop: EnemyStats(EnemySprite.WallCannonHorzTop, True, dmg=2),
+        EnemySprite.WallCannonHorzBottom: EnemyStats(EnemySprite.WallCannonHorzBottom, True, dmg=2),
+        EnemySprite.BallNChain: EnemyStats(EnemySprite.BallNChain, False, True, 2, health=16, dmg=3),
+        EnemySprite.CannonTrooper: EnemyStats(EnemySprite.CannonTrooper, False, True, 1, health=3, dmg=1),
+        EnemySprite.CricketRat: EnemyStats(EnemySprite.CricketRat, False, True, 2, health=(2, 8), dmg=(0, 5)),
+        EnemySprite.Snake: EnemyStats(EnemySprite.Snake, False, True, (1, 7), health=(4, 8), dmg=(1, 5)),
+        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, True, (0, 7), health=(1, 4), ignore=True,
+                                      dmg=(0, 5), dmask=0x80),
 
-        EnemySprite.Leever: EnemyStats(EnemySprite.Leever, False, True, 1, health=4),
-        EnemySprite.FairyPondTrigger: EnemyStats(EnemySprite.FairyPondTrigger, True),
-        EnemySprite.UnclePriest: EnemyStats(EnemySprite.UnclePriest, True),
-        EnemySprite.RunningNpc: EnemyStats(EnemySprite.RunningNpc, True),
-        EnemySprite.BottleMerchant: EnemyStats(EnemySprite.BottleMerchant, True),
-        EnemySprite.Zelda: EnemyStats(EnemySprite.Zelda, True),
-        EnemySprite.Grandma: EnemyStats(EnemySprite.Grandma, True),
-        EnemySprite.Agahnim: EnemyStats(EnemySprite.Agahnim, True),
-        EnemySprite.FloatingSkull: EnemyStats(EnemySprite.FloatingSkull, False, True, 7, health=24),
-        EnemySprite.BigSpike: EnemyStats(EnemySprite.BigSpike, False, False),
-        EnemySprite.FirebarCW: EnemyStats(EnemySprite.FirebarCW, False, False),
-        EnemySprite.FirebarCCW: EnemyStats(EnemySprite.FirebarCCW, False, False),
-        EnemySprite.Firesnake: EnemyStats(EnemySprite.Firesnake, False, False),
-        EnemySprite.Hover: EnemyStats(EnemySprite.Hover, False, True, 2, health=4),
-        EnemySprite.AntiFairyCircle: EnemyStats(EnemySprite.AntiFairyCircle, False, False),
-        EnemySprite.GreenEyegoreMimic: EnemyStats(EnemySprite.GreenEyegoreMimic, False, True, 5, health=16),
-        EnemySprite.RedEyegoreMimic: EnemyStats(EnemySprite.RedEyegoreMimic, False, True, 5, health=8),
-        EnemySprite.YellowStalfos: EnemyStats(EnemySprite.YellowStalfos, True, health=8),
-        EnemySprite.Kodongo: EnemyStats(EnemySprite.Kodongo, False, True, 6, health=1),
-        EnemySprite.Mothula: EnemyStats(EnemySprite.Mothula, True),
-        EnemySprite.SpikeBlock: EnemyStats(EnemySprite.SpikeBlock, False, False),
-        EnemySprite.Gibdo: EnemyStats(EnemySprite.Gibdo, False, True, 3, health=32),
-        EnemySprite.Arrghus: EnemyStats(EnemySprite.Arrghus, True),
-        EnemySprite.Arrghi: EnemyStats(EnemySprite.Arrghi, True),
-        EnemySprite.Terrorpin: EnemyStats(EnemySprite.Terrorpin, False, True, 2, health=8),
-        EnemySprite.Blob: EnemyStats(EnemySprite.Blob, False, True, 1, health=4),
-        EnemySprite.Wallmaster: EnemyStats(EnemySprite.Wallmaster, True),
-        EnemySprite.StalfosKnight: EnemyStats(EnemySprite.StalfosKnight, False, True, 4, health=64),
-        EnemySprite.HelmasaurKing: EnemyStats(EnemySprite.HelmasaurKing, True),
-        EnemySprite.Bumper: EnemyStats(EnemySprite.Bumper, True),
-        EnemySprite.Pirogusu: EnemyStats(EnemySprite.Pirogusu, True),
-        EnemySprite.LaserEyeLeft: EnemyStats(EnemySprite.LaserEyeLeft, True),
-        EnemySprite.LaserEyeRight: EnemyStats(EnemySprite.LaserEyeRight, True),
-        EnemySprite.LaserEyeTop: EnemyStats(EnemySprite.LaserEyeTop, True),
-        EnemySprite.LaserEyeBottom: EnemyStats(EnemySprite.LaserEyeBottom, True),
-        EnemySprite.Pengator: EnemyStats(EnemySprite.Pengator, False, True, 3, health=16),
-        EnemySprite.Kyameron: EnemyStats(EnemySprite.Kyameron, False, False, health=4),
-        EnemySprite.Wizzrobe: EnemyStats(EnemySprite.Wizzrobe, False, True, 1, health=2),
-        EnemySprite.Zoro: EnemyStats(EnemySprite.Zoro, True, health=4),
-        EnemySprite.Babasu: EnemyStats(EnemySprite.Babasu, False, True, 0, health=4),
-        EnemySprite.GroveOstritch: EnemyStats(EnemySprite.GroveOstritch, True),
-        EnemySprite.GroveRabbit: EnemyStats(EnemySprite.GroveRabbit, True),
-        EnemySprite.GroveBird: EnemyStats(EnemySprite.GroveBird, True),
-        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, False, 0, health=16),
-        EnemySprite.Kholdstare: EnemyStats(EnemySprite.Kholdstare, True),
-        EnemySprite.KholdstareShell: EnemyStats(EnemySprite.KholdstareShell, True),
-        EnemySprite.FallingIce: EnemyStats(EnemySprite.FallingIce, True),
-        EnemySprite.BlueZazak: EnemyStats(EnemySprite.BlueZazak, False, True, 6, health=4),
-        EnemySprite.RedZazak: EnemyStats(EnemySprite.RedZazak, False, True, 6, health=8),
-        EnemySprite.Stalfos: EnemyStats(EnemySprite.Stalfos, False, True, 6, health=4),
-    # ... OW
-        EnemySprite.OldMan: EnemyStats(EnemySprite.OldMan, True),
-        EnemySprite.PipeDown: EnemyStats(EnemySprite.PipeDown, True),
-        EnemySprite.PipeUp: EnemyStats(EnemySprite.PipeUp, True),
-        EnemySprite.PipeRight: EnemyStats(EnemySprite.PipeRight, True),
-        EnemySprite.PipeLeft: EnemyStats(EnemySprite.PipeLeft, True),
-        EnemySprite.GoodBee: EnemyStats(EnemySprite.GoodBee, True),
-        EnemySprite.PedestalPlaque: EnemyStats(EnemySprite.PedestalPlaque, True),
-        EnemySprite.BombShopGuy: EnemyStats(EnemySprite.BombShopGuy, True),
-        EnemySprite.BlindMaiden: EnemyStats(EnemySprite.BlindMaiden, True),
+        # skip helmafireball for damage
+        EnemySprite.Leever: EnemyStats(EnemySprite.Leever, False, True, 1, health=4, dmg=1),
+        EnemySprite.FairyPondTrigger: EnemyStats(EnemySprite.FairyPondTrigger, True, dmg=0),
+        EnemySprite.UnclePriest: EnemyStats(EnemySprite.UnclePriest, True, dmg=0),
+        EnemySprite.RunningNpc: EnemyStats(EnemySprite.RunningNpc, True, dmg=0),
+        EnemySprite.BottleMerchant: EnemyStats(EnemySprite.BottleMerchant, True, dmg=0, dmask=0x40),
+        EnemySprite.Zelda: EnemyStats(EnemySprite.Zelda, True, dmg=0),
+        EnemySprite.Grandma: EnemyStats(EnemySprite.Grandma, True, dmg=0),
+        EnemySprite.Agahnim: EnemyStats(EnemySprite.Agahnim, True, dmg=4, dmask=0x10),
+        EnemySprite.FloatingSkull: EnemyStats(EnemySprite.FloatingSkull, False, True, 7, health=24, dmg=6),
+        EnemySprite.BigSpike: EnemyStats(EnemySprite.BigSpike, False, False, ignore=True, dmg=4),
+        EnemySprite.FirebarCW: EnemyStats(EnemySprite.FirebarCW, False, False, ignore=True, dmg=4),
+        EnemySprite.FirebarCCW: EnemyStats(EnemySprite.FirebarCCW, False, False, ignore=True, dmg=4),
+        EnemySprite.Firesnake: EnemyStats(EnemySprite.Firesnake, False, False, ignore=True, dmg=4),
+        EnemySprite.Hover: EnemyStats(EnemySprite.Hover, False, True, 2, health=4, dmg=3),
+        EnemySprite.AntiFairyCircle: EnemyStats(EnemySprite.AntiFairyCircle, False, False, ignore=True, dmg=4),
+        EnemySprite.GreenEyegoreMimic: EnemyStats(EnemySprite.GreenEyegoreMimic, False, True, 5, health=16, dmg=4),
+        EnemySprite.RedEyegoreMimic: EnemyStats(EnemySprite.RedEyegoreMimic, False, True, 5, health=8, dmg=4),
+        EnemySprite.YellowStalfos: EnemyStats(EnemySprite.YellowStalfos, True, health=8, ignore=True, dmg=1),
+        EnemySprite.Kodongo: EnemyStats(EnemySprite.Kodongo, False, True, 6, health=1, dmg=4),
+        EnemySprite.KodongoFire: EnemyStats(EnemySprite.KodongoFire, True, health=255, dmg=4),
+        EnemySprite.Mothula: EnemyStats(EnemySprite.Mothula, True, dmg=5, dmask=0x10),
+        EnemySprite.SpikeBlock: EnemyStats(EnemySprite.SpikeBlock, False, False, ignore=True, dmg=4),
+        EnemySprite.Gibdo: EnemyStats(EnemySprite.Gibdo, False, True, 3, health=32, dmg=5),
+        EnemySprite.Arrghus: EnemyStats(EnemySprite.Arrghus, True, ignore=True, dmg=5, dmask=0x10),
+        EnemySprite.Arrghi: EnemyStats(EnemySprite.Arrghi, True, dmg=5, dmask=0x10),
+        EnemySprite.Terrorpin: EnemyStats(EnemySprite.Terrorpin, False, True, 2, health=8, dmg=3),
+        EnemySprite.Blob: EnemyStats(EnemySprite.Blob, False, True, 1, health=4, dmg=5),
+        EnemySprite.Wallmaster: EnemyStats(EnemySprite.Wallmaster, True, dmg=0),
+        EnemySprite.StalfosKnight: EnemyStats(EnemySprite.StalfosKnight, False, True, 4, health=64, dmg=5),
+        EnemySprite.HelmasaurKing: EnemyStats(EnemySprite.HelmasaurKing, True, dmg=5, dmask=0x10),
+        EnemySprite.Bumper: EnemyStats(EnemySprite.Bumper, True, ignore=True, dmg=5),
+        EnemySprite.Pirogusu: EnemyStats(EnemySprite.Pirogusu, True, dmg=5),
+        EnemySprite.LaserEyeLeft: EnemyStats(EnemySprite.LaserEyeLeft, True, ignore=True, dmg=6),
+        EnemySprite.LaserEyeRight: EnemyStats(EnemySprite.LaserEyeRight, True, ignore=True, dmg=6),
+        EnemySprite.LaserEyeTop: EnemyStats(EnemySprite.LaserEyeTop, True, ignore=True, dmg=6),
+        EnemySprite.LaserEyeBottom: EnemyStats(EnemySprite.LaserEyeBottom, True, ignore=True, dmg=6),
+        EnemySprite.Pengator: EnemyStats(EnemySprite.Pengator, False, True, 3, health=16, dmg=5),
+        EnemySprite.Kyameron: EnemyStats(EnemySprite.Kyameron, False, False, health=4, ignore=True, dmg=3),
+        EnemySprite.Wizzrobe: EnemyStats(EnemySprite.Wizzrobe, False, True, 1, health=2, dmg=6),
+        EnemySprite.Zoro: EnemyStats(EnemySprite.Zoro, True, health=4, dmg=5),
+        EnemySprite.Babasu: EnemyStats(EnemySprite.Babasu, False, True, 0, health=4, dmg=5),
+        EnemySprite.GroveOstritch: EnemyStats(EnemySprite.GroveOstritch, True, ignore=True, dmg=3),
+        EnemySprite.GroveRabbit: EnemyStats(EnemySprite.GroveRabbit, True, ignore=True, dmg=3),
+        EnemySprite.GroveBird: EnemyStats(EnemySprite.GroveBird, True, ignore=True, dmg=3),
+        EnemySprite.Freezor: EnemyStats(EnemySprite.Freezor, True, False, 0, health=16, dmg=6),
+        EnemySprite.Kholdstare: EnemyStats(EnemySprite.Kholdstare, True, dmg=7, dmask=0x10),
+        EnemySprite.KholdstareShell: EnemyStats(EnemySprite.KholdstareShell, True, dmg=5, dmask=0x10),
+        EnemySprite.FallingIce: EnemyStats(EnemySprite.FallingIce, True, dmg=5, dmask=0x10),
+        EnemySprite.BlueZazak: EnemyStats(EnemySprite.BlueZazak, False, True, 6, health=4, dmg=5),
+        EnemySprite.RedZazak: EnemyStats(EnemySprite.RedZazak, False, True, 6, health=8, dmg=5),
+        EnemySprite.Stalfos: EnemyStats(EnemySprite.Stalfos, False, True, 6, health=4, dmg=1),
+        EnemySprite.GreenZirro: EnemyStats(EnemySprite.GreenZirro, False, True, 1, health=4, dmg=5, dmask=0x80),
+        EnemySprite.BlueZirro: EnemyStats(EnemySprite.BlueZirro, False, True, 7, health=8, dmg=3, dmask=0x80),
+        EnemySprite.Pikit: EnemyStats(EnemySprite.Pikit, False, True, 2, health=12, dmg=5),
 
-        EnemySprite.Whirlpool: EnemyStats(EnemySprite.Whirlpool, True),
-        EnemySprite.Shopkeeper: EnemyStats(EnemySprite.Shopkeeper, True),
-        EnemySprite.Drunkard: EnemyStats(EnemySprite.Drunkard, True),
-        EnemySprite.Vitreous: EnemyStats(EnemySprite.Vitreous, True),
-        EnemySprite.Catfish: EnemyStats(EnemySprite.Catfish, True),
-        EnemySprite.CutsceneAgahnim: EnemyStats(EnemySprite.CutsceneAgahnim, True),
-        EnemySprite.Boulder: EnemyStats(EnemySprite.Boulder, True),
-        EnemySprite.Gibo: EnemyStats(EnemySprite.Gibo, False, True, 0, health=8),  # patrick!
-        EnemySprite.Thief: EnemyStats(EnemySprite.Thief, False, False),  # could drop if killable thieves is on
-        EnemySprite.Medusa: EnemyStats(EnemySprite.Medusa, True),
-        EnemySprite.FourWayShooter: EnemyStats(EnemySprite.FourWayShooter, True),
-        EnemySprite.Pokey: EnemyStats(EnemySprite.Pokey, False, True, 7, health=32),
-        EnemySprite.BigFairy: EnemyStats(EnemySprite.BigFairy, True),
-        EnemySprite.Tektite: EnemyStats(EnemySprite.Tektite, False, True, 2, health=12),
-        EnemySprite.Chainchomp: EnemyStats(EnemySprite.Chainchomp, False, False),
-        EnemySprite.TrinexxRockHead: EnemyStats(EnemySprite.TrinexxRockHead, True),
-        EnemySprite.TrinexxFireHead: EnemyStats(EnemySprite.TrinexxFireHead, True),
-        EnemySprite.TrinexxIceHead: EnemyStats(EnemySprite.TrinexxIceHead, True),
-        EnemySprite.Blind: EnemyStats(EnemySprite.Blind, True),
-        EnemySprite.Swamola: EnemyStats(EnemySprite.Swamola, False, True, 0, health=16),
-        EnemySprite.Lynel: EnemyStats(EnemySprite.Lynel, False, True, 7, health=24),
-        EnemySprite.BunnyBeam: EnemyStats(EnemySprite.BunnyBeam, False, False),  # todo: medallions can kill bunny beams?
-        EnemySprite.FloppingFish: EnemyStats(EnemySprite.FloppingFish, True),
-        EnemySprite.Stal: EnemyStats(EnemySprite.Stal, False, True, 1, health=4),
-        EnemySprite.Ganon: EnemyStats(EnemySprite.Ganon, True),
+        EnemySprite.OldMan: EnemyStats(EnemySprite.OldMan, True, dmg=0),
+        EnemySprite.PipeDown: EnemyStats(EnemySprite.PipeDown, True, dmg=0),
+        EnemySprite.PipeUp: EnemyStats(EnemySprite.PipeUp, True, dmg=0),
+        EnemySprite.PipeRight: EnemyStats(EnemySprite.PipeRight, True, dmg=0),
+        EnemySprite.PipeLeft: EnemyStats(EnemySprite.PipeLeft, True, dmg=0),
+        EnemySprite.GoodBee: EnemyStats(EnemySprite.GoodBee, True, ignore=True, dmg=0),
+        EnemySprite.PedestalPlaque: EnemyStats(EnemySprite.PedestalPlaque, True, dmg=0),
+        EnemySprite.BombShopGuy: EnemyStats(EnemySprite.BombShopGuy, True, dmg=0),
+        EnemySprite.BlindMaiden: EnemyStats(EnemySprite.BlindMaiden, True, dmg=0),
 
-        EnemySprite.Faerie: EnemyStats(EnemySprite.Faerie, True),
-        EnemySprite.SmallKey: EnemyStats(EnemySprite.SmallKey, True),
-        EnemySprite.MagicShopAssistant: EnemyStats(EnemySprite.MagicShopAssistant, True),
-        EnemySprite.HeartPiece: EnemyStats(EnemySprite.HeartPiece, True),
-        EnemySprite.CastleMantle: EnemyStats(EnemySprite.CastleMantle, True),
+        EnemySprite.Whirlpool: EnemyStats(EnemySprite.Whirlpool, True, dmg=0),
+        EnemySprite.Shopkeeper: EnemyStats(EnemySprite.Shopkeeper, True, dmg=0),
+        EnemySprite.Drunkard: EnemyStats(EnemySprite.Drunkard, True, dmg=0),
+        EnemySprite.Vitreous: EnemyStats(EnemySprite.Vitreous, True, dmg=7, dmask=0x10),
+        EnemySprite.Catfish: EnemyStats(EnemySprite.Catfish, True, dmg=5),
+        EnemySprite.CutsceneAgahnim: EnemyStats(EnemySprite.CutsceneAgahnim, True, dmg=5),
+        EnemySprite.Boulder: EnemyStats(EnemySprite.Boulder, True, dmg=4),
+        EnemySprite.Gibo: EnemyStats(EnemySprite.Gibo, False, True, 0, health=8, dmg=3),  # patrick!
+        # could drop if killable thieves is on
+        EnemySprite.Thief: EnemyStats(EnemySprite.Thief, False, False, health=0, dmg=2),
+        EnemySprite.Medusa: EnemyStats(EnemySprite.Medusa, True, ignore=True, dmg=0, dmask=0x10),
+        EnemySprite.FourWayShooter: EnemyStats(EnemySprite.FourWayShooter, True, ignore=True, dmg=0),
+        EnemySprite.Pokey: EnemyStats(EnemySprite.Pokey, False, True, 7, health=32, dmg=6),
+        EnemySprite.BigFairy: EnemyStats(EnemySprite.BigFairy, True, dmg=0),
+        EnemySprite.Tektite: EnemyStats(EnemySprite.Tektite, False, True, 2, health=12, dmg=(3, 5)),
+        EnemySprite.Chainchomp: EnemyStats(EnemySprite.Chainchomp, False, False, dmg=7),
+        EnemySprite.TrinexxRockHead: EnemyStats(EnemySprite.TrinexxRockHead, True, dmg=7, dmask=0x10),
+        EnemySprite.TrinexxFireHead: EnemyStats(EnemySprite.TrinexxFireHead, True, dmg=7, dmask=0x10),
+        EnemySprite.TrinexxIceHead: EnemyStats(EnemySprite.TrinexxIceHead, True, dmg=7, dmask=0x10),
+        EnemySprite.Blind: EnemyStats(EnemySprite.Blind, True, dmg=5, dmask=0x10),
+        EnemySprite.Swamola: EnemyStats(EnemySprite.Swamola, False, True, 0, health=16, dmg=7),
+        EnemySprite.Lynel: EnemyStats(EnemySprite.Lynel, False, True, 7, health=24, dmg=6),
+        # medallions can kill bunny beams, but we don't need that in logic per se
+        EnemySprite.BunnyBeam: EnemyStats(EnemySprite.BunnyBeam, False, False, ignore=True, dmg=0, dmask=0x10),
+        EnemySprite.FloppingFish: EnemyStats(EnemySprite.FloppingFish, True, dmg=0),
+        EnemySprite.Stal: EnemyStats(EnemySprite.Stal, False, True, 1, health=4, dmg=3),
+        EnemySprite.Ganon: EnemyStats(EnemySprite.Ganon, True, dmg=9, dmask=0x10),
 
+        EnemySprite.Faerie: EnemyStats(EnemySprite.Faerie, True, ignore=True, dmg=0, dmask=0x10),
+        EnemySprite.SmallKey: EnemyStats(EnemySprite.SmallKey, True, ignore=True, dmg=0),
+        EnemySprite.FakeMasterSword: EnemyStats(EnemySprite.FakeMasterSword, False, False, ignore=True, dmg=0),
+        EnemySprite.MagicShopAssistant: EnemyStats(EnemySprite.MagicShopAssistant, True, ignore=True, dmg=0),
+        EnemySprite.HeartPiece: EnemyStats(EnemySprite.HeartPiece, True, ignore=True, dmg=0),
+        EnemySprite.CastleMantle: EnemyStats(EnemySprite.CastleMantle, True, dmg=0),
     }
     return stats
 
@@ -500,6 +524,8 @@ class Sprite(object):
 
         self.location = None
         self.original_address = None
+        self.static = False  # don't randomize me
+        self.water = False  # water types can spawn here
 
     def copy(self):
         sprite = Sprite(self.super_tile, self.kind, self.sub_type, self.layer, self.tile_x, self.tile_y, self.region,
@@ -523,16 +549,24 @@ class Sprite(object):
     def sprite_data_ow(self):
         return [self.tile_y, self.tile_x, self.kind]
 
+    def __str__(self):
+        return enemy_names[self.kind] if self.sub_type != 0x7 else overlord_names[self.kind]
+
 
 # map of super_tile to list of Sprite objects:
 vanilla_sprites = {}
 
+
 def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None,
-                  drops_item=False, drop_item_kind=None):
+                  drops_item=False, drop_item_kind=None, fix=False, water=False):
     if super_tile not in vanilla_sprites:
         vanilla_sprites[super_tile] = []
-    vanilla_sprites[super_tile].append(Sprite(super_tile, kind, sub_type, layer, tile_x, tile_y,
-                                              region, drops_item, drop_item_kind))
+    sprite = Sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region, drops_item, drop_item_kind)
+    if fix:
+        sprite.static = True
+    if water:
+        sprite.water = True
+    vanilla_sprites[super_tile].append(sprite)
 
 
 def init_vanilla_sprites():
@@ -656,9 +690,9 @@ def init_vanilla_sprites():
     create_sprite(0x0016, EnemySprite.Blob, 0x00, 0, 0x15, 0x08, 'Swamp C')
     create_sprite(0x0016, EnemySprite.BlueBari, 0x00, 0, 0x15, 0x09, 'Swamp C')
     create_sprite(0x0016, EnemySprite.Blob, 0x00, 0, 0x10, 0x0a, 'Swamp I')
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x0c, 0x18, 'Swamp Waterway')  # todo: quake only
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x07, 0x1b, 'Swamp Waterway')
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x14, 0x1b, 'Swamp Waterway')
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x0c, 0x18, 'Swamp Waterway', fix=True)
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x07, 0x1b, 'Swamp Waterway', fix=True)
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x14, 0x1b, 'Swamp Waterway', fix=True)
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x07, 0x0b)
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x10, 0x0e)
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x07, 0x16)
@@ -710,7 +744,7 @@ def init_vanilla_sprites():
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x04, 0x15, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x09, 0x15, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.AntiFairy, 0x00, 0, 0x06, 0x16, 'Ice Pengator Switch')
-    create_sprite(0x001f, EnemySprite.BunnyBeam, 0x00, 0, 0x07, 0x17, 'Ice Pengator Switch')
+    create_sprite(0x001f, EnemySprite.BunnyBeam, 0x00, 0, 0x07, 0x17, 'Ice Pengator Switch', fix=True)
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x0a, 0x17, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x0a, 0x19, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x04, 0x1b, 'Ice Pengator Switch')
@@ -743,9 +777,9 @@ def init_vanilla_sprites():
     create_sprite(0x0024, EnemySprite.Medusa, 0x00, 0, 0x1c, 0x04)
     create_sprite(0x0024, EnemySprite.RollerHorizontalRight, 0x00, 0, 0x1b, 0x06, 'TR Dodgers')
     create_sprite(0x0024, EnemySprite.Pokey, 0x00, 0, 0x05, 0x08, 'TR Twin Pokeys')
-    create_sprite(0x0024, EnemySprite.Medusa, 0x00, 0, 0x07, 0x08)
+    create_sprite(0x0024, EnemySprite.Medusa, 0x00, 0, 0x07, 0x08, 'TR Twin Pokeys')
     create_sprite(0x0024, EnemySprite.Pokey, 0x00, 0, 0x0a, 0x08, 'TR Twin Pokeys')
-    create_sprite(0x0024, EnemySprite.BunnyBeam, 0x00, 0, 0x0c, 0x0c, 'TR Twin Pokeys')
+    create_sprite(0x0024, EnemySprite.BunnyBeam, 0x00, 0, 0x0c, 0x0c, 'TR Twin Pokeys', fix=True)
     create_sprite(0x0026, EnemySprite.Medusa, 0x00, 0, 0x03, 0x04)
     create_sprite(0x0026, EnemySprite.RedBari, 0x00, 0, 0x1a, 0x05, 'Swamp Right Elbow')
     create_sprite(0x0026, EnemySprite.RedBari, 0x00, 0, 0x05, 0x06, 'Swamp Shooters')
@@ -755,7 +789,7 @@ def init_vanilla_sprites():
     create_sprite(0x0026, EnemySprite.Statue, 0x00, 0, 0x06, 0x17)
     create_sprite(0x0026, EnemySprite.FourWayShooter, 0x00, 0, 0x19, 0x17)
     create_sprite(0x0026, EnemySprite.RedBari, 0x00, 0, 0x07, 0x18, 'Swamp Push Statue')
-    create_sprite(0x0026, EnemySprite.Kyameron, 0x00, 0, 0x15, 0x18, 'Swamp Push Statue')
+    create_sprite(0x0026, EnemySprite.Kyameron, 0x00, 0, 0x15, 0x18, 'Swamp Push Statue', water=True)
     create_sprite(0x0026, EnemySprite.BlueBari, 0x00, 0, 0x18, 0x19, 'Swamp Push Statue')
     create_sprite(0x0026, EnemySprite.Firesnake, 0x00, 0, 0x1c, 0x1a, 'Swamp Push Statue')
     create_sprite(0x0027, EnemySprite.MiniMoldorm, 0x00, 0, 0x17, 0x09, 'Hera 4F')
@@ -765,10 +799,10 @@ def init_vanilla_sprites():
     create_sprite(0x0027, EnemySprite.SparkCW, 0x00, 0, 0x0f, 0x06, 'Hera Big Chest Landing')
     create_sprite(0x0027, EnemySprite.Kodongo, 0x00, 0, 0x05, 0x0e, 'Hera 4F')
     create_sprite(0x0027, EnemySprite.Kodongo, 0x00, 0, 0x04, 0x16, 'Hera 4F')
-    create_sprite(0x0028, EnemySprite.Kyameron, 0x00, 0, 0x0a, 0x06, 'Swamp Entrance')
-    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x08, 0x08, 'Swamp Entrance')
-    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Entrance')
-    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x07, 0x0d, 'Swamp Entrance')
+    create_sprite(0x0028, EnemySprite.Kyameron, 0x00, 0, 0x0a, 0x06, 'Swamp Entrance', water=True)
+    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x08, 0x08, 'Swamp Entrance', water=True)
+    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Entrance', water=True)
+    create_sprite(0x0028, EnemySprite.Hover, 0x00, 0, 0x07, 0x0d, 'Swamp Entrance', water=True)
     create_sprite(0x0028, EnemySprite.SpikeBlock, 0x00, 0, 0x08, 0x10, 'Swamp Entrance')
     create_sprite(0x0029, EnemySprite.Mothula, 0x00, 0, 0x08, 0x06)
     create_sprite(0x0029, 0x07, SpriteType.Overlord, 0, 0x07, 0x16)
@@ -819,9 +853,9 @@ def init_vanilla_sprites():
     create_sprite(0x0033, EnemySprite.Lanmolas, 0x00, 0, 0x06, 0x07)
     create_sprite(0x0033, EnemySprite.Lanmolas, 0x00, 0, 0x09, 0x07)
     create_sprite(0x0033, EnemySprite.Lanmolas, 0x00, 0, 0x07, 0x09)
-    create_sprite(0x0034, EnemySprite.Hover, 0x00, 0, 0x0f, 0x0b, 'Swamp West Shallows')
-    create_sprite(0x0034, EnemySprite.Hover, 0x00, 0, 0x10, 0x12, 'Swamp West Shallows')
-    create_sprite(0x0034, EnemySprite.Kyameron, 0x00, 0, 0x0f, 0x15, 'Swamp West Shallows')
+    create_sprite(0x0034, EnemySprite.Hover, 0x00, 0, 0x0f, 0x0b, 'Swamp West Shallows', water=True)
+    create_sprite(0x0034, EnemySprite.Hover, 0x00, 0, 0x10, 0x12, 'Swamp West Shallows', water=True)
+    create_sprite(0x0034, EnemySprite.Kyameron, 0x00, 0, 0x0f, 0x15, 'Swamp West Shallows', water=True)
     create_sprite(0x0034, EnemySprite.Firesnake, 0x00, 0, 0x19, 0x17, 'Swamp West Shallows')
     create_sprite(0x0034, EnemySprite.Blob, 0x00, 0, 0x03, 0x18, 'Swamp West Block Path')
     create_sprite(0x0034, EnemySprite.BlueBari, 0x00, 0, 0x14, 0x18, 'Swamp West Shallows')
@@ -838,14 +872,14 @@ def init_vanilla_sprites():
     create_sprite(0x0035, EnemySprite.BlueBari, 0x00, 0, 0x14, 0x1b, 'Swamp Trench 2 Pots')
     create_sprite(0x0035, EnemySprite.Stalfos, 0x00, 0, 0x1b, 0x1c, 'Swamp Trench 2 Pots')
     create_sprite(0x0036, 0x12, SpriteType.Overlord, 0, 0x17, 0x02)
-    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Hub')
-    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x14, 0x0a, 'Swamp Hub')
-    create_sprite(0x0036, EnemySprite.Medusa, 0x00, 0, 0x15, 0x0b)
+    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x0b, 0x0a, 'Swamp Hub', water=True)
+    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x14, 0x0a, 'Swamp Hub', water=True)
+    create_sprite(0x0036, EnemySprite.Medusa, 0x00, 0, 0x15, 0x0b, 'Swamp Hub', water=True)
     create_sprite(0x0036, 0x10, SpriteType.Overlord, 0, 0x01, 0x0d)
-    create_sprite(0x0036, EnemySprite.Kyameron, 0x00, 0, 0x14, 0x13, 'Swamp Hub')
+    create_sprite(0x0036, EnemySprite.Kyameron, 0x00, 0, 0x14, 0x13, 'Swamp Hub', water=True)
     create_sprite(0x0036, 0x11, SpriteType.Overlord, 0, 0x1e, 0x13)
-    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x09, 0x14, 'Swamp Hub')
-    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x12, 0x17, 'Swamp Hub')
+    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x09, 0x14, 'Swamp Hub', water=True)
+    create_sprite(0x0036, EnemySprite.Hover, 0x00, 0, 0x12, 0x17, 'Swamp Hub', water=True)
     create_sprite(0x0036, 0x13, SpriteType.Overlord, 0, 0x0a, 0x1e)
     create_sprite(0x0036, 0x13, SpriteType.Overlord, 0, 0x14, 0x1e)
     create_sprite(0x0037, EnemySprite.WaterSwitch, 0x00, 0, 0x0b, 0x04)
@@ -858,13 +892,13 @@ def init_vanilla_sprites():
     create_sprite(0x0037, EnemySprite.BlueBari, 0x00, 0, 0x13, 0x19, 'Swamp Trench 1 Approach')
     create_sprite(0x0037, EnemySprite.FourWayShooter, 0x00, 0, 0x17, 0x1a)
     create_sprite(0x0037, EnemySprite.RedBari, 0x00, 0, 0x15, 0x1c, 'Swamp Trench 1 Approach')
-    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x0c, 0x06, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x07, 0x0a, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x0c, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Medusa, 0x00, 0, 0x0c, 0x10, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x06, 0x14, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x18, 'Swamp Pot Row')
-    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x07, 0x1a, 'Swamp Pot Row')
+    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x0c, 0x06, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x07, 0x0a, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x0c, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Medusa, 0x00, 0, 0x0c, 0x10, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x06, 0x14, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x18, 'Swamp Pot Row', water=True)
+    create_sprite(0x0038, EnemySprite.Hover, 0x00, 0, 0x07, 0x1a, 'Swamp Pot Row', water=True)
     create_sprite(0x0039, EnemySprite.MiniMoldorm, 0x00, 0, 0x04, 0x18, 'Skull Spike Corner')
     create_sprite(0x0039, 0x09, SpriteType.Overlord, 0, 0x0f, 0x0f)
     create_sprite(0x0039, EnemySprite.Gibdo, 0x00, 0, 0x05, 0x15, 'Skull Spike Corner', True, 0xe4)
@@ -905,11 +939,11 @@ def init_vanilla_sprites():
     create_sprite(0x003e, EnemySprite.CrystalSwitch, 0x00, 0, 0x06, 0x15)
     create_sprite(0x003e, EnemySprite.StalfosKnight, 0x00, 0, 0x19, 0x04, 'Ice Stalfos Hint')
     create_sprite(0x003e, EnemySprite.StalfosKnight, 0x00, 0, 0x16, 0x0b, 'Ice Stalfos Hint')
-    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x05, 0x12, 'Ice Conveyor')
-    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x0e, 0x12, 'Ice Conveyor')
+    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x05, 0x12, 'Ice Conveyor', fix=True)
+    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x0e, 0x12, 'Ice Conveyor', fix=True)
     create_sprite(0x003e, 0x07, SpriteType.Overlord, 0, 0x10, 0x12)
-    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x12, 0x12, 'Ice Conveyor')
-    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x15, 0x12, 'Ice Conveyor')
+    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x12, 0x12, 'Ice Conveyor', fix=True)
+    create_sprite(0x003e, EnemySprite.Babasu, 0x00, 0, 0x15, 0x12, 'Ice Conveyor', fix=True)
     create_sprite(0x003e, EnemySprite.BlueBari, 0x00, 0, 0x07, 0x16, 'Ice Conveyor')
     create_sprite(0x003e, EnemySprite.BlueBari, 0x00, 0, 0x11, 0x18, 'Ice Conveyor', True, 0xe4)
     create_sprite(0x003e, EnemySprite.BlueBari, 0x00, 0, 0x15, 0x19, 'Ice Conveyor')
@@ -950,18 +984,18 @@ def init_vanilla_sprites():
     create_sprite(0x0045, EnemySprite.RedZazak, 0x00, 0, 0x06, 0x06, 'Thieves Basement Block')
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x04, 0x0b, 'Thieves Basement Block')
     create_sprite(0x0045, EnemySprite.Stalfos, 0x00, 0, 0x0b, 0x0b, 'Thieves Basement Block')
-    create_sprite(0x0045, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x0b, "Thieves Blind's Cell Interior")
+    create_sprite(0x0045, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x0b, "Thieves Blind's Cell Interior", fix=True)
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x18, 0x0c, "Thieves Blind's Cell Interior")
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x1a, 0x0c, "Thieves Blind's Cell Interior")
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x18, 0x11, "Thieves Blind's Cell Interior")
     create_sprite(0x0045, EnemySprite.Blob, 0x00, 0, 0x16, 0x18, "Thieves Blind's Cell")
     create_sprite(0x0045, EnemySprite.RedZazak, 0x00, 0, 0x19, 0x1b, "Thieves Blind's Cell")
     create_sprite(0x0045, EnemySprite.RedZazak, 0x00, 0, 0x07, 0x1c, 'Thieves Lonely Zazak')
-    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x16, 0x05, 'Swamp Donut Top')
+    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x16, 0x05, 'Swamp Donut Top', water=True)
     create_sprite(0x0046, 0x11, SpriteType.Overlord, 0, 0x1b, 0x06)
-    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x09, 0x1a, 'Swamp Donut Bottom')
+    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x09, 0x1a, 'Swamp Donut Bottom', water=True)
     create_sprite(0x0046, 0x11, SpriteType.Overlord, 0, 0x1b, 0x1a)
-    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x11, 0x1b, 'Swamp Donut Bottom')
+    create_sprite(0x0046, EnemySprite.Hover, 0x00, 0, 0x11, 0x1b, 'Swamp Donut Bottom', water=True)
     create_sprite(0x0049, EnemySprite.MiniMoldorm, 0x00, 0, 0x0b, 0x05, 'Skull Vines')
     create_sprite(0x0049, EnemySprite.MiniMoldorm, 0x00, 0, 0x04, 0x0b, 'Skull Vines')
     create_sprite(0x0049, EnemySprite.MiniMoldorm, 0x00, 0, 0x09, 0x0c, 'Skull Vines')
@@ -1024,14 +1058,14 @@ def init_vanilla_sprites():
     create_sprite(0x0053, EnemySprite.Popo, 0x00, 0, 0x0b, 0x1a, 'Desert Four Statues')
     create_sprite(0x0053, EnemySprite.Beamos, 0x00, 0, 0x1b, 0x1a, 'Desert Beamos Hall')
     create_sprite(0x0053, EnemySprite.Popo, 0x00, 0, 0x1a, 0x1b, 'Desert Beamos Hall')
-    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x0e, 0x05, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x0c, 0x0b, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Medusa, 0x00, 0, 0x0b, 0x0e, 'Swamp Attic')
+    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x0e, 0x05, 'Swamp Attic', water=True)
+    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x0c, 0x0b, 'Swamp Attic', water=True)
+    create_sprite(0x0054, EnemySprite.Medusa, 0x00, 0, 0x0b, 0x0e, 'Swamp Attic', water=True)
     create_sprite(0x0054, EnemySprite.FirebarCW, 0x00, 0, 0x0f, 0x0e, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x10, 0x0f, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x12, 0x14, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x0f, 0x15, 'Swamp Attic')
-    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x17, 'Swamp Attic')
+    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x10, 0x0f, 'Swamp Attic', water=True)
+    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x12, 0x14, 'Swamp Attic', water=True)
+    create_sprite(0x0054, EnemySprite.Hover, 0x00, 0, 0x0f, 0x15, 'Swamp Attic', water=True)
+    create_sprite(0x0054, EnemySprite.Kyameron, 0x00, 0, 0x0c, 0x17, 'Swamp Attic', water=True)
     create_sprite(0x0055, EnemySprite.UnclePriest, 0x00, 0, 0x0e, 0x08, 'Hyrule Castle Secret Entrance')
     create_sprite(0x0055, EnemySprite.GreenKnifeGuard, 0x00, 0, 0x14, 0x15, 'Hyrule Castle Secret Entrance')
     create_sprite(0x0055, EnemySprite.GreenKnifeGuard, 0x00, 0, 0x0d, 0x16, 'Hyrule Castle Secret Entrance')
@@ -1048,7 +1082,7 @@ def init_vanilla_sprites():
     create_sprite(0x0056, EnemySprite.HardhatBeetle, 0x00, 0, 0x03, 0x1b, 'Skull 2 West Lobby')
     create_sprite(0x0056, EnemySprite.Firesnake, 0x00, 0, 0x13, 0x1c, 'Skull Small Hall')
     create_sprite(0x0056, EnemySprite.HardhatBeetle, 0x00, 0, 0x19, 0x1c, 'Skull Small Hall')
-    create_sprite(0x0057, EnemySprite.BunnyBeam, 0x00, 0, 0x08, 0x04, 'Skull Big Key')
+    create_sprite(0x0057, EnemySprite.BunnyBeam, 0x00, 0, 0x08, 0x04, 'Skull Big Key', fix=True)
     create_sprite(0x0057, EnemySprite.RedBari, 0x00, 0, 0x0c, 0x04, 'Skull Big Key')
     create_sprite(0x0057, EnemySprite.SpikeBlock, 0x00, 0, 0x08, 0x05, 'Skull Big Key')
     create_sprite(0x0057, EnemySprite.Stalfos, 0x00, 0, 0x04, 0x07, 'Skull Big Key')
@@ -1133,7 +1167,7 @@ def init_vanilla_sprites():
     create_sprite(0x0064, EnemySprite.Keese, 0x00, 0, 0x05, 0x12, 'Thieves Attic Hint')
     create_sprite(0x0064, EnemySprite.WrongPullSwitch, 0x00, 0, 0x0b, 0x13)
     create_sprite(0x0064, EnemySprite.Keese, 0x00, 0, 0x05, 0x13, 'Thieves Attic Hint')
-    create_sprite(0x0064, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x16, 'Thieves Attic Hint')
+    create_sprite(0x0064, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x16, 'Thieves Attic Hint', fix=True)
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x17, 0x17, 'Thieves Cricket Hall Left')
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x19, 0x19, 'Thieves Cricket Hall Left')
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x05, 0x1a, 'Thieves Attic')
@@ -1154,12 +1188,12 @@ def init_vanilla_sprites():
     create_sprite(0x0066, EnemySprite.BlueBari, 0x00, 0, 0x1a, 0x07, 'Swamp Behind Waterfall')
     create_sprite(0x0066, EnemySprite.Waterfall, 0x00, 1, 0x17, 0x14, 'Swamp Waterfall Room')
     create_sprite(0x0066, 0x10, SpriteType.Overlord, 1, 0x01, 0x16)
-    create_sprite(0x0066, EnemySprite.Kyameron, 0x00, 1, 0x0f, 0x16, 'Swamp Waterfall Room')
-    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x13, 0x16, 'Swamp Waterfall Room')
-    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x0b, 0x18, 'Swamp Waterfall Room')
-    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x0d, 0x19, 'Swamp Waterfall Room')
+    create_sprite(0x0066, EnemySprite.Kyameron, 0x00, 1, 0x0f, 0x16, 'Swamp Waterfall Room', water=True)
+    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x13, 0x16, 'Swamp Waterfall Room', water=True)
+    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x0b, 0x18, 'Swamp Waterfall Room', water=True)
+    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x0d, 0x19, 'Swamp Waterfall Room', water=True)
     create_sprite(0x0066, 0x11, SpriteType.Overlord, 1, 0x1e, 0x19)
-    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x17, 0x1b, 'Swamp Waterfall Room')
+    create_sprite(0x0066, EnemySprite.Hover, 0x00, 1, 0x17, 0x1b, 'Swamp Waterfall Room', water=True)
     create_sprite(0x0067, EnemySprite.Bumper, 0x00, 0, 0x07, 0x0c, 'Skull Left Drop')
     create_sprite(0x0067, EnemySprite.BlueBari, 0x00, 0, 0x04, 0x06, 'Skull Left Drop')
     create_sprite(0x0067, EnemySprite.BlueBari, 0x00, 0, 0x0b, 0x06, 'Skull Left Drop')
@@ -1174,10 +1208,10 @@ def init_vanilla_sprites():
     create_sprite(0x0068, EnemySprite.Bumper, 0x00, 0, 0x11, 0x07)
     create_sprite(0x0068, EnemySprite.Bumper, 0x00, 0, 0x0c, 0x0b)
     create_sprite(0x0068, EnemySprite.Bumper, 0x00, 0, 0x13, 0x0b)
-    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x14, 0x08, 'Skull Compass Room')
+    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x14, 0x08, 'Skull Pinball')
     create_sprite(0x0068, 0x09, SpriteType.Overlord, 0, 0x0f, 0x0f)
-    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x0e, 0x12, 'Skull Compass Room')
-    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x12, 0x12, 'Skull Compass Room')
+    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x0e, 0x12, 'Skull Pinball')
+    create_sprite(0x0068, EnemySprite.Gibdo, 0x00, 0, 0x12, 0x12, 'Skull Pinball')
     create_sprite(0x006a, EnemySprite.Terrorpin, 0x00, 0, 0x17, 0x0a, 'PoD Dark Alley')
     create_sprite(0x006a, EnemySprite.Terrorpin, 0x00, 0, 0x18, 0x0a, 'PoD Dark Alley')
     create_sprite(0x006a, EnemySprite.AntiFairy, 0x00, 0, 0x14, 0x0b, 'PoD Dark Basement')
@@ -1247,9 +1281,9 @@ def init_vanilla_sprites():
     create_sprite(0x0075, EnemySprite.Leever, 0x00, 0, 0x07, 0x19, 'Desert Arrow Pot Corner')
     create_sprite(0x0075, EnemySprite.Leever, 0x00, 0, 0x09, 0x19, 'Desert Arrow Pot Corner')
     create_sprite(0x0076, EnemySprite.WaterSwitch, 0x00, 0, 0x19, 0x03)
-    create_sprite(0x0076, EnemySprite.Hover, 0x00, 0, 0x07, 0x0a, 'Swamp Basement Shallows')
-    create_sprite(0x0076, EnemySprite.Kyameron, 0x00, 0, 0x07, 0x0f, 'Swamp Basement Shallows')
-    create_sprite(0x0076, EnemySprite.Hover, 0x00, 0, 0x08, 0x11, 'Swamp Basement Shallows')
+    create_sprite(0x0076, EnemySprite.Hover, 0x00, 0, 0x07, 0x0a, 'Swamp Basement Shallows', water=True)
+    create_sprite(0x0076, EnemySprite.Kyameron, 0x00, 0, 0x07, 0x0f, 'Swamp Basement Shallows', water=True)
+    create_sprite(0x0076, EnemySprite.Hover, 0x00, 0, 0x08, 0x11, 'Swamp Basement Shallows', water=True)
     create_sprite(0x0076, EnemySprite.Blob, 0x00, 0, 0x1b, 0x19, 'Swamp Flooded Room')
     create_sprite(0x0076, 0x13, SpriteType.Overlord, 0, 0x08, 0x1c)
     create_sprite(0x0076, EnemySprite.BlueBari, 0x00, 0, 0x1b, 0x1c, 'Swamp Flooded Room')
@@ -1392,7 +1426,7 @@ def init_vanilla_sprites():
     create_sprite(0x008d, EnemySprite.BlueBari, 0x00, 0, 0x14, 0x1c, 'GT Speed Torch')
     create_sprite(0x008e, EnemySprite.Freezor, 0x00, 0, 0x1b, 0x02, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x18, 0x05, 'Ice Lonely Freezor')
-    create_sprite(0x008e, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x06, 'Ice Lonely Freezor')
+    create_sprite(0x008e, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x06, 'Ice Lonely Freezor', fix=True)
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x1b, 0x08, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x14, 0x09, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x16, 0x0a, 'Ice Lonely Freezor')
@@ -1486,10 +1520,10 @@ def init_vanilla_sprites():
     create_sprite(0x009e, EnemySprite.StalfosKnight, 0x00, 0, 0x18, 0x08, 'Ice Backwards Room')
     create_sprite(0x009e, EnemySprite.RedBari, 0x00, 0, 0x19, 0x08, 'Ice Backwards Room')
     create_sprite(0x009e, EnemySprite.Freezor, 0x00, 0, 0x14, 0x12, 'Ice Crystal Left')
-    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x04, 0x12, 'Ice Many Pots')
-    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x06, 0x12, 'Ice Many Pots')
-    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x09, 0x12, 'Ice Many Pots')
-    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x0b, 0x12, 'Ice Many Pots')
+    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x04, 0x12, 'Ice Many Pots', fix=True)
+    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x06, 0x12, 'Ice Many Pots', fix=True)
+    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x09, 0x12, 'Ice Many Pots', fix=True)
+    create_sprite(0x009f, EnemySprite.Babasu, 0x00, 0, 0x0b, 0x12, 'Ice Many Pots', fix=True)
     create_sprite(0x009f, EnemySprite.AntiFairy, 0x00, 0, 0x07, 0x17, 'Ice Many Pots')
     create_sprite(0x009f, EnemySprite.FirebarCW, 0x00, 0, 0x08, 0x18, 'Ice Many Pots')
     create_sprite(0x00a0, EnemySprite.Medusa, 0x00, 0, 0x03, 0x08, 'Mire Antechamber')
@@ -1502,7 +1536,7 @@ def init_vanilla_sprites():
     create_sprite(0x00a1, EnemySprite.Medusa, 0x00, 0, 0x15, 0x15, 'Mire South Fish')
     create_sprite(0x00a1, EnemySprite.Medusa, 0x00, 0, 0x1a, 0x15, 'Mire South Fish')
     create_sprite(0x00a1, EnemySprite.Stalfos, 0x00, 0, 0x15, 0x19, 'Mire South Fish')
-    create_sprite(0x00a1, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x19, 'Mire South Fish')
+    create_sprite(0x00a1, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x19, 'Mire South Fish', fix=True)
     create_sprite(0x00a1, EnemySprite.Stalfos, 0x00, 0, 0x1b, 0x19, 'Mire South Fish')
     create_sprite(0x00a4, EnemySprite.TrinexxRockHead, 0x00, 0, 0x07, 0x05)
     create_sprite(0x00a4, EnemySprite.TrinexxFireHead, 0x00, 0, 0x07, 0x05)
@@ -1578,9 +1612,9 @@ def init_vanilla_sprites():
     create_sprite(0x00b1, EnemySprite.AntiFairy, 0x00, 0, 0x15, 0x1a, 'Mire Spike Barrier')
     create_sprite(0x00b1, EnemySprite.Wizzrobe, 0x00, 0, 0x08, 0x1c, 'Mire Square Rail')
     create_sprite(0x00b2, EnemySprite.Wizzrobe, 0x00, 1, 0x14, 0x08, 'Mire BK Door Room')
-    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x0c, 0x0a, 'Mire BK Door Room')
+    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x0c, 0x0a, 'Mire BK Door Room', fix=True)
     create_sprite(0x00b2, EnemySprite.AntiFairy, 0x00, 1, 0x12, 0x0a, 'Mire BK Door Room')
-    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x13, 0x0a, 'Mire BK Door Room')
+    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x13, 0x0a, 'Mire BK Door Room', fix=True)
     create_sprite(0x00b2, EnemySprite.AntiFairy, 0x00, 1, 0x07, 0x0b, 'Mire BK Door Room')
     create_sprite(0x00b2, EnemySprite.Sluggula, 0x00, 0, 0x04, 0x15, 'Mire Cross')
     create_sprite(0x00b2, EnemySprite.Sluggula, 0x00, 0, 0x0b, 0x15, 'Mire Cross')
@@ -1681,7 +1715,7 @@ def init_vanilla_sprites():
     create_sprite(0x00c2, EnemySprite.Medusa, 0x00, 0, 0x08, 0x10, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x10, 0x12, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x19, 0x12, 'Mire Hub')
-    create_sprite(0x00c2, EnemySprite.BunnyBeam, 0x00, 1, 0x10, 0x14, 'Mire Hub')
+    create_sprite(0x00c2, EnemySprite.BunnyBeam, 0x00, 1, 0x10, 0x14, 'Mire Hub', fix=True)
     create_sprite(0x00c2, EnemySprite.Firesnake, 0x00, 1, 0x08, 0x16, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x16, 0x16, 'Mire Hub')
     create_sprite(0x00c3, EnemySprite.Medusa, 0x00, 0, 0x05, 0x06)
@@ -1727,7 +1761,7 @@ def init_vanilla_sprites():
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x10, 0x05, 'Eastern Lobby Bridge')
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x0f, 0x06, 'Eastern Lobby Bridge')
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x10, 0x07, 'Eastern Lobby Bridge')
-    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x04, 'Thieves Ambush')
+    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x04, 'Thieves Ambush', fix=True)
     create_sprite(0x00cb, EnemySprite.Firesnake, 0x00, 1, 0x08, 0x09, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.BlueZazak, 0x00, 1, 0x10, 0x0a, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x13, 0x0a, 'Thieves Ambush')
@@ -1738,7 +1772,7 @@ def init_vanilla_sprites():
     create_sprite(0x00cb, EnemySprite.RedZazak, 0x00, 1, 0x08, 0x17, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x0b, 0x17, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x0c, 0x18, 'Thieves Ambush')
-    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x1c, 'Thieves Ambush')
+    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x1c, 'Thieves Ambush', fix=True)
     create_sprite(0x00cc, EnemySprite.Firesnake, 0x00, 0, 0x13, 0x04, 'Thieves BK Corner')
     create_sprite(0x00cc, EnemySprite.BunnyBeam, 0x00, 1, 0x0b, 0x09, 'Thieves BK Corner')
     create_sprite(0x00cc, EnemySprite.BlueZazak, 0x00, 1, 0x08, 0x0a, 'Thieves BK Corner')
@@ -1815,7 +1849,7 @@ def init_vanilla_sprites():
     create_sprite(0x00d9, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x18, 0x1b, 'Eastern False Switches')
     create_sprite(0x00da, EnemySprite.AntiFairy, 0x00, 0, 0x07, 0x18, 'Eastern Attic Start')
     create_sprite(0x00da, EnemySprite.AntiFairy, 0x00, 0, 0x08, 0x18, 'Eastern Attic Start')
-    create_sprite(0x00db, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x04, 'Thieves Lobby')
+    create_sprite(0x00db, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x04, 'Thieves Lobby', fix=True)
     create_sprite(0x00db, EnemySprite.SparkCW, 0x00, 1, 0x0e, 0x0a, 'Thieves Lobby')
     create_sprite(0x00db, EnemySprite.RedZazak, 0x00, 1, 0x17, 0x0b, 'Thieves Lobby')
     create_sprite(0x00db, EnemySprite.BlueZazak, 0x00, 1, 0x0f, 0x0c, 'Thieves Lobby')
@@ -1917,9 +1951,9 @@ def init_vanilla_sprites():
     create_sprite(0x00fa, EnemySprite.Faerie, 0x00, 0, 0x17, 0x0e)
     create_sprite(0x00fa, EnemySprite.Faerie, 0x00, 0, 0x18, 0x10)
     create_sprite(0x00fa, EnemySprite.Faerie, 0x00, 0, 0x15, 0x11)
-    create_sprite(0x00fb, EnemySprite.Bumper, 0x00, 0, 0x17, 0x0d)
-    create_sprite(0x00fb, EnemySprite.HardhatBeetle, 0x00, 0, 0x19, 0x0a, 'Bumper Cave')
-    create_sprite(0x00fb, EnemySprite.HardhatBeetle, 0x00, 0, 0x15, 0x12, 'Bumper Cave')
+    create_sprite(0x00fb, EnemySprite.Bumper, 0x00, 0, 0x17, 0x0d, 'Bumper Cave (top)')
+    create_sprite(0x00fb, EnemySprite.HardhatBeetle, 0x00, 0, 0x19, 0x0a, 'Bumper Cave (bottom)')
+    create_sprite(0x00fb, EnemySprite.HardhatBeetle, 0x00, 0, 0x15, 0x12, 'Bumper Cave (bottom)')
     create_sprite(0x00fd, EnemySprite.MiniMoldorm, 0x00, 0, 0x09, 0x0e, 'Fairy Ascension Cave (Bottom)')
     create_sprite(0x00fd, EnemySprite.BlueBari, 0x00, 0, 0x05, 0x08, 'Fairy Ascension Cave (Bottom)')
     create_sprite(0x00fd, EnemySprite.Faerie, 0x00, 0, 0x16, 0x08)
@@ -1980,7 +2014,7 @@ def init_vanilla_sprites():
     create_sprite(0x0115, EnemySprite.Faerie, 0x00, 0, 0x18, 0x07)
     create_sprite(0x0115, EnemySprite.Faerie, 0x00, 0, 0x17, 0x08)
     create_sprite(0x0115, EnemySprite.Faerie, 0x00, 0, 0x18, 0x08)
-    # create_sprite(0x0115, EnemySprite.FairyPondTrigger, 0x00, 0, 0x07, 0x09)  # todo: I think this is gone
+    create_sprite(0x0115, EnemySprite.FairyPondTrigger, 0x00, 0, 0x07, 0x09)
     create_sprite(0x0116, EnemySprite.FairyPondTrigger, 0x00, 0, 0x17, 0x18)
     create_sprite(0x0118, EnemySprite.Shopkeeper, 0x00, 0, 0x19, 0x1b)
     create_sprite(0x0119, EnemySprite.AdultNpc, 0x00, 0, 0x0e, 0x18)
@@ -2014,67 +2048,35 @@ def init_vanilla_sprites():
     create_sprite(0x0126, EnemySprite.HeartPiece, 0x00, 0, 0x1c, 0x14)
     create_sprite(0x0127, EnemySprite.HeartPiece, 0x00, 0, 0x07, 0x16)
 
-
-def kill_rules(world, player, stats):
-
-    def h(enemy):
-        return stats[enemy].health
-    defeat_rules = {
-        EnemySprite.MiniHelmasaur: defeat_rule(world, player, h(EnemySprite.MiniHelmasaur),
-                                               bomb=2, silver=3, fire=None),
-        EnemySprite.MiniMoldorm: defeat_rule(world, player, h(EnemySprite.MiniMoldorm), ice=1, hook=True),
-        EnemySprite.Sluggula: defeat_rule(world, player, h(EnemySprite.Sluggula), bomb=None),
-        EnemySprite.RedBari: or_rule(has('Fire Rod', player), and_rule(has_sword(player), has('Bombos', player))),
-        EnemySprite.BlueBari: defeat_rule(world, player, h(EnemySprite.BlueBari), ice=2, hook=True),
-        EnemySprite.HardhatBeetle: defeat_rule(world, player, h(EnemySprite.HardhatBeetle),
-                                               arrow=None, bomb=None, fire=None),
-        EnemySprite.BlueGuard: defeat_rule(world, player, h(EnemySprite.BlueGuard), ice=1),
-        EnemySprite.GreenGuard: defeat_rule(world, player, h(EnemySprite.GreenGuard)),
-        EnemySprite.RedSpearGuard: defeat_rule(world, player, h(EnemySprite.RedSpearGuard)),
-        EnemySprite.BluesainBolt: defeat_rule(world, player, h(EnemySprite.BluesainBolt)),
-        EnemySprite.UsainBolt: defeat_rule(world, player, h(EnemySprite.UsainBolt)),
-        EnemySprite.BlueArcher: defeat_rule(world, player, h(EnemySprite.BlueArcher)),
-        EnemySprite.GreenBushGuard: defeat_rule(world, player, h(EnemySprite.GreenBushGuard), ice=1),
-        EnemySprite.RedJavelinGuard: defeat_rule(world, player, h(EnemySprite.RedJavelinGuard)),
-        EnemySprite.RedBushGuard: defeat_rule(world, player, h(EnemySprite.RedBushGuard)),
-        EnemySprite.BombGuard: defeat_rule(world, player, h(EnemySprite.BombGuard)),
-        EnemySprite.GreenKnifeGuard: defeat_rule(world, player, h(EnemySprite.GreenKnifeGuard)),
-        EnemySprite.Popo: defeat_rule(world, player, h(EnemySprite.Popo), hook=True),
-        EnemySprite.Popo2: defeat_rule(world, player, h(EnemySprite.Popo2), hook=True),
-        EnemySprite.DebirandoPit: defeat_rule(world, player, h(EnemySprite.Debirando), fire=1, ice=1, boomerang=True),
-        EnemySprite.Debirando: defeat_rule(world, player, h(EnemySprite.Debirando), fire=1, ice=1, boomerang=True),
-        EnemySprite.BallNChain: defeat_rule(world, player, h(EnemySprite.BallNChain)),
-        EnemySprite.CannonTrooper: defeat_rule(world, player, h(EnemySprite.CannonTrooper), fire=1, ice=1),
-        EnemySprite.CricketRat: defeat_rule(world, player, h(EnemySprite.CricketRat), hook=True),
-        EnemySprite.Snake: defeat_rule(world, player, h(EnemySprite.Snake), hook=True),
-        EnemySprite.Keese: defeat_rule(world, player, h(EnemySprite.Keese), hook=True, boomerang=True),
-        EnemySprite.Leever: defeat_rule(world, player, h(EnemySprite.Leever)),
-        EnemySprite.FloatingSkull: defeat_rule(world, player, h(EnemySprite.FloatingSkull), bomb=2),
-        EnemySprite.Hover: defeat_rule(world, player, h(EnemySprite.Hover), hook=True),
-        EnemySprite.GreenEyegoreMimic: defeat_rule(world, player, h(EnemySprite.GreenEyegoreMimic),
-                                                   arrow=2, silver=2, fire=None),
-        EnemySprite.RedEyegoreMimic: can_bow_kill(world, player, arrow_damage[1], silver_damage[1],
-                                                  h(EnemySprite.RedEyegoreMimic)),
-        EnemySprite.Kodongo: defeat_rule(world, player, h(EnemySprite.Kodongo), bomb=None, fire=1),
-        EnemySprite.Gibdo: defeat_rule(world, player, h(EnemySprite.Gibdo), arrow=0),
-        EnemySprite.Terrorpin: has('Hammer', player),
-        EnemySprite.Blob: defeat_rule(world, player, h(EnemySprite.Blob), hook=True, bomb=2),
-        # bombs are required for quick kills, but cannot collapse him
-        EnemySprite.StalfosKnight: and_rule(can_use_bombs(world,  player),
-                                            defeat_rule(world, player, h(EnemySprite.StalfosKnight),
-                                                        bomb=None, arrow=None, fire=None, boomerang=True)),
-        EnemySprite.Pengator: defeat_rule(world, player, h(EnemySprite.Pengator),
-                                          fire=1, bomb=2, hook=True, boomerang=True),
-        EnemySprite.Wizzrobe: defeat_rule(world, player, h(EnemySprite.Wizzrobe), fire=1, ice=1),
-        EnemySprite.Babasu: defeat_rule(world, player, h(EnemySprite.Babasu), ice=2, hook=True),
-        EnemySprite.Freezor: or_rule(has('Fire Rod', player), and_rule(has_sword(player), has('Bombos', player))),
-        EnemySprite.BlueZazak: defeat_rule(world, player, h(EnemySprite.BlueZazak), bomb=2),
-        EnemySprite.RedZazak: defeat_rule(world, player, h(EnemySprite.RedZazak), bomb=2),
-        EnemySprite.Stalfos: defeat_rule(world, player, h(EnemySprite.Stalfos), fire=1, ice=2, boomerang=True),
-        EnemySprite.Gibo: defeat_rule(world, player, h(EnemySprite.Gibo), arrow=3, fire=None),
-        EnemySprite.Pokey: defeat_rule(world, player, h(EnemySprite.Pokey), silver=2, ice=1),
-    }
-    return defeat_rules
+    # Dump above data into yaml
+    # class HexInt(int): pass
+    #
+    # def representer(dumper, data: HexInt):
+    #      return yaml.ScalarNode('tag:yaml.org,2002:int', hex(data))
+    #
+    # def build_dict(z):
+    #     spr = {
+    #         'super_tile': HexInt(z.super_tile),
+    #         'kind': enemy_names[z.kind] if z.sub_type != 0x07 else HexInt(z.kind),
+    #         'sub_type': HexInt(z.sub_type),
+    #         'layer': z.layer,
+    #         'tile_x': HexInt(z.tile_x),
+    #         'tile_y': HexInt(z.tile_y)
+    #     }
+    #     if z.region:
+    #         spr['region'] = z.region
+    #     if z.drops_item:
+    #         spr['drops_item'] = z.drops_item
+    #     if z.drop_item_kind:
+    #         spr['drop_item_kind'] = HexInt(z.drop_item_kind)
+    #     return spr
+    #
+    # data_dump = {HexInt(x): [build_dict(z) for z in y] for x, y in vanilla_sprites.items()}
+    #
+    # yaml.add_representer(HexInt, representer)
+    # yaml.add_representer(defaultdict, Representer.represent_dict)
+    # with open('uw_enemy_list.yaml', 'w') as file:
+    #     yaml.dump(data_dump, file, sort_keys=False)
 
 
 layered_oam_rooms = {
@@ -2127,7 +2129,7 @@ exceptions = {0xf1: [4, 5]}  # these keese cannot be lured away
 
 def valid_drop_location(sprite, index, world, player):
     if world.dropshuffle[player] == 'underworld':
-        if sprite.drops_item and sprite.drop_item_kind == 0xe4:
+        if sprite.drops_item and sprite.drop_item_kind in [0xe4, 0xe5]:
             # already has a location
             return False
         elif sprite.sub_type != SpriteType.Overlord:
@@ -2201,212 +2203,6 @@ def add_drop_contents(world, player):
                     world.itempool.append(ItemFactory(item_name, player))
 
 
-def or_rule(*rules):
-    return RuleFactory.disj(rules)
-
-
-def and_rule(*rules):
-    return RuleFactory.conj(rules)
-
-
-def has(item, player, count=1):
-    return RuleFactory.item(item, player, count)
-
-
-def has_sword(player):
-    return or_rule(
-        has('Fighter Sword', player), has('Master Sword', player),
-        has('Tempered Sword', player), has('Golden Sword', player)
-    )
-
-
-def can_extend_magic(world, player, magic, flag_t=False):
-    potion_shops = (find_shops_that_sell('Blue Potion', world, player) |
-                    find_shops_that_sell('Green Potion', world, player))
-    return RuleFactory.extend_magic(player, magic, world.difficulty_adjustments[player], potion_shops, flag_t)
-
-
-# class 0 damage (subtypes 1 and 2)
-def has_boomerang(player):
-    return or_rule(has('Blue Boomerang', player), has('Red_Boomerang', player))
-
-
-class_1_damage = {1: 2, 2: 64, 3: 4}  # somaria, byrna
-arrow_damage = {0: 0, 1: 2, 2: 64, 3: 16}  # normal arrows (0 is for when silvers work, but wooden do not)
-silver_damage = {1: 100, 2: 24, 3: 100}  # silvers
-bomb_damage = {1: 4, 2: 64, 6: 32}  # bombs
-ice_rod_damage = {1: 8, 2: 64, 4: 4}  # ice rod
-fire_rod_damage = {1: 8, 2: 64, 4: 4, 5: 16}  # fire rod
-
-
-# assumes 8 hits per magic bar - a little generous
-def can_byrna_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage)
-    if magic_needed > 8:
-        return and_rule(has('Cane of Byrna', player), can_extend_magic(world, player, magic_needed))
-    else:
-        return has('Cane of Byrna', player)
-
-
-# assumes 64 hits per somaria magic bar (max is like 80)
-def can_somaria_kill(world, player, damage, health):
-    magic_needed = hits = math.ceil(health / (damage * 64))
-    if magic_needed > 8:
-        return and_rule(has('Cane of Somaria', player), can_extend_magic(world, player, magic_needed))
-    else:
-        return has('Cane of Somaria', player)
-
-
-# assume hitting 8 of 10 bombs?
-def can_bombs_kill(world, player, damage, health):
-    bombs_needed = math.ceil(health / damage)
-    if bombs_needed > 8:
-        return RuleFactory.static_rule(False)
-    return can_use_bombs(world, player)
-
-
-# assume all 8 hit
-def can_ice_rod_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage)
-    if magic_needed > 8:
-        return and_rule(has('Ice Rod', player), can_extend_magic(world, player, magic_needed))
-    else:
-        return has('Ice Rod', player)
-
-
-# assume all 8 hit
-def can_fire_rod_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage)
-    if magic_needed > 8:
-        return and_rule(has('Fire Rod', player), can_extend_magic(world, player, magic_needed))
-    else:
-        return has('Fire Rod', player)
-
-
-# 20/30 arrows hit
-def can_bow_kill(world, player, damage, silver_damage, health):
-    wood_arrows_needed = math.ceil(health / damage) if damage != 0 else 999
-    if wood_arrows_needed > 20:
-        silvers_arrows_needed = math.ceil(health / silver_damage)
-        if silvers_arrows_needed > 20:
-            return RuleFactory.static_rule(False)
-        return and_rule(can_shoot_arrows(world, player), has('Silver Arrows', player))
-    return can_shoot_arrows(world, player)
-
-
-def can_quake_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage) * 2
-    if magic_needed > 8:
-        return and_rule(has('Quake', player), has_sword(player), can_extend_magic(world, player, magic_needed))
-    else:
-        return and_rule(has('Quake', player), has_sword(player))
-
-
-def can_ether_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage) * 2
-    if magic_needed > 8:
-        return and_rule(has('Ether', player), has_sword(player), can_extend_magic(world, player, magic_needed))
-    else:
-        return and_rule(has('Ether', player), has_sword(player))
-
-
-def can_bombos_kill(world, player, damage, health):
-    magic_needed = math.ceil(health / damage) * 2
-    if magic_needed > 8:
-        return and_rule(has('Bombos', player), has_sword(player), can_extend_magic(world, player, magic_needed))
-    else:
-        return and_rule(has('Bombos', player), has_sword(player))
-
-
-# main enemy types
-def defeat_rule(world, player, health, class1=1,
-                arrow: typing.Optional[int] = 1, silver=1,
-                bomb: typing.Optional[int] = 1,
-                fire: typing.Union[str, int, None] = 'Burn',
-                ice=None, hook=False, boomerang=False):
-    rules = [has_blunt_weapon(player),
-             can_somaria_kill(world, player, class_1_damage[class1], health),
-             can_byrna_kill(world, player, class_1_damage[class1], health)]
-    if arrow is not None:
-        rules.append(can_bow_kill(world, player, arrow_damage[arrow], silver_damage[silver], health))
-    if bomb is not None:
-        rules.append(can_bombs_kill(world, player, bomb_damage[bomb], health))
-    if hook:
-        rules.append(has('Hookshot', player))
-    if fire is not None:
-        if fire == 'Burn':
-            rules.append(has('Fire Rod', player))
-        else:
-            rules.append(can_fire_rod_kill(world, player, fire_rod_damage[fire], health))
-    if ice is not None:
-        rules.append(can_ice_rod_kill(world, player, ice_rod_damage[ice], health))
-    if boomerang:
-        rules.append(has_boomerang(player))
-    return or_rule(*rules)
-
-
-def has_blunt_weapon(player):
-    return or_rule(has_sword(player), has('Hammer', player))
-
-
-def find_shops_that_sell(item, world, player):
-    return {shop.region for shop in world.shops[player] if shop.has_unlimited(item) and shop.region.player == player}
-
-
-def can_shoot_arrows(world, player):
-    if world.bow_mode[player].startswith('retro'):
-        # todo: Non-progressive silvers grant wooden arrows, but progressive bows do not.
-        # Always require shop arrows to be safe
-        shops = find_shops_that_sell('Single Arrow', world, player)
-        # retro+shopsanity, shops may not sell the Single Arrow
-        return and_rule(has('Bow', player), or_rule(RuleFactory.unlimited('Single Arrow', player, shops),
-                                                    has('Single Arrow', player)))
-    return has('Bow', player)
-
-
-def can_use_bombs(world, player):
-    return or_rule(RuleFactory.static_rule(not world.bombbag[player]), has('Bomb Upgrade (+10)', player))
-
-
-special_rules_check = {
-    'Swamp Waterway': None,
-    'Hera Back': [5, 6],
-    'GT Petting Zoo': [1, 4, 5, 7],
-    'Mimic Cave': [3, 4],
-    'Ice Hookshot Ledge': None,
-    'TR Hub Ledges': [3, 4, 5, 6, 7],
-    'Old Man Cave': None,
-    'Old Man House Back': [4, 5, 6],
-    'Death Mountain Return Cave (left)': None,
-    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7]
-
-}
-
-
-def special_rules_for_region(world, player, region_name, location, original_rule, enemy):
-    if region_name == 'Swamp Waterway':
-        stats = world.data_tables[player].enemy_stats[enemy.kind]
-        return or_rule(can_quake_kill(world, player, 64, stats.health), can_ether_kill(world, player, 16, stats.health),
-                       can_bombos_kill(world, player, 64, stats.health))
-    elif region_name in ['Hera Back', 'GT Petting Zoo', 'Mimic Cave']:
-        enemy_number = int(location.name.split('#')[1])
-        if enemy_number in special_rules_check[region_name]:
-            return and_rule(original_rule, has_boomerang(player))
-        else:
-            return original_rule
-    elif region_name == 'Ice Hookshot Ledge':  # enemizer has these hardcoded to red baris for now
-        return and_rule(or_rule(has('Fire Rod', player), and_rule(has_sword(player), has('Bombos', player))),
-                        or_rule(has_boomerang(player), has('Hookshot', player)))
-    elif region_name in ['TR Hub Ledges', 'Old Man Cave', 'Old Man House Back',
-                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)']:
-        enemy_number = int(location.name.split('#')[1])
-        if special_rules_check[region_name] is None or enemy_number in special_rules_check[region_name]:
-            return and_rule(original_rule, or_rule(has_boomerang(player), has('Hookshot', player)))
-        else:
-            return original_rule
-    return original_rule
-
-
 enemy_names = {
     0x00: 'Raven',
     0x01: 'Vulture',
@@ -2453,6 +2249,7 @@ enemy_names = {
     0x2e: 'FluteKid',
     0x2f: 'RaceGameLady',
 
+    0x30: 'RaceGameGuy',
     0x31: 'FortuneTeller',
     0x32: 'ArgueBros',
     0x33: 'RupeePull',
@@ -2524,6 +2321,7 @@ enemy_names = {
     0x75: 'BottleMerchant',
     0x76: 'Zelda',
     0x78: 'Grandma',
+    0x79: 'Bee',
     0x7a: 'Agahnim',
     0x7c: 'FloatingSkull',
     0x7d: 'BigSpike',
@@ -2535,7 +2333,7 @@ enemy_names = {
     0x83: 'GreenEyegoreMimic',
     0x84: 'RedEyegoreMimic',
     0x85: 'YellowStalfos',  # falling stalfos that shoots head
-    0x86: 'Kondongo',
+    0x86: 'Kodongo',
     0x88: 'Mothula',
     0x8a: 'SpikeBlock',
     0x8b: 'Gibdo',
@@ -2572,6 +2370,7 @@ enemy_names = {
     0xaa: 'Pikit',
     0xab: 'CrystalMaiden',
     # ... OW
+    0xac: 'Apple',
     0xad: 'OldMan',
     0xae: 'PipeDown',
     0xaf: 'PipeUp',
@@ -2610,15 +2409,141 @@ enemy_names = {
     0xd1: 'BunnyBeam',
     0xd2: 'FloppingFish',
     0xd3: 'Stal',  # alive skull rock?
+    0xd4: 'Landmine',
     0xd5: 'DiggingGameNPC',
     0xd6: 'Ganon',
+    0xd8: 'SmallHeart',
+    0xda: 'BlueRupee',
+    0xdb: 'RedRupee',
+    0xdc: 'BombRefill1',
+    0xdd: 'BombRefill4',
+    0xde: 'BombRefill8',
 
+    0xe0: 'LargeMagic',
     0xe3: 'Faerie',
     0xe4: 'SmallKey',
+    0xe7: 'Mushroom',
     0xe8: 'FakeMasterSword',
     0xe9: 'MagicShopAssistant',
     0xeb: 'HeartPiece',
     0xed: 'SomariaPlatform',
     0xee: 'CastleMantle',
     0xf2: 'MedallionTablet',
+    0xf3: 'PositionTarget',
+    0xf4: 'Boulders'
+}
+
+overlord_names = {
+    0x01: 'PositionTarget',  0x02: 'FullRoomCannons',  0x03: 'VerticalCanon',
+    0x05: 'FallingStalfos', 0x06: 'SnakeTrap',
+    0x07: 'MovingFloor',  0x08: 'BlobSpawner',  0x09: 'Wallmaster',
+    0x0A: 'FallingSquare',  0x0B: 'FallingBridge',
+    0x10: 'Pirogusu_Left', 0x11: 'Pirogusu_Right', 0x12: 'Pirogusu_Top', 0x13: 'Pirogusu_Bottom',
+    0x14: 'TileRoom',
+    0x15: 'WizzrobeSpawner', 0x16: 'ZoroSpawner',  0x17: 'PotTrap',  0x18: 'InvisibleStalfos',
+    0x19: 'ArmosCoordinator',  0x1A: 'BombTrap',
+}
+
+sprite_translation = {
+    'RollerVerticalDown': EnemySprite.RollerVerticalDown,
+    'RollerVerticalUp': EnemySprite.RollerVerticalUp,
+    'RollerHorizontalRight': EnemySprite.RollerHorizontalRight,
+    'RollerHorizontalLeft': EnemySprite.RollerHorizontalLeft,
+    'AntiFairyCircle': EnemySprite.AntiFairyCircle,
+    'Beamos': EnemySprite.Beamos,
+    'BigSpike': EnemySprite.BigSpike,
+    'SpikeBlock': EnemySprite.SpikeBlock,
+    'Bumper': EnemySprite.Bumper,
+    'Statue': EnemySprite.Statue,
+    'FirebarCW': EnemySprite.FirebarCW,
+    'FirebarCCW': EnemySprite.FirebarCCW,
+    'SparkCW': EnemySprite.SparkCW,
+    'SparkCCW': EnemySprite.SparkCCW,
+    'Kodongo': EnemySprite.Kodongo,
+    'Antifairy': EnemySprite.AntiFairy,
+    'AntiFairy': EnemySprite.AntiFairy,
+    'ArmosStatue': EnemySprite.ArmosStatue,
+    'Babasu': EnemySprite.Babasu,
+    'BallNChain': EnemySprite.BallNChain,
+    'Blob': EnemySprite.Blob,
+    'BlueArcher': EnemySprite.BlueArcher,
+    'BlueBari': EnemySprite.BlueBari,
+    'BlueGuard': EnemySprite.BlueGuard,
+    'BluesainBolt': EnemySprite.BluesainBolt,
+    'BlueZazak': EnemySprite.BlueZazak,
+    'BlueZirro': EnemySprite.BlueZirro,
+    'BombGuard': EnemySprite.BombGuard,
+    'BunnyBeam': EnemySprite.BunnyBeam,
+    'Buzzblob': EnemySprite.Buzzblob,
+    'CannonTrooper': EnemySprite.CannonTrooper,
+    'Chainchomp': EnemySprite.Chainchomp,
+    'Crab': EnemySprite.Crab,
+    'CricketRat': EnemySprite.CricketRat,
+    'Cucco': EnemySprite.Cucco,
+    'Deadrock': EnemySprite.Deadrock,
+    'Debirando': EnemySprite.Debirando,
+    'DebirandoPit': EnemySprite.DebirandoPit,
+    'FakeMasterSword': EnemySprite.FakeMasterSword,
+    'FireballZora': EnemySprite.FireballZora,
+    'Firesnake': EnemySprite.Firesnake,
+    'FloatingSkull': EnemySprite.FloatingSkull,
+    'FloppingFish': EnemySprite.FloppingFish,
+    'FourWayShooter': EnemySprite.FourWayShooter,
+    'Freezor': EnemySprite.Freezor,
+    'Geldman': EnemySprite.Geldman,
+    'Gibdo': EnemySprite.Gibdo,
+    'Gibo': EnemySprite.Gibo,
+    'GreenBushGuard': EnemySprite.GreenBushGuard,
+    'GreenEyegoreMimic': EnemySprite.GreenEyegoreMimic,
+    'GreenGuard': EnemySprite.GreenGuard,
+    'GreenKnifeGuard': EnemySprite.GreenKnifeGuard,
+    'GreenZirro': EnemySprite.GreenZirro,
+    'HardhatBeetle': EnemySprite.HardhatBeetle,
+    'Hinox': EnemySprite.Hinox,
+    'Hoarder': EnemySprite.Hoarder,
+    'Hoarder2': EnemySprite.Hoarder2,
+    'Hover': EnemySprite.Hover,
+    'Keese': EnemySprite.Keese,
+    'Kyameron': EnemySprite.Kyameron,
+    'Landmine': EnemySprite.Landmine,
+    'Leever': EnemySprite.Leever,
+    'Lynel': EnemySprite.Lynel,
+    'Medusa': EnemySprite.Medusa,
+    'MiniHelmasaur': EnemySprite.MiniHelmasaur,
+    'MiniMoldorm': EnemySprite.MiniMoldorm,
+    'Moblin': EnemySprite.Moblin,
+    'Octoballoon': EnemySprite.Octoballoon,
+    'Octorok': EnemySprite.Octorok,
+    'Octorok4Way': EnemySprite.Octorok4Way,
+    'Pengator': EnemySprite.Pengator,
+    'Pikit': EnemySprite.Pikit,
+    'Poe': EnemySprite.Poe,
+    'Pokey': EnemySprite.Pokey,
+    'Popo': EnemySprite.Popo,
+    'Popo2': EnemySprite.Popo2,
+    'Raven': EnemySprite.Raven,
+    'RedBari': EnemySprite.RedBari,
+    'RedBushGuard': EnemySprite.RedBushGuard,
+    'RedEyegoreMimic': EnemySprite.RedEyegoreMimic,
+    'RedJavelinGuard': EnemySprite.RedJavelinGuard,
+    'RedSpearGuard': EnemySprite.RedSpearGuard,
+    'RedZazak': EnemySprite.RedZazak,
+    'Ropa': EnemySprite.Ropa,
+    'Sluggula': EnemySprite.Sluggula,
+    'Snake': EnemySprite.Snake,
+    'Snapdragon': EnemySprite.Snapdragon,
+    'Stal': EnemySprite.Stal,
+    'Stalfos': EnemySprite.Stalfos,
+    'StalfosKnight': EnemySprite.StalfosKnight,
+    'Swamola': EnemySprite.Swamola,
+    'Tektite': EnemySprite.Tektite,
+    'Terrorpin': EnemySprite.Terrorpin,
+    'Thief': EnemySprite.Thief,
+    'Toppo': EnemySprite.Toppo,
+    'UsainBolt': EnemySprite.UsainBolt,
+    'Vulture': EnemySprite.Vulture,
+    'Wallmaster': EnemySprite.Wallmaster,
+    'Wizzrobe': EnemySprite.Wizzrobe,
+    'Zora': EnemySprite.Zora,
+    'Zoro': EnemySprite.Zoro,
 }

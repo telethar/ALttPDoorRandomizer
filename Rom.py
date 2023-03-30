@@ -39,7 +39,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '09685acbd19f0f8a9061c1ead16747d2'
+RANDOMIZERBASEHASH = 'dbb03d2c4e0cd59b3ce36a110a57fe55'
 
 
 class JsonRom(object):
@@ -1550,6 +1550,9 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         rom.write_byte(0xFED31, 0x0E)  # preopen bombable exit
         rom.write_byte(0xFEE41, 0x0E)  # preopen bombable exit
 
+    if world.boss_shuffle[player] != 'none' or world.doorShuffle[player] != 'vanilla':
+        rom.write_byte(snes_to_pc(0x30835A), 1)  # fix Prize On The Eyes
+
     if world.boss_shuffle[player] != 'none':
         boss_writes(world, player, rom)
     write_enemy_shuffle_settings(world, player, rom)
@@ -1566,7 +1569,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     if world.data_tables[player]:
         colorize_pots = (world.pottery[player] != 'vanilla', 'lottery'
                          and (world.colorizepots[player] or world.pottery[player] in ['reduced', 'clustered']))
-        world.data_tables[player].write_to_rom(rom, colorize_pots)
+        world.data_tables[player].write_to_rom(rom, colorize_pots, world.enemy_shuffle[player] == 'random')
 
     write_enemizer_tweaks(rom, world, player)
     write_strings(rom, world, player, team)
@@ -1662,6 +1665,7 @@ def write_enemizer_tweaks(rom, world, player):
     if world.enemy_shuffle[player] != 'none':
         rom.write_byte(snes_to_pc(0x1DF6D8), 0)  # lets enemies walk on water instead of clipping into infinity?
         rom.write_byte(snes_to_pc(0x0DB6B3), 0x82)  # hovers don't need water necessarily?
+
 
 def hud_format_text(text):
     output = bytes()

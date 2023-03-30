@@ -165,14 +165,12 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Moldorm).exalt().sub_group(2, 0x30),
         SpriteRequirement(EnemySprite.Octorok4Way).sub_group(2, 0xc),
         SpriteRequirement(EnemySprite.Cucco).immune().sub_group(3, [0x15, 0x50]).exclude(NoFlyingRooms),
-        # todo: Buzzblob kill rule for mimics
         SpriteRequirement(EnemySprite.Buzzblob).sub_group(3, 0x11),
         SpriteRequirement(EnemySprite.Snapdragon).sub_group(0, 0x16).sub_group(2, 0x17),
         SpriteRequirement(EnemySprite.Octoballoon).no_drop().sub_group(2, 0xc).exclude(NoFlyingRooms),
         SpriteRequirement(EnemySprite.Hinox).sub_group(0, 0x16),
         SpriteRequirement(EnemySprite.Moblin).sub_group(2, 0x17),
         SpriteRequirement(EnemySprite.MiniHelmasaur).sub_group(1, 0x1e),
-        # todo: antifairy kill rule
         SpriteRequirement(EnemySprite.AntiFairy).no_drop().sub_group(3, [0x52, 0x53])
         .exclude(NoFlyingRooms).exclude({0x40}),  # no anti-fairies in aga tower bridge room
         SpriteRequirement(EnemySprite.Wiseman).affix().sub_group(2, 0x4c),
@@ -180,7 +178,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.MiniMoldorm).sub_group(1, 0x1e),
         SpriteRequirement(EnemySprite.Poe).no_drop().sub_group(3, 0x15).exclude(NoFlyingRooms),
         SpriteRequirement(EnemySprite.Smithy).affix().sub_group(1, 0x1d).sub_group(3, 0x15),
-        SpriteRequirement(EnemySprite.Statue).affix().sub_group(3, [0x52, 0x53]),
+        SpriteRequirement(EnemySprite.Statue).stasis().immune().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.CrystalSwitch).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.SickKid).affix().sub_group(0, 0x51),
         SpriteRequirement(EnemySprite.Sluggula).sub_group(2, 0x25),
@@ -188,10 +186,8 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Ropa).sub_group(0, 0x16),
         SpriteRequirement(EnemySprite.RedBari).no_drop().sub_group(0, 0x1f),
         SpriteRequirement(EnemySprite.BlueBari).sub_group(0, 0x1f),
-        # todo: don't randomize red/blue bari in room 0x7F
         SpriteRequirement(EnemySprite.TalkingTree).affix().sub_group(0, 0x15),
         SpriteRequirement(EnemySprite.HardhatBeetle).sub_group(1, 0x1e),
-        # todo: deadrock kill rule for mimics (not sure why ice spike room...)
         SpriteRequirement(EnemySprite.Deadrock).sub_group(3, 0x10).exclude({0x7f, 0x10c}),
         SpriteRequirement(EnemySprite.DarkWorldHintNpc).affix(),   # no groups?
         SpriteRequirement(EnemySprite.AdultNpc).affix().sub_group(0, [0xe, 0x4f]),
@@ -233,8 +229,8 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.KingZora).affix().sub_group(3, 0x44),
         SpriteRequirement(EnemySprite.ArmosKnight).exalt().sub_group(3, 0x1d),
         SpriteRequirement(EnemySprite.Lanmolas).exalt().sub_group(3, 0x31),
-        SpriteRequirement(EnemySprite.FireballZora).immerse().uw_skip().sub_group(2, [0xc, 0x18]),
-        SpriteRequirement(EnemySprite.Zora).immerse().no_drop().uw_skip().sub_group(2, 0xc).sub_group(3, 0x44),
+        SpriteRequirement(EnemySprite.FireballZora).immerse().no_drop().sub_group(2, [0xc, 0x18]),  # .uw_skip() test
+        SpriteRequirement(EnemySprite.Zora).no_drop().sub_group(2, 0xc).sub_group(3, 0x44),  # .uw_skip() test
         SpriteRequirement(EnemySprite.DesertStatue).affix().sub_group(2, 0x12),
         SpriteRequirement(EnemySprite.Crab).sub_group(2, 0xc),
         SpriteRequirement(EnemySprite.LostWoodsBird).affix().sub_group(2, 0x37).sub_group(3, 0x36),
@@ -245,11 +241,11 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.RollerVerticalDown).immune().sub_group(2, 0x27).exclude(NoBeamosOrTrapRooms),
         SpriteRequirement(EnemySprite.RollerHorizontalLeft).immune().sub_group(2, 0x27).exclude(NoBeamosOrTrapRooms),
         SpriteRequirement(EnemySprite.RollerHorizontalRight).immune().sub_group(2, 0x27).exclude(NoBeamosOrTrapRooms),
-        SpriteRequirement(EnemySprite.Beamos).immune().sub_group(1, 0x2c).exclude(NoBeamosOrTrapRooms),
+        SpriteRequirement(EnemySprite.Beamos).no_drop().sub_group(1, 0x2c).exclude(NoBeamosOrTrapRooms),
         SpriteRequirement(EnemySprite.MasterSword).affix().sub_group(2, 0x37).sub_group(3, 0x36),
-        # these are excluded for now
-        SpriteRequirement(EnemySprite.DebirandoPit).skip().sub_group(0, 0x2f),
-        SpriteRequirement(EnemySprite.Debirando).skip().sub_group(0, 0x2f),
+
+        SpriteRequirement(EnemySprite.DebirandoPit).sub_group(0, 0x2f),  # skip
+        SpriteRequirement(EnemySprite.Debirando).sub_group(0, 0x2f),     # skip
         SpriteRequirement(EnemySprite.ArcheryNpc).affix().sub_group(0, 0x4b),
         SpriteRequirement(EnemySprite.WallCannonVertLeft).affix().sub_group(0, 0x2f),
         SpriteRequirement(EnemySprite.WallCannonVertRight).affix().sub_group(0, 0x2f),
@@ -270,17 +266,16 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Agahnim).exalt().sub_group(0, 0x55).sub_group(1, [0x1a, 0x3d]).sub_group(2, 0x42)
         .sub_group(3, 0x43),
         SpriteRequirement(EnemySprite.FloatingSkull).no_drop().sub_group(0, 0x1f).exclude(NoFlyingRooms),
+        SpriteRequirement(EnemySprite.BigSpike).sub_group(3, [0x52, 0x53]).no_drop(),
         SpriteRequirement(EnemySprite.FirebarCW).immune().sub_group(0, 0x1f),
         SpriteRequirement(EnemySprite.FirebarCCW).immune().sub_group(0, 0x1f),
-        # todo: don't randomize these in GT Torch Cross and TR Dark Ride? was that ever implemented?
-        SpriteRequirement(EnemySprite.Firesnake).immune().sub_group(0, 0x1f),
-        SpriteRequirement(EnemySprite.Hover).immerse().sub_group(2, 0x22).exclude(NoFlyingRooms),
-        # todo: leave them in swamp palace entrance...
-        SpriteRequirement(EnemySprite.AntiFairyCircle).skip().no_drop().sub_group(3, [0x52, 0x53]),
+        SpriteRequirement(EnemySprite.Firesnake).no_drop().sub_group(0, 0x1f),
+        SpriteRequirement(EnemySprite.Hover).sub_group(2, 0x22),  # .exclude(NoFlyingRooms), might be okay now
+        SpriteRequirement(EnemySprite.AntiFairyCircle).no_drop().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.GreenEyegoreMimic).sub_group(2, 0x2e),
         SpriteRequirement(EnemySprite.RedEyegoreMimic).sub_group(2, 0x2e),
-        # kodongos apparently broken?
-        SpriteRequirement(EnemySprite.Kodongo).skip().sub_group(2, 0x2a),
+
+        SpriteRequirement(EnemySprite.Kodongo).sub_group(2, 0x2a),
         SpriteRequirement(EnemySprite.Mothula).exalt().sub_group(2, 0x38).sub_group(3, 0x52),
         SpriteRequirement(EnemySprite.SpikeBlock).immune().sub_group(3, [0x52, 0x53]).exclude(NoBeamosOrTrapRooms)
         .exclude({0x28}),  # why exclude sp entrance?
@@ -289,19 +284,17 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Arrghi).exalt().sub_group(2, 0x39),
         SpriteRequirement(EnemySprite.Terrorpin).sub_group(2, 0x2a).exclude({0x10c}),  # probably fine in mimic now
         SpriteRequirement(EnemySprite.Blob).sub_group(1, 0x20),
-        # todo: wallmaster overlords
         SpriteRequirement(EnemySprite.Wallmaster).immune().ow_skip().sub_group(2, 0x23)
         .allow(WallmasterValidRooms),
-        SpriteRequirement(EnemySprite.StalfosKnight).sub_group(1, 0x10).exclude({0x10c}),
+        SpriteRequirement(EnemySprite.StalfosKnight).sub_group(1, 0x20).exclude({0x10c}),
         SpriteRequirement(EnemySprite.HelmasaurKing).exalt().sub_group(2, 0x3a).sub_group(3, 0x3e),
-        SpriteRequirement(EnemySprite.Bumper).affix().sub_group(3, [0x52, 0x53]),
+        SpriteRequirement(EnemySprite.Bumper).immune().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeLeft).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeRight).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeTop).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeBottom).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.Pengator).sub_group(2, 0x26),
         SpriteRequirement(EnemySprite.Kyameron).no_drop().immerse().sub_group(2, 0x22),
-        # todo: leave them in swamp palace entrance...
         SpriteRequirement(EnemySprite.Wizzrobe).sub_group(2, [0x25, 0x29]),
         SpriteRequirement(EnemySprite.Zoro).no_drop().sub_group(1, 0x20),
         SpriteRequirement(EnemySprite.Babasu).no_drop().sub_group(1, 0x20),
@@ -351,11 +344,12 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.TrinexxFireHead).exalt().sub_group(0, 0x40).sub_group(3, 0x3f),
         SpriteRequirement(EnemySprite.TrinexxIceHead).exalt().sub_group(0, 0x40).sub_group(3, 0x3f),
         SpriteRequirement(EnemySprite.Blind).exalt().sub_group(1, 0x2c).sub_group(2, 0x3b),
-        SpriteRequirement(EnemySprite.Swamola).immerse().no_drop().sub_group(3, 0x19),
+        SpriteRequirement(EnemySprite.Swamola).no_drop().sub_group(3, 0x19),
         SpriteRequirement(EnemySprite.Lynel).sub_group(3, 0x14),
-        SpriteRequirement(EnemySprite.BunnyBeam).affix(),
+        SpriteRequirement(EnemySprite.BunnyBeam).no_drop().ow_skip(),
         SpriteRequirement(EnemySprite.FloppingFish).uw_skip().immune(),
-        SpriteRequirement(EnemySprite.Stal).skip(),
+        SpriteRequirement(EnemySprite.Stal),
+        SpriteRequirement(EnemySprite.Landmine).skip(),
         SpriteRequirement(EnemySprite.DiggingGameNPC).affix().sub_group(1, 0x2a),
         SpriteRequirement(EnemySprite.Ganon).exalt().sub_group(0, 0x21).sub_group(1, 0x41)
         .sub_group(2, 0x45).sub_group(3, 0x33),
@@ -366,7 +360,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.CastleMantle).affix().sub_group(0, 0x5d),
         SpriteRequirement(EnemySprite.MedallionTablet).affix().sub_group(2, 0x12),
 
-        # todo: overlord requirements
+        # overlord requirements - encapsulated mostly in the required sheets
         SpriteRequirement(2, 7).affix().sub_group(2, 46),
         SpriteRequirement(3, 7).affix().sub_group(2, 46),
         SpriteRequirement(5, 7).affix().sub_group(0, 31),
@@ -399,7 +393,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Shopkeeper).affix().sub_group(0, 14).sub_group(2, 74).sub_group(3, 90)
         .allow({0x123, 0x124}),
         SpriteRequirement(EnemySprite.Shopkeeper).affix().sub_group(0, 14).sub_group(2, 74).sub_group(3, 80)
-        .allow({0x125}),
+        .allow({0x125, 0x100}),
         SpriteRequirement(EnemySprite.Shopkeeper).affix().sub_group(0, 21).allow({0x11e}),
     ]
     complex_r = {}
@@ -513,7 +507,7 @@ def init_sprite_sheets(requirements):
     return sheets
 
 
-def setup_required_dungeon_groups(sheets):
+def setup_required_dungeon_groups(sheets, data_tables):
 
     sheets[did(1)].add_sprite_to_sheet([70, 73, 28, 82], {0xe4, 0xf0})  # old man
     # various npcs
@@ -540,53 +534,47 @@ def setup_required_dungeon_groups(sheets):
         ([None, None, None, 80], [0x108]),  # chicken house
         ([14, 30, None, None], [0x123]),  # mini moldorm (shutter door)
         ([None, None, 34, None], [0x36, 0x46, 0x66, 0x76]),  # pirogusu spawners
-        ([None, 32, None, None], [0x3e, 0x9f]),  # babasu spawners
+        ([None, 32, None, None], [0x9f]),  # babasu spawners
         ([31, None, None, None], [0x7f]),  # force baris
-        ([None, None, 35, None], [0x39, 0x49, 0x56, 0x57, 0x68, 0x8d]),  # wallmasters
+        ([None, None, 35, None], [0x39, 0x49, 0x8d]),  # wallmasters
         # bumpers - why the split - because of other requirements -
-        ([None, None, None, (82, 83)], [0x17, 0x2a, 0x4c, 0x59, 0x67, 0x68, 0x7e, 0x8b, 0xeb, 0xfb]),
+        ([None, None, None, (82, 83)], [0x17, 0x2a, 0x4c, 0x59, 0x67, 0x7e, 0x8b, 0xeb, 0xfb]),
         # crystal switches - split for some reason
-        ([None, None, None, (82, 83)], [0xb, 0x13, 0x1b, 0x1e, 0x2a, 0x2b, 0x31, 0x3e, 0x5b, 0x6b, 0x77, 0xb7, 0x8b, 0x91, 0x92, 0x9b, 0x9d, 0xa1, 0xab, 0xb6, 0xbf, 0xc1, 0xc4, 0xef]),
+        ([None, None, None, (82, 83)], [0xb, 0x13, 0x1b, 0x1e, 0x2a, 0x2b, 0x31, 0x5b, 0x6b, 0x77, 0x8b,
+                                        0x91, 0x92, 0x9b, 0x9d, 0xa1, 0xab, 0xb6, 0xbf, 0xc1, 0xc4, 0xef]),
         # laser eyes - split for some reason
         ([None, None, None, (82, 83)], [0x13, 0x23, 0x96, 0xa5, 0xc5, 0xd5]),
         # statues - split for some reason
-        ([None, None, None, (82, 83)], [0x26, 0x2b, 0x40, 0x4a, 0x57, 0x6b, 0x7b]),
+        ([None, None, None, (82, 83)], [0x26, 0x2b, 0x40, 0x4a, 0x6b, 0x7b]),
 
         # non-optional
-        ([None, None, None, 82], [0x2, 0x58, 0x64, 0x8c, 0x10b]), # pull switches
-        ([None, None, None, 82], [0x1a, 0x3d, 0x44, 0x56, 0x5e, 0x7c, 0x95, 0xc3]),  # collapsing bridges
+        ([None, None, None, 82], [0x2, 0x58, 0x64, 0x8c, 0x10b]),  # pull switches
+        ([None, None, None, 82], [0x1a, 0x3d, 0x44, 0x5e, 0x7c, 0x95, 0xc3]),  # collapsing bridges
         ([None, None, None, 83], [0x4, 0x3f, 0xce]),  # pull tongue
         ([None, None, None, 83], [0x35, 0x37, 0x76]),  # swamp drains
         ([None, None, 34, None], [0x28]),  # tektike forced? - spawn chest
         ([None, None, 37, None], [0x97]),  # wizzrobe spawner - in middle of room...
+
+        # combined
+        ([None, 32, None, (82, 83)], [0x3e]),  # babasu spawners + crystal switch
+        ([None, None, 35, 82], [0x56]),  # wallmaster + collasping bridge
+        ([None, None, 35, (82, 83)], [0x57, 0x68]),  # wallmaster + statue and wallmaster + bumpers
+        ([None, None, 34, 83], [0x76]),  # swamp drain + pirogusu spawners
+
+        # allow some sprites / increase odds:
+        ([72, 73, None, None], []),  # allow for blue archer + greenbush
+        ([None, 73, 19, None], []),  # allow for green knife guard
+        ([None, None, 12, 68], []),  # increase odds for zora
+        ([22, None, 23, None], []),  # increase odds for snapdragon
     ]
 
+    data_tables.room_requirements = {}
     # find home for the free_sheet_reqs
     for pair in free_sheet_reqs:
         groups, room_list = pair
-        possible_sheets = []
-        found_match = False
-        for num in range(65, 124):
-            sheet = sheets[num]
-            valid = True
-            match = True
-            for idx, value in enumerate(groups):
-                if value is not None and sheet.locked[idx]:
-                    valid = False
-                    if (sheet.sub_groups[idx] not in value if isinstance(value, tuple)
-                       else value != sheet.sub_groups[idx]):
-                        match = False
-                elif value is not None:
-                    match = False
-            if match:
-                found_match = True
-                break
-            if valid:
-                possible_sheets.append(sheet)
-        if not found_match:
-            chosen_sheet = random.choice(possible_sheets)
-            chosen_groups = [(random.choice(g) if isinstance(g, tuple) else g) for g in groups]
-            chosen_sheet.add_sprite_to_sheet(chosen_groups, room_list)
+        for room in room_list:
+            data_tables.room_requirements[room] = groups
+        find_matching_sheet(groups, sheets, range(65, 124), room_list)
 
 
 # RandomizeRooms(optionFlags);
@@ -594,15 +582,15 @@ def setup_required_dungeon_groups(sheets):
     # roomCollection.RandomizeRoomSpriteGroups(spriteGroupCollection, optionFlags);
     # more stuff
 sub_group_choices = {
-    0: [22, 31, 47, 14],  # 70, 72 for guards
+    0: [22, 31, 47, 14, 72, 70],  # 70, 72 for guards  #72 specifically for BlueArcher/GreenBush
     1: [44, 30, 32],  # 73, 13
-    2: [12, 18, 23, 24, 28, 46, 34, 35, 39, 40, 38, 41, 36, 37, 42],
-    3: [17, 16, 27, 20, 82, 83]
+    2: [12, 18, 23, 24, 28, 46, 34, 35, 39, 40, 38, 41, 36, 37, 42, 19],  # 19 for GreenKnifeGuard
+    3: [17, 16, 27, 20, 82, 83, 25, 68]  # 25 for Swamola, 68 for Zora (walking?)
 }
 
 
-def randomize_underworld_sprite_sheets(sheets):
-    setup_required_dungeon_groups(sheets)
+def randomize_underworld_sprite_sheets(sheets, data_tables):
+    setup_required_dungeon_groups(sheets, data_tables)
 
     for num in range(65, 124):  # sheets 0x41 to 0x7B inclusive
         sheet = sheets[num]
@@ -624,7 +612,7 @@ def setup_required_overworld_groups(sheets):
     sheets[1].add_sprite_to_sheet([None, None, 76, 63], {0x1B, 0xAB})  # Hyrule Castle (pre/post-Aga)
     sheets[6].add_sprite_to_sheet([None, None, None, None], {0x22, 0x28, 0xB2, 0xB8})  # Smithy/Race (pre/post-Aga)
     sheets[8].add_sprite_to_sheet([None, None, 18, None], {0x30, 0xC0})  # Desert (pre/post-Aga)
-    sheets[10].add_sprite_to_sheet([None, None, None, None], {0x3A, 0xCA})  # M-rock (pre/post-Aga)
+    sheets[10].add_sprite_to_sheet([None, None, None, 17], {0x3A, 0xCA})  # M-rock (pre/post-Aga)
     sheets[22].add_sprite_to_sheet([None, None, 24, None], {0x4F, 0xDF})  # Catfish (pre/post-Aga)
     sheets[21].add_sprite_to_sheet([21, None, None, 21], {0x62, 0xF2})  # Smith DW (pre/post-Aga)
     sheets[27].add_sprite_to_sheet([None, 42, None, None], {0x68, 0xF8})  # Dig Game (pre/post-Aga)
@@ -637,12 +625,50 @@ def setup_required_overworld_groups(sheets):
     sheets[26].add_sprite_to_sheet([15, None, None, None], {0x92})  # Lumberjacks post-Aga
     sheets[23].add_sprite_to_sheet([None, None, None, 25], {0x5E, 0xEE})  # PoD pre/post-Aga
 
+    free_sheet_reqs = [
+        [72, 73, None, None],  # allow for blue archer + green bush
+        [None, 73, 19, None],  # allow for green knife guard
+        [22, None, 23, None],  # increase odds for snapdragon
+        [70, 73, None, None],  # guards group (ballnchain, redbush, redjav, cannon, bomb, bluesain
+    ]
+
+    for group in free_sheet_reqs:
+        find_matching_sheet(group, sheets, range(1, 64))
+
+
+def find_matching_sheet(groups, sheets, search_sheets, room_list=None):
+    possible_sheets = []
+    found_match = False
+    for num in search_sheets:
+        sheet = sheets[num]
+        valid = True
+        match = True
+        for idx, value in enumerate(groups):
+            if value is not None and sheet.locked[idx]:
+                valid = False
+                if (sheet.sub_groups[idx] not in value if isinstance(value, tuple)
+                   else value != sheet.sub_groups[idx]):
+                    match = False
+            elif value is not None:
+                match = False
+        if match:
+            found_match = True
+            break
+        if valid:
+            possible_sheets.append(sheet)
+    if not found_match:
+        chosen_sheet = random.choice(possible_sheets)
+        chosen_groups = [(random.choice(g) if isinstance(g, tuple) else g) for g in groups]
+        chosen_sheet.add_sprite_to_sheet(chosen_groups, room_list)
+
 
 def randomize_overworld_sprite_sheets(sheets):
     setup_required_overworld_groups(sheets)
 
     for num in range(1, 64):  # sheets 0x1 to 0x3F inclusive
         sheet = sheets[num]
+        if num == 6:  # skip this group, would like to know why though
+            continue
         for idx in range(0, 4):
             if not sheet.locked[idx]:
                 sheet.sub_groups[idx] = random.choice(sub_group_choices[idx])

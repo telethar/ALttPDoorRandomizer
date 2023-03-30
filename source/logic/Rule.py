@@ -104,6 +104,8 @@ class RuleFactory(object):
         rule = Rule(RuleType.Conjunction)
         rule_lambda = None
         for r in rules:
+            if r is None:
+                continue
             if r.rule_type == RuleType.Conjunction:
                 rule.sub_rules.extend(r.sub_rules)  # todo: this extension for the lambda calc
             elif r.rule_type == RuleType.Static and r.principal:  # remove static flag if unnecessary
@@ -126,6 +128,8 @@ class RuleFactory(object):
         rule = Rule(RuleType.Disjunction)
         rule_lambda = None
         for r in rules:
+            if r is None:
+                continue
             if r.rule_type == RuleType.Disjunction:
                 rule.sub_rules.extend(r.sub_rules)   # todo: this extension for the lambda calc
             elif r.rule_type == RuleType.Static and not r.principal:  # remove static flag if unnecessary

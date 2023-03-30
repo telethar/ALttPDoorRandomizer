@@ -17,7 +17,7 @@ from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_world_regions, create_dungeon_regions, adjust_locations
 from InvertedRegions import create_inverted_regions, mark_dark_world_regions
 from EntranceShuffle import link_entrances, link_inverted_entrances
-from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
+from Rom import patch_rom, patch_race_rom, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
@@ -33,6 +33,8 @@ from source.item.FillUtil import create_item_pool_config, massage_item_pool, dis
 from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
+from source.enemizer.DamageTables import DamageTable
+from source.enemizer.Enemizer import randomize_enemies
 from source.rom.DataTables import init_data_tables
 
 
@@ -191,7 +193,9 @@ def main(args, seed=None, fish=None):
         create_doors(world, player)
         create_rooms(world, player)
         create_dungeons(world, player)
+        world.damage_table[player] = DamageTable()
         world.data_tables[player] = init_data_tables(world, player)
+        randomize_enemies(world, player)
         adjust_locations(world, player)
         place_bosses(world, player)
 
@@ -378,6 +382,8 @@ def main(args, seed=None, fish=None):
     if args.create_spoiler and not args.jsonout:
         logger.info(world.fish.translate("cli", "cli", "patching.spoiler"))
         world.spoiler.to_file(output_path(f'{outfilebase}_Spoiler.txt'))
+        if args.loglevel == 'debug':
+            world.spoiler.extras(output_path(f'{outfilebase}_Spoiler.txt'))
 
     if not args.skip_playthrough:
         logger.info(world.fish.translate("cli","cli","calc.playthrough"))
@@ -466,6 +472,7 @@ def copy_world(world):
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()
+    ret.damage_table = world.damage_table
     ret.data_tables = world.data_tables  # can be changed...
 
     for player in range(1, world.players + 1):

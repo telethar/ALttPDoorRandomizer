@@ -8,6 +8,11 @@ from collections import defaultdict
 from math import factorial
 import fileinput
 
+import urllib.request
+import urllib.parse
+import yaml
+from pathlib import Path
+
 
 def int16_as_bytes(value):
     value = value & 0xFFFF
@@ -708,6 +713,15 @@ def find_and_replace():
             one, two = data_line.split(' = ')
             number = int(two.strip())
             print(data_line.replace(two, hex(number)))
+
+
+def load_yaml(path_list):
+    path = os.path.join(*path_list)
+    if os.path.exists(Path(path)):
+        with open(path, "r", encoding="utf-8") as f:
+            return yaml.load(f, Loader=yaml.SafeLoader)
+    elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
+        return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
 
 
 if __name__ == '__main__':

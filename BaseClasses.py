@@ -90,6 +90,7 @@ class World(object):
         self.sanc_portal = {}
         self.fish = BabelFish()
         self.data_tables = {}
+        self.damage_table = {}
 
         for player in range(1, players + 1):
             def set_player_attr(attr, val):
@@ -1470,6 +1471,7 @@ class Entrance(object):
         self.recursion_count = 0
         self.vanilla = None
         self.access_rule = lambda state: True
+        self.verbose_rule = None
         self.player = player
         self.door = None
         self.hide_path = False
@@ -2779,6 +2781,22 @@ class Spoiler(object):
                     bossmap = self.bosses[str(player)] if self.world.players > 1 else self.bosses
                     outfile.write(f'\n\nBosses ({self.world.get_player_names(player)}):\n\n')
                     outfile.write('\n'.join([f'{x}: {y}' for x, y in bossmap.items() if y not in ['Agahnim', 'Agahnim 2', 'Ganon']]))
+
+    def extras(self, filename):
+        # todo: conditional on enemy shuffle mode
+        with open(filename, 'a') as outfile:
+            outfile.write('\n\nOverworld Enemies:\n\n')
+            for player in range(1, self.world.players + 1):
+                player_tag = ' '+self.world.get_player_names(player) if self.world.players > 1 else ''
+                for area, sprite_list in self.world.data_tables[player].ow_enemy_table.items():
+                    for idx, sprite in enumerate(sprite_list):
+                        outfile.write(f'{hex(area)} Enemy #{idx+1}{player_tag}: {str(sprite)}\n')
+            outfile.write('\n\nUnderworld Enemies:\n\n')
+            for player in range(1, self.world.players + 1):
+                player_tag = ' '+self.world.get_player_names(player) if self.world.players > 1 else ''
+                for area, sprite_list in self.world.data_tables[player].uw_enemy_table.room_map.items():
+                    for idx, sprite in enumerate(sprite_list):
+                        outfile.write(f'{hex(area)} Enemy #{idx+1}{player_tag}: {str(sprite)}\n')
 
     def playthrough_to_file(self, filename):
         with open(filename, 'a') as outfile:

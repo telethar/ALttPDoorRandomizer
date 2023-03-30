@@ -633,6 +633,7 @@ def set_up_shops(world, player):
         else:
             cap_shop = world.get_region('Capacity Upgrade', player).shop
             cap_shop.inventory[0] = cap_shop.inventory[1]  # remove bomb capacity upgrades in bombbag
+            cap_shop.inventory[1] = None
 
 
 def customize_shops(world, player):
