@@ -272,6 +272,9 @@ class World(object):
                     return portal
             raise RuntimeError('No such portal %s for player %d' % (portal_name, player))
 
+    def is_atgt_swapped(self, player):
+        return self.mode[player] == 'inverted'
+
     def check_for_door(self, doorname, player):
         if isinstance(doorname, Door):
             return doorname
@@ -2894,8 +2897,6 @@ class Pot(object):
         return [self.x, high_byte, item]
 
     def get_region(self, world, player):
-        if world.mode[player] == 'inverted' and self.room == 'Links House':
-            return world.get_region('Inverted Links House', 1)
         return world.get_region(self.room, 1)
 
     def __eq__(self, other):
