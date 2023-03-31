@@ -1191,8 +1191,6 @@ class CollectionState(object):
     def can_flute(self, player):
         if self.world.mode[player] == 'standard' and not self.has('Zelda Delivered', player):
             return False  # can't flute in rain state
-        if any(map(lambda i: i.name in ['Ocarina', 'Ocarina (Activated)'], self.world.precollected_items)):
-            return True
         lw = self.world.get_region('Light World', player)
         return self.has('Ocarina (Activated)', player) or (self.has('Ocarina', player) and lw.can_reach(self)
                                                          and self.is_not_bunny(lw, player))
