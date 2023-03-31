@@ -967,10 +967,7 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
     if world.keyshuffle[player] == 'universal':
         pool.extend(diff.retro)
         if door_shuffle != 'vanilla':  # door shuffle needs more keys for universal keys
-            replace = 'Rupees (20)' if difficulty == 'normal' else 'Rupees (5)'
-            indices = [i for i, x in enumerate(pool) if x == replace]
-            for i in range(0, min(10, len(indices))):
-                pool[indices[i]] = 'Small Key (Universal)'
+            pool.extend(['Small Key (Universal)'] * 5)  # reduce to 5 for now
         if mode == 'standard':
             if door_shuffle == 'vanilla':
                 key_location = random.choice(['Secret Passage', 'Hyrule Castle - Boomerang Chest', 'Hyrule Castle - Map Chest', 'Hyrule Castle - Zelda\'s Chest', 'Sewers - Dark Cross'])
