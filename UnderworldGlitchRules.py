@@ -153,11 +153,18 @@ def underworld_glitches_rules(world, player):
 
     def hera_clip(state):
         return state.can_reach("Hera 4F", "Region", player) and state.can_dash_clip(world.get_region("Hera 4F", player), player)
+    
 
     Rules.add_rule(world.get_entrance("Hera Startile Corner NW", player), lambda state: mire_clip(state) and state.has("Big Key (Misery Mire)", player), combine="or")
     
-    Rules.add_rule(world.get_entrance("Thieves to Desert Clip", player), lambda state: state.can_dash_clip(world.get_region("Thieves Attic", player), player), combine="or")
-    
+    mire_to_hera = world.get_entrance("Mire to Hera Clip", player)
+    mire_to_swamp = world.get_entrance("Hera to Swamp Clip", player)
+    Rules.set_rule(mire_to_hera, mire_clip)
+    Rules.set_rule(mire_to_swamp, lambda state: mire_clip(state) and state.has("Flippers", player))
+
+    # Using the entrances for various ER types. Hera -> Swamp never matters because you can only logically traverse with the mire keys
+    dungeon_reentry_rules(world, player, mire_to_hera, "Hera Lobby", "Tower of Hera Exit")
+    dungeon_reentry_rules(world, player, mire_to_swamp, "Swamp Lobby", "Swamp Palace Exit")   
     # We need to set _all_ swamp doors to be openable with mire keys, otherwise the small key can't be behind them - 6 keys because of Pots
     # Flippers required for all of these doors to prevent locks when flooding
     for door in [
@@ -173,7 +180,8 @@ def underworld_glitches_rules(world, player):
         "Swamp Waterway NW",
         "Swamp T SW",
     ]:
-        Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6) and state.has('Flippers', player), combine="or")
+        # Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6) and state.has('Flippers', player), combine="or")
+        Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has('Flippers', player), combine="or")
 
     Rules.add_rule(world.get_location("Trench 1 Switch", player), lambda state: mire_clip(state) or hera_clip(state), combine="or")
 
@@ -205,17 +213,11 @@ def underworld_glitches_rules(world, player):
 
             Rules.add_rule(world.get_entrance("Swamp Lobby Moat", player), lambda state: mirrorless_moat_rule(state), combine="or")
 
-    # Using the entrances for various ER types. Hera -> Swamp never matters because you can only logically traverse with the mire keys
-    mire_to_hera = world.get_entrance("Mire to Hera Clip", player)
-    mire_to_swamp = world.get_entrance("Hera to Swamp Clip", player)
-    Rules.set_rule(mire_to_hera, mire_clip)
-    Rules.set_rule(mire_to_swamp, lambda state: mire_clip(state) and state.has("Flippers", player))
-
-    dungeon_reentry_rules(world, player, mire_to_hera, "Hera Lobby", "Tower of Hera Exit")
-    dungeon_reentry_rules(world, player, mire_to_swamp, "Swamp Lobby", "Swamp Palace Exit")
-    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert West Portal", "Swamp Palace Exit")
-    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert South Portal", "Swamp Palace Exit")
-    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert East Portal", "Swamp Palace Exit")
+    # Thieves -> Hera
+    Rules.add_rule(world.get_entrance("Thieves to Desert Clip", player), lambda state: state.can_dash_clip(world.get_region("Thieves Attic", player), player))
+    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert West Portal", "Desert Palace Exit (West)")
+    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert South Portal", "Desert Palace Exit (South)")
+    dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert East Portal", "Desert Palace Exit (East)")
 
     # Collecting left chests in Paradox Cave using a dash clip -> dash citrus, 1f right, teleport up
     paradox_left_chests = ['Paradox Cave Lower - Far Left', 'Paradox Cave Lower - Left', 'Paradox Cave Lower - Middle']
