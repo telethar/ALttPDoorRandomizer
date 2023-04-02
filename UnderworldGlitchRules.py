@@ -180,8 +180,8 @@ def underworld_glitches_rules(world, player):
         "Swamp Waterway NW",
         "Swamp T SW",
     ]:
-        # Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6) and state.has('Flippers', player), combine="or")
-        Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has('Flippers', player), combine="or")
+        Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has("Small Key (Misery Mire)", player, count=6) and state.has('Flippers', player), combine="or")
+        # Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has('Flippers', player), combine="or")
 
     Rules.add_rule(world.get_location("Trench 1 Switch", player), lambda state: mire_clip(state) or hera_clip(state), combine="or")
 
