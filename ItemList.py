@@ -1256,6 +1256,9 @@ def make_customizer_pool(world, player):
         place_item('Master Sword Pedestal', 'Triforce')
 
     guaranteed_items = alwaysitems + ['Magic Mirror', 'Moon Pearl']
+    if world.flute_mode[player] == 'active':
+        guaranteed_items.remove('Ocarina')
+        guaranteed_items.append('Ocarina (Activated)')
     missing_items = []
     if world.shopsanity[player]:
         guaranteed_items.extend(['Blue Potion', 'Green Potion', 'Red Potion'])
