@@ -446,7 +446,7 @@ def do_links_house(entrances, exits, avail, cross_world):
                 forbidden.extend(['Spike Cave', 'Dark Death Mountain Fairy'])
 
             # lobby shuffle means you ought to keep links house in the same world
-            sanc_spawn_can_be_dark = (not avail.inverted and avail.world.doorShuffle[avail.player] == 'crossed'
+            sanc_spawn_can_be_dark = (not avail.inverted and avail.world.doorShuffle[avail.player] in ['partitioned', 'crossed']
                                       and avail.world.intensity[avail.player] >= 3)
             entrance_pool = entrances if avail.coupled else avail.decoupled_entrances
             if cross_world and not sanc_spawn_can_be_dark:
