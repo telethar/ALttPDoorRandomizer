@@ -462,7 +462,7 @@ def generate_itempool(world, player):
 take_any_locations = [
     'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House', 'Light World Bomb Hut',
     'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Lumberjack House', 'Bonk Fairy (Light)',
-    'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy', 'Swamp Healer Fairy', 'Desert Healer Fairy',
+    'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy', 'Light Hype Fairy', 'Desert Healer Fairy',
     'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Dark Desert Healer Fairy',
     'Dark Death Mountain Healer Fairy', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave',
     'Kakariko Gamble Game', '50 Rupee Cave', 'Lost Woods Gamble', 'Hookshot Fairy',
@@ -470,7 +470,7 @@ take_any_locations = [
     'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Dark Desert Hint']
 
 fixed_take_anys = [
-    'Desert Healer Fairy', 'Swamp Healer Fairy', 'Dark Death Mountain Healer Fairy',
+    'Desert Healer Fairy', 'Light Hype Fairy', 'Dark Death Mountain Healer Fairy',
     'Dark Lake Hylia Ledge Healer Fairy', 'Bonk Fairy (Dark)']
 
 
@@ -809,7 +809,7 @@ def balance_prices(world, player):
 def check_hints(world, player):
     if world.shuffle[player] in ['simple', 'restricted', 'full', 'crossed', 'insanity']:
         for shop, location_list in  shop_to_location_table.items():
-            if shop in ['Capacity Upgrade', 'Light World Death Mountain Shop', 'Potion Shop']:
+            if shop in ['Capacity Upgrade', 'Paradox Shop', 'Potion Shop']:
                 continue  # near the queen, near potions, and near 7 chests are fine
             for loc_name in location_list:  # other shops are indistinguishable in ER
                 world.get_location(loc_name, player).hint_text = f'for sale'
@@ -974,10 +974,7 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
     if world.keyshuffle[player] == 'universal':
         pool.extend(diff.retro)
         if door_shuffle != 'vanilla':  # door shuffle needs more keys for universal keys
-            replace = 'Rupees (20)' if difficulty == 'normal' else 'Rupees (5)'
-            indices = [i for i, x in enumerate(pool) if x == replace]
-            for i in range(0, min(10, len(indices))):
-                pool[indices[i]] = 'Small Key (Universal)'
+            pool.extend(['Small Key (Universal)'] * 5)  # reduce to 5 for now
         if mode == 'standard':
             if door_shuffle == 'vanilla':
                 key_location = random.choice(['Secret Passage', 'Hyrule Castle - Boomerang Chest', 'Hyrule Castle - Map Chest', 'Hyrule Castle - Zelda\'s Chest', 'Sewers - Dark Cross'])
@@ -1266,6 +1263,9 @@ def make_customizer_pool(world, player):
         place_item('Master Sword Pedestal', 'Triforce')
 
     guaranteed_items = alwaysitems + ['Magic Mirror', 'Moon Pearl']
+    if world.flute_mode[player] == 'active':
+        guaranteed_items.remove('Ocarina')
+        guaranteed_items.append('Ocarina (Activated)')
     missing_items = []
     if world.shopsanity[player]:
         guaranteed_items.extend(['Blue Potion', 'Green Potion', 'Red Potion'])

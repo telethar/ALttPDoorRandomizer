@@ -1410,18 +1410,18 @@ def forced_big_key_avail(locations):
     return None
 
 
-def prize_relevance(key_layout, dungeon_entrance):
+def prize_relevance(key_layout, dungeon_entrance, is_atgt_swapped):
     if len(key_layout.start_regions) > 1 and dungeon_entrance and dungeon_table[key_layout.key_logic.dungeon].prize:
-        if dungeon_entrance.name in ['Ganons Tower', 'Inverted Ganons Tower']:
+        if dungeon_entrance.name == ('Agahnims Tower' if is_atgt_swapped else 'Ganons Tower'):
             return 'GT'
         elif dungeon_entrance.name == 'Pyramid Fairy':
             return 'BigBomb'
     return None
 
 
-def prize_relevance_sig2(start_regions, d_name, dungeon_entrance):
+def prize_relevance_sig2(start_regions, d_name, dungeon_entrance, is_atgt_swapped):
     if len(start_regions) > 1 and dungeon_entrance and dungeon_table[d_name].prize:
-        if dungeon_entrance.name in ['Ganons Tower', 'Inverted Ganons Tower']:
+        if dungeon_entrance.name == ('Agahnims Tower' if is_atgt_swapped else 'Ganons Tower'):
             return 'GT'
         elif dungeon_entrance.name == 'Pyramid Fairy':
             return 'BigBomb'
@@ -1437,7 +1437,7 @@ def validate_bk_layout(proposal, builder, start_regions, world, player):
     state.big_key_special = bk_special
     for region in start_regions:
         dungeon_entrance, portal_door = find_outside_connection(region)
-        prize_relevant_flag = prize_relevance_sig2(start_regions, builder.name, dungeon_entrance)
+        prize_relevant_flag = prize_relevance_sig2(start_regions, builder.name, dungeon_entrance, world.is_atgt_swapped(player))
         if prize_relevant_flag:
             state.append_door_to_list(portal_door, state.prize_doors)
             state.prize_door_set[portal_door] = dungeon_entrance
@@ -1468,7 +1468,7 @@ def validate_key_layout(key_layout, world, player):
     state.big_key_special = check_bk_special(key_layout.sector.regions, world, player)
     for region in key_layout.start_regions:
         dungeon_entrance, portal_door = find_outside_connection(region)
-        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance)
+        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance, world.is_atgt_swapped(player))
         if prize_relevant_flag:
             state.append_door_to_list(portal_door, state.prize_doors)
             state.prize_door_set[portal_door] = dungeon_entrance
@@ -1561,13 +1561,18 @@ def validate_key_layout_sub_loop(key_layout, state, checked_states, flat_proposa
 def invalid_self_locking_key(key_layout, state, prev_state, prev_avail, world, player):
     if prev_state is None or state.used_smalls == prev_state.used_smalls:
         return False
-    new_bk_doors = set(state.big_doors).difference(set(prev_state.big_doors))
-    state_copy = state.copy()
-    while len(new_bk_doors) > 0:
-        for door in new_bk_doors:
-            open_a_door(door.door, state_copy, key_layout.flat_prop, world, player)
-        new_bk_doors = set(state_copy.big_doors).difference(set(prev_state.big_doors))
-    expand_key_state(state_copy, key_layout.flat_prop, world, player)
+    if state.found_forced_bk() and not prev_state.found_forced_bk():
+        return False
+    if state.big_key_opened:
+        new_bk_doors = set(state.big_doors).difference(set(prev_state.big_doors))
+        state_copy = state.copy()
+        while len(new_bk_doors) > 0:
+            for door in new_bk_doors:
+                open_a_door(door.door, state_copy, key_layout.flat_prop, world, player)
+            new_bk_doors = set(state_copy.big_doors).difference(set(prev_state.big_doors))
+        expand_key_state(state_copy, key_layout.flat_prop, world, player)
+    else:
+        state_copy = state
     new_locations = set(state_copy.found_locations).difference(set(prev_state.found_locations))
     important_found = False
     for loc in new_locations:
@@ -1600,7 +1605,7 @@ def determine_prize_lock(key_layout, world, player):
     prize_lock_possible = False
     for region in key_layout.start_regions:
         dungeon_entrance, portal_door = find_outside_connection(region)
-        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance)
+        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance, world.is_atgt_swapped(player))
         if prize_relevant_flag:
             state.append_door_to_list(portal_door, state.prize_doors)
             state.prize_door_set[portal_door] = dungeon_entrance
@@ -1677,7 +1682,7 @@ def create_key_counters(key_layout, world, player):
                 state.big_key_special = True
     for region in key_layout.start_regions:
         dungeon_entrance, portal_door = find_outside_connection(region)
-        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance)
+        prize_relevant_flag = prize_relevance(key_layout, dungeon_entrance, world.is_atgt_swapped(player))
         if prize_relevant_flag:
             state.append_door_to_list(portal_door, state.prize_doors)
             state.prize_door_set[portal_door] = dungeon_entrance

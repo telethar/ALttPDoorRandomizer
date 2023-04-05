@@ -137,7 +137,7 @@ def guiMain(args=None):
     self.pages["randomizer"].pages["entrance"] = entrando_page(self.pages["randomizer"].notebook)
     self.pages["randomizer"].notebook.add(self.pages["randomizer"].pages["entrance"], text="Entrances")
 
-    # Dungeon Shuffle
+    # Dungeons
     self.pages["randomizer"].pages["dungeon"] = dungeon_page(self.pages["randomizer"].notebook)
     self.pages["randomizer"].notebook.add(self.pages["randomizer"].pages["dungeon"], text="Dungeons")
 

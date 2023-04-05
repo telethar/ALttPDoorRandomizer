@@ -186,7 +186,7 @@ def parse_settings():
         "restrict_boss_items": "none",
 
         # Shuffle Ganon defaults to TRUE
-        "openpyramid": False,
+        "openpyramid": 'auto',
         "shuffleganon": True,
         "shuffle": "vanilla",
         "shufflelinks": False,

@@ -638,9 +638,10 @@ def sell_potions(world, player):
     for potion in ['Green Potion', 'Blue Potion', 'Red Potion']:
         location = random.choice(filter_locations(ItemFactory(potion, player), locations, world, potion=True))
         locations.remove(location)
-        p_item = next(item for item in world.itempool if item.name == potion and item.player == player)
-        world.push_item(location, p_item, collect=False)
-        world.itempool.remove(p_item)
+        p_item = next((item for item in world.itempool if item.name == potion and item.player == player), None)
+        if p_item:
+            world.push_item(location, p_item, collect=False)
+            world.itempool.remove(p_item)
 
 
 def sell_keys(world, player):

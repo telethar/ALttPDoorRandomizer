@@ -243,8 +243,11 @@
     ]
   },
   "openpyramid": {
-    "action": "store_true",
-    "type": "bool"
+    "choices": [
+      "auto",
+      "yes",
+      "no"
+    ]
   },
   "rom": {},
   "loglevel": {

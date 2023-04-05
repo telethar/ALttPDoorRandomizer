@@ -1,12 +1,8 @@
 {
   "checkboxes": {
-    "retro": { "type": "checkbox" },
-    "bombbag": { "type": "checkbox" },    
-    "shopsanity": { "type": "checkbox" },
-    "hints": {
-      "type": "checkbox"
-    },
-    "pseudoboots": { "type": "checkbox" }
+    "hints": { "type": "checkbox" },
+    "pseudoboots": { "type": "checkbox" },
+    "race": { "type": "checkbox" }
   },
   "leftItemFrame": {
     "worldstate": {
@@ -17,7 +13,10 @@
         "open",
         "inverted",
         "retro"
-      ]
+      ],
+      "config": {
+        "command": "worldstate"
+      }
     },
     "logiclevel": {
       "type": "selectbox",
@@ -63,15 +62,117 @@
         "swordless",
         "vanilla"
       ]
-    },
-    "beemizer": {
-      "type": "selectbox",
-      "options": [
-        "0", "1", "2", "3", "4"
-      ]
     }
   },
   "rightItemFrame": {
+    "sortingalgo": {
+      "type": "selectbox",
+      "default": "balanced",
+      "options": [
+        "balanced",
+        "vanilla_fill",
+        "major_only",
+        "dungeon_only",
+        "district"
+      ]
+    },
+    "accessibility": {
+      "type": "selectbox",
+      "options": [
+        "items",
+        "locations",
+        "none"
+      ]
+    },
+    "restrict_boss_items": {
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "mapcompass",
+        "dungeon"
+      ]
+    },
+    "itemfunction": {
+      "type": "selectbox",
+      "options": [
+        "normal",
+        "hard",
+        "expert"
+      ]
+    },
+    "timer": {
+      "type": "selectbox",
+      "options": [
+        "none",
+        "display",
+        "timed",
+        "timed-ohko",
+        "ohko",
+        "timed-countdown"
+      ]
+    }
+  },
+  "leftPoolHeader": {
+    "shopsanity": {
+      "type": "checkbox"
+    }
+  },
+  "leftPoolFrame": {
+    "pottery": {
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "keys",
+        "cave",
+        "cavekeys",
+        "reduced",
+        "clustered",
+        "nonempty",
+        "dungeon",
+        "lottery"
+      ],
+      "config": {
+        "width": 35
+      }
+    },
+    "colorizepots": {
+      "type": "checkbox",
+      "config": {
+        "padx": [50,0]
+      }
+    },
+    "potshuffle": {
+      "type": "checkbox",
+      "config": {
+        "padx": [50,0]
+      }
+    },
+    "dropshuffle": {
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "keys",
+        "underworld"
+    ]},
+    "keydropshuffle": {
+      "type": "checkbox",
+      "config": {
+        "command": "keydropshuffle"
+      }
+    },
+    "take_any":  {
+      "type": "selectbox",
+      "options": [
+        "none",
+        "random",
+        "fixed"
+      ]
+    }
+  },
+  "rightPoolFrame": {
     "itempool": {
       "type": "selectbox",
       "options": [
@@ -96,44 +197,17 @@
         "retro_silvers"
       ]
     },
-    "timer": {
+    "beemizer": {
       "type": "selectbox",
       "options": [
-        "none",
-        "display",
-        "timed",
-        "timed-ohko",
-        "ohko",
-        "timed-countdown"
+        "0", "1", "2", "3", "4"
       ]
     },
-    "accessibility": {
-      "type": "selectbox",
-      "options": [
-        "items",
-        "locations",
-        "none"
-      ]
-    },
-    "sortingalgo": {
-      "type": "selectbox",
-      "default": "balanced",
-      "options": [
-        "balanced",
-        "vanilla_fill",
-        "major_only",
-        "dungeon_only",
-        "district"
-      ]
-    },
-    "restrict_boss_items": {
-      "type": "selectbox",
-      "default": "none",
-      "options": [
-        "none",
-        "mapcompass",
-        "dungeon"
-      ]
+    "bombbag": {
+      "type": "checkbox",
+      "config": {
+        "padx": [64,0]
+      }
     }
   }
 }

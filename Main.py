@@ -14,10 +14,10 @@ from Items import ItemFactory
 from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
 from PotShuffle import shuffle_pots, shuffle_pot_switches
-from Regions import create_regions, create_shops, mark_light_world_regions, create_dungeon_regions, adjust_locations
-from InvertedRegions import create_inverted_regions, mark_dark_world_regions
-from EntranceShuffle import link_entrances, link_inverted_entrances
-from Rom import patch_rom, patch_race_rom, apply_rom_settings, LocalRom, JsonRom, get_hash_string
+from Regions import create_regions, create_shops, mark_light_dark_world_regions, create_dungeon_regions, adjust_locations
+from OverworldShuffle import create_dynamic_exits
+from EntranceShuffle import link_entrances
+from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
@@ -37,8 +37,9 @@ from source.enemizer.DamageTables import DamageTable
 from source.enemizer.Enemizer import randomize_enemies
 from source.rom.DataTables import init_data_tables
 
-
-__version__ = '1.3.0.0-x'
+version_number = '1.3.0.0'
+version_branch = '-v'
+__version__ = f'{version_number}{version_branch}'
 
 from source.classes.BabelFish import BabelFish
 
@@ -182,10 +183,7 @@ def main(args, seed=None, fish=None):
         world.spoiler.mystery_meta_to_file(output_path(f'{outfilebase}_meta.txt'))
 
     for player in range(1, world.players + 1):
-        if world.mode[player] != 'inverted':
-            create_regions(world, player)
-        else:
-            create_inverted_regions(world, player)
+        create_regions(world, player)
         if world.logic[player] in ('owglitches', 'nologic'):
             create_owg_connections(world, player)
         create_dungeon_regions(world, player)
@@ -220,13 +218,11 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
     for player in range(1, world.players + 1):
+        create_dynamic_exits(world, player)
         if world.experimental[player] or world.shuffle[player] in ['lite', 'lean'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
             link_entrances_new(world, player)
         else:
-            if world.mode[player] != 'inverted':
-                link_entrances(world, player)
-            else:
-                link_inverted_entrances(world, player)
+            link_entrances(world, player)
 
     logger.info(world.fish.translate("cli", "cli", "shuffling.prep"))
     for player in range(1, world.players + 1):
@@ -240,10 +236,7 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         link_doors(world, player)
-        if world.mode[player] != 'inverted':
-            mark_light_world_regions(world, player)
-        else:
-            mark_dark_world_regions(world, player)
+        mark_light_dark_world_regions(world, player)
     if args.print_custom_yaml:
         world.settings.record_doors(world)
     logger.info(world.fish.translate("cli", "cli", "generating.itempool"))
@@ -257,6 +250,8 @@ def main(args, seed=None, fish=None):
         set_rules(world, player)
 
     district_item_pool_config(world)
+    dungeon_tracking(world)
+    fill_specific_items(world)
     for player in range(1, world.players + 1):
         if world.shopsanity[player]:
             sell_potions(world, player)
@@ -268,8 +263,6 @@ def main(args, seed=None, fish=None):
     massage_item_pool(world)
     if args.print_custom_yaml:
         world.settings.record_item_pool(world)
-    dungeon_tracking(world)
-    fill_specific_items(world)
     logger.info(world.fish.translate("cli", "cli", "placing.dungeon.prizes"))
 
     fill_prizes(world)
@@ -476,10 +469,8 @@ def copy_world(world):
     ret.data_tables = world.data_tables  # can be changed...
 
     for player in range(1, world.players + 1):
-        if world.mode[player] != 'inverted':
-            create_regions(ret, player)
-        else:
-            create_inverted_regions(ret, player)
+        create_regions(ret, player)
+        create_dynamic_exits(ret, player)
         create_dungeon_regions(ret, player)
         create_shops(ret, player)
         create_rooms(ret, player)
@@ -713,10 +704,7 @@ def create_playthrough(world):
         old_world.spoiler.paths.update({location.gen_name(): get_path(state, location.parent_region) for sphere in collection_spheres for location in sphere if location.player == player})
         for path in dict(old_world.spoiler.paths).values():
             if any(exit == 'Pyramid Fairy' for (_, exit) in path):
-                if world.mode[player] != 'inverted':
-                    old_world.spoiler.paths[str(world.get_region('Big Bomb Shop', player))] = get_path(state, world.get_region('Big Bomb Shop', player))
-                else:
-                    old_world.spoiler.paths[str(world.get_region('Inverted Big Bomb Shop', player))] = get_path(state, world.get_region('Inverted Big Bomb Shop', player))
+                old_world.spoiler.paths[str(world.get_region('Big Bomb Shop', player))] = get_path(state, world.get_region('Big Bomb Shop', player))
 
     # we can finally output our playthrough
     old_world.spoiler.playthrough = {"0": [str(item) for item in world.precollected_items if item.advancement]}

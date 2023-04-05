@@ -322,6 +322,11 @@ def connect_simple_door(world, exit_name, region_name, player):
         d.dest = region
 
 
+def connect_simple_door_to_region(exit_door, region):
+    exit_door.entrance.connect(region)
+    exit_door.dest = region
+
+
 def connect_door_only(world, exit_name, region, player):
     d = world.check_for_door(exit_name, player)
     if d is not None:
@@ -354,6 +359,12 @@ def connect_two_way(world, entrancename, exitname, player):
         x.dest = y
     if y is not None:
         y.dest = x
+    if x.dependents:
+        for dep in x.dependents:
+            connect_simple_door_to_region(dep, ext.parent_region)
+    if y.dependents:
+        for dep in y.dependents:
+            connect_simple_door_to_region(dep, entrance.parent_region)
 
 
 def connect_one_way(world, entrancename, exitname, player):
@@ -373,6 +384,9 @@ def connect_one_way(world, entrancename, exitname, player):
     y = world.check_for_door(exitname, player)
     if x is not None:
         x.dest = y
+    if x.dependents:
+        for dep in x.dependents:
+            connect_simple_door_to_region(dep, ext.parent_region)
 
 def unmark_ugly_smalls(world, player):
     for d in ['Eastern Hint Tile Blocked Path SE', 'Eastern Darkness S', 'Thieves Hallway SE', 'Mire Left Bridge S',
@@ -421,7 +435,6 @@ def pair_existing_key_doors(world, player, door_a, door_b):
 
 
 def choose_portals(world, player):
-
     if world.doorShuffle[player] != ['vanilla']:
         shuffle_flag = world.doorShuffle[player] != 'basic'
         allowed = {}
@@ -650,8 +663,6 @@ def analyze_portals(world, player):
 
 def connect_portal(portal, world, player):
     ent, ext, entrance_name = portal_map[portal.name]
-    if world.mode[player] == 'inverted' and portal.name in ['Ganons Tower', 'Agahnims Tower']:
-        ext = 'Inverted ' + ext
     portal_entrance = world.get_entrance(portal.door.entrance.name, player)  # ensures I get the right one for copying
     target_exit = world.get_entrance(ext, player)
     portal_entrance.connected_region = target_exit.parent_region
@@ -1189,6 +1200,8 @@ def enable_new_entrances(region, connections, potentials, enabled, world, player
     while len(queue) > 0:
         ext = queue.popleft()
         visited.add(ext)
+        if ext.connected_region is None:
+            continue
         region_name = ext.connected_region.name
         if region_name in connections.keys() and connections[region_name] in potentials.keys():
             for potential in potentials.pop(connections[region_name]):
@@ -1813,7 +1826,8 @@ def shuffle_door_types(door_type_pools, paths, world, player):
             for dungeon, doors in custom_dict.items():
                 all_custom[dungeon].extend(doors)
 
-    world.paired_doors[player].clear()
+    for pd in world.paired_doors[player]:
+        pd.pair = False
     used_doors = shuffle_trap_doors(door_type_pools, paths, start_regions_map, all_custom, world, player)
     # big keys
     used_doors = shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, all_custom, world, player)
@@ -3273,7 +3287,7 @@ def find_inaccessible_regions(world, player):
     if world.mode[player] != 'inverted':
         start_regions = ['Links House', 'Sanctuary']
     else:
-        start_regions = ['Inverted Links House', 'Inverted Dark Sanctuary']
+        start_regions = ['Links House', 'Dark Sanctuary Hint']
     regs = convert_regions(start_regions, world, player)
     all_regions = set([r for r in world.regions if r.player == player and r.type is not RegionType.Dungeon])
     visited_regions = set()
@@ -3281,7 +3295,7 @@ def find_inaccessible_regions(world, player):
     while len(queue) > 0:
         next_region = queue.popleft()
         visited_regions.add(next_region)
-        if next_region.name == 'Inverted Dark Sanctuary':  # special spawn point in cave
+        if next_region.name == 'Dark Sanctuary Hint':  # special spawn point in cave
             for ent in next_region.entrances:
                 parent = ent.parent_region
                 if parent and parent.type is not RegionType.Dungeon and parent not in queue and parent not in visited_regions:
@@ -3311,9 +3325,9 @@ def find_accessible_entrances(world, player, builder):
         hc_std = True
         start_regions = ['Hyrule Castle Courtyard']
     elif world.mode[player] != 'inverted':
-        start_regions = ['Links House', 'Sanctuary']
+        start_regions = ['Links House', 'Sanctuary', 'East Dark World']
     else:
-        start_regions = ['Inverted Links House', 'Inverted Dark Sanctuary', 'Hyrule Castle Ledge']
+        start_regions = ['Links House', 'Dark Sanctuary Hint', 'Hyrule Castle Ledge']
     regs = convert_regions(start_regions, world, player)
     visited_regions = set()
     visited_entrances = []
@@ -3333,7 +3347,7 @@ def find_accessible_entrances(world, player, builder):
             if connect not in queue and connect not in visited_regions:
                 queue.append(connect)
         for ext in next_region.exits:
-            if hc_std and ext.name == 'Hyrule Castle Main Gate (North)':  # just skip it
+            if hc_std and ext.name in ['Hyrule Castle Main Gate (North)', 'Castle Gate Teleporter', 'Hyrule Castle Ledge Drop']:  # just skip it
                 continue
             connect = ext.connected_region
             if connect is None or ext.door and ext.door.blocked:
@@ -3369,7 +3383,7 @@ def create_doors_for_inaccessible_region(inaccessible_region, world, player):
     region = world.get_region(inaccessible_region, player)
     for ext in region.exits:
         create_door(world, player, ext.name, region.name)
-        if ext.connected_region.name.endswith(' Portal'):
+        if ext.connected_region and ext.connected_region.name.endswith(' Portal'):
             for more_exts in ext.connected_region.exits:
                 create_door(world, player, more_exts.name, ext.connected_region.name)
 
@@ -3377,14 +3391,15 @@ def create_doors_for_inaccessible_region(inaccessible_region, world, player):
 def create_door(world, player, entName, region_name):
     entrance = world.get_entrance(entName, player)
     connect = entrance.connected_region
-    for ext in connect.exits:
-        if ext.connected_region is not None and ext.connected_region.name == region_name:
-            d = Door(player, ext.name, DoorType.Logical, ext),
-            world.doors += d
-            connect_door_only(world, ext.name, ext.connected_region, player)
-    d = Door(player, entName, DoorType.Logical, entrance),
-    world.doors += d
-    connect_door_only(world, entName, connect, player)
+    if connect is not None:
+        for ext in connect.exits:
+            if ext.connected_region and ext.connected_region.name == region_name:
+                d = Door(player, ext.name, DoorType.Logical, ext),
+                world.doors += d
+                connect_door_only(world, ext.name, ext.connected_region, player)
+        d = Door(player, entName, DoorType.Logical, entrance),
+        world.doors += d
+        connect_door_only(world, entName, connect, player)
 
 
 def check_required_paths(paths, world, player):
