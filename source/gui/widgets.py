@@ -266,13 +266,24 @@ def widget_command(widget, command=""):
     elif command == "keydropshuffle":
         if widget.storageVar.get() > 0:
             temp_widget = root.pages["randomizer"].pages["item"].widgets["pottery"]
-            text_output += f'\n    {temp_widget.label.cget("text")}'
             if temp_widget.storageVar.get() == 'none':
+                text_output += f'\n    {temp_widget.label.cget("text")}'
                 temp_widget.storageVar.set('keys')
 
             temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
-            temp_widget.storageVar.set(1)
-            text_output += f'\n    {temp_widget.checkbox.cget("text")}'
-
-            widget.storageVar.set(0)
-            messagebox.showinfo('', f'The following settings were changed:{text_output}')
+            if temp_widget.storageVar.get() == 0:
+                temp_widget.storageVar.set(1)
+                text_output += f'\n    {temp_widget.checkbox.cget("text")}'
+            if text_output:
+                messagebox.showinfo('', f'The following settings were changed:{text_output}')
+        else:
+            temp_widget = root.pages["randomizer"].pages["item"].widgets["pottery"]
+            if temp_widget.storageVar.get() == 'keys':
+                text_output += f'\n    {temp_widget.label.cget("text")}'
+                temp_widget.storageVar.set('none')
+            temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
+            if temp_widget.storageVar.get() == 1:
+                temp_widget.storageVar.set(0)
+                text_output += f'\n    {temp_widget.checkbox.cget("text")}'
+            if text_output:
+                messagebox.showinfo('', f'The following settings were changed:{text_output}')

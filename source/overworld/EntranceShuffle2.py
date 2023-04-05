@@ -425,10 +425,11 @@ def do_links_house(entrances, exits, avail, cross_world):
         if not avail.world.shufflelinks[avail.player]:
             links_house = 'Big Bomb Shop' if avail.inverted else 'Links House'
         else:
-            forbidden = list(Isolated_LH_Doors_Inv + Inverted_Dark_Sanctuary_Doors
+            forbidden = list((Isolated_LH_Doors_Inv + Inverted_Dark_Sanctuary_Doors)
                              if avail.inverted else Isolated_LH_Doors_Open)
+            shuffle_mode = avail.world.shuffle[avail.player]
             # simple shuffle -
-            if avail.world.shuffle[avail.player] == 'simple':
+            if shuffle_mode == 'simple':
                 avail.links_on_mountain = True  # taken care of by the logic below
                 if avail.inverted:  # in inverted, links house cannot be on the mountain
                     forbidden.extend(['Spike Cave', 'Dark Death Mountain Fairy', 'Hookshot Fairy'])
@@ -441,10 +442,11 @@ def do_links_house(entrances, exits, avail, cross_world):
             # can't have links house on eddm in restricted because Inverted Aga Tower isn't available
             # todo: inverted full may have the same problem if both links house and a mandatory connector is chosen
             # from the 3 inverted options
-            if avail.world.shuffle[avail.player] in ['restricted'] and avail.inverted:
+            if shuffle_mode in ['restricted'] and avail.inverted:
                 avail.links_on_mountain = True
                 forbidden.extend(['Spike Cave', 'Dark Death Mountain Fairy'])
-
+            if shuffle_mode in ['lite', 'lean']:
+                forbidden.extend(['Spike Cave', 'Mire Shed'])
             # lobby shuffle means you ought to keep links house in the same world
             sanc_spawn_can_be_dark = (not avail.inverted and avail.world.doorShuffle[avail.player] in ['partitioned', 'crossed']
                                       and avail.world.intensity[avail.player] >= 3)

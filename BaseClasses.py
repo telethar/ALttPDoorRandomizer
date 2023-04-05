@@ -3010,7 +3010,7 @@ class Settings(object):
             | (counter_mode[w.dungeon_counters[p]] << 1) | (1 if w.experimental[p] else 0),
 
             ((8 if w.crystals_ganon_orig[p] == "random" else int(w.crystals_ganon_orig[p])) << 3)
-            | (0x4 if w.is_pyramid_open[p] else 0) | access_mode[w.accessibility[p]],
+            | (0x4 if w.is_pyramid_open(p) else 0) | access_mode[w.accessibility[p]],
 
             (0x80 if w.bigkeyshuffle[p] else 0)
             | (0x20 if w.mapshuffle[p] else 0) | (0x10 if w.compassshuffle[p] else 0)
