@@ -17,7 +17,7 @@ from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_dark_world_regions, create_dungeon_regions, adjust_locations
 from OverworldShuffle import create_dynamic_exits
 from EntranceShuffle import link_entrances
-from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
+from Rom import patch_rom, patch_race_rom, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms

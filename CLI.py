@@ -199,7 +199,6 @@ def parse_settings():
         "shufflebosses": "none",
         "enemy_damage": "default",
         "enemy_health": "default",
-        "enemizercli": os.path.join(".", "EnemizerCLI", "EnemizerCLI.Core"),
 
         "shopsanity": False,
         'keydropshuffle': False,
@@ -347,9 +346,6 @@ def parse_settings():
         "outputname": "",
         "startinventoryarray": {}
     }
-
-    if sys.platform.lower().find("windows"):
-        settings["enemizercli"] += ".exe"
 
     # read saved settings file if it exists and set these
     settings_path = os.path.join(".", "resources", "user", "settings.json")

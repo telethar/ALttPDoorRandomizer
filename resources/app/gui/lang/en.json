@@ -130,9 +130,6 @@
     "randomizer.enemizer.enemyhealth.hard": "Hard",
     "randomizer.enemizer.enemyhealth.expert": "Expert",
 
-    "randomizer.enemizer.enemizercli": "EnemizerCLI path: ",
-    "randomizer.enemizer.enemizercli.online": "(get online)",
-
     "randomizer.entrance.openpyramid": "Pre-open Pyramid Hole",
     "randomizer.entrance.openpyramid.auto": "Auto",
     "randomizer.entrance.openpyramid.yes": "Yes",

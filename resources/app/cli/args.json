@@ -461,9 +461,6 @@
   "bps": {
     "action": "store_true"
   },
-  "enemizercli": {
-    "setting": "enemizercli"
-  },
   "shufflebosses": {
     "choices": [
       "none",
