@@ -110,6 +110,8 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.2.0.14u
+  * Small fix for key logic validation (got rid of a false negative)
+  * Customized doors in ice cross work properly now
   * GUI reorganization
   * Auto option for pyramid open (trinity or ER + crystals goal)
   * World model refactor (combining inverted and normal world models)
