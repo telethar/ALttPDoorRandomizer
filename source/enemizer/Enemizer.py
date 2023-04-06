@@ -257,8 +257,8 @@ def get_randomize_able_sprites_ow(area_id, data_tables):
     return sprite_table
 
 
-def randomize_underworld_rooms(data_tables):
-
+def randomize_underworld_rooms(data_tables, world, player):
+    any_enemy_logic = world.any_enemy_logic[player]
     specific = setup_specific_requirements(data_tables)
     uw_candidates, uw_sheets, all_sheets = find_candidate_sprites(data_tables, range(65, 124))
     for room_id in range(0, 0x128):
@@ -290,8 +290,15 @@ def randomize_underworld_rooms(data_tables):
                         candidate_sprites = [x for x in candidate_sprites if x.sprite != EnemySprite.Wallmaster]
                     if sprite.drops_item:
                         choice_list = [x for x in candidate_sprites if x.good_for_key_drop()]
+                    # terrorpin, deadrock, buzzblob, lynel, redmimic/eyegore
                     elif room_id in shutter_sprites and i in shutter_sprites[room_id]:
-                        choice_list = [x for x in candidate_sprites if x.good_for_shutter()]
+                        forbidden_set = set()
+                        if not any_enemy_logic:
+                            forbidden_set.update({EnemySprite.Terrorpin, EnemySprite.Deadrock, EnemySprite.Buzzblob,
+                                                  EnemySprite.Lynel})
+                            if room_id not in {0x6b, 0x4b, 0x1b, 0xd8}:  # mimics/eyegore are allowed in vanilla
+                                forbidden_set.add(EnemySprite.RedEyegoreMimic)
+                        choice_list = [x for x in candidate_sprites if x.good_for_shutter(forbidden_set)]
                     else:
                         choice_list = [x for x in candidate_sprites if not x.water_only]
                     choice_list = filter_choices(choice_list, room_id, i, data_tables.uw_enemy_denials)
@@ -358,7 +365,7 @@ def randomize_enemies(world, player):
     if world.enemy_shuffle[player] != 'none':
         data_tables = world.data_tables[player]
         randomize_underworld_sprite_sheets(data_tables.sprite_sheets, data_tables)
-        randomize_underworld_rooms(data_tables)
+        randomize_underworld_rooms(data_tables, world, player)
         randomize_overworld_sprite_sheets(data_tables.sprite_sheets)
         randomize_overworld_enemies(data_tables)
         # fix thief stats

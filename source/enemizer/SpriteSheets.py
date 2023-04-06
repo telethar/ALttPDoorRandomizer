@@ -91,7 +91,9 @@ class SpriteRequirement:
     def good_for_uw_water(self):
         return self.water_only and not self.static and not self.dont_use and self.uw_valid
 
-    def good_for_shutter(self):
+    def good_for_shutter(self, forbidden):
+        if self.sprite in forbidden:
+            return False
         return self.killable and not self.static and not self.dont_use and self.uw_valid
 
     def good_for_key_drop(self):
