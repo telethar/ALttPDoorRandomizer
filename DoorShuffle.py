@@ -3295,7 +3295,7 @@ def find_inaccessible_regions(world, player):
     while len(queue) > 0:
         next_region = queue.popleft()
         visited_regions.add(next_region)
-        if next_region.name == 'Dark Sanctuary Hint':  # special spawn point in cave
+        if world.mode[player] == 'inverted' and next_region.name == 'Dark Sanctuary Hint':  # special spawn point in cave
             for ent in next_region.entrances:
                 parent = ent.parent_region
                 if parent and parent.type is not RegionType.Dungeon and parent not in queue and parent not in visited_regions:

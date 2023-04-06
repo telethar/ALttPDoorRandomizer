@@ -192,7 +192,6 @@ def global_rules(world, player):
     set_rule(world.get_location('Purple Chest', player), lambda state: state.has('Pick Up Purple Chest', player))  # Can S&Q with chest
 
     # underworld rules
-    set_rule(world.get_entrance('Old Man Cave Exit (West)', player), lambda state: False)  # drop cannot be climbed up
     set_rule(world.get_location('Mimic Cave', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Paradox Cave Push Block Reverse', player), lambda state: state.has_Mirror(player))  # can erase block - overridden in noglitches
     set_rule(world.get_location('Potion Shop', player), lambda state: state.has('Mushroom', player) and state.can_reach('Potion Shop Area', 'Region', player))

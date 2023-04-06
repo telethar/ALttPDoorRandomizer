@@ -226,6 +226,7 @@
     "randomizer.item.worldstate.open": "Open",
     "randomizer.item.worldstate.inverted": "Inverted",
     "randomizer.item.worldstate.retro": "Retro",
+    "randomizer.item.retro": "Enable Retro",
 
     "randomizer.item.logiclevel": "Logic Level",
     "randomizer.item.logiclevel.noglitches": "No Glitches",
@@ -320,7 +321,7 @@
     "randomizer.item.potshuffle": "Pot Shuffle (Legacy)",
 
     "randomizer.item.dropshuffle": "Shuffle Enemy Key Drops",
-    "randomizer.item.keydropshuffle": "Key Drop Shuffle (Legacy)",
+    "randomizer.item.keydropshuffle": "Enable Key Drop Shuffle (Legacy)",
 
     "randomizer.item.take_any": "Take Any Caves",
     "randomizer.item.take_any.none": "None",

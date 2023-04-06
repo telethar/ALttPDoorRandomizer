@@ -66,6 +66,7 @@ SETTINGSTOPROCESS = {
       "crystals_ganon": "crystals_ganon",
       "weapons": "swords",
 
+      "retro": "retro",
       "sortingalgo": "algorithm",
       "accessibility": "accessibility",
       "restrict_boss_items": "restrict_boss_items",
