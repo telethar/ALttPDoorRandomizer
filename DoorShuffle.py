@@ -3806,6 +3806,8 @@ logical_connections = [
     ('GT Blocked Stairs Block Path', 'GT Big Chest'),
     ('GT Speed Torch South Path', 'GT Speed Torch'),
     ('GT Speed Torch North Path', 'GT Speed Torch Upper'),
+    ('GT Conveyor Cross Hammer Path', 'GT Conveyor Cross Across Pits'),
+    ('GT Conveyor Cross Hookshot Path', 'GT Conveyor Cross'),
     ('GT Hookshot East-Mid Path', 'GT Hookshot Mid Platform'),
     ('GT Hookshot Mid-East Path', 'GT Hookshot East Platform'),
     ('GT Hookshot North-Mid Path', 'GT Hookshot Mid Platform'),

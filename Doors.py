@@ -1115,6 +1115,8 @@ def create_doors(world, player):
         create_door(player, 'GT Invisible Catwalk NE', Nrml).dir(No, 0x9c, Right, High).pos(2),
         create_door(player, 'GT Conveyor Cross EN', Nrml).dir(Ea, 0x8b, Top, High).pos(2),
         create_door(player, 'GT Conveyor Cross WN', Intr).dir(We, 0x8b, Top, High).pos(0),
+        create_door(player, 'GT Conveyor Cross Hammer Path', Lgcl),
+        create_door(player, 'GT Conveyor Cross Hookshot Path', Lgcl),
         create_door(player, 'GT Hookshot EN', Intr).dir(Ea, 0x8b, Top, High).pos(0),
         create_door(player, 'GT Hookshot East-Mid Path', Lgcl),
         create_door(player, 'GT Hookshot Mid-East Path', Lgcl),
