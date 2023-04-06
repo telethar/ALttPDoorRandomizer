@@ -116,6 +116,7 @@ class CustomSettings(object):
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
                 args.crystals_ganon[p] = get_setting(settings['crystals_ganon'], args.crystals_ganon[p])
                 args.experimental[p] = get_setting(settings['experimental'], args.experimental[p])
+                args.collection_rate[p] = get_setting(settings['collection_rate'], args.collection_rate[p])
                 args.openpyramid[p] = get_setting(settings['openpyramid'], args.openpyramid[p])
                 args.bigkeyshuffle[p] = get_setting(settings['bigkeyshuffle'], args.bigkeyshuffle[p])
                 args.keyshuffle[p] = get_setting(settings['keyshuffle'], args.keyshuffle[p])
@@ -244,6 +245,7 @@ class CustomSettings(object):
             settings_dict[p]['crystals_gt'] = world.crystals_gt_orig[p]
             settings_dict[p]['crystals_ganon'] = world.crystals_ganon_orig[p]
             settings_dict[p]['experimental'] = world.experimental[p]
+            settings_dict[p]['collection_rate'] = world.collection_rate[p]
             settings_dict[p]['openpyramid'] = world.open_pyramid[p]
             settings_dict[p]['bigkeyshuffle'] = world.bigkeyshuffle[p]
             settings_dict[p]['keyshuffle'] = world.keyshuffle[p]
