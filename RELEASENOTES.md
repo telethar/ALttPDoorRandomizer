@@ -111,6 +111,7 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.2.0.15u
   * GUI reorganization
+  * Logic fix for pots in GT conveyor cross
   * Auto option for pyramid open (trinity or ER + crystals goal)
   * World model refactor (combining inverted and normal world models)
   * Partitioned fix for lamp logic and links house
@@ -118,6 +119,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Reduced universal keys in pool slightly for non-vanilla dungeons
   * Fake world fix finally
   * Some extra restrictions on links house placement for lite/lean
+  * Collection_rate works in customizer files
 * 1.2.0.14u
   * Small fix for key logic validation (got rid of a false negative)
   * Customized doors in ice cross work properly now
