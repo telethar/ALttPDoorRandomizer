@@ -287,13 +287,4 @@ def create_guiargs(parent):
 
     guiargs = update_deprecated_args(guiargs)
 
-    # Key drop shuffle stuff
-    if (hasattr(guiargs, 'retro') and guiargs.retro) or guiargs.mode == 'retro':
-        if guiargs.bow_mode == 'progressive':
-            guiargs.bow_mode = 'retro'
-        elif guiargs.bow_mode == 'silvers':
-            guiargs.bow_mode = 'retro_silvers'
-        guiargs.take_any = 'random' if guiargs.take_any == 'none' else guiargs.take_any
-        guiargs.keyshuffle = 'universal'
-
     return guiargs
