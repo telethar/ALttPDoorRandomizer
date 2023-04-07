@@ -215,7 +215,8 @@ def create_guiargs(parent):
                 arg = options[mainpage][subpage][widget] if subpage != "" else options[mainpage][widget]
                 page = parent.pages[mainpage].pages[subpage] if subpage != "" else parent.pages[mainpage]
                 pagewidgets = page.content.customWidgets if mainpage == "custom" else page.content.startingWidgets if mainpage == "startinventory" else page.widgets
-                setattr(guiargs, arg, pagewidgets[widget].storageVar.get())
+                if hasattr(pagewidgets[widget], 'storageVar'):
+                    setattr(guiargs, arg, pagewidgets[widget].storageVar.get())
 
     # Get EnemizerCLI setting
     guiargs.enemizercli = parent.pages["randomizer"].pages["enemizer"].widgets["enemizercli"].storageVar.get()
@@ -287,10 +288,6 @@ def create_guiargs(parent):
     guiargs = update_deprecated_args(guiargs)
 
     # Key drop shuffle stuff
-    if guiargs.keydropshuffle:
-        guiargs.dropshuffle = 1
-        guiargs.pottery = 'keys' if guiargs.pottery == 'none' else guiargs.pottery
-
     if (hasattr(guiargs, 'retro') and guiargs.retro) or guiargs.mode == 'retro':
         if guiargs.bow_mode == 'progressive':
             guiargs.bow_mode = 'retro'
