@@ -70,6 +70,16 @@
     full: 2
     crossed: 3
     insanity: 1
+  open_pyramid:
+    auto: 1
+    yes: 0
+    no: 0
+  shufflelinks:
+    on: 1
+    off: 1
+  shuffleganon:
+    on: 1
+    off: 1
   overworld_map: # control how the overworld map operates when entrance shuffle is on
     default: 1
     compass: 10
