@@ -146,6 +146,7 @@ enemy_shuffle:  # shouldn't affect generation
   shuffled: 1
   random: 1
   legacy: 0
+any_enemy_logic: allow_all  # more interesting logic
 hints:
   on: 1
   off: 1

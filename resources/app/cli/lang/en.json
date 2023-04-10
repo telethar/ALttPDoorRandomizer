@@ -335,6 +335,12 @@
     ],
     "pseudoboots": [ " Players starts with pseudo boots that allow dashing but no item checks (default: %(default)s"],
     "bombbag": ["Start with 0 bomb capacity. Two capacity upgrades (+10) are added to the pool (default: %(default)s)" ],
+    "any_enemy_logic": [
+      "How to handle potential traversal between dungeon in Crossed door shuffle",
+      "None:         Enemies that required unusual weaponry are not allowed to logical protect doors, chests, or key drops.",
+      "Allow_Drops:  Drops are okay for those enemies, and a correct weapon is logically required",
+      "Allow_All:    All enemies allowed anywhere. (Logic will be adapted to the placement)"
+    ],
     "startinventory": [ "Specifies a list of items that will be in your starting inventory (separated by commas). (default: %(default)s)" ],
     "usestartinventory": [ "Toggle usage of Starting Inventory." ],
     "customizer": ["Path to a customizer file."],

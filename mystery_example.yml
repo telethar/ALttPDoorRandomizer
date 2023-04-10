@@ -162,6 +162,10 @@
     none: 3
     shuffled: 2
     random: 1
+  any_enemy_logic:
+    none: 1
+    allow_drops: 2
+    allow_all: 3
   hints:
     on: 1
     off: 1

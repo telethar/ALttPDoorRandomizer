@@ -112,6 +112,7 @@ def main(args, seed=None, fish=None):
     world.enemy_shuffle = args.shuffleenemies.copy()
     world.enemy_health = args.enemy_health.copy()
     world.enemy_damage = args.enemy_damage.copy()
+    world.any_enemy_logic = args.any_enemy_logic.copy()
     world.beemizer = args.beemizer.copy()
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.door_type_mode = args.door_type_mode.copy()
@@ -454,6 +455,7 @@ def copy_world(world):
     ret.enemy_shuffle = world.enemy_shuffle.copy()
     ret.enemy_health = world.enemy_health.copy()
     ret.enemy_damage = world.enemy_damage.copy()
+    ret.any_enemy_logic = world.any_enemy_logic.copy()
     ret.beemizer = world.beemizer.copy()
     ret.intensity = world.intensity.copy()
     ret.decoupledoors = world.decoupledoors.copy()

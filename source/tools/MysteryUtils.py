@@ -182,6 +182,7 @@ def roll_settings(weights):
     ret.enemy_damage = damage_choice
 
     ret.enemy_health = get_choice('enemy_health')
+    ret.any_enemy_logic = get_choice('any_enemy_logic')
 
     ret.beemizer = get_choice('beemizer') if 'beemizer' in weights else '0'
 

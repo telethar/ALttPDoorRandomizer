@@ -39,5 +39,19 @@
         "expert"
       ]
     }
+  },
+  "bottomEnemizerFrame": {
+    "enemylogic": {
+      "type": "selectbox",
+      "default": "allow_all",
+      "options": [
+        "none",
+        "allow_drops",
+        "allow_all"
+      ],
+      "config": {
+        "width": 32
+      }
+    }
   }
 }

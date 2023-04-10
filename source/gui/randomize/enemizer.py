@@ -26,7 +26,7 @@ def enemizer_page(parent,settings):
     self.frames["selectOptionsFrame"].pack(fill=X)
     self.frames["leftEnemizerFrame"].pack(side=LEFT)
     self.frames["rightEnemizerFrame"].pack(side=RIGHT)
-    self.frames["bottomEnemizerFrame"].pack(fill=X)
+    self.frames["bottomEnemizerFrame"].pack(fill=X, padx=(12, 0))
 
     # Load Enemizer option widgets as defined by JSON file
     # Defns include frame name, widget type, widget options, widget placement attributes
@@ -39,6 +39,8 @@ def enemizer_page(parent,settings):
                 self.widgets[key] = dictWidgets[key]
                 packAttrs = {"anchor":E}
                 if self.widgets[key].type == "checkbox":
+                    packAttrs["anchor"] = W
+                if framename == 'bottomEnemizerFrame':
                     packAttrs["anchor"] = W
                 self.widgets[key].pack(packAttrs)
 

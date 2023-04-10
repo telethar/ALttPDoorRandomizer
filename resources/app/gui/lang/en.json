@@ -130,6 +130,11 @@
     "randomizer.enemizer.enemyhealth.hard": "Hard",
     "randomizer.enemizer.enemyhealth.expert": "Expert",
 
+    "randomizer.enemizer.enemylogic": "Enemy Logic",
+    "randomizer.enemizer.enemylogic.none": "Forbid special enemies",
+    "randomizer.enemizer.enemylogic.allow_drops": "Item drops may have special enemies",
+    "randomizer.enemizer.enemylogic.allow_all": "Allow special enemies anywhere",
+
     "randomizer.entrance.openpyramid": "Pre-open Pyramid Hole",
     "randomizer.entrance.openpyramid.auto": "Auto",
     "randomizer.entrance.openpyramid.yes": "Yes",

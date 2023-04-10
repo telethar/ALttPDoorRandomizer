@@ -96,8 +96,8 @@ class SpriteRequirement:
             return False
         return self.killable and not self.static and not self.dont_use and self.uw_valid
 
-    def good_for_key_drop(self):
-        return self.good_for_shutter() and self.can_drop
+    def good_for_key_drop(self, forbidden):
+        return self.good_for_shutter(forbidden) and self.can_drop
 
     def __str__(self):
         return f'Req for {enemy_names[self.sprite]}'

@@ -134,6 +134,7 @@ class CustomSettings(object):
                 args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], args.shuffleenemies[p])
                 args.enemy_health[p] = get_setting(settings['enemy_health'], args.enemy_health[p])
                 args.enemy_damage[p] = get_setting(settings['enemy_damage'], args.enemy_damage[p])
+                args.any_enemy_logic[p] = get_setting(settings['any_enemy_logic'], args.any_enemy_logic[p])
                 args.shufflepots[p] = get_setting(settings['shufflepots'], args.shufflepots[p])
                 args.bombbag[p] = get_setting(settings['bombbag'], args.bombbag[p])
                 args.shufflelinks[p] = get_setting(settings['shufflelinks'], args.shufflelinks[p])
@@ -254,6 +255,7 @@ class CustomSettings(object):
             settings_dict[p]['shuffleenemies'] = world.enemy_shuffle[p]
             settings_dict[p]['enemy_health'] = world.enemy_health[p]
             settings_dict[p]['enemy_damage'] = world.enemy_damage[p]
+            settings_dict[p]['any_enemy_logic'] = world.any_enemy_logic[p]
             settings_dict[p]['shufflepots'] = world.potshuffle[p]
             settings_dict[p]['bombbag'] = world.bombbag[p]
             settings_dict[p]['shufflelinks'] = world.shufflelinks[p]

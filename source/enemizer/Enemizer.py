@@ -289,16 +289,12 @@ def randomize_underworld_rooms(data_tables, world, player):
                     if wallmaster_chosen:
                         candidate_sprites = [x for x in candidate_sprites if x.sprite != EnemySprite.Wallmaster]
                     if sprite.drops_item:
-                        choice_list = [x for x in candidate_sprites if x.good_for_key_drop()]
+                        forbidden = determine_forbidden(any_enemy_logic == 'none', room_id, True)
+                        choice_list = [x for x in candidate_sprites if x.good_for_key_drop(forbidden)]
                     # terrorpin, deadrock, buzzblob, lynel, redmimic/eyegore
                     elif room_id in shutter_sprites and i in shutter_sprites[room_id]:
-                        forbidden_set = set()
-                        if not any_enemy_logic:
-                            forbidden_set.update({EnemySprite.Terrorpin, EnemySprite.Deadrock, EnemySprite.Buzzblob,
-                                                  EnemySprite.Lynel})
-                            if room_id not in {0x6b, 0x4b, 0x1b, 0xd8}:  # mimics/eyegore are allowed in vanilla
-                                forbidden_set.add(EnemySprite.RedEyegoreMimic)
-                        choice_list = [x for x in candidate_sprites if x.good_for_shutter(forbidden_set)]
+                        forbidden = determine_forbidden(any_enemy_logic != 'allow_all', room_id)
+                        choice_list = [x for x in candidate_sprites if x.good_for_shutter(forbidden)]
                     else:
                         choice_list = [x for x in candidate_sprites if not x.water_only]
                     choice_list = filter_choices(choice_list, room_id, i, data_tables.uw_enemy_denials)
@@ -315,6 +311,20 @@ def randomize_underworld_rooms(data_tables, world, player):
                 done = randomized
         # done with sprites
     # done with rooms
+
+
+def determine_forbidden(forbid, room_id, drop_flag=False):
+    forbidden_set = set()
+    if forbid:
+        forbidden_set.update({EnemySprite.Terrorpin, EnemySprite.Deadrock, EnemySprite.Buzzblob,
+                              EnemySprite.Lynel})
+        if drop_flag:
+            forbidden_set.add(EnemySprite.RedBari)  # requires FireRod to Drop
+        # else:  Not yet able to protect triggers, would change default GT tile room behavior
+        #     forbidden_set.add(EnemySprite.AntiFairy)  # can't drop anyway
+        if room_id not in {0x6b, 0x4b, 0x1b, 0xd8}:  # mimics/eyegore are allowed in vanilla rooms
+            forbidden_set.add(EnemySprite.RedEyegoreMimic)
+    return forbidden_set
 
 
 def filter_choices(options, room_id, sprite_idx, denials):

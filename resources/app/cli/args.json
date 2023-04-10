@@ -494,6 +494,13 @@
       "random"
     ]
   },
+  "any_enemy_logic": {
+    "choices": [
+      "none",
+      "allow_drops",
+      "allow_all"
+    ]
+  },
   "remote_items": {
     "action": "store_true",
     "type": "bool"

@@ -128,6 +128,7 @@ class World(object):
             set_player_attr('enemy_shuffle', 'none')
             set_player_attr('enemy_health', 'default')
             set_player_attr('enemy_damage', 'default')
+            set_player_attr('any_enemy_logic', 'allow_all')
             set_player_attr('beemizer', 0)
             set_player_attr('escape_assist', [])
             set_player_attr('crystals_needed_for_ganon', 7)
@@ -2497,6 +2498,7 @@ class Spoiler(object):
                          'enemy_shuffle': self.world.enemy_shuffle,
                          'enemy_health': self.world.enemy_health,
                          'enemy_damage': self.world.enemy_damage,
+                         'any_enemy_logic': self.world.any_enemy_logic,
                          'players': self.world.players,
                          'teams': self.world.teams,
                          'experimental': self.world.experimental,
@@ -2701,6 +2703,8 @@ class Spoiler(object):
                 outfile.write('Enemy shuffle:                   %s\n' % self.metadata['enemy_shuffle'][player])
                 outfile.write('Enemy health:                    %s\n' % self.metadata['enemy_health'][player])
                 outfile.write('Enemy damage:                    %s\n' % self.metadata['enemy_damage'][player])
+                if self.metadata['enemy_shuffle'][player] != 'none':
+                    outfile.write(f"Enemy logic:                     {self.metadata['any_enemy_logic'][player]}\n")
                 outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
                 outfile.write('Race:                            %s\n' % ('Yes' if self.world.settings.world_rep['meta']['race'] else 'No'))
 
