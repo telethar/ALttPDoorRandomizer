@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.16u
+  * Fix for Mire Attic Hint door (direction was swapped)
+  * Dungeon at Chest Game displays correctly on OW map option
 * 1.2.0.15u
   * GUI reorganization
   * Logic fix for pots in GT conveyor cross
