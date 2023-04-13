@@ -4156,7 +4156,7 @@ interior_doors = [
     ('Mire Neglected Room SE', 'Mire Chest View NE'),
     ('Mire BK Chest Ledge WS', 'Mire Warping Pool ES'),  # technically one-way
     ('Mire Torches Top SW', 'Mire Torches Bottom NW'),
-    ('Mire Torches Bottom WS', 'Mire Attic Hint ES'),
+    ('Mire Torches Bottom ES', 'Mire Attic Hint WS'),
     ('Mire Dark Shooters SE', 'Mire Key Rupees NE'),
     ('Mire Dark Shooters SW', 'Mire Block X NW'),
     ('Mire Tall Dark and Roomy WS', 'Mire Crystal Right ES'),
