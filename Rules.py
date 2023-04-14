@@ -2000,7 +2000,9 @@ def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     eval_func = eval_small_key_door
     if world.key_logic_algorithm[player] == 'strict' and world.keyshuffle[player] == 'wild':
-         eval_func = eval_small_key_door_strict
+        eval_func = eval_small_key_door_strict
+    elif world.key_logic_algorithm[player] != 'default':
+        eval_func = eval_small_key_door_partial
     for d_name, d_logic in key_logic.items():
         for door_name, rule in d_logic.door_rules.items():
             door_entrance = world.get_entrance(door_name, player)
@@ -2056,6 +2058,36 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
     return door_openable
 
 
+def eval_small_key_door_partial_main(state, door_name, dungeon, player):
+    if state.is_door_open(door_name, player):
+        return True
+    key_logic = state.world.key_logic[player][dungeon]
+    if door_name not in key_logic.door_rules:
+        return False
+    door_rule = key_logic.door_rules[door_name]
+    door_openable = False
+    for ruleType, number in door_rule.new_rules.items():
+        if door_openable:
+            return True
+        if ruleType == KeyRuleType.WorstCase:
+            number = min(number, door_rule.small_key_num)
+            door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+        elif ruleType == KeyRuleType.AllowSmall:
+            small_loc_item = door_rule.small_location.item
+            if small_loc_item and small_loc_item.name == key_logic.small_key_name and small_loc_item.player == player:
+                door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+        elif isinstance(ruleType, tuple):
+            lock, lock_item = ruleType
+            # this doesn't track logical locks yet, i.e. hammer locks the item and hammer is there, but the item isn't
+            for loc in door_rule.alternate_big_key_loc:
+                spot = state.world.get_location(loc, player)
+                if spot.item and spot.item.name == lock_item:
+                    number = min(number, door_rule.alternate_small_key)
+                    door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+                    break
+    return door_openable
+
+
 def eval_small_key_door_strict_main(state, door_name, dungeon, player):
     if state.is_door_open(door_name, player):
         return True
@@ -2068,6 +2100,10 @@ def eval_small_key_door_strict_main(state, door_name, dungeon, player):
 
 def eval_small_key_door(door_name, dungeon, player):
     return lambda state: eval_small_key_door_main(state, door_name, dungeon, player)
+
+
+def eval_small_key_door_partial(door_name, dungeon, player):
+    return lambda state: eval_small_key_door_partial_main(state, door_name, dungeon, player)
 
 
 def eval_small_key_door_strict(door_name, dungeon, player):

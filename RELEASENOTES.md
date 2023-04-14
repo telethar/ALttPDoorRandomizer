@@ -110,6 +110,8 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.2.0.16u
+  * Fix for partial key logic on vanilla Mire
+  * Fix for Kholdstare Shell collision when at Lanmo 2
   * Fix for Mire Attic Hint door (direction was swapped)
   * Dungeon at Chest Game displays correctly on OW map option
 * 1.2.0.15u
