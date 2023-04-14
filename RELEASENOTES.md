@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.17u
+  * Fix for Non-ER Inverted Experimental (Aga and GT weren't logically swapped)
+  * Fix for customizer setting crystals to 0 for either GT/Ganon
 * 1.2.0.16u
   * Fix for partial key logic on vanilla Mire
   * Fix for Kholdstare Shell collision when at Lanmo 2
