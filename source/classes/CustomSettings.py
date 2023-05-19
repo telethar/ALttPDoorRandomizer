@@ -208,6 +208,11 @@ class CustomSettings(object):
             return self.file_source['drops']
         return None
 
+    def get_enemies(self):
+        if 'enemies' in self.file_source:
+            return self.file_source['enemies']
+        return None
+
     def create_from_world(self, world, race):
         self.player_range = range(1, world.players + 1)
         settings_dict, meta_dict = {}, {}

@@ -724,6 +724,25 @@ def load_yaml(path_list):
         return yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
 
 
+yaml_cache = {}
+
+
+def load_cached_yaml(path_list):
+    path = os.path.join(*path_list)
+    if path in yaml_cache:
+        return yaml_cache[path]
+    else:
+        if os.path.exists(Path(path)):
+            with open(path, "r", encoding="utf-8") as f:
+                data = yaml.load(f, Loader=yaml.SafeLoader)
+                yaml_cache[path] = data
+                return data
+        elif urllib.parse.urlparse(path).scheme in ['http', 'https']:
+            data = yaml.load(urllib.request.urlopen(path), Loader=yaml.FullLoader)
+            yaml_cache[path] = data
+            return data
+
+
 if __name__ == '__main__':
     # make_new_base2current()
     # read_entrance_data(old_rom=sys.argv[1])

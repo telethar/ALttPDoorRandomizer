@@ -1,198 +1,198 @@
-UW:  # Total 82753
-  AntiFairy: 50   # f1.99026% raw:1647
-  Statue: 50   # f1.99026% raw:1647
-  BlueGuard: 124   # f0.80480% raw:666
-  GreenGuard: 157   # f0.63563% raw:526
-  RedSpearGuard: 124   # f0.80480% raw:666
-  BluesainBolt: 567   # f0.17643% raw:146
-  UsainBolt: 124   # f0.80480% raw:666
-  RedJavelinGuard: 662   # f0.15105% raw:125
-  RedBushGuard: 662   # f0.15105% raw:125
-  BombGuard: 662   # f0.15105% raw:125
-  BallNChain: 662   # f0.15105% raw:125
-  CannonTrooper: 662   # f0.15105% raw:125
-  CricketRat: 169   # f0.59212% raw:490
-  Snake: 169   # f0.59212% raw:490
-  Keese: 169   # f0.59212% raw:490
-  BigSpike: 50   # f1.99026% raw:1647
-  AntiFairyCircle: 50   # f1.99026% raw:1647
-  SpikeBlock: 50   # f1.99026% raw:1647
-  Bumper: 50   # f1.99026% raw:1647
-  BunnyBeam: 14   # f7.12965% raw:5900
-  FloppingFish: 14   # f7.12965% raw:5900
-  Stal: 14   # f7.12965% raw:5900
-  Landmine: 14   # f7.12965% raw:5900
-  Octorok: 159   # f0.62717% raw:519
-  RedBari: 99   # f1.01386% raw:839
-  BlueBari: 99   # f1.01386% raw:839
-  FireballZora: 159   # f0.62717% raw:519
-  SparkCW: 99   # f1.01386% raw:839
-  SparkCCW: 99   # f1.01386% raw:839
-  FloatingSkull: 99   # f1.01386% raw:839
-  FirebarCW: 99   # f1.01386% raw:839
-  FirebarCCW: 99   # f1.01386% raw:839
-  Firesnake: 99   # f1.01386% raw:839
-  Stalfos: 99   # f1.01386% raw:839
-  Raven: 92   # f1.09120% raw:903
-  Vulture: 400   # f0.25014% raw:207
-  Buzzblob: 196   # f0.51116% raw:423
-  Hoarder: 196   # f0.51116% raw:423
-  Hoarder2: 196   # f0.51116% raw:423
-  Geldman: 400   # f0.25014% raw:207
-  Toppo: 196   # f0.51116% raw:423
-  FakeMasterSword: 196   # f0.51116% raw:423
-  MiniHelmasaur: 56   # f1.79450% raw:1485
-  MiniMoldorm: 56   # f1.79450% raw:1485
-  HardhatBeetle: 56   # f1.79450% raw:1485
-  Lynel: 172   # f0.58246% raw:482
-  Deadrock: 176   # f0.56796% raw:470
-  ArmosStatue: 176   # f0.56796% raw:470
-  Hover: 211   # f0.47370% raw:392
-  Blob: 52   # f1.90930% raw:1580
-  StalfosKnight: 52   # f1.90930% raw:1580
-  Kyameron: 211   # f0.47370% raw:392
-  Zoro: 52   # f1.90930% raw:1580
-  Babasu: 52   # f1.90930% raw:1580
-  Tektite: 176   # f0.56796% raw:470
-  Popo: 56   # f1.77516% raw:1469
-  Popo2: 56   # f1.77516% raw:1469
-  Beamos: 56   # f1.77516% raw:1469
-  DebirandoPit: 110   # f0.90510% raw:749
-  Debirando: 110   # f0.90510% raw:749
-  Leever: 110   # f0.90510% raw:749
-  GreenEyegoreMimic: 270   # f0.36978% raw:306
-  RedEyegoreMimic: 270   # f0.36978% raw:306
-  Swamola: 172   # f0.58004% raw:480
-  GreenZirro: 191   # f0.52324% raw:433
-  BlueZirro: 191   # f0.52324% raw:433
-  Pikit: 191   # f0.52324% raw:433
-  Cucco: 207   # f0.48337% raw:400
-  Moblin: 281   # f0.35648% raw:295
-  Octorok4Way: 273   # f0.36615% raw:303
-  Octoballoon: 273   # f0.36615% raw:303
-  Zora: 690   # f0.14501% raw:120
-  Crab: 273   # f0.36615% raw:303
-  Thief: 81   # f1.22896% raw:1017
-  Wizzrobe: 155   # f0.64529% raw:534
-  Poe: 828   # f0.12084% raw:100
-  Hinox: 109   # f0.92081% raw:762
-  Ropa: 109   # f0.92081% raw:762
-  Pengator: 294   # f0.33956% raw:281
-  Freezor: 294   # f0.33956% raw:281
-  Sluggula: 239   # f0.41811% raw:346
-  RollerVerticalUp: 280   # f0.35769% raw:296
-  RollerVerticalDown: 280   # f0.35769% raw:296
-  RollerHorizontalLeft: 280   # f0.35769% raw:296
-  RollerHorizontalRight: 280   # f0.35769% raw:296
-  Pokey: 280   # f0.35769% raw:296
-  Chainchomp: 280   # f0.35769% raw:296
-  Gibdo: 196   # f0.51116% raw:423
-  Wallmaster: 196   # f0.51116% raw:423
-  GreenKnifeGuard: 773   # f0.12930% raw:107
-  BlueArcher: 632   # f0.15830% raw:131
-  GreenBushGuard: 632   # f0.15830% raw:131
-  Snapdragon: 690   # f0.14501% raw:120
-  Kodongo: 368   # f0.27189% raw:225
-  Terrorpin: 368   # f0.27189% raw:225
-  BlueZazak: 400   # f0.25014% raw:207
-  RedZazak: 400   # f0.25014% raw:207
-  Gibo: 400   # f0.25014% raw:207
-OW:  # Total 94707
-  Popo: 50  # f2.00513% raw:1899
-  Popo2: 50  # f2.00513% raw:1899
-  Beamos: 50  # f2.00513% raw:1899
-  DebirandoPit: 100  # f1.00415% raw:951
-  Debirando: 100  # f1.00415% raw:951
-  Leever: 100  # f1.00415% raw:951
-  BunnyBeam: 15  # f6.65210% raw:6300
-  FloppingFish: 15  # f6.65210% raw:6300
-  Stal: 15  # f6.65210% raw:6300
-  Landmine: 15  # f6.65210% raw:6300
-  MiniHelmasaur: 49  # f2.03364% raw:1926
-  AntiFairy: 73  # f1.36738% raw:1295
-  MiniMoldorm: 49  # f2.03364% raw:1926
-  Statue: 73  # f1.36738% raw:1295
-  HardhatBeetle: 49  # f2.03364% raw:1926
-  BigSpike: 73  # f1.36738% raw:1295
-  AntiFairyCircle: 73  # f1.36738% raw:1295
-  GreenEyegoreMimic: 316  # f0.31677% raw:300
-  RedEyegoreMimic: 316  # f0.31677% raw:300
-  SpikeBlock: 73  # f1.36738% raw:1295
-  Bumper: 73  # f1.36738% raw:1295
-  Hinox: 87  # f1.14353% raw:1083
-  Ropa: 87  # f1.14353% raw:1083
-  CricketRat: 160  # f0.62509% raw:592
-  Snake: 160  # f0.62509% raw:592
-  Keese: 160  # f0.62509% raw:592
-  GreenZirro: 151  # f0.66415% raw:629
-  BlueZirro: 151  # f0.66415% raw:629
-  Pikit: 151  # f0.66415% raw:629
-  Raven: 61  # f1.64719% raw:1560
-  RollerVerticalUp: 272  # f0.36745% raw:348
-  RollerVerticalDown: 272  # f0.36745% raw:348
-  RollerHorizontalLeft: 272  # f0.36745% raw:348
-  RollerHorizontalRight: 272  # f0.36745% raw:348
-  Pokey: 272  # f0.36745% raw:348
-  Chainchomp: 272  # f0.36745% raw:348
-  Swamola: 128  # f0.78030% raw:739
-  Cucco: 316  # f0.31677% raw:300
-  BlueGuard: 239  # f0.41813% raw:396
-  GreenGuard: 239  # f0.41813% raw:396
-  RedSpearGuard: 239  # f0.41813% raw:396
-  UsainBolt: 239  # f0.41813% raw:396
-  Buzzblob: 115  # f0.86688% raw:821
-  Hoarder: 115  # f0.86688% raw:821
-  RedBari: 98  # f1.01999% raw:966
-  BlueBari: 98  # f1.01999% raw:966
-  Hoarder2: 115  # f0.86688% raw:821
-  Toppo: 115  # f0.86688% raw:821
-  SparkCW: 98  # f1.01999% raw:966
-  SparkCCW: 98  # f1.01999% raw:966
-  FloatingSkull: 98  # f1.01999% raw:966
-  FirebarCW: 98  # f1.01999% raw:966
-  FirebarCCW: 98  # f1.01999% raw:966
-  Firesnake: 98  # f1.01999% raw:966
-  Stalfos: 98  # f1.01999% raw:966
-  FakeMasterSword: 115  # f0.86688% raw:821
-  Vulture: 184  # f0.54484% raw:516
-  Geldman: 184  # f0.54484% raw:516
-  Blob: 50  # f1.98401% raw:1879
-  StalfosKnight: 50  # f1.98401% raw:1879
-  Zoro: 50  # f1.98401% raw:1879
-  Babasu: 50  # f1.98401% raw:1879
-  Octorok: 112  # f0.89011% raw:843
-  Octorok4Way: 226  # f0.44242% raw:419
-  Octoballoon: 226  # f0.44242% raw:419
-  FireballZora: 112  # f0.89011% raw:843
-  Crab: 226  # f0.44242% raw:419
-  Thief: 90  # f1.11713% raw:1058
-  Zora: 686  # f0.14571% raw:138
-  Deadrock: 127  # f0.78769% raw:746
-  ArmosStatue: 127  # f0.78769% raw:746
-  Tektite: 127  # f0.78769% raw:746
-  Hover: 301  # f0.33260% raw:315
-  Kyameron: 301  # f0.33260% raw:315
-  Pengator: 274  # f0.36534% raw:346
-  Freezor: 274  # f0.36534% raw:346
-  BlueArcher: 824  # f0.12143% raw:115
-  GreenBushGuard: 824  # f0.12143% raw:115
-  Kodongo: 287  # f0.34844% raw:330
-  Terrorpin: 287  # f0.34844% raw:330
-  Wizzrobe: 152  # f0.65676% raw:622
-  Poe: 474  # f0.21118% raw:200
-  Snapdragon: 596  # f0.16789% raw:159
-  Moblin: 221  # f0.45298% raw:429
-  Lynel: 145  # f0.69161% raw:655
-  BlueZazak: 308  # f0.32416% raw:307
-  RedZazak: 308  # f0.32416% raw:307
-  Gibo: 308  # f0.32416% raw:307
-  Gibdo: 290  # f0.34528% raw:327
-  Wallmaster: 290  # f0.34528% raw:327
-  GreenKnifeGuard: 853  # f0.11720% raw:111
-  BluesainBolt: 803  # f0.12459% raw:118
-  RedJavelinGuard: 803  # f0.12459% raw:118
-  RedBushGuard: 803  # f0.12459% raw:118
-  BombGuard: 803  # f0.12459% raw:118
-  BallNChain: 803  # f0.12459% raw:118
-  CannonTrooper: 803  # f0.12459% raw:118
-  Sluggula: 302  # f0.33155% raw:314
+UW:  # Total 94431
+  AntiFairy: 40   # 1.82885% raw:1727 15.28319%
+  AntiFairyCircle: 40   # 1.82885% raw:1727 15.28319%
+  ArmosStatue: 186   # 0.53796% raw:508 4.49558%
+  Babasu: 80   # 1.15428% raw:1090 9.64602%
+  BallNChain: 163   # 0.61526% raw:581 5.14159%
+  Beamos: 155   # 0.64703% raw:611 5.40708%
+  BigSpike: 40   # 1.82885% raw:1727 15.28319%
+  Blob: 87   # 1.15428% raw:1090 9.64602%
+  BlueArcher: 325   # 0.30816% raw:291 2.57522%
+  BlueBari: 49   # 2.02688% raw:1914 16.93805%
+  BlueGuard: 44   # 2.28527% raw:2158 19.09735%
+  BlueZazak: 294   # 0.33993% raw:321 2.84071%
+  BlueZirro: 180   # 0.55702% raw:526 4.65487%
+  BluesainBolt: 150   # 0.66821% raw:631 5.58407%
+  BombGuard: 163   # 0.61526% raw:581 5.14159%
+  Bumper: 55   # 1.82885% raw:1727 15.28319%
+  BunnyBeam: 19   # 5.40077% raw:5100 45.13274%
+  Buzzblob: 123   # 0.81223% raw:767 6.78761%
+  CannonTrooper: 163   # 0.61526% raw:581 5.14159%
+  Chainchomp: 238   # 0.42041% raw:397 3.51327%
+  Crab: 204   # 0.48925% raw:462 4.08850%
+  CricketRat: 212   # 0.47230% raw:446 3.94690%
+  Cucco: 120   # 0.54325% raw:513 4.53982%
+  Deadrock: 186   # 0.53796% raw:508 4.49558%
+  Debirando: 154   # 0.65127% raw:615 5.44248%
+  DebirandoPit: 154   # 0.65127% raw:615 5.44248%
+  FakeMasterSword: 120   # 0.81223% raw:767 6.78761%
+  FireballZora: 165   # 0.60679% raw:573 5.07080%
+  FirebarCCW: 49   # 2.02688% raw:1914 16.93805%
+  FirebarCW: 49   # 2.02688% raw:1914 16.93805%
+  Firesnake: 49   # 2.02688% raw:1914 16.93805%
+  FloatingSkull: 49   # 2.02688% raw:1914 16.93805%
+  FloppingFish: 30   # 5.40077% raw:5100 45.13274%
+  Freezor: 454   # 0.22027% raw:208 1.84071%
+  Geldman: 445   # 0.22450% raw:212 1.87611%
+  Gibdo: 150   # 0.40453% raw:382 3.38053%
+  Gibo: 294   # 0.33993% raw:321 2.84071%
+  GreenBushGuard: 325   # 0.30816% raw:291 2.57522%
+  GreenEyegoreMimic: 175   # 0.57291% raw:541 4.78761%
+  GreenGuard: 55   # 1.80237% raw:1702 15.06195%
+  GreenKnifeGuard: 621   # 0.16096% raw:152 1.34513%
+  GreenZirro: 180   # 0.55702% raw:526 4.65487%
+  HardhatBeetle: 109   # 0.91495% raw:864 7.64602%
+  Hinox: 140   # 0.71269% raw:673 5.95575%
+  Hoarder: 123   # 0.81223% raw:767 6.78761%
+  Hoarder2: 123   # 0.81223% raw:767 6.78761%
+  Hover: 150   # 0.42147% raw:398 3.52212%
+  Keese: 212   # 0.47230% raw:446 3.94690%
+  Kodongo: 463   # 0.21603% raw:204 1.80531%
+  Kyameron: 237   # 0.42147% raw:398 3.52212%
+  Landmine: 19   # 5.40077% raw:5100 45.13274%
+  Leever: 154   # 0.65127% raw:615 5.44248%
+  Lynel: 559   # 0.17897% raw:169 1.49558%
+  MiniHelmasaur: 109   # 0.91495% raw:864 7.64602%
+  MiniMoldorm: 109   # 0.91495% raw:864 7.64602%
+  Moblin: 367   # 0.27216% raw:257 2.27434%
+  Octoballoon: 204   # 0.48925% raw:462 4.08850%
+  Octorok: 165   # 0.60679% raw:573 5.07080%
+  Octorok4Way: 204   # 0.48925% raw:462 4.08850%
+  Pengator: 300   # 0.22027% raw:208 1.84071%
+  Pikit: 180   # 0.55702% raw:526 4.65487%
+  Poe: 284   # 0.35264% raw:333 2.94690%
+  Pokey: 238   # 0.42041% raw:397 3.51327%
+  Popo: 155   # 0.64703% raw:611 5.40708%
+  Popo2: 155   # 0.64703% raw:611 5.40708%
+  Raven: 94   # 1.06109% raw:1002 8.86726%
+  RedBari: 49   # 2.02688% raw:1914 16.93805%
+  RedBushGuard: 163   # 0.61526% raw:581 5.14159%
+  RedEyegoreMimic: 175   # 0.57291% raw:541 4.78761%
+  RedJavelinGuard: 163   # 0.61526% raw:581 5.14159%
+  RedSpearGuard: 44   # 2.28527% raw:2158 19.09735%
+  RedZazak: 294   # 0.33993% raw:321 2.84071%
+  RollerHorizontalLeft: 238   # 0.42041% raw:397 3.51327%
+  RollerHorizontalRight: 238   # 0.42041% raw:397 3.51327%
+  RollerVerticalDown: 238   # 0.42041% raw:397 3.51327%
+  RollerVerticalUp: 238   # 0.42041% raw:397 3.51327%
+  Ropa: 140   # 0.71269% raw:673 5.95575%
+  Sluggula: 360   # 0.27745% raw:262 2.31858%
+  Snake: 212   # 0.47230% raw:446 3.94690%
+  Snapdragon: 562   # 0.17791% raw:168 1.48673%
+  SparkCCW: 49   # 2.02688% raw:1914 16.93805%
+  SparkCW: 49   # 2.02688% raw:1914 16.93805%
+  SpikeBlock: 55   # 1.82885% raw:1727 15.28319%
+  Stal: 19   # 5.40077% raw:5100 45.13274%
+  Stalfos: 49   # 2.02688% raw:1914 16.93805%
+  StalfosKnight: 87   # 1.15428% raw:1090 9.64602%
+  Statue: 30   # 1.82885% raw:1727 15.28319%
+  Swamola: 402   # 0.24886% raw:235 2.07965%
+  Tektite: 186   # 0.53796% raw:508 4.49558%
+  Terrorpin: 463   # 0.21603% raw:204 1.80531%
+  Thief: 100   # 0.60997% raw:576 5.09735%
+  Toppo: 123   # 0.81223% raw:767 6.78761%
+  UsainBolt: 44   # 2.28527% raw:2158 19.09735%
+  Vulture: 445   # 0.22450% raw:212 1.87611%
+  Wallmaster: 247   # 0.40453% raw:382 3.38053%
+  Wizzrobe: 306   # 0.32722% raw:309 2.73451%
+  Zora: 609   # 0.16414% raw:155 1.37168%
+  Zoro: 80   # 1.15428% raw:1090 9.64602%
+OW:  # Total 117724
+  AntiFairy: 60  # 0.97346% raw:1146 10.14159%
+  AntiFairyCircle: 60  # 0.97346% raw:1146 10.14159%
+  ArmosStatue: 144  # 0.69570% raw:819 7.24779%
+  Babasu: 100  # 0.84605% raw:996 8.81416%
+  BallNChain: 121  # 0.82651% raw:973 8.61062%
+  Beamos: 184  # 0.54364% raw:640 5.66372%
+  BigSpike: 70  # 0.97346% raw:1146 10.14159%
+  Blob: 118  # 0.84605% raw:996 8.81416%
+  BlueArcher: 291  # 0.34403% raw:405 3.58407%
+  BlueBari: 47  # 2.11767% raw:2493 22.06195%
+  BlueGuard: 39  # 2.56617% raw:3021 26.73451%
+  BlueZazak: 247  # 0.40519% raw:477 4.22124%
+  BlueZirro: 158  # 0.63369% raw:746 6.60177%
+  BluesainBolt: 111  # 0.90381% raw:1064 9.41593%
+  BombGuard: 121  # 0.82651% raw:973 8.61062%
+  Bumper: 103  # 0.97346% raw:1146 10.14159%
+  BunnyBeam: 19  # 5.26656% raw:6200 54.86726%
+  Buzzblob: 86  # 1.15609% raw:1361 12.04425%
+  CannonTrooper: 121  # 0.82651% raw:973 8.61062%
+  Chainchomp: 226  # 0.44341% raw:522 4.61947%
+  Crab: 163  # 0.61500% raw:724 6.40708%
+  CricketRat: 236  # 0.42387% raw:499 4.41593%
+  Cucco: 140  # 0.60396% raw:711 6.29204%
+  Deadrock: 144  # 0.69570% raw:819 7.24779%
+  Debirando: 164  # 0.60905% raw:717 6.34513%
+  DebirandoPit: 164  # 0.60905% raw:717 6.34513%
+  FakeMasterSword: 120  # 1.15609% raw:1361 12.04425%
+  FireballZora: 119  # 0.84350% raw:993 8.78761%
+  FirebarCCW: 47  # 2.11767% raw:2493 22.06195%
+  FirebarCW: 47  # 2.11767% raw:2493 22.06195%
+  Firesnake: 47  # 2.11767% raw:2493 22.06195%
+  FloatingSkull: 47  # 2.11767% raw:2493 22.06195%
+  FloppingFish: 30  # 5.26656% raw:6200 54.86726%
+  Freezor: 692  # 0.14441% raw:170 1.50442%
+  Geldman: 229  # 0.43746% raw:515 4.55752%
+  Gibdo: 300  # 0.15545% raw:183 1.61947%
+  Gibo: 247  # 0.40519% raw:477 4.22124%
+  GreenBushGuard: 291  # 0.34403% raw:405 3.58407%
+  GreenEyegoreMimic: 171  # 0.58527% raw:689 6.09735%
+  GreenGuard: 48  # 2.06330% raw:2429 21.49558%
+  GreenKnifeGuard: 589  # 0.16989% raw:200 1.76991%
+  GreenZirro: 158  # 0.63369% raw:746 6.60177%
+  HardhatBeetle: 113  # 0.88682% raw:1044 9.23894%
+  Hinox: 123  # 0.81462% raw:959 8.48673%
+  Hoarder: 86  # 1.15609% raw:1361 12.04425%
+  Hoarder2: 86  # 1.15609% raw:1361 12.04425%
+  Hover: 200  # 0.32449% raw:382 3.38053%
+  Keese: 236  # 0.42387% raw:499 4.41593%
+  Kodongo: 346  # 0.28881% raw:340 3.00885%
+  Kyameron: 308  # 0.32449% raw:382 3.38053%
+  Landmine: 19  # 5.26656% raw:6200 54.86726%
+  Leever: 164  # 0.60905% raw:717 6.34513%
+  Lynel: 325  # 0.30750% raw:362 3.20354%
+  MiniHelmasaur: 113  # 0.88682% raw:1044 9.23894%
+  MiniMoldorm: 113  # 0.88682% raw:1044 9.23894%
+  Moblin: 303  # 0.33043% raw:389 3.44248%
+  Octoballoon: 163  # 0.61500% raw:724 6.40708%
+  Octorok: 119  # 0.84350% raw:993 8.78761%
+  Octorok4Way: 163  # 0.61500% raw:724 6.40708%
+  Pengator: 400  # 0.14441% raw:170 1.50442%
+  Pikit: 158  # 0.63369% raw:746 6.60177%
+  Poe: 202  # 0.49608% raw:584 5.16814%
+  Pokey: 226  # 0.44341% raw:522 4.61947%
+  Popo: 184  # 0.54364% raw:640 5.66372%
+  Popo2: 184  # 0.54364% raw:640 5.66372%
+  Raven: 65  # 1.53325% raw:1805 15.97345%
+  RedBari: 47  # 2.11767% raw:2493 22.06195%
+  RedBushGuard: 121  # 0.82651% raw:973 8.61062%
+  RedEyegoreMimic: 171  # 0.58527% raw:689 6.09735%
+  RedJavelinGuard: 121  # 0.82651% raw:973 8.61062%
+  RedSpearGuard: 39  # 2.56617% raw:3021 26.73451%
+  RedZazak: 247  # 0.40519% raw:477 4.22124%
+  RollerHorizontalLeft: 226  # 0.44341% raw:522 4.61947%
+  RollerHorizontalRight: 226  # 0.44341% raw:522 4.61947%
+  RollerVerticalDown: 226  # 0.44341% raw:522 4.61947%
+  RollerVerticalUp: 226  # 0.44341% raw:522 4.61947%
+  Ropa: 123  # 0.81462% raw:959 8.48673%
+  Sluggula: 443  # 0.22595% raw:266 2.35398%
+  Snake: 236  # 0.42387% raw:499 4.41593%
+  Snapdragon: 526  # 0.19028% raw:224 1.98230%
+  SparkCCW: 47  # 2.11767% raw:2493 22.06195%
+  SparkCW: 47  # 2.11767% raw:2493 22.06195%
+  SpikeBlock: 103  # 0.97346% raw:1146 10.14159%
+  Stal: 19  # 5.26656% raw:6200 54.86726%
+  Stalfos: 47  # 2.11767% raw:2493 22.06195%
+  StalfosKnight: 118  # 0.84605% raw:996 8.81416%
+  Statue: 60  # 0.97346% raw:1146 10.14159%
+  Swamola: 265  # 0.37715% raw:444 3.92920%
+  Tektite: 144  # 0.69570% raw:819 7.24779%
+  Terrorpin: 346  # 0.28881% raw:340 3.00885%
+  Thief: 100  # 0.39244% raw:462 4.08850%
+  Toppo: 86  # 1.15609% raw:1361 12.04425%
+  UsainBolt: 39  # 2.56617% raw:3021 26.73451%
+  Vulture: 229  # 0.43746% raw:515 4.55752%
+  Wallmaster: 643  # 0.15545% raw:183 1.61947%
+  Wizzrobe: 345  # 0.28966% raw:341 3.01770%
+  Zora: 558  # 0.17923% raw:211 1.86726%
+  Zoro: 100  # 0.84605% raw:996 8.81416%

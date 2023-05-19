@@ -1866,7 +1866,9 @@ mandatory_connections = [('Links House S&Q', 'Links House'),
                          ('Lumberjack Tree (top to bottom)', 'Lumberjack Tree (bottom)'),
                          ('Death Mountain Return Cave E', 'Death Mountain Return Cave (right)'),
                          ('Death Mountain Return Cave W', 'Death Mountain Return Cave (left)'),
-                         ('Old Man Cave Dropdown', 'Old Man Cave'),
+                         ('Old Man Cave Dropdown', 'Old Man Cave (East)'),
+                         ('Old Man Cave W', 'Old Man Cave (West)'),
+                         ('Old Man Cave E', 'Old Man Cave (East)'),
                          ('Spectacle Rock Cave Drop', 'Spectacle Rock Cave (Bottom)'),
                          ('Spectacle Rock Cave Peak Drop', 'Spectacle Rock Cave (Bottom)'),
                          ('Old Man House Front to Back', 'Old Man House Back'),
@@ -2229,7 +2231,7 @@ open_default_connections = {'Links House': 'Links House',
                             'Links House Exit': 'Light World',
                             'Big Bomb Shop': 'Big Bomb Shop',
                             'Old Man Cave (West)': 'Old Man Cave Ledge',
-                            'Old Man Cave (East)': 'Old Man Cave',
+                            'Old Man Cave (East)': 'Old Man Cave (East)',
                             'Old Man Cave Exit (West)': 'Light World',
                             'Old Man Cave Exit (East)': 'West Death Mountain (Bottom)',
                             'Death Mountain Return Cave (West)': 'Death Mountain Return Cave (left)',
@@ -2258,7 +2260,7 @@ inverted_default_connections = {'Links House': 'Big Bomb Shop',
                                 'Bumper Cave (Top)': 'Dark Death Mountain Healer Fairy',
                                 'Bumper Cave Exit (Top)': 'Death Mountain Return Ledge',
                                 'Bumper Cave Exit (Bottom)': 'Light World',
-                                'Dark Death Mountain Fairy': 'Old Man Cave',
+                                'Dark Death Mountain Fairy': 'Old Man Cave (East)',
                                 'Inverted Pyramid Hole': 'Pyramid',
                                 'Inverted Pyramid Entrance': 'Bottom of Pyramid',
                                 'Pyramid Exit': 'Hyrule Castle Courtyard'
@@ -2336,7 +2338,7 @@ indirect_connections = {
     'West Dark World': 'Pyramid Fairy',
     'South Dark World': 'Pyramid Fairy',
     'Light World': 'Pyramid Fairy',
-    'Old Man Cave': 'Old Man S&Q'
+    'Old Man Cave (East)': 'Old Man S&Q'
 }
 # format:
 # Key=Name

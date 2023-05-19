@@ -41,7 +41,7 @@ def defeat_rule_single(world, player, enemy_sprite, region):
         rules.append(fire_rod_rule(world, player, vln['FireRod']))
     if vln['Boomerang'] != 0:
         rules.append(has_boomerang(player))
-    if vln['Powder'] != 0:
+    if vln['Powder'] not in [0, -3]:  # fairy doesn't make it drop
         rules.append(magic_powder_rule(world, player, vln['Powder']))
     # skip medallions if vln to Blunt?
     if vln['Bombos'] != 0 and vln['Blunt'] == 0:
@@ -51,7 +51,7 @@ def defeat_rule_single(world, player, enemy_sprite, region):
     if vln['Quake'] != 0 and vln['Blunt'] == 0:
         rules.append(medallion_rule(world, player, 'Quake', vln['Quake']))
     if enemy_sprite.kind == EnemySprite.StalfosKnight:
-        # must be bombed to be made vulnerable
+        # must be bombed once made vulnerable
         return and_rule(can_use_bombs(world, player), or_rule(*rules))
     return or_rule(*rules)
 
@@ -222,19 +222,23 @@ def needed_resources(damage_type, vln_list):
 special_rules_check = {
     'Swamp Waterway': None,
     'Hera Back': [5, 6],
-    'GT Petting Zoo': [1, 4, 5, 7],
+    'GT Petting Zoo': [5, 8, 9, 11],
     'Mimic Cave': [3, 4],
     'Ice Hookshot Ledge': None,
     'TR Hub Ledges': [3, 4, 5, 6, 7],
-    'Old Man Cave': None,
+    'TR Dark Ride': [1, 2, 3],
+    'GT Speed Torch': [11, 13],
+    'Old Man Cave (West)': None,
+    'Old Man Cave (East)': None,
+    'Old Man House': [1, 3],
     'Old Man House Back': [4, 5, 6],
     'Death Mountain Return Cave (left)': None,
-    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7]
+    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7]  # 2, 5, 6 are considered embedded
 }
 
 
 def special_rules_for_region(world, player, region_name, location, original_rule):
-    if region_name == 'Swamp Waterway':  # todo: check on enemizer interaction
+    if region_name == 'Swamp Waterway':
         return or_rule(medallion_rule(world, player, 'Quake', 1),
                        medallion_rule(world, player, 'Ether', 1),
                        medallion_rule(world, player, 'Bombos', 1))
@@ -244,11 +248,22 @@ def special_rules_for_region(world, player, region_name, location, original_rule
             return and_rule(original_rule, has_boomerang(player))
         else:
             return original_rule
-    elif region_name in ['TR Hub Ledges', 'Ice Hookshot Ledge', 'Old Man Cave', 'Old Man House Back',
-                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)']:
+    elif region_name in ['TR Hub Ledges', 'Ice Hookshot Ledge',  'TR Dark Ride']:
         enemy_number = int(location.name.split('#')[1])
         if special_rules_check[region_name] is None or enemy_number in special_rules_check[region_name]:
             return and_rule(original_rule, or_rule(has_boomerang(player), has('Hookshot', player)))
+        else:
+            return original_rule
+    elif region_name in ['Old Man Cave (West)', 'Old Man Cave (East)', 'Old Man House Back', 'Old Man House',
+                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)']:
+        enemy_number = int(location.name.split('#')[1])
+        if region_name == 'Death Mountain Return Cave (left)':
+            if enemy_number in [1, 5]:
+                return and_rule(original_rule, or_rule(has_boomerang(player), has('Hookshot', player)))
+            else:
+                return and_rule(original_rule, has('Hookshot', player))
+        if special_rules_check[region_name] is None or enemy_number in special_rules_check[region_name]:
+            return and_rule(original_rule, has('Hookshot', player))
         else:
             return original_rule
     return original_rule
@@ -258,10 +273,14 @@ def has_blunt_weapon(player):
     return or_rule(has_sword(player), has('Hammer', player))
 
 
+# Bombs, Arrows, Bombos, FireRod, Somaria, Byrna should be handled by the damage table logic
+# Powder doesn't work (also handled by damage table)
 def buzzblob_rule(player):
     return or_rule(has('Golden Sword', player),
                    and_rule(has_blunt_weapon(player),
-                            or_rule(has_boomerang(player), has('Hookshot', player))))  # freeze it?
+                            or_rule(has_boomerang(player), has('Hookshot', player), has('Ice Rod', player))),
+                   and_rule(has('Ether', player), has_sword(player)),
+                   and_rule(has('Quake', player), has_sword(player)))
 
 
 def has_class_2_weapon(player):
@@ -456,7 +475,10 @@ def enemy_vulnerability(world, player, enemy_sprite, region):
         vulnerability['Silvers'] = hits
     for method in ['Bomb', 'Hookshot', 'FireRod', 'IceRod', 'Boomerang', 'Powder', 'Bombos', 'Ether', 'Quake']:
         hits = number_of_hits(method, damage_src, enemy_sub_class, stats, enemy_sprite, region)
-        if hits != 0:
+        if hits == -3:
+            if enemy_sprite.kind != EnemySprite.Buzzblob:  # buzzblobs are special and don't die
+                vulnerability[method] = -1
+        elif hits != 0:
             vulnerability[method] = hits
     return vulnerability
 
@@ -483,12 +505,14 @@ def number_of_hits(source_name, damage_src, enemy_sub_class, stats, enemy_sprite
                 health = max(health)
         return math.ceil(health / damage_amount)
     elif damage_amount in [0xF9, 0xFA, 0xFD]:
-        # -1 faired or incinerated; -2 blobbed
-        # F9: fairy, defeated, but doesn't drop anything
+        # -1 incinerated; -2 blobbed, -3 fairy-ed (depends on enemy if "killed" or not)
+        # F9: fairy, defeated, but doesn't drop anything: -3
         # FA: blobbed - can you kill a blob?  = -2
         # FD: incinerated
-        return -1 if damage_amount != 0xFA else -2
+        return special_classes[damage_amount]
     else:
         return 0
 
+
+special_classes = {0xF9: -3, 0xFA: -2, 0xFD: -1}
 

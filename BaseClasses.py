@@ -2191,7 +2191,8 @@ class Boss(object):
         return self.defeat_rule(state, self.player)
 
 class Location(object):
-    def __init__(self, player, name='', address=None, crystal=False, hint_text=None, parent=None, forced_item=None, player_address=None):
+    def __init__(self, player, name='', address=None, crystal=False, hint_text=None, parent=None, forced_item=None,
+                 player_address=None, note=None):
         self.name = name
         self.parent_region = parent
         if forced_item is not None:
@@ -2222,6 +2223,7 @@ class Location(object):
         self.type = LocationType.Normal if not crystal else LocationType.Prize
         self.pot = None
         self.drop = None
+        self.note = note
 
     def can_fill(self, state, item, check_access=True):
         if not self.valid_multiworld(state, item):
@@ -2252,6 +2254,8 @@ class Location(object):
             name += f' @ {self.parent_region.dungeon.name}'
         if world and world.players > 1:
             name += f' ({world.get_player_names(self.player)})'
+        if self.note:
+            name += f' ({self.note})'
         return name
 
     def __str__(self):

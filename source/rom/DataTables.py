@@ -1,13 +1,13 @@
 from collections import defaultdict
 
-from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes, load_yaml
+from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes, load_cached_yaml
 
 from source.dungeon.EnemyList import EnemyTable, init_vanilla_sprites, vanilla_sprites, init_enemy_stats, EnemySprite
 from source.dungeon.EnemyList import sprite_translation
 from source.dungeon.RoomHeader import init_room_headers
 from source.dungeon.RoomList import Room0127
 from source.enemizer.OwEnemyList import init_vanilla_sprites_ow, vanilla_sprites_ow
-from source.enemizer.SpriteSheets import init_sprite_sheets, init_sprite_requirements
+from source.enemizer.SpriteSheets import init_sprite_sheets, init_sprite_requirements, SheetChoice
 
 
 def convert_area_id_to_offset(area_id):
@@ -39,12 +39,24 @@ class DataTables:
 
         # enemizer conditions
         self.uw_enemy_denials = {}
-        for denial in load_yaml(['source', 'enemizer', 'uw_enemy_deny.yaml']):
+        self.ow_enemy_denials = {}
+        self.uw_enemy_drop_denials = {}
+        self.sheet_choices = []
+        denial_data = load_cached_yaml(['source', 'enemizer', 'enemy_deny.yaml'])
+        for denial in denial_data['UwGeneralDeny']:
             self.uw_enemy_denials[denial[0], denial[1]] = {sprite_translation[x] for x in denial[2]}
-        # todo: ow_denials
-        weights = load_yaml(['source', 'enemizer', 'enemy_weight.yaml'])
+        for denial in denial_data['OwGeneralDeny']:
+            self.ow_enemy_denials[denial[0], denial[1]] = {sprite_translation[x] for x in denial[2]}
+        for denial in denial_data['UwEnemyDrop']:
+            self.uw_enemy_drop_denials[denial[0], denial[1]] = {sprite_translation[x] for x in denial[2]}
+        weights = load_cached_yaml(['source', 'enemizer', 'enemy_weight.yaml'])
         self.uw_weights = {sprite_translation[k]: v for k, v in weights['UW'].items()}
         self.ow_weights = {sprite_translation[k]: v for k, v in weights['OW'].items()}
+        sheet_weights = load_cached_yaml(['source', 'enemizer', 'sheet_weight.yaml'])
+        for item in sheet_weights['SheetChoices']:
+            choice = SheetChoice(tuple(item['slots']), item['assignments'], item['weight'])
+            self.sheet_choices.append(choice)
+
 
     def write_to_rom(self, rom, colorize_pots=False, increase_bush_sprite_chance=False):
         if self.pot_secret_table.size() > 0x11c0:

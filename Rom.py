@@ -34,12 +34,13 @@ from InitialSram import InitialSram
 from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
 from source.dungeon.EnemyList import EnemySprite
+from source.dungeon.RoomObject import DoorObject
 from source.enemizer.Bossmizer import boss_writes
 from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'e1bf0b1e7ff799fcb6c7c16be9dab7f0'
+RANDOMIZERBASEHASH = '79a57594c59b3fa2e9cf344fc7437bf9'
 
 
 class JsonRom(object):
@@ -1399,7 +1400,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         for room in world.rooms:
             if room.player == player and room.modified:
                 if room.index in world.data_tables[player].room_list:
-                    world.data_tables[player].room_list[room.index].doors = room.doorList
+                    t = [DoorObject(x[0], x[1]) for x in room.doorList]
+                    world.data_tables[player].room_list[room.index].doors = t
                 else:
                     rom.write_bytes(room.address(), room.rom_data())
 

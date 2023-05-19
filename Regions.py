@@ -3,7 +3,7 @@ from Items import ItemFactory
 from BaseClasses import Region, Location, Entrance, RegionType, Shop, ShopType, LocationType, PotItem, PotFlags
 from PotShuffle import key_drop_data, vanilla_pots, choose_pots, PotSecretTable
 
-from source.dungeon.EnemyList import setup_enemy_locations
+from source.dungeon.EnemyList import setup_enemy_locations, enemy_names
 
 
 def create_regions(world, player):
@@ -119,7 +119,8 @@ def create_regions(world, player):
         create_cave_region(player, 'Lumberjack Tree (top)', 'a drop\'s exit', ['Lumberjack Tree'], ['Lumberjack Tree (top to bottom)']),
         create_cave_region(player, 'Lumberjack Tree (bottom)', 'a drop\'s exit', None, ['Lumberjack Tree Exit']),
         create_cave_region(player, 'Lumberjack House', 'a boring house'),
-        create_cave_region(player, 'Old Man Cave', 'a connector', ['Old Man'], ['Old Man Cave Exit (East)']),
+        create_cave_region(player, 'Old Man Cave (West)', 'a connector', ['Old Man'], ['Old Man Cave E']),
+        create_cave_region(player, 'Old Man Cave (East)', 'a connector', None, ['Old Man Cave Exit (East)', 'Old Man Cave W']),
         create_cave_region(player, 'Old Man Cave Ledge', 'a connector', None, ['Old Man Cave Exit (West)', 'Old Man Cave Dropdown']),
         create_cave_region(player, 'Old Man House', 'a connector', None, ['Old Man House Exit (Bottom)', 'Old Man House Front to Back']),
         create_cave_region(player, 'Old Man House Back', 'a connector', None, ['Old Man House Exit (Top)', 'Old Man House Back to Front']),
@@ -1032,7 +1033,10 @@ def adjust_locations(world, player):
             loc.type = LocationType.Drop
             snes_address, room, sprite_idx = datum[1]
             loc.address = snes_address
-            world.data_tables[player].uw_enemy_table.room_map[room][sprite_idx].location = loc
+            sprite = world.data_tables[player].uw_enemy_table.room_map[room][sprite_idx]
+            sprite.location = loc
+            if world.enemy_shuffle[player] != 'none':
+                loc.note = enemy_names[sprite.kind]
         else:
             loc.type = LocationType.Pot
             pot, pot_index = next((p, i) for i, p in enumerate(vanilla_pots[datum[1]]) if p.item == PotItem.Key)
@@ -1046,7 +1050,6 @@ def adjust_locations(world, player):
         else:
             key_item = loc.item
             key_item.location = None
-
             loc.forced_item = None
             loc.item = None
             loc.event = False

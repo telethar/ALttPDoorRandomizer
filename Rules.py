@@ -868,6 +868,8 @@ def drop_rules(world, player):
                 if enemy.location.parent_region.name in special_rules_check:
                     rule = special_rules_for_region(world, player, enemy.location.parent_region.name,
                                                     enemy.location, rule)
+                if rule.rule_lambda is None:
+                    raise Exception(f'Bad rule for enemy drop. Need to inspect this case: {hex(enemy.kind)}')
                 add_rule_new(enemy.location, rule)
 
 
@@ -1101,7 +1103,8 @@ def add_conditional_lamps(world, player):
         'Sewers Water': {'sewer': True, 'entrances': ['Sewers Water S', 'Sewers Water W'], 'locations': []},
         'Sewers Dark Aquabats': {'sewer': True, 'entrances': ['Sewers Dark Aquabats N', 'Sewers Dark Aquabats ES'], 'locations': []},
         'Sewers Key Rat': {'sewer': True, 'entrances': ['Sewers Key Rat S', 'Sewers Key Rat NE'], 'locations': ['Hyrule Castle - Key Rat Key Drop']},
-        'Old Man Cave': {'sewer': False, 'entrances': ['Old Man Cave Exit (East)']},
+        'Old Man Cave (East)': {'sewer': False, 'entrances': ['Old Man Cave Exit (East)', 'Old Man Cave W']},
+        'Old Man Cave (West)': {'sewer': False, 'entrances': ['Old Man Cave E']},
         'Old Man House Back': {'sewer': False, 'entrances': ['Old Man House Back to Front', 'Old Man House Exit (Top)']},
         'Death Mountain Return Cave (left)': {'sewer': False, 'entrances': ['Death Mountain Return Cave E', 'Death Mountain Return Cave Exit (West)']},
         'Death Mountain Return Cave (right)': {'sewer': False, 'entrances': ['Death Mountain Return Cave Exit (East)', 'Death Mountain Return Cave W']},

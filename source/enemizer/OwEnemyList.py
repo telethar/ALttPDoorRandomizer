@@ -2,7 +2,7 @@ from source.dungeon.EnemyList import Sprite, EnemySprite
 vanilla_sprites_ow = {}
 
 
-def create_sprite(area_id, kind, tile_x, tile_y, region=None, address=None, fix=True, water=False):
+def create_sprite(area_id, kind, tile_x, tile_y, region=None, address=None, fix=False, water=False, embed=False):
     if area_id not in vanilla_sprites_ow:
         vanilla_sprites_ow[area_id] = []
     sprite = Sprite(area_id, kind, 0, 0, tile_x, tile_y, region, False, None)
@@ -10,11 +10,15 @@ def create_sprite(area_id, kind, tile_x, tile_y, region=None, address=None, fix=
         sprite.water = True
     if fix:
         sprite.static = True
+    if embed:
+        sprite.embedded = True
     sprite.original_address = address
     vanilla_sprites_ow[area_id].append(sprite)
 
 
-def init_vanilla_sprites_ow():    
+def init_vanilla_sprites_ow():
+    if vanilla_sprites_ow:
+        return
     create_sprite(0x21b, EnemySprite.LightningGate, 0x1F, 0x06, '', 0x09CB42)
     create_sprite(0x21b, EnemySprite.TutorialGuard, 0x01, 0x12, '', 0x09CB45)
     create_sprite(0x21b, EnemySprite.TutorialGuard, 0x01, 0x14, '', 0x09CB48)
@@ -75,8 +79,8 @@ def init_vanilla_sprites_ow():
     create_sprite(0x4a, EnemySprite.Moblin, 0x0B, 0x0F, '', 0x09CBDF)
     create_sprite(0x4a, EnemySprite.Moblin, 0x08, 0x10, '', 0x09CBE2)
     create_sprite(0x4a, EnemySprite.Moblin, 0x16, 0x13, '', 0x09CBE5)
-    create_sprite(0x4a, EnemySprite.Raven, 0x13, 0x13, '', 0x09CBE8)
-    create_sprite(0x4a, EnemySprite.Raven, 0x13, 0x14, '', 0x09CBEB)
+    create_sprite(0x4a, EnemySprite.Raven, 0x13, 0x13, '', 0x09CBE8, embed=True)
+    create_sprite(0x4a, EnemySprite.Raven, 0x13, 0x14, '', 0x09CBEB, embed=True)
     create_sprite(0x4a, EnemySprite.Ropa, 0x0E, 0x18, '', 0x09CBEE)
     create_sprite(0x4a, EnemySprite.Stal, 0x14, 0x1A, '', 0x09CBF1)
     # Screen4F:
@@ -206,7 +210,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x5e, EnemySprite.Ropa, 0x24, 0x30, '', 0x09CD4C)
     create_sprite(0x5e, EnemySprite.Faerie, 0x30, 0x30, '', 0x09CD4F)
     create_sprite(0x5e, EnemySprite.Hinox, 0x35, 0x36, '', 0x09CD52)
-    create_sprite(0x5e, EnemySprite.Raven, 0x29, 0x37, '', 0x09CD55)
+    create_sprite(0x5e, EnemySprite.Raven, 0x29, 0x37, '', 0x09CD55, embed=True)
     # Screen62:
     create_sprite(0x62, EnemySprite.PurpleChest, 0x0D, 0x05, '', 0x09CD59)
     create_sprite(0x62, EnemySprite.Cucco, 0x13, 0x11, '', 0x09CD5C)
@@ -257,15 +261,15 @@ def init_vanilla_sprites_ow():
     create_sprite(0x6f, EnemySprite.Snapdragon, 0x0D, 0x08, '', 0x09CDD1)
     create_sprite(0x6f, EnemySprite.Snapdragon, 0x0F, 0x08, '', 0x09CDD4)
     create_sprite(0x6f, EnemySprite.Snapdragon, 0x0E, 0x0B, '', 0x09CDD7)
-    create_sprite(0x6f, EnemySprite.Raven, 0x17, 0x0C, '', 0x09CDDA)
+    create_sprite(0x6f, EnemySprite.Raven, 0x17, 0x0C, '', 0x09CDDA, embed=True)
     create_sprite(0x6f, EnemySprite.Stal, 0x09, 0x17, '', 0x09CDDD)
     # Screen70:
-    create_sprite(0x70, EnemySprite.Raven, 0x21, 0x1B, '', 0x09CDE1)
+    create_sprite(0x70, EnemySprite.Raven, 0x21, 0x1B, '', 0x09CDE1, embed=True)
     create_sprite(0x70, EnemySprite.FireballZora, 0x2B, 0x1C, '', 0x09CDE4, water=True)
     create_sprite(0x70, EnemySprite.FireballZora, 0x12, 0x21, '', 0x09CDE7, water=True)
     create_sprite(0x70, EnemySprite.Swamola, 0x1B, 0x24, '', 0x09CDEA, water=True)
     create_sprite(0x70, EnemySprite.Swamola, 0x10, 0x27, '', 0x09CDED, water=True)
-    create_sprite(0x70, EnemySprite.Raven, 0x07, 0x28, '', 0x09CDF0)
+    create_sprite(0x70, EnemySprite.Raven, 0x07, 0x28, '', 0x09CDF0, embed=True)
     create_sprite(0x70, EnemySprite.FireballZora, 0x16, 0x2B, '', 0x09CDF3, water=True)
     create_sprite(0x70, EnemySprite.FireballZora, 0x1E, 0x2E, '', 0x09CDF6, water=True)
     create_sprite(0x70, EnemySprite.Swamola, 0x17, 0x33, '', 0x09CDF9, water=True)
@@ -390,7 +394,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x81, EnemySprite.Zora, 0x37, 0x36, '', 0x09CF48, water=True)
     # Screen00_1:
     create_sprite(0x0, EnemySprite.FakeMasterSword, 0x07, 0x12, '', 0x09CF4C)
-    create_sprite(0x0, EnemySprite.Raven, 0x12, 0x0B, '', 0x09CF4F)
+    create_sprite(0x0, EnemySprite.Raven, 0x12, 0x0B, '', 0x09CF4F, embed=True)
     create_sprite(0x0, EnemySprite.Mushroom, 0x1E, 0x15, '', 0x09CF52)
     create_sprite(0x0, EnemySprite.FakeMasterSword, 0x28, 0x06, '', 0x09CF55)
     create_sprite(0x0, EnemySprite.Buzzblob, 0x31, 0x0A, '', 0x09CF58)
@@ -446,10 +450,10 @@ def init_vanilla_sprites_ow():
     create_sprite(0xa, EnemySprite.Raven, 0x05, 0x09, '', 0x09CFE4)
     create_sprite(0xa, EnemySprite.Buzzblob, 0x10, 0x0D, '', 0x09CFE7)
     create_sprite(0xa, EnemySprite.Buzzblob, 0x0B, 0x0E, '', 0x09CFEA)
-    create_sprite(0xa, EnemySprite.Raven, 0x13, 0x16, '', 0x09CFED)
+    create_sprite(0xa, EnemySprite.Raven, 0x13, 0x16, '', 0x09CFED, embed=True)
     create_sprite(0xa, EnemySprite.Hoarder, 0x0E, 0x16, '', 0x09CFF0)
     create_sprite(0xa, EnemySprite.Buzzblob, 0x16, 0x16, '', 0x09CFF3)
-    create_sprite(0xa, EnemySprite.Raven, 0x11, 0x17, '', 0x09CFF6)
+    create_sprite(0xa, EnemySprite.Raven, 0x11, 0x17, '', 0x09CFF6, embed=True)
     create_sprite(0xa, EnemySprite.Apple, 0x19, 0x1A, '', 0x09CFF9)
     # Screen0F_1:
     create_sprite(0xf, EnemySprite.Waterfall, 0x06, 0x02, '', 0x09CFFD)
@@ -457,7 +461,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xf, EnemySprite.FireballZora, 0x05, 0x10, '', 0x09D003, water=True)
     create_sprite(0xf, EnemySprite.Crab, 0x11, 0x12, '', 0x09D006)
     create_sprite(0xf, EnemySprite.Whirlpool, 0x08, 0x13, '', 0x09D009)
-    create_sprite(0xf, EnemySprite.Raven, 0x1C, 0x15, '', 0x09D00C)
+    create_sprite(0xf, EnemySprite.Raven, 0x1C, 0x15, '', 0x09D00C, embed=True)
     create_sprite(0xf, EnemySprite.Octorok4Way, 0x0E, 0x17, '', 0x09D00F)
     # Screen10_1:
     create_sprite(0x10, EnemySprite.GreenGuard, 0x05, 0x0C, '', 0x09D013)
@@ -681,7 +685,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x37, EnemySprite.FireballZora, 0x12, 0x19, '', 0x09D268, water=True)
     # Screen3A_1:
     create_sprite(0x3a, EnemySprite.Locksmith, 0x17, 0x05, '', 0x09D26C)
-    create_sprite(0x3a, EnemySprite.Raven, 0x0E, 0x09, '', 0x09D26F)
+    create_sprite(0x3a, EnemySprite.Raven, 0x0E, 0x09, '', 0x09D26F, embed=True)
     create_sprite(0x3a, EnemySprite.Hoarder2, 0x0B, 0x0A, '', 0x09D272)
     create_sprite(0x3a, EnemySprite.Hoarder2, 0x18, 0x0E, '', 0x09D275)
     # Screen3B_1:
@@ -692,7 +696,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x3b, EnemySprite.HeartPiece, 0x14, 0x0E, '', 0x09D285)
     create_sprite(0x3b, EnemySprite.FloppingFish, 0x1B, 0x10, '', 0x09D288, water=True)
     create_sprite(0x3b, EnemySprite.Toppo, 0x0F, 0x14, '', 0x09D28B)
-    create_sprite(0x3b, EnemySprite.Raven, 0x14, 0x1B, '', 0x09D28E)
+    create_sprite(0x3b, EnemySprite.Raven, 0x14, 0x1B, '', 0x09D28E, embed=True)
     # Screen3C_1:
     create_sprite(0x3c, EnemySprite.GreenBushGuard, 0x08, 0x0C, '', 0x09D292)
     create_sprite(0x3c, EnemySprite.Octorok, 0x14, 0x0F, '', 0x09D295)
@@ -765,10 +769,10 @@ def init_vanilla_sprites_ow():
     # Screen0A_2:
     create_sprite(0x9a, EnemySprite.Bee, 0x0E, 0x04, '', 0x09D353)
     create_sprite(0x9a, EnemySprite.BlueGuard, 0x10, 0x0D, '', 0x09D356)
-    create_sprite(0x9a, EnemySprite.Raven, 0x11, 0x16, '', 0x09D359)
-    create_sprite(0x9a, EnemySprite.Raven, 0x13, 0x16, '', 0x09D35C)
+    create_sprite(0x9a, EnemySprite.Raven, 0x11, 0x16, '', 0x09D359, embed=True)
+    create_sprite(0x9a, EnemySprite.Raven, 0x13, 0x16, '', 0x09D35C, embed=True)
     create_sprite(0x9a, EnemySprite.Hoarder, 0x0E, 0x16, '', 0x09D35F)
-    create_sprite(0x9a, EnemySprite.Raven, 0x11, 0x17, '', 0x09D362)
+    create_sprite(0x9a, EnemySprite.Raven, 0x11, 0x17, '', 0x09D362, embed=True)
     create_sprite(0x9a, EnemySprite.Apple, 0x19, 0x1A, '', 0x09D365)
     # Screen0F_2:
     create_sprite(0x9f, EnemySprite.Waterfall, 0x06, 0x02, '', 0x09D369)
@@ -986,7 +990,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xc5, EnemySprite.Buzzblob, 0x27, 0x1F, '', 0x09D5AA)
     create_sprite(0xc5, EnemySprite.Buzzblob, 0x2F, 0x1F, '', 0x09D5AD)
     create_sprite(0xc5, EnemySprite.FireballZora, 0x1B, 0x26, '', 0x09D5B0, water=True)
-    create_sprite(0xc5, EnemySprite.Raven, 0x0D, 0x2F, '', 0x09D5B3)
+    create_sprite(0xc5, EnemySprite.Raven, 0x0D, 0x2F, '', 0x09D5B3, embed=True)
     create_sprite(0xc5, EnemySprite.Octorok, 0x06, 0x34, '', 0x09D5B6)
     create_sprite(0xc5, EnemySprite.Octorok, 0x0A, 0x35, '', 0x09D5B9)
     create_sprite(0xc5, EnemySprite.FireballZora, 0x14, 0x35, '', 0x09D5BC, water=True)
@@ -1006,10 +1010,10 @@ def init_vanilla_sprites_ow():
     # Screen3A_2:
     create_sprite(0xca, EnemySprite.Locksmith, 0x17, 0x05, '', 0x09D5E5)
     create_sprite(0xca, EnemySprite.Hoarder2, 0x0B, 0x0A, '', 0x09D5E8)
-    create_sprite(0xca, EnemySprite.Raven, 0x14, 0x0D, '', 0x09D5EB)
-    create_sprite(0xca, EnemySprite.Raven, 0x13, 0x0E, '', 0x09D5EE)
-    create_sprite(0xca, EnemySprite.Raven, 0x14, 0x0F, '', 0x09D5F1)
-    create_sprite(0xca, EnemySprite.Raven, 0x13, 0x10, '', 0x09D5F4)
+    create_sprite(0xca, EnemySprite.Raven, 0x14, 0x0D, '', 0x09D5EB, embed=True)
+    create_sprite(0xca, EnemySprite.Raven, 0x13, 0x0E, '', 0x09D5EE, embed=True)
+    create_sprite(0xca, EnemySprite.Raven, 0x14, 0x0F, '', 0x09D5F1, embed=True)
+    create_sprite(0xca, EnemySprite.Raven, 0x13, 0x10, '', 0x09D5F4, embed=True)
     create_sprite(0xca, EnemySprite.UsainBolt, 0x11, 0x0F, '', 0x09D5F7)
     create_sprite(0xca, EnemySprite.Hoarder2, 0x17, 0x17, '', 0x09D5FA)
     # Screen3B_2:
@@ -1018,9 +1022,9 @@ def init_vanilla_sprites_ow():
     create_sprite(0xcb, EnemySprite.HeartPiece, 0x14, 0x0E, '', 0x09D604)
     create_sprite(0xcb, EnemySprite.Octorok4Way, 0x0F, 0x14, '', 0x09D607)
     create_sprite(0xcb, EnemySprite.BlueGuard, 0x17, 0x18, '', 0x09D60A)
-    create_sprite(0xcb, EnemySprite.Raven, 0x14, 0x1B, '', 0x09D60D)
+    create_sprite(0xcb, EnemySprite.Raven, 0x14, 0x1B, '', 0x09D60D, embed=True)
     # Screen3C_2:
-    create_sprite(0xcc, EnemySprite.Raven, 0x0B, 0x09, '', 0x09D611)
+    create_sprite(0xcc, EnemySprite.Raven, 0x0B, 0x09, '', 0x09D611, embed=True)
     create_sprite(0xcc, EnemySprite.BlueGuard, 0x08, 0x0A, '', 0x09D614)
     create_sprite(0xcc, EnemySprite.Octorok, 0x14, 0x0F, '', 0x09D617)
     create_sprite(0xcc, EnemySprite.UsainBolt, 0x09, 0x11, '', 0x09D61A)
