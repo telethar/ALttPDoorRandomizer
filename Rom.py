@@ -37,7 +37,7 @@ from source.dungeon.RoomList import Room0127
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'fc4d4a01f8c4e00280ea5640297f8e9c'
+RANDOMIZERBASEHASH = '383fa1a16bc4dd683a31801508fe839c'
 
 
 class JsonRom(object):
@@ -987,7 +987,7 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     TRIFORCE_PIECE = ItemFactory('Triforce Piece', player).code
     GREEN_CLOCK = ItemFactory('Green Clock', player).code
 
-    rom.write_byte(0x18004F, 0x01)  # Byrna Invulnerability: on
+    rom.write_byte(0x18004F, 0x00)  # Byrna Invulnerability: on
 
     # handle difficulty_adjustments
     if world.difficulty_adjustments[player] == 'hard':
@@ -1036,15 +1036,15 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
         # Powdered Fairies Prize
         rom.write_byte(0x36DD0, 0xE3)  # fairy
         # potion heal amount
-        rom.write_byte(0x180084, 0xA0)  # full
+        rom.write_byte(0x180084, 0x00)  # full
         # potion magic restore amount
-        rom.write_byte(0x180085, 0x80)  # full
+        rom.write_byte(0x180085, 0x00)  # full
         #Cape magic cost
         rom.write_bytes(0x3ADA7, [0x04, 0x08, 0x10])
         # Byrna Invulnerability: on
-        rom.write_byte(0x18004F, 0x01)
+        rom.write_byte(0x18004F, 0x00)
         #Enable catching fairies
-        rom.write_byte(0x34FD6, 0xF0)
+        rom.write_byte(0x34FD6, 0x80)
         # Rupoor negative value
         write_int16(rom, 0x180036, world.rupoor_cost)
         # Set stun items
@@ -1156,8 +1156,8 @@ def patch_rom(world, rom, player, team, enemized, is_mystery=False):
     ])
 
     # set Fountain bottle exchange items
-    rom.write_byte(0x348FF, ItemFactory(world.bottle_refills[player][0], player).code)
-    rom.write_byte(0x3493B, ItemFactory(world.bottle_refills[player][1], player).code)
+    rom.write_byte(0x348FF, 0x16)
+    rom.write_byte(0x3493B, 0x16)
 
     #enable Fat Fairy Chests
     rom.write_bytes(0x1FC16, [0xB1, 0xC6, 0xF9, 0xC9, 0xC6, 0xF9])

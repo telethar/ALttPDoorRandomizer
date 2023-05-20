@@ -965,9 +965,9 @@ def make_custom_item_pool(progressive, shuffle, difficulty, timer, goal, mode, s
     if diff.same_bottle:
         thisbottle = random.choice(diff.bottles)
     for _ in range(customitemarray["bottle"]):
-        if not diff.same_bottle:
-            thisbottle = random.choice(diff.bottles)
-        pool.append(thisbottle)
+        # if not diff.same_bottle:
+        #     thisbottle = random.choice(diff.bottles)
+        pool.append('Bottle')
 
     if customitemarray["triforcepieces"] > 0 or customitemarray["triforcepiecesgoal"] > 0:
         # Location pool doesn't support larger values
