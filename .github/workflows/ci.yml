@@ -7,6 +7,9 @@ on:
     branches:
       - nmg_mode
 
+permissions:
+  contents: write
+
 # stuff to do
 jobs:
   # Install & Build
