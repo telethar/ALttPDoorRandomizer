@@ -478,7 +478,7 @@ def choose_portals(world, player):
                 if portal_region.type == RegionType.LightWorld:
                     world.get_portal(portal, player).light_world = True
                 if name in world.inaccessible_regions[player] or (hc_flag and portal != 'Hyrule Castle South'):
-                    name_key = 'Desert Ledge' if name == 'Desert Palace Entrance (North) Spot' else name
+                    name_key = 'Desert Ledge' if name == 'Desert Ledge Keep' else name
                     region_map[name_key].append(portal)
                     inaccessible_portals.append(portal)
                 else:
@@ -631,7 +631,7 @@ def analyze_portals(world, player):
             if portal_region.type == RegionType.LightWorld:
                 world.get_portal(portal, player).light_world = True
             if name in world.inaccessible_regions[player]:
-                name_key = 'Desert Ledge' if name == 'Desert Palace Entrance (North) Spot' else name
+                name_key = 'Desert Ledge' if name == 'Desert Ledge Keep' else name
                 region_map[name_key].append(portal)
                 inaccessible_portals.append(portal)
             else:
@@ -3368,7 +3368,7 @@ def find_accessible_entrances(world, player, builder):
         hc_std = True
         start_regions = ['Hyrule Castle Courtyard']
     elif world.mode[player] != 'inverted':
-        start_regions = ['Links House', 'Sanctuary', 'East Dark World']
+        start_regions = ['Links House', 'Sanctuary', 'Pyramid Area']
     else:
         start_regions = ['Links House', 'Dark Sanctuary Hint', 'Hyrule Castle Ledge']
     regs = convert_regions(start_regions, world, player)
@@ -3390,7 +3390,7 @@ def find_accessible_entrances(world, player, builder):
             if connect not in queue and connect not in visited_regions:
                 queue.append(connect)
         for ext in next_region.exits:
-            if hc_std and ext.name in ['Hyrule Castle Main Gate (North)', 'Castle Gate Teleporter', 'Hyrule Castle Ledge Drop']:  # just skip it
+            if hc_std and ext.name in ['Hyrule Castle Main Gate (North)', 'Castle Gate Teleporter (Inner)', 'Hyrule Castle Ledge Drop']:  # just skip it
                 continue
             connect = ext.connected_region
             if connect is None or ext.door and ext.door.blocked:

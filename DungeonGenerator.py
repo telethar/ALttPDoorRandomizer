@@ -1538,8 +1538,8 @@ def calc_allowance_and_dead_ends(builder, connections_tuple, world, player):
             if entrance in connections.keys():
                 enabling_region = connections[entrance]
                 check_list = list(potentials[enabling_region])
-                if enabling_region.name in ['Desert Ledge', 'Desert Palace Entrance (North) Spot']:
-                    alternate = 'Desert Palace Entrance (North) Spot' if enabling_region.name == 'Desert Ledge' else 'Desert Ledge'
+                if enabling_region.name in ['Desert Ledge', 'Desert Ledge Keep']:
+                    alternate = 'Desert Ledge Keep' if enabling_region.name == 'Desert Ledge' else 'Desert Ledge'
                     if world.get_region(alternate, player) in potentials:
                         check_list.extend(potentials[world.get_region(alternate, player)])
                 connecting_entrances = [x for x in check_list if x != entrance and x not in dead_entrances and x not in drop_entrances_allowance]

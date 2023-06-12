@@ -199,7 +199,7 @@ def generate_itempool(world, player):
         world.push_item(world.get_location('Ganon', player), ItemFactory('Triforce', player), False)
 
     if world.goal[player] in ['triforcehunt', 'trinity']:
-        region = world.get_region('Light World', player)
+        region = world.get_region('Hyrule Castle Courtyard', player)
         loc = Location(player, "Murahdahla", parent=region)
         region.locations.append(loc)
         world.dynamic_locations.append(loc)
@@ -476,11 +476,11 @@ take_any_locations = [
     'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House', 'Light World Bomb Hut',
     'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Lumberjack House', 'Bonk Fairy (Light)',
     'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy', 'Light Hype Fairy', 'Desert Healer Fairy',
-    'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Dark Desert Healer Fairy',
+    'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Mire Healer Fairy',
     'Dark Death Mountain Healer Fairy', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave',
     'Kakariko Gamble Game', '50 Rupee Cave', 'Lost Woods Gamble', 'Hookshot Fairy',
     'Palace of Darkness Hint', 'East Dark World Hint', 'Archery Game', 'Dark Lake Hylia Ledge Hint',
-    'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Dark Desert Hint']
+    'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Mire Hint']
 
 fixed_take_anys = [
     'Desert Healer Fairy', 'Light Hype Fairy', 'Dark Death Mountain Healer Fairy',

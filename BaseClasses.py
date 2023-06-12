@@ -1135,11 +1135,11 @@ class CollectionState(object):
 
     def can_lift_rocks(self, player):
         return self.has('Power Glove', player) or self.has('Titans Mitts', player)
-    
-    def can_bomb_clip(self, region, player: int) -> bool: 
+
+    def can_bomb_clip(self, region, player: int) -> bool:
         return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player) and self.can_use_bombs(player)
-    
-    def can_dash_clip(self, region, player: int) -> bool: 
+
+    def can_dash_clip(self, region, player: int) -> bool:
         return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player)
 
     def has_bottle(self, player):
@@ -1254,7 +1254,7 @@ class CollectionState(object):
     def can_flute(self, player):
         if self.world.mode[player] == 'standard' and not self.has('Zelda Delivered', player):
             return False  # can't flute in rain state
-        lw = self.world.get_region('Light World', player)
+        lw = self.world.get_region('Kakariko Village', player)
         return self.has('Ocarina (Activated)', player) or (self.has('Ocarina', player) and lw.can_reach(self)
                                                            and self.is_not_bunny(lw, player))
 
@@ -1311,7 +1311,7 @@ class CollectionState(object):
 
     def can_superbunny_mirror_with_sword(self, player):
         return self.has_Mirror(player) and self.has_sword(player)
-    
+
     def can_bunny_pocket(self, player):
         return self.has_Boots(player) and (self.has_Mirror(player) or self.has_bottle(player))
 
@@ -1457,6 +1457,12 @@ class CollectionState(object):
 
 
 @unique
+class Terrain(Enum):
+    Land = 0
+    Water = 1
+
+
+@unique
 class RegionType(Enum):
     Menu = 0
     LightWorld = 1
@@ -1484,6 +1490,7 @@ class Region(object):
         self.is_light_world = False  # will be set aftermaking connections.
         self.is_dark_world = False
         self.spot_type = 'Region'
+        self.terrain = None
         self.hint_text = hint
         self.recursion_count = 0
         self.player = player

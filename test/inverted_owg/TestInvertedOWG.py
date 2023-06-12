@@ -2,6 +2,7 @@ from BaseClasses import World
 from DoorShuffle import link_doors
 from Doors import create_doors
 from Dungeons import create_dungeons, get_dungeon_item_pool
+from OverworldShuffle import link_overworld
 from EntranceShuffle import link_entrances
 from ItemList import generate_itempool, difficulties
 from Items import ItemFactory
@@ -24,6 +25,7 @@ class TestInvertedOWG(TestBase):
         create_doors(self.world, 1)
         create_rooms(self.world, 1)
         create_dungeons(self.world, 1)
+        link_overworld(self.world, 1)
         create_owg_connections(self.world, 1)
         link_entrances(self.world, 1)
         link_doors(self.world, 1)
