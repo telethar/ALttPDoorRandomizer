@@ -2499,6 +2499,7 @@ class Spoiler(object):
                          'pseudoboots': self.world.pseudoboots,
                          'triforcegoal': self.world.treasure_hunt_count,
                          'triforcepool': self.world.treasure_hunt_total,
+                         'race': self.world.settings.world_rep['meta']['race'],
                          'code': {p: Settings.make_code(self.world, p) for p in range(1, self.world.players + 1)}
                          }
 
@@ -2601,6 +2602,7 @@ class Spoiler(object):
                     self.set_lobby(portal.name, portal.door.name, player)
 
     def to_json(self):
+        self.parse_meta()
         self.parse_data()
         out = OrderedDict()
         out['Entrances'] = list(self.entrances.values())
