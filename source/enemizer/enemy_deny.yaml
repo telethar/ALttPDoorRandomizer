@@ -126,6 +126,7 @@ UwGeneralDeny:
   - [ 0x005f, 1, [ "RollerVerticalDown", "RollerHorizontalRight" ] ]  #"Ice Palace - Bari University - Blue Bari 2"
   - [ 0x0060, 0, [ "RollerVerticalUp", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Hyrule Castle - West - Blue Guard"
   - [ 0x0062, 0, [ "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Hyrule Castle - East - Blue Guard"
+  - [ 0x0064, 2, [ "Bumper" , "Beamos" ] ]  #"Thieves' Town - Attic Hall Left - Keese 2"
   - [ 0x0064, 4, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Thieves' Town - Attic Hall Left - Rat 1"
   - [ 0x0065, 0, [ "RollerVerticalUp", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Attic Window - Rat 1"
   - [ 0x0065, 1, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Thieves' Town - Attic Window - Rat 2"
@@ -224,6 +225,7 @@ UwGeneralDeny:
   - [ 0x009e, 3, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Fairy Drop - blue - Red Bari 3"
   - [ 0x00a0, 1, [ "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Boss Antechamber - Antifairy"
   - [ 0x00a1, 2, [ "Statue", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Fish Room  - Spark (Clockwise) 2"
+  - [ 0x00a5, 2, [ "BigSpike" ] ]  #"GT Wizzrobes 1 - Wizzrobe 3"
   - [ 0x00a5, 10, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - Laser Bridge - Red Spear Guard"
   - [ 0x00a8, 1, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Eastern Palace - West Wing - Top - Stalfos 2"
   - [ 0x00a8, 3, [ "RollerVerticalDown", "RollerHorizontalLeft" ] ]  #"Eastern Palace - West Wing - Top - Stalfos 4"
@@ -309,6 +311,7 @@ UwGeneralDeny:
   - [ 0x00f1, 4, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Old Man Maze - Keese 5"
   - [ 0x00f1, 5, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Old Man Maze - Keese 6"
 OwGeneralDeny:
+  - [0x1e, 3, ["Beamos"]]  # forbid a beamos here
   - [0x5e, 4, ["RollerVerticalUp", "Gibo"]]  # forbid that one roller for kiki pod, and the kiki eating Gibo
   - [0x5e, 5, ["Gibo"]]  # kiki eating Gibo
 UwEnemyDrop:
@@ -360,7 +363,7 @@ UwEnemyDrop:
                  "BombGuard", "GreenKnifeGuard"]]
   - [0x00c6, 5, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Bumper"]]
   - [0x00c6, 6, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
                  "BombGuard", "GreenKnifeGuard"]]

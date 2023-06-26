@@ -46,9 +46,10 @@ class Room:
 
     def find_all_pots(self):
         pots = []
-        pots.extend([x for x in self.layer1 if x.data[2] == 0xFA])
-        pots.extend([x for x in self.layer2 if x.data[2] == 0xFA])
-        pots.extend([x for x in self.layer3 if x.data[2] == 0xFA])
+        pots.extend([x for x in self.layer1 if x.data[2] in {0xFA, 0xFB} and not x.dummy])
+        pots.extend([x for x in self.layer2 if x.data[2] in {0xFA, 0xFB} and not x.dummy])
+        if self.layer3:
+           pots.extend([x for x in self.layer3 if x.data[2] in {0xFA, 0xFB} and not x.dummy])
         return pots
 
 
@@ -514,12 +515,12 @@ Room0127 = Room([0xE1, 0x00],
                  RoomObject(0x0AB61E, [0x43, 0xCB, 0xFA]),
                  RoomObject(0x0AB621, [0x4B, 0xCB, 0xFA]),
                  RoomObject(0x0AB624, [0xBF, 0x94, 0xF9]),
-                 RoomObject(0x0AB627, [0xB3, 0xB3, 0xFA]),
-                 RoomObject(0x0AB62A, [0xCB, 0xB3, 0xFA]),
+                 RoomObject(0x0AB627, [0xB3, 0xB3, 0xFA], True),
+                 RoomObject(0x0AB62A, [0xCB, 0xB3, 0xFA], True),
                  RoomObject(0x0AB62D, [0xAD, 0xC8, 0xDF]),
                  RoomObject(0x0AB630, [0xC4, 0xC8, 0xDF]),
-                 RoomObject(0x0AB633, [0xB3, 0xE3, 0xFA]),
-                 RoomObject(0x0AB636, [0xCB, 0xE3, 0xFA]),
+                 RoomObject(0x0AB633, [0xB3, 0xE3, 0xFA], True),
+                 RoomObject(0x0AB636, [0xCB, 0xE3, 0xFA], True),
                  RoomObject(0x0AB639, [0x81, 0x93, 0xC0]),
                  RoomObject(0x0AB63C, [0x81, 0xD2, 0xC0]),
                  RoomObject(0x0AB63F, [0xE1, 0x93, 0xC0]),

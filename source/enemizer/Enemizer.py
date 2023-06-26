@@ -75,7 +75,7 @@ def get_possible_sheets(room_id, data_tables, specific, all_sheets, uw_sheets):
         req = requirements[key]
         if isinstance(req, dict):
             req = req[room_id]
-        if req.static or not req.can_randomize:
+        if req.static or not req.can_randomize or sprite.static:
             if req.groups:
                 match_all_room_groups.intersection_update(req.groups)
                 if not match_all_room_groups:
@@ -284,9 +284,6 @@ def randomize_underworld_rooms(data_tables, world, player, custom_uw):
         if room_id in {0, 1, 3, 6, 7, 0xd, 0x14, 0x1c, 0x20, 0x29, 0x30, 0x33,
                        0x4d, 0x5a, 0x90, 0xa4, 0xac, 0xc8, 0xde}:
             continue
-        if room_id not in data_tables.uw_enemy_table.room_map:
-            continue
-        # sprite_reqs = data_tables.sprite_requirements
         current_sprites = data_tables.uw_enemy_table.room_map[room_id]
         sprite_limit = sum(sprite_limiter[x.kind] if x.kind in sprite_limiter else 1 for x in current_sprites)
         randomizeable_sprites = get_randomize_able_sprites(room_id, data_tables)

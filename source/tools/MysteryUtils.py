@@ -109,7 +109,7 @@ def roll_settings(weights):
     ret.standardize_palettes = (get_choice('standardize_palettes') if 'standardize_palettes' in weights
                                 else 'standardize')
 
-    goal = get_choice('goals')
+    goal = get_choice_default('goals', default='ganon')
     if goal is not None:
         ret.goal = {'ganon': 'ganon',
                     'fast_ganon': 'crystals',

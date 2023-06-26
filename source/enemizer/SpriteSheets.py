@@ -189,7 +189,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.Ropa).sub_group(0, 0x16),
         SpriteRequirement(EnemySprite.RedBari).sub_group(0, 0x1f),
         SpriteRequirement(EnemySprite.BlueBari).sub_group(0, 0x1f),
-        SpriteRequirement(EnemySprite.TalkingTree).affix().sub_group(0, 0x15),
+        SpriteRequirement(EnemySprite.TalkingTree).affix().sub_group(3, [0x15, 0x1B]),
         SpriteRequirement(EnemySprite.HardhatBeetle).sub_group(1, 0x1e),
         SpriteRequirement(EnemySprite.Deadrock).sub_group(3, 0x10).exclude({0x7f, 0x10c}),
         SpriteRequirement(EnemySprite.DarkWorldHintNpc).affix(),   # no groups?
@@ -700,6 +700,8 @@ def setup_required_overworld_groups(sheets):
         [None, 73, 19, None],  # allow for green knife guard
         [22, None, 23, None],  # increase odds for snapdragon
         [70, 73, None, None],  # guards group (ballnchain, redbush, redjav, cannon, bomb, bluesain
+        [None, None, None, 0x15],  # an option for talking trees
+        [None, None, None, 0x1B],  # an option for talking trees
     ]
 
     for group in free_sheet_reqs:

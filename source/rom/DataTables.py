@@ -57,7 +57,6 @@ class DataTables:
             choice = SheetChoice(tuple(item['slots']), item['assignments'], item['weight'])
             self.sheet_choices.append(choice)
 
-
     def write_to_rom(self, rom, colorize_pots=False, increase_bush_sprite_chance=False):
         if self.pot_secret_table.size() > 0x11c0:
             raise Exception('Pot table is too big for current area')
@@ -175,3 +174,13 @@ def init_data_tables(world, player):
     data_tables.enemy_damage = {k: list(v) for k, v in world.damage_table[player].enemy_damage.items()}
     # todo: more denials based on enemy drops
     return data_tables
+
+
+def get_uw_enemy_table():
+    init_vanilla_sprites()
+    uw_table = EnemyTable()
+    for room, sprite_list in vanilla_sprites.items():
+        for sprite in sprite_list:
+            uw_table.room_map[room].append(sprite.copy())
+    return uw_table
+

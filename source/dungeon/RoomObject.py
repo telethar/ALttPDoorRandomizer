@@ -8,9 +8,10 @@ Shuffled_Pot = (0xFB, 0, 0)  # formerly weird pot, or black diagonal thing
 
 class RoomObject:
 
-    def __init__(self, address, data):
+    def __init__(self, address, data, dummy=False):
         self.address = address
         self.data = data
+        self.dummy = dummy  # some room objects are dummies, unreachable
 
     def change_type(self, new_type):
         type_id, datum_a, datum_b = new_type

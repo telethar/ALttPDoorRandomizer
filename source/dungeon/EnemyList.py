@@ -2107,16 +2107,24 @@ class EnemyTable:
         data_pointer += 2
         for room in range(0, 0x128):
             if room in self.room_map:
+                tracking_mask = 0x00
                 data_address = pc_to_snes(data_pointer) & 0xFFFF
                 rom.write_bytes(pointer_address + room * 2, int16_as_bytes(data_address))
                 rom.write_byte(data_pointer, 0x01 if room in layered_oam_rooms else 0x00)
                 list_offset = 1
-                for sprite in self.room_map[room]:
+                idx_adj = 0
+                for idx, sprite in enumerate(self.room_map[room]):
                     data = sprite.sprite_data()
                     rom.write_bytes(data_pointer + list_offset, data)
                     list_offset += len(data)
+                    if sprite.sub_type == 0x07:  # overlord
+                        idx_adj += 1
+                        continue
+                    if sprite.location is not None:
+                        tracking_mask |= 1 << (15 - idx + idx_adj)
                 rom.write_byte(data_pointer + list_offset, 0xff)
                 data_pointer += list_offset + 1
+                rom.write_bytes(snes_to_pc(0x28ACB0) + room * 2, int16_as_bytes(tracking_mask))
             else:
                 rom.write_bytes(pointer_address + room * 2, int16_as_bytes(empty_pointer))
 
