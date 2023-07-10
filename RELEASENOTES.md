@@ -57,7 +57,7 @@ Please see [Customizer documentation](docs/Customizer.md) on how to create custo
 
 ## New Goals
 
-### Triforce Hunt + Ganon
+### Ganonhunt
 Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
 
 ### Completionist
@@ -111,7 +111,10 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.2.0.18u
   * Fixed an issue with pyramid hole being in logic when it is not opened.
-  * 
+  * Crystal cutscene at GT use new symmetrical layouts (thanks Codemann)
+  * Fix for Hera Boss music (thanks Codemann)
+  * Fixed accessibility: none using a spoiling message
+  * Fixed warning message about custom item pool when it is fine
 * 1.2.0.17u
   * Fixed logic bug that allowed Pearl to be behind Graveyard Cave or King's Tomb entrances with only Mirror and West Dark World access (cross world shuffles only) 
   * Removed backup locations for Dungeon Only and Major Only algorithms. If item cannot be placed in the appropriate location, the seed will fail to generate instead 
