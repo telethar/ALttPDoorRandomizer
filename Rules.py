@@ -887,7 +887,7 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_entrance('Hyrule Castle Main Gate', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Hyrule Castle Main Gate (North)', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_location('Frog', player), lambda state: state.can_lift_heavy_rocks(player) and state.has_Pearl(player))
-        set_rule(world.get_entrance('Pyramid Hole', player), lambda state: world.open_pyramid[player] or world.goal[player] == 'trinity' or state.has('Beat Agahnim 2', player))
+        set_rule(world.get_entrance('Pyramid Hole', player), lambda state: world.is_pyramid_open(player) or state.has('Beat Agahnim 2', player))
     else:
         set_rule(world.get_entrance('East Dark Death Mountain Teleporter (Top)', player), lambda state: state.can_lift_heavy_rocks(player) and state.has('Hammer', player) and state.has_Pearl(player))  # bunny cannot use hammer
         set_rule(world.get_entrance('East Dark Death Mountain Teleporter (Bottom)', player), lambda state: state.can_lift_heavy_rocks(player))
