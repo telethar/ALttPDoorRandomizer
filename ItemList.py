@@ -1297,20 +1297,23 @@ def make_customizer_pool(world, player):
         if pieces < t:
             pool.extend(['Triforce Piece'] * (t - pieces))
 
-    if not world.customizer.get_start_inventory():
-        if world.logic[player] in ['owglitches', 'nologic']:
-            precollected_items.append('Pegasus Boots')
-            if 'Pegasus Boots' in pool:
-                pool.remove('Pegasus Boots')
-                pool.append('Rupees (20)')
-        if world.swords[player] == 'assured':
-            precollected_items.append('Progressive Sword')
-            if 'Progressive Sword' in pool:
-                pool.remove('Progressive Sword')
-                pool.append('Rupees (50)')
-            elif 'Fighter Sword' in pool:
-                pool.remove('Fighter Sword')
-                pool.append('Rupees (50)')
+    sphere_0 = world.customizer.get_start_inventory()
+    no_start_inventory = not sphere_0 or not sphere_0[player]
+    init_equip = [] if no_start_inventory else sphere_0[player]
+    if (world.logic[player] in ['owglitches', 'nologic']
+       and (no_start_inventory or all(x != 'Pegasus Boots' for x in init_equip))):
+        precollected_items.append('Pegasus Boots')
+        if 'Pegasus Boots' in pool:
+            pool.remove('Pegasus Boots')
+            pool.append('Rupees (20)')
+    if world.swords[player] == 'assured' and (no_start_inventory or all(' Sword' not in x for x in init_equip)):
+        precollected_items.append('Progressive Sword')
+        if 'Progressive Sword' in pool:
+            pool.remove('Progressive Sword')
+            pool.append('Rupees (50)')
+        elif 'Fighter Sword' in pool:
+            pool.remove('Fighter Sword')
+            pool.append('Rupees (50)')
 
     return pool, placed_items, precollected_items, clock_mode, 1
 

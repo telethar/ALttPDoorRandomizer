@@ -113,7 +113,9 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fixed an issue with pyramid hole being in logic when it is not opened.
   * Crystal cutscene at GT use new symmetrical layouts (thanks Codemann)
   * Fix for Hera Boss music (thanks Codemann)
-  * Fixed accessibility: none using a spoiling message
+  * Customizer: fixed an issue with assured sword and start_inventory
+  * Customizer: warns when trying to specifically place an item that's not in the item pool
+  * Fixed "accessibility: none" displaying a spoiling message
   * Fixed warning message about custom item pool when it is fine
 * 1.2.0.17u
   * Fixed logic bug that allowed Pearl to be behind Graveyard Cave or King's Tomb entrances with only Mirror and West Dark World access (cross world shuffles only) 
