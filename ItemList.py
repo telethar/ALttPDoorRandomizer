@@ -1397,6 +1397,8 @@ def fill_specific_items(world):
                         track_dungeon_items(item_to_place, loc, world)
                         loc.event = (event_flag or item_to_place.advancement
                                      or item_to_place.bigkey or item_to_place.smallkey)
+                    else:
+                        raise Exception(f'Did not find "{item}" in item pool to place at "{location}"')
         advanced_placements = world.customizer.get_advanced_placements()
         if advanced_placements:
             for player, placement_list in advanced_placements.items():
@@ -1406,7 +1408,7 @@ def fill_specific_items(world):
                         item_to_place, event_flag = get_item_and_event_flag(item, world, player,
                                                                             dungeon_pool, prize_set, prize_pool)
                         if not item_to_place:
-                            continue
+                            raise Exception(f'Did not find "{item}" in item pool to place for a LocationGroup"')
                         locations = placement['locations']
                         handled = False
                         while not handled:
