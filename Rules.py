@@ -31,18 +31,6 @@ def set_rules(world, player):
     if world.swords[player] == 'swordless':
         swordless_rules(world, player)
 
-    ow_bunny_rules(world, player)
-
-    if world.mode[player] == 'standard':
-        standard_rules(world, player)
-    else:
-        misc_key_rules(world, player)
-
-    bomb_rules(world, player)
-    pot_rules(world, player)
-    drop_rules(world, player)
-    challenge_room_rules(world, player)
-
     if world.logic[player] == 'noglitches':
         no_glitches_rules(world, player)
     elif world.logic[player] == 'minorglitches':
@@ -58,6 +46,18 @@ def set_rules(world, player):
         overworld_glitches_rules(world, player)
     else:
         raise NotImplementedError('Not implemented yet')
+
+    ow_bunny_rules(world, player)
+
+    if world.mode[player] == 'standard':
+        standard_rules(world, player)
+    else:
+        misc_key_rules(world, player)
+
+    bomb_rules(world, player)
+    pot_rules(world, player)
+    drop_rules(world, player)
+    challenge_room_rules(world, player)
 
     if world.goal[player] == 'dungeons':
         # require all dungeons to beat ganon
