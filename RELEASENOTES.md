@@ -113,6 +113,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fixed an issue with pyramid hole being in logic when it is not opened.
   * Crystal cutscene at GT use new symmetrical layouts (thanks Codemann)
   * Fix for Hera Boss music (thanks Codemann)
+  * Fixed an issue where certain vanilla door types would not allow other types to be placed.
+  * Customizer: fixed an issue where last ditch placements would move customized items. Those are now locked and the generation will fail instead is no alternative are found.
   * Customizer: fixed an issue with assured sword and start_inventory
   * Customizer: warns when trying to specifically place an item that's not in the item pool
   * Fixed "accessibility: none" displaying a spoiling message

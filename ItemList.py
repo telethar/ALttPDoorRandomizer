@@ -1396,6 +1396,7 @@ def fill_specific_items(world):
                                                                         dungeon_pool, prize_set, prize_pool)
                     if item_to_place:
                         world.push_item(loc, item_to_place, False)
+                        loc.locked = True
                         track_outside_keys(item_to_place, loc, world)
                         track_dungeon_items(item_to_place, loc, world)
                         loc.event = (event_flag or item_to_place.advancement
@@ -1431,6 +1432,7 @@ def fill_specific_items(world):
                                 if loc.item:
                                     continue
                                 world.push_item(loc, item_to_place, False)
+                                loc.locked = True
                                 track_outside_keys(item_to_place, loc, world)
                                 track_dungeon_items(item_to_place, loc, world)
                                 loc.event = (event_flag or item_to_place.advancement

@@ -1962,7 +1962,7 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, all_cu
                 if flex_map[dungeon] > 0:
                     queue.append(dungeon)
         # time to re-assign
-        reassign_big_key_doors(bk_map, world, player)
+        reassign_big_key_doors(bk_map, used_doors, world, player)
         for name, big_list in bk_map.items():
             used_doors.update(flatten_pair_list(big_list))
     return used_doors
@@ -2047,7 +2047,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, all_
             else:
                 builder.key_doors_num -= 1
         # time to re-assign
-        reassign_key_doors(small_map, world, player)
+        reassign_key_doors(small_map, used_doors, world, player)
         for dungeon_name in pool:
             if world.keyshuffle[player] != 'universal':
                 builder = world.dungeon_layouts[player][dungeon_name]
@@ -2129,7 +2129,7 @@ def shuffle_bomb_dash_doors(door_type_pools, used_doors, start_regions_map, all_
                 suggestion_map[dungeon] = pair
                 queue.append(dungeon)
         # time to re-assign
-        reassign_bd_doors(bd_map, world, player)
+        reassign_bd_doors(bd_map, used_doors, world, player)
         for name, pair in bd_map.items():
             used_doors.update(flatten_pair_list(pair[0]))
             used_doors.update(flatten_pair_list(pair[1]))
@@ -2539,7 +2539,7 @@ def find_current_bk_doors(builder):
     return current_doors
 
 
-def reassign_big_key_doors(bk_map, world, player):
+def reassign_big_key_doors(bk_map, used_doors, world, player):
     logger = logging.getLogger('')
     for name, big_doors in bk_map.items():
         flat_proposal = flatten_pair_list(big_doors)
@@ -2547,11 +2547,12 @@ def reassign_big_key_doors(bk_map, world, player):
         queue = deque(find_current_bk_doors(builder))
         while len(queue) > 0:
             d = queue.pop()
-            if d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
+            if (d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal
+               and d not in used_doors and d.dest not in used_doors):
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
-            elif d.type is DoorType.Normal and d not in flat_proposal:
+            elif d.type is DoorType.Normal and d not in flat_proposal and d not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
@@ -2795,7 +2796,7 @@ def find_valid_bd_combination(builder, suggested, world, player):
     return bomb_proposal, dash_proposal, ttl_needed
 
 
-def reassign_bd_doors(bd_map, world, player):
+def reassign_bd_doors(bd_map, used_doors, world, player):
     for name, pair in bd_map.items():
         flat_bomb_proposal = flatten_pair_list(pair[0])
         flat_dash_proposal = flatten_pair_list(pair[1])
@@ -2808,10 +2809,10 @@ def reassign_bd_doors(bd_map, world, player):
         queue = deque(find_current_bd_doors(builder, world))
         while len(queue) > 0:
             d = queue.pop()
-            if d.type is DoorType.Interior and not_in_proposal(d):
+            if d.type is DoorType.Interior and not_in_proposal(d) and d not in used_doors and d.dest not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
-            elif d.type is DoorType.Normal and not_in_proposal(d):
+            elif d.type is DoorType.Normal and not_in_proposal(d) and d not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
         do_bombable_dashable(pair[0], DoorKind.Bombable, world, player)
@@ -3003,7 +3004,7 @@ def valid_key_door_pair(door1, door2):
     return len(door1.entrance.parent_region.exits) <= 1 or len(door2.entrance.parent_region.exits) <= 1
 
 
-def reassign_key_doors(small_map, world, player):
+def reassign_key_doors(small_map, used_doors, world, player):
     logger = logging.getLogger('')
     for name, small_doors in small_map.items():
         logger.debug(f'Key doors for {name}')
@@ -3013,7 +3014,7 @@ def reassign_key_doors(small_map, world, player):
         queue = deque(find_current_key_doors(builder))
         while len(queue) > 0:
             d = queue.pop()
-            if d.type is DoorType.SpiralStairs and d not in proposal:
+            if d.type is DoorType.SpiralStairs and d not in proposal and d not in used_doors:
                 room = world.get_room(d.roomIndex, player)
                 if room.doorList[d.doorListPos][1] == DoorKind.StairKeyLow:
                     room.delete(d.doorListPos)
@@ -3023,13 +3024,14 @@ def reassign_key_doors(small_map, world, player):
                     else:
                         room.delete(d.doorListPos)
                 d.smallKey = False
-            elif d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
+            elif (d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal
+                  and d not in used_doors and d.dest not in used_doors):
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
                 d.dest.smallKey = False
                 queue.remove(d.dest)
-            elif d.type is DoorType.Normal and d not in flat_proposal:
+            elif d.type is DoorType.Normal and d not in flat_proposal and d not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
