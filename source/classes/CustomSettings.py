@@ -144,6 +144,11 @@ class CustomSettings(object):
                 args.pseudoboots[p] = get_setting(settings['pseudoboots'], args.pseudoboots[p])
                 args.triforce_goal[p] = get_setting(settings['triforce_goal'], args.triforce_goal[p])
                 args.triforce_pool[p] = get_setting(settings['triforce_pool'], args.triforce_pool[p])
+                args.triforce_goal_min[p] = get_setting(settings['triforce_goal_min'], args.triforce_goal_min[p])
+                args.triforce_goal_max[p] = get_setting(settings['triforce_goal_max'], args.triforce_goal_max[p])
+                args.triforce_pool_min[p] = get_setting(settings['triforce_pool_min'], args.triforce_pool_min[p])
+                args.triforce_pool_max[p] = get_setting(settings['triforce_pool_max'], args.triforce_pool_max[p])
+                args.triforce_min_difference[p] = get_setting(settings['triforce_min_difference'], args.triforce_min_difference[p])
                 args.beemizer[p] = get_setting(settings['beemizer'], args.beemizer[p])
 
                 # mystery usage
