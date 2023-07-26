@@ -229,7 +229,7 @@ def parse_settings():
         "triforce_pool_max": 0,
         "triforce_goal_min": 0,
         "triforce_goal_max": 0,
-        "triforce_min_difference": 10,
+        "triforce_min_difference": 0,
 
         "code": "",
         "multi": 1,
