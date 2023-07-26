@@ -132,7 +132,7 @@ def parse_cli(argv, no_defaults=False):
                          'flute_mode', 'bow_mode', 'take_any', 'boots_hint',
                          'shuffle', 'door_shuffle', 'intensity', 'crystals_ganon', 'crystals_gt', 'openpyramid',
                          'mapshuffle', 'compassshuffle', 'keyshuffle', 'bigkeyshuffle', 'startinventory',
-                         'usestartinventory', 'bombbag', 'overworld_map', 'restrict_boss_items',
+                         'usestartinventory', 'bombbag', 'overworld_map', 'restrict_boss_items', 'triforce_max_difference',
                          'triforce_pool_min', 'triforce_pool_max', 'triforce_goal_min', 'triforce_goal_max',
                          'triforce_min_difference', 'triforce_goal', 'triforce_pool', 'shufflelinks', 'shuffletavern',
                          'pseudoboots', 'retro', 'accessibility', 'hints', 'beemizer', 'experimental', 'dungeon_counters',
@@ -230,6 +230,7 @@ def parse_settings():
         "triforce_goal_min": 0,
         "triforce_goal_max": 0,
         "triforce_min_difference": 0,
+        "triforce_max_difference": 10000,
 
         "code": "",
         "multi": 1,

@@ -146,7 +146,7 @@ def main(args, seed=None, fish=None):
             if int(args.triforce_pool[p]) != 0:
                 world.treasure_hunt_total[p] = int(args.triforce_pool[p])
             elif int(args.triforce_pool_min[p]) != 0 and int(args.triforce_pool_max[p]) != 0:
-                world.treasure_hunt_total[p] = random.randint(max(int(args.triforce_pool_min[p]), world.treasure_hunt_count[p] + int(args.triforce_min_difference[p])), int(args.triforce_pool_max[p]))
+                world.treasure_hunt_total[p] = random.randint(max(int(args.triforce_pool_min[p]), world.treasure_hunt_count[p] + int(args.triforce_min_difference[p])), min(int(args.triforce_pool_max[p]), world.treasure_hunt_count[p] + int(args.triforce_max_difference[p])))
             else:
                 world.treasure_hunt_total[p] = 10 if world.goal[p] == 'trinity' else 30
         else:

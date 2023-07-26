@@ -149,6 +149,7 @@ class CustomSettings(object):
                 args.triforce_pool_min[p] = get_setting(settings['triforce_pool_min'], args.triforce_pool_min[p])
                 args.triforce_pool_max[p] = get_setting(settings['triforce_pool_max'], args.triforce_pool_max[p])
                 args.triforce_min_difference[p] = get_setting(settings['triforce_min_difference'], args.triforce_min_difference[p])
+                args.triforce_max_difference[p] = get_setting(settings['triforce_max_difference'], args.triforce_max_difference[p])
                 args.beemizer[p] = get_setting(settings['beemizer'], args.beemizer[p])
 
                 # mystery usage

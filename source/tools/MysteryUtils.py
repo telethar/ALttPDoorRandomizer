@@ -132,6 +132,7 @@ def roll_settings(weights):
     ret.triforce_goal_min = get_choice_default('triforce_goal_min', default=0)
     ret.triforce_goal_max = get_choice_default('triforce_goal_max', default=0)
     ret.triforce_min_difference = get_choice_default('triforce_min_difference', default=0)
+    ret.triforce_max_difference = get_choice_default('triforce_max_difference', default=10000)
 
     ret.mode = get_choice('world_state')
     if ret.mode == 'retro':
