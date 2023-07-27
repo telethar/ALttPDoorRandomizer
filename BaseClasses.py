@@ -283,7 +283,7 @@ class World(object):
         else:
             if self.shuffle[player] not in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
                 return False
-            elif self.goal[player] in ['crystals', 'trinity']:
+            elif self.goal[player] in ['crystals', 'trinity', 'ganonhunt']:
                 return True
             else:
                 return False

@@ -2547,13 +2547,12 @@ def reassign_big_key_doors(bk_map, used_doors, world, player):
         queue = deque(find_current_bk_doors(builder))
         while len(queue) > 0:
             d = queue.pop()
-            if (d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal
-               and d not in used_doors and d.dest not in used_doors):
-                if not d.entranceFlag:
+            if d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
+                if not d.entranceFlag and d not in used_doors and d.dest not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
-            elif d.type is DoorType.Normal and d not in flat_proposal and d not in used_doors:
-                if not d.entranceFlag:
+            elif d.type is DoorType.Normal and d not in flat_proposal :
+                if not d.entranceFlag and d not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
         for obj in big_doors:
@@ -3014,7 +3013,7 @@ def reassign_key_doors(small_map, used_doors, world, player):
         queue = deque(find_current_key_doors(builder))
         while len(queue) > 0:
             d = queue.pop()
-            if d.type is DoorType.SpiralStairs and d not in proposal and d not in used_doors:
+            if d.type is DoorType.SpiralStairs and d not in proposal:
                 room = world.get_room(d.roomIndex, player)
                 if room.doorList[d.doorListPos][1] == DoorKind.StairKeyLow:
                     room.delete(d.doorListPos)
@@ -3024,15 +3023,14 @@ def reassign_key_doors(small_map, used_doors, world, player):
                     else:
                         room.delete(d.doorListPos)
                 d.smallKey = False
-            elif (d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal
-                  and d not in used_doors and d.dest not in used_doors):
-                if not d.entranceFlag:
+            elif d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
+                if not d.entranceFlag and d not in used_doors and d.dest not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
                 d.dest.smallKey = False
                 queue.remove(d.dest)
-            elif d.type is DoorType.Normal and d not in flat_proposal and d not in used_doors:
-                if not d.entranceFlag:
+            elif d.type is DoorType.Normal and d not in flat_proposal:
+                if not d.entranceFlag and d not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
                 for dp in world.paired_doors[player]:

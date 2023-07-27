@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.19u
+  * Fixed a bug with dungeon generation 
+  * Changed the "Ganonhunt" goal to use open pyramid on the Auto setting
 * 1.2.0.18u
   * Fixed an issue with pyramid hole being in logic when it is not opened.
   * Crystal cutscene at GT use new symmetrical layouts (thanks Codemann)
