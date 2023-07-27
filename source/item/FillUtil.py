@@ -25,6 +25,8 @@ class ItemPoolConfig(object):
         self.verify_target = 0
 
         self.recorded_choices = []
+        self.vanilla_item_to_locations = defaultdict(list)
+        self.vanilla_location_to_items = defaultdict(list)
 
 
 class LocationGroup(object):
@@ -168,6 +170,19 @@ def create_item_pool_config(world):
         for player in range(1, world.players + 1):
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(dungeon_set)
+    elif world.algorithm == 'swapped':
+        for item, location_list in vanilla_mapping.items():
+            if item in config.vanilla_item_to_locations:
+                continue
+            config.vanilla_item_to_locations[item] = [loc for loc in location_list]
+            for loc in location_list:
+                config.vanilla_location_to_items[loc].append(item)
+        ten_bomb_home = random.choice(config.vanilla_item_to_locations['Bombs (3)'])
+        config.vanilla_item_to_locations['Bombs (3)'].remove(ten_bomb_home)
+        config.vanilla_item_to_locations['Bombs (10)'].append(ten_bomb_home)
+        config.vanilla_location_to_items[ten_bomb_home].remove('Bombs (3)')
+        config.vanilla_location_to_items[ten_bomb_home].append('Bombs (10)')
+        # todo: location expansions
 
 
 def district_item_pool_config(world):
@@ -544,7 +559,6 @@ vanilla_mapping = {
                     'Paradox Cave Lower - Far Right', 'Paradox Cave Lower - Middle', 'Hype Cave - Top',
                     'Hype Cave - Middle Right', 'Hype Cave - Middle Left', 'Hype Cave - Bottom',
                     'Swamp Palace - West Chest', 'Swamp Palace - Flooded Room - Left', 'Swamp Palace - Waterfall Room',
-                    'Swamp Palace - Flooded Room - Right', "Thieves' Town - Ambush Chest",
                     'Turtle Rock - Eye Bridge - Bottom Right', 'Ganons Tower - Compass Room - Bottom Left',
                     'Swamp Palace - Flooded Room - Right', "Thieves' Town - Ambush Chest",
                     'Ganons Tower - DMs Room - Bottom Left', 'Ganons Tower - DMs Room - Bottom Right'],

@@ -52,8 +52,11 @@ def fill_dungeons_restrictive(world, shuffled_locations):
         if i.smallkey and world.keyshuffle[i.player] != 'none':
             unplaced_smalls.append(i)
 
+    pools = [smalls, others, world.itempool]
+
     def fill(base_state, items, key_pool):
-        fill_restrictive(world, base_state, shuffled_locations, items, key_pool, True)
+        fill_restrictive(world, base_state, shuffled_locations, items, key_pool, True,
+                         other_pools=pools, reset_state=True)
 
     all_state_base = world.get_all_state()
     big_state_base = all_state_base.copy()
@@ -70,7 +73,10 @@ def fill_dungeons_restrictive(world, shuffled_locations):
 
 
 def fill_restrictive(world, base_state, locations, itempool, key_pool=None, single_player_placement=False,
-                     vanilla=False):
+                     vanilla=False, other_pools=None, reset_state=False):
+    if other_pools is None:
+        other_pools = []
+
     def sweep_from_pool(placing_item=None):
         new_state = base_state.copy()
         for item in itempool:
@@ -92,7 +98,14 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
 
     for player_items in [no_access_checks, reachable_items]:
         while any(player_items.values()) and locations:
-            items_to_place = [[itempool.remove(items[-1]), items.pop()][-1] for items in player_items.values() if items]
+            items_to_place = [items.pop() for items in player_items.values() if items]
+            for item in reversed(items_to_place):
+                if item.location is None:
+                    itempool.remove(item)
+                else:
+                    items_to_place.remove(item)
+            if not items_to_place:
+                continue
 
             maximum_exploration_state = sweep_from_pool(placing_item=items_to_place[0])
             has_beaten_game = world.has_beaten_game(maximum_exploration_state)
@@ -110,6 +123,11 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
                 for location in item_locations:
                     spot_to_fill = verify_spot_to_fill(location, item_to_place, maximum_exploration_state,
                                                        single_player_placement, perform_access_check, key_pool, world)
+                    if world.algorithm == 'swapped' and spot_to_fill:
+                        spot_to_fill = do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state,
+                                                            maximum_exploration_state, single_player_placement,
+                                                            perform_access_check, key_pool, locations, itempool,
+                                                            other_pools, world)
                     if spot_to_fill:
                         break
                 if spot_to_fill is None:
@@ -136,6 +154,69 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
                 spot_to_fill.event = True
 
     itempool.extend(unplaced_items)
+
+
+def create_state_from_base(base_state, itempool, placing_item=None):
+    new_state = base_state.copy()
+    for item in itempool:
+        new_state.collect(item, True)
+    new_state.placing_item = placing_item
+    new_state.sweep_for_events()
+    new_state.placing_item = None
+    return new_state
+
+
+def do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state, current_state, single_player_placement,
+                         perform_access_check,  key_pool, locations, itempool, other_pools, world):
+    config = world.item_pool_config
+    items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+    if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
+        return spot_to_fill  # done, this is a vanilla choice
+    pool_search, real_swap_item = [itempool] + other_pools, None
+    orig_pool, need_new_state = None, None
+    for pool in pool_search:
+        real_swap_item = next((i for i in pool if i.get_name() in items_to_swap), None)
+        if real_swap_item is not None:
+            orig_pool = pool
+            need_new_state = pool == itempool or base_state.is_item_progressive(real_swap_item)
+            pool.remove(real_swap_item)
+            break
+    original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+                          if (loc := world.get_location(x, item_to_place.player)).item is None]
+    if len(original_locations) == 0:
+        return None
+    spot_to_fill.item = item_to_place
+    spot_to_fill.event = True
+    if need_new_state:
+        if reset_state:
+            flat_pool = [i for sublist in pool_search for i in sublist]
+            max_exp_state = create_state_from_base(CollectionState(world), flat_pool, placing_item=real_swap_item)
+        else:
+            max_exp_state = create_state_from_base(base_state, itempool, placing_item=real_swap_item)
+    else:
+        max_exp_state = current_state
+    random.shuffle(original_locations)
+    for swap_location in original_locations:
+        if need_new_state:
+            swapped = verify_spot_to_fill(swap_location, real_swap_item, max_exp_state, single_player_placement,
+                                          perform_access_check, key_pool, world)
+        else:
+            swapped = swap_location  # don't need to check logic, necessarily
+        if swapped:
+            break
+    spot_to_fill.item = None
+    spot_to_fill.event = False
+    if swapped is not None:
+        world.push_item(swap_location, real_swap_item, False)
+        track_outside_keys(real_swap_item, swap_location, world)
+        track_dungeon_items(real_swap_item, swap_location, world)
+        locations.remove(swap_location)
+        swap_location.event = True
+        return spot_to_fill
+    orig_pool.append(real_swap_item)
+    if item_to_place.smallkey:
+        key_pool.append(item_to_place)
+    return None
 
 
 def verify_spot_to_fill(location, item_to_place, max_exp_state, single_player_placement, perform_access_check,
@@ -280,7 +361,7 @@ def recovery_placement(item_to_place, locations, world, state, base_state, itemp
                     return spot_to_fill
             return None
     # explicitly fail these cases
-    elif world.algorithm in ['dungeon_only', 'major_only']:
+    elif world.algorithm in ['dungeon_only', 'major_only', 'swapped']:
         raise FillError(f'Rare placement for {world.algorithm} detected. {item_to_place} unable to be placed.'
                         f' Try a different seed')
     else:
@@ -435,9 +516,16 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         while gtower_locations and restitempool and trashcnt < gftower_trash_count:
             spot_to_fill = gtower_locations.pop()
             item_to_place = restitempool.pop()
-            world.push_item(spot_to_fill, item_to_place, False)
-            fill_locations.remove(spot_to_fill)
-            trashcnt += 1
+            fill = True
+            if world.algorithm == 'swapped':
+                fill = gt_trash_swap_fill(spot_to_fill, item_to_place, fill_locations, gtower_locations,
+                                             progitempool, [prioitempool, restitempool], world)
+            if fill:
+                world.push_item(spot_to_fill, item_to_place, False)
+                fill_locations.remove(spot_to_fill)
+                trashcnt += 1
+            else:
+                restitempool.append(item_to_place)  # try again with a different spot
 
     random.shuffle(fill_locations)
     fill_locations.reverse()
@@ -458,7 +546,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
     progitempool.sort(key=lambda item: 0 if item.map or item.compass else 1)
     if world.algorithm == 'vanilla_fill':
         fill_restrictive(world, world.state, fill_locations, progitempool, key_pool, vanilla=True)
-    fill_restrictive(world, world.state, fill_locations, progitempool, key_pool)
+    fill_restrictive(world, world.state, fill_locations, progitempool, key_pool,
+                     other_pools=[prioitempool, restitempool])
     random.shuffle(fill_locations)
     if world.algorithm == 'balanced':
         fast_fill(world, prioitempool, fill_locations)
@@ -466,6 +555,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         fast_vanilla_fill(world, prioitempool, fill_locations)
     elif world.algorithm in ['major_only', 'dungeon_only', 'district']:
         filtered_fill(world, prioitempool, fill_locations)
+    elif world.algorithm == 'swapped':
+        fast_fill_swapped(world, prioitempool, fill_locations, [restitempool])
     else:  # just need to ensure dungeon items still get placed in dungeons
         fast_equitable_fill(world, prioitempool, fill_locations)
     # placeholder work
@@ -490,6 +581,8 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         fast_fill_pot_for_multiworld(world, restitempool, fill_locations)
     if world.algorithm == 'vanilla_fill':
         fast_vanilla_fill(world, restitempool, fill_locations)
+    elif world.algorithm == 'swapped':
+        fast_fill_swapped(world, restitempool, fill_locations, [])
     else:
         fast_fill(world, restitempool, fill_locations)
 
@@ -559,9 +652,10 @@ invalid_location_replacement = {'Arrows (5)': 'Arrows (10)', 'Nothing':  'Rupees
 def fast_fill_helper(world, item_pool, fill_locations):
     if world.algorithm == 'vanilla_fill':
         fast_vanilla_fill(world, item_pool, fill_locations)
+    elif world.algorithm == 'swapped':
+        fast_fill_swapped(world, item_pool, fill_locations, [])
     else:
         fast_fill(world, item_pool, fill_locations)
-    # todo: other fast fill methods?
 
 
 def fast_fill(world, item_pool, fill_locations):
@@ -576,6 +670,64 @@ def fast_fill(world, item_pool, fill_locations):
     item_pool.clear()
     item_pool.extend(filtered_pool)
     item_pool.extend(fast_pool)
+
+
+def fast_fill_swapped(world, item_pool, fill_locations, other_item_pools):
+    config = world.item_pool_config
+    while item_pool and fill_locations:
+        spot_to_fill = fill_locations.pop()
+        item_to_place = item_pool.pop()
+        items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+        if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
+            world.push_item(spot_to_fill, item_to_place, False)
+        else:
+            original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+                                  if (loc := world.get_location(x, item_to_place.player)).item is None]
+            if len(original_locations) == 0:
+                raise Exception(f'Imbalanced swap: missing swap location for {item_to_place}')
+            else:
+                swap_location = random.choice(original_locations)
+            world.push_item(spot_to_fill, item_to_place, False)
+            pool_search, real_item_swap = [item_pool] + other_item_pools, None
+            for pool in pool_search:
+                real_item_swap = next((i for i in pool if i.get_name() in items_to_swap), None)
+                if real_item_swap is not None:
+                    pool.remove(real_item_swap)
+                    break
+            if real_item_swap is None:
+                raise Exception(f'Imbalanced swap: missing swap item: [{",".join(items_to_swap)}]')
+            world.push_item(swap_location, real_item_swap, False)
+            fill_locations.remove(swap_location)
+
+
+def gt_trash_swap_fill(spot_to_fill, item_to_place, fill_locations, gtower_locations, progitempool, pools, world):
+    config = world.item_pool_config
+    items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+    if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
+        return True
+    else:
+        real_item_swap = next((i for i in progitempool if i.get_name() in items_to_swap), None)
+        if real_item_swap is not None:
+            return False  # I don't want to do this here, there are constraints to check
+        original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+                              if (loc := world.get_location(x, item_to_place.player)).item is None]
+        if len(original_locations) == 0:
+            raise Exception('Imbalanced swap')
+        else:
+            swap_location = random.choice(original_locations)
+        real_item_swap = None
+        for pool in pools:
+            real_item_swap = next((i for i in pool if i.get_name() in items_to_swap), None)
+            if real_item_swap is not None:
+                pool.remove(real_item_swap)
+                break
+        if real_item_swap is None:
+            raise Exception(f'Imbalanced swap: missing swap item: [{",".join(items_to_swap)}]')
+        world.push_item(swap_location, real_item_swap, False)
+        fill_locations.remove(swap_location)
+        if swap_location in gtower_locations:
+            gtower_locations.remove(swap_location)
+        return True
 
 
 def fast_fill_pot_for_multiworld(world, item_pool, fill_locations):
@@ -597,6 +749,7 @@ def fast_fill_pot_for_multiworld(world, item_pool, fill_locations):
                 item_pool.remove(x)
             for x in fill_spots:
                 fill_locations.remove(x)
+            # todo: swapped pots things
             fast_fill(world, fill_items, fill_spots)
 
 

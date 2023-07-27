@@ -155,7 +155,8 @@
       "vanilla_fill",
       "major_only",
       "dungeon_only",
-      "district"
+      "district",
+      "swapped"
     ]
   },
   "shuffle": {

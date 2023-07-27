@@ -947,6 +947,11 @@ class CollectionState(object):
             reduced[('Heart Container', player)] = 1
         return frozenset(reduced.items())
 
+    def is_item_progressive(self, item):
+        if item.advancement:
+            return True
+        return self.check_if_progressive(item.name, item.player)
+
     def check_if_progressive(self, item_name, player):
         return (item_name in
                 ['Bow', 'Progressive Bow', 'Progressive Bow (Alt)', 'Book of Mudora', 'Hammer', 'Hookshot',
@@ -2325,6 +2330,9 @@ class Item(object):
                 or (self.compass and not world.compassshuffle[self.player])
                 or (self.map and not world.mapshuffle[self.player]))
 
+    def get_name(self):
+        return 'Bottle' if self.name.startswith('Bottle') else self.name
+
     def __str__(self):
         return str(self.__unicode__())
 
@@ -2965,7 +2973,8 @@ e_dmg = {"default": 0, "shuffled": 1, "random": 2}
 # byte 9: RRAA ABBB (restrict boss mode, algorithm, boss shuffle)
 rb_mode = {"none": 0, "mapcompass": 1, "dungeon": 2}
 # algorithm:
-algo_mode = {"balanced": 0, "equitable": 1, "vanilla_fill": 2, "dungeon_only": 3, "district": 4, 'major_only': 5}
+algo_mode = {'balanced': 0, 'equitable': 1, 'vanilla_fill': 2, 'dungeon_only': 3, 'district': 4, 'major_only': 5,
+             'swapped': 6}
 boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique': 4}
 
 
