@@ -110,7 +110,7 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.2.0.19u
-  * Added min/max for triforce pool, goal, and differnce for CLI and Customizer. (Thanks Catobat)
+  * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
   * Fixed a bug with dungeon generation
   * Multiworld: Fixed /missing command to not list all the pots
   * Changed the "Ganonhunt" goal to use open pyramid on the Auto setting
