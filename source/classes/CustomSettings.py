@@ -63,6 +63,7 @@ class CustomSettings(object):
             args.suppress_rom = get_setting(meta['suppress_rom'], args.suppress_rom)
             args.names = get_setting(meta['names'], args.names)
             args.race = get_setting(meta['race'], args.race)
+            args.notes = get_setting(meta['user_notes'], args.notes)
         self.player_range = range(1, args.multi + 1)
         if 'settings' in self.file_source:
             for p in self.player_range:
@@ -214,14 +215,15 @@ class CustomSettings(object):
             return self.file_source['drops']
         return None
 
-    def create_from_world(self, world, race):
+    def create_from_world(self, world, settings):
         self.player_range = range(1, world.players + 1)
         settings_dict, meta_dict = {}, {}
         self.world_rep['meta'] = meta_dict
         meta_dict['players'] = world.players
         meta_dict['algorithm'] = world.algorithm
         meta_dict['seed'] = world.seed
-        meta_dict['race'] = race
+        meta_dict['race'] = settings.race
+        meta_dict['user_notes'] = settings.notes
         self.world_rep['settings'] = settings_dict
         for p in self.player_range:
             settings_dict[p] = {}

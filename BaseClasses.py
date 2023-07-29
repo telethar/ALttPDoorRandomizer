@@ -2501,7 +2501,9 @@ class Spoiler(object):
                          'triforcegoal': self.world.treasure_hunt_count,
                          'triforcepool': self.world.treasure_hunt_total,
                          'race': self.world.settings.world_rep['meta']['race'],
-                         'code': {p: Settings.make_code(self.world, p) for p in range(1, self.world.players + 1)}
+                         'user_notes': self.world.settings.world_rep['meta']['user_notes'],
+                         'code': {p: Settings.make_code(self.world, p) for p in range(1, self.world.players + 1)},
+                         'seed': self.world.seed
                          }
 
         for p in range(1, self.world.players + 1):
@@ -2642,6 +2644,8 @@ class Spoiler(object):
         self.parse_meta()
         with open(filename, 'w') as outfile:
             outfile.write('ALttP Dungeon Randomizer Version %s  -  Seed: %s\n\n' % (self.metadata['version'], self.world.seed))
+            if self.metadata['user_notes']:
+                outfile.write('User Notes:                      %s\n' % self.metadata['user_notes'])
             outfile.write('Filling Algorithm:               %s\n' % self.world.algorithm)
             outfile.write('Players:                         %d\n' % self.world.players)
             outfile.write('Teams:                           %d\n' % self.world.teams)
