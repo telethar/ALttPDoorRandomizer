@@ -3028,8 +3028,8 @@ class Settings(object):
             (flute_mode[w.flute_mode[p]] << 7 | bow_mode[w.bow_mode[p]] << 4
              | take_any_mode[w.take_any[p]] << 2 | keyshuffle_mode[w.keyshuffle[p]]),
 
-            ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 6
-             | trap_door_mode[w.trap_door_mode[p]] << 4 | key_logic_algo[w.key_logic_algorithm[p]]),
+            ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 5
+             | trap_door_mode[w.trap_door_mode[p]] << 3 | key_logic_algo[w.key_logic_algorithm[p]]),
             ])
         return base64.b64encode(code, "+-".encode()).decode()
 
@@ -3099,8 +3099,8 @@ class Settings(object):
             args.keyshuffle[p] = r(keyshuffle_mode)[settings[11] & 0x3]
         if len(settings) > 12:
             args.pseudoboots[p] = True if settings[12] & 0x80 else False
-            args.overworld_map[p] = r(overworld_map_mode)[(settings[12] & 0x60) >> 6]
-            args.trap_door_mode[p] = r(trap_door_mode)[(settings[12] & 0x14) >> 4]
+            args.overworld_map[p] = r(overworld_map_mode)[(settings[12] & 0x60) >> 5]
+            args.trap_door_mode[p] = r(trap_door_mode)[(settings[12] & 0x18) >> 3]
             args.key_logic_algorithm[p] = r(key_logic_algo)[settings[12] & 0x07]
 
 
