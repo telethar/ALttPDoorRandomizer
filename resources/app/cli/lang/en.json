@@ -220,6 +220,7 @@
     "door_shuffle": [
       "Select Door Shuffling Algorithm. (default: %(default)s)",
       "Basic:          Doors are mixed within a single dungeon.",
+      "Paired          Dungeon are paired (with one trio) and only mixed in those groups",
       "Partitioned     Doors are mixed in 3 partitions: L1-3+HC+AT, D1-4, D5-8",
       "Crossed:        Doors are mixed between all dungeons.",
       "Vanilla:        All doors are connected the same way they were in the",

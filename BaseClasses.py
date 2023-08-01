@@ -80,6 +80,7 @@ class World(object):
         self.rooms = []
         self._room_cache = {}
         self.dungeon_layouts = {}
+        self.dungeon_pool = {}
         self.inaccessible_regions = {}
         self.enabled_entrances = {}
         self.key_logic = {}
@@ -2922,7 +2923,7 @@ class Pot(object):
 
 
 # byte 0: DDDE EEEE (DR, ER)
-dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0, "partitioned": 3}
+dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0, "partitioned": 3, 'paired': 4}
 er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, "insanity": 5, 'lite': 8,
            'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6}
 

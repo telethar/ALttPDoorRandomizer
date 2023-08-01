@@ -175,6 +175,7 @@
   "door_shuffle": {
     "choices": [
       "basic",
+      "paired",
       "partitioned",
       "crossed",
       "vanilla"

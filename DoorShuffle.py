@@ -88,7 +88,9 @@ def link_doors_prep(world, player):
 
     find_inaccessible_regions(world, player)
 
-    if world.intensity[player] >= 3 and world.doorShuffle[player]  != 'vanilla':
+    if world.doorShuffle[player] != 'vanilla':
+        create_dungeon_pool(world, player)
+    if world.intensity[player] >= 3 and world.doorShuffle[player] != 'vanilla':
         choose_portals(world, player)
     else:
         if world.shuffle[player] == 'vanilla':
@@ -132,6 +134,20 @@ def create_dungeon_pool(world, player):
     pool = None
     if world.doorShuffle[player] == 'basic':
         pool = [([name], regions) for name, regions in dungeon_regions.items()]
+    elif world.doorShuffle[player] == 'paired':
+        dungeon_pool = list(dungeon_regions.keys())
+        groups = []
+        while dungeon_pool:
+            if len(dungeon_pool) == 3:
+                groups.append(list(dungeon_pool))
+                dungeon_pool.clear()
+            else:
+                choice_a = random.choice(dungeon_pool)
+                dungeon_pool.remove(choice_a)
+                choice_b = random.choice(dungeon_pool)
+                dungeon_pool.remove(choice_b)
+                groups.append([choice_a, choice_b])
+        pool = [(group, list(chain.from_iterable([dungeon_regions[d] for d in group]))) for group in groups]
     elif world.doorShuffle[player] == 'partitioned':
         groups = [['Hyrule Castle', 'Eastern Palace', 'Desert Palace', 'Tower of Hera', 'Agahnims Tower'],
                   ['Palace of Darkness', 'Swamp Palace', 'Skull Woods', 'Thieves Town'],
@@ -142,36 +158,15 @@ def create_dungeon_pool(world, player):
     elif world.doorShuffle[player] != 'vanilla':
         logging.getLogger('').error('Invalid door shuffle setting: %s' % world.doorShuffle[player])
         raise Exception('Invalid door shuffle setting: %s' % world.doorShuffle[player])
-    return pool
+    world.dungeon_pool[player] = pool
 
 
 def link_doors_main(world, player):
-    pool = create_dungeon_pool(world, player)
+    pool = world.dungeon_pool[player]
     if pool:
         main_dungeon_pool(pool, world, player)
     if world.doorShuffle[player] != 'vanilla':
         create_door_spoiler(world, player)
-
-
-# todo: I think this function is not necessary
-def mark_regions(world, player):
-    # traverse dungeons and make sure dungeon property is assigned
-    player_dungeons = [dungeon for dungeon in world.dungeons if dungeon.player == player]
-    for dungeon in player_dungeons:
-        queue = deque(dungeon.regions)
-        while len(queue) > 0:
-            region = world.get_region(queue.popleft(), player)
-            if region.name not in dungeon.regions:
-                dungeon.regions.append(region.name)
-                region.dungeon = dungeon
-            for ext in region.exits:
-                d = world.check_for_door(ext.name, player)
-                connected = ext.connected_region
-                if d is not None and connected is not None:
-                    if d.dest is not None and connected.name not in dungeon.regions and connected.type == RegionType.Dungeon and connected.name not in queue:
-                        queue.append(connected)  # needs to be added
-                elif connected is not None and connected.name not in dungeon.regions and connected.type == RegionType.Dungeon and connected.name not in queue:
-                    queue.append(connected)  # needs to be added
 
 
 def create_door_spoiler(world, player):
@@ -437,17 +432,7 @@ def pair_existing_key_doors(world, player, door_a, door_b):
 def choose_portals(world, player):
     if world.doorShuffle[player] != ['vanilla']:
         shuffle_flag = world.doorShuffle[player] != 'basic'
-        allowed = {}
-        if world.doorShuffle[player] == 'basic':
-            allowed = {name: {name} for name in dungeon_regions}
-        elif world.doorShuffle[player] == 'partitioned':
-            groups = [['Hyrule Castle', 'Eastern Palace', 'Desert Palace', 'Tower of Hera', 'Agahnims Tower'],
-                      ['Palace of Darkness', 'Swamp Palace', 'Skull Woods', 'Thieves Town'],
-                      ['Ice Palace', 'Misery Mire', 'Turtle Rock', 'Ganons Tower']]
-            allowed = {name: set(group) for group in groups for name in group}
-        elif world.doorShuffle[player] == 'crossed':
-            all_dungeons = set(dungeon_regions.keys())
-            allowed = {name: all_dungeons for name in dungeon_regions}
+        allowed = {name: set(group[0]) for group in world.dungeon_pool[player] for name in group[0]}
 
         # key drops allow the big key in the right place in Desert Tiles 2
         bk_shuffle = world.bigkeyshuffle[player] or world.pottery[player] not in ['none', 'cave']
@@ -592,7 +577,7 @@ def customizer_portals(master_door_list, world, player):
                     assigned_doors.add(door)
     # restricts connected doors to the customized portals
     if assigned_doors:
-        pool = create_dungeon_pool(world, player)
+        pool = world.dungeon_pool[player]
         if pool:
             pool_map = {}
             for pool, region_list in pool:
