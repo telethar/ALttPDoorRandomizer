@@ -573,13 +573,14 @@ Create bps patch(es) instead of generating rom(s) for distribution. `--bps`
 
 ### Triforce Hunt Settings
 
-A collection of settings to control the triforce piece pool for the CLI/Mystery
+A collection of settings to control the triforce piece pool if not specified through --triforce_goal and --triforce_pool
 
 * --triforce_goal_min: Minimum number of pieces to collect to win
 * --triforce_goal_max: Maximum number of pieces to collect to win
 * --triforce_pool_min: Minimum number of pieces in item pool
 * --triforce_pool_max: Maximum number of pieces in item pool
 * --triforce_min_difference: Minimum difference between pool and goal to win
+* --triforce_max_difference: Maximum difference between pool and goal to win
 
 ### Seed
 

@@ -62,6 +62,7 @@
     "randomizer.dungeon.dungeondoorshuffle": "Dungeon Door Shuffle",
     "randomizer.dungeon.dungeondoorshuffle.vanilla": "Vanilla",
     "randomizer.dungeon.dungeondoorshuffle.basic": "Basic",
+    "randomizer.dungeon.dungeondoorshuffle.paired": "Paired",
     "randomizer.dungeon.dungeondoorshuffle.partitioned": "Partitioned",
     "randomizer.dungeon.dungeondoorshuffle.crossed": "Crossed",
 

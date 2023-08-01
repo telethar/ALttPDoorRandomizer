@@ -66,6 +66,8 @@ class Context:
         self.lookup_name_to_id = {}
         self.lookup_id_to_name = {}
 
+        self.pottery_locations_enabled = None
+
 def color_code(*args):
     codes = {'reset': 0, 'bold': 1, 'underline': 4, 'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34,
              'magenta': 35, 'cyan': 36, 'white': 37 , 'black_bg': 40, 'red_bg': 41, 'green_bg': 42, 'yellow_bg': 43,
@@ -95,6 +97,8 @@ SPRITE_ITEMS_SRAM_START = WRAM_START + 0x016268     # 2 bytes per room
 SHOP_SRAM_START = WRAM_START + 0x0164B8             # 2 bytes?
 ITEM_SRAM_SIZE = 0x250
 SHOP_SRAM_LEN = 0x29  # 41 tracked items
+
+POT_LOCATION_TABLE = 0x142A60
 
 RECV_PROGRESS_ADDR = SAVEDATA_START + 0x4D0         # 2 bytes
 RECV_ITEM_ADDR = SAVEDATA_START + 0x4D2             # 1 byte
@@ -826,11 +830,13 @@ def get_location_name_from_address(ctx, address):
 
 
 def filter_location(ctx, location):
+    if location in location_table_pot_items:
+        tile_idx, mask = location_table_pot_items[location]
+        tracking_data = ctx.pottery_locations_enabled
+        tile_pots = tracking_data[tile_idx] | (tracking_data[tile_idx+1] << 8)
+        return (mask & tile_pots) == 0
     if (not ctx.key_drop_mode and location in PotShuffle.key_drop_data
          and PotShuffle.key_drop_data[location][0] == 'Drop'):
-        return True
-    if (not ctx.pottery_mode and location in PotShuffle.key_drop_data
-         and PotShuffle.key_drop_data[location][0] == 'Pot'):
         return True
     if not ctx.shop_mode and location in Regions.flat_normal_shops:
         return True
@@ -995,6 +1001,9 @@ async def game_watcher(ctx : Context):
         if ctx.auth and ctx.auth != ctx.rom:
             logging.warning("ROM change detected, please reconnect to the multiworld server")
             await disconnect(ctx)
+
+        if ctx.pottery_locations_enabled is None:
+            ctx.pottery_locations_enabled = await snes_read(ctx, POT_LOCATION_TABLE, 0x250)
 
         gamemode = await snes_read(ctx, WRAM_START + 0x10, 1)
         if gamemode is None or gamemode[0] not in INGAME_MODES:

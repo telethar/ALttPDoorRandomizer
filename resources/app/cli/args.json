@@ -176,6 +176,7 @@
   "door_shuffle": {
     "choices": [
       "basic",
+      "paired",
       "partitioned",
       "crossed",
       "vanilla"
@@ -340,6 +341,7 @@
   "triforce_goal_min": {},
   "triforce_goal_max": {},
   "triforce_min_difference": {},
+  "triforce_max_difference": {},
   "custom": {
     "type": "bool",
     "help": "suppress"
