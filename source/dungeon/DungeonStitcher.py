@@ -200,7 +200,6 @@ def modify_proposal(proposed_map, explored_state, doors_to_connect, hash_code_se
         unvisted_bucket[opp_hook].sort(key=lambda d: d.name)
         new_door = random.choice(unvisted_bucket[opp_hook])
         old_target = proposed_map[attempt]
-        proposed_map[attempt] = new_door
         if not world.decoupledoors[player]:
             old_attempt = proposed_map[new_door]
         else:
@@ -213,6 +212,7 @@ def modify_proposal(proposed_map, explored_state, doors_to_connect, hash_code_se
             old_target = old_attempt
         elif old_attempt == new_door:
             old_attempt = old_target
+        proposed_map[attempt] = new_door
         proposed_map[old_attempt] = old_target
         if not world.decoupledoors[player]:
             proposed_map[old_target] = old_attempt
