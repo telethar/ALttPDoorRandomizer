@@ -177,6 +177,7 @@ def create_item_pool_config(world):
             config.vanilla_item_to_locations[item] = [loc for loc in location_list]
             for loc in location_list:
                 config.vanilla_location_to_items[loc].append(item)
+        # ten bomb handling
         ten_bomb_home = random.choice(config.vanilla_item_to_locations['Bombs (3)'])
         config.vanilla_item_to_locations['Bombs (3)'].remove(ten_bomb_home)
         config.vanilla_item_to_locations['Bombs (10)'].append(ten_bomb_home)
@@ -324,6 +325,10 @@ def massage_item_pool(world):
         removed -= len(placeholders)
         for _ in range(removed):
             world.itempool.append(ItemFactory('Rupees (5)', random.randint(1, world.players)))
+    if world.algorithm == 'swapped':
+        x = 0
+        # todo: time to massage things
+        pass
 
 
 def replace_trash_item(item_pool, replacement):
