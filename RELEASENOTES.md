@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.20u
+  * Added logic for trap doors that could be opened using existing room triggers
+  * Added a notes field for user added notes either via CLI or Customizer
 * 1.2.0.19u
   * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
   * Fixed a bug with dungeon generation

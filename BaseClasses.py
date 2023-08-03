@@ -1760,6 +1760,7 @@ class Door(object):
         self.dest = None
         self.blocked = False  # Indicates if the door is normally blocked off as an exit. (Sanc door or always closed)
         self.blocked_orig = False
+        self.trapped = False
         self.stonewall = False  # Indicate that the door cannot be enter until exited (Desert Torches, PoD Eye Statue)
         self.smallKey = False  # There's a small key door on this side
         self.bigKey = False  # There's a big key door on this side
@@ -1870,7 +1871,7 @@ class Door(object):
         return self
 
     def no_exit(self):
-        self.blocked = self.blocked_orig = True
+        self.blocked = self.blocked_orig = self.trapped = True
         return self
 
     def no_entrance(self):
