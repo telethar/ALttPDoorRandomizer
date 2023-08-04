@@ -84,6 +84,7 @@ triforce_goal_max: 30
 triforce_pool_min: 30
 triforce_pool_max: 40
 triforce_min_difference: 10
+triforce_max_difference: 12
 map_shuffle:
   on: 1
   off: 1

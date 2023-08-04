@@ -11,12 +11,8 @@
       "options": [
         "standard",
         "open",
-        "inverted",
-        "retro"
-      ],
-      "config": {
-        "command": "worldstate"
-      }
+        "inverted"
+      ]
     },
     "logiclevel": {
       "type": "selectbox",
@@ -65,6 +61,12 @@
     }
   },
   "rightItemFrame": {
+    "retro": {
+      "type": "button",
+      "config": {
+        "command": "retro"
+      }
+    },
     "sortingalgo": {
       "type": "selectbox",
       "default": "balanced",
@@ -140,13 +142,19 @@
     "colorizepots": {
       "type": "checkbox",
       "config": {
-        "padx": [50,0]
+        "padx": [
+          50,
+          0
+        ]
       }
     },
     "potshuffle": {
       "type": "checkbox",
       "config": {
-        "padx": [50,0]
+        "padx": [
+          50,
+          0
+        ]
       }
     },
     "dropshuffle": {
@@ -156,7 +164,9 @@
         "none",
         "keys",
         "underworld"
-    ]},
+    ]}
+  },
+  "leftPoolFrame2": {
     "keydropshuffle": {
       "type": "checkbox",
       "config": {

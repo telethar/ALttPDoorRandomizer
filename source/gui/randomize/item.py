@@ -43,7 +43,10 @@ def item_page(parent):
     self.frames["leftPoolHeader"].pack(side=TOP, anchor=W)
 
     self.frames["leftPoolFrame"] = Frame(self.frames["leftPoolContainer"])
-    self.frames["leftPoolFrame"].pack(side=LEFT, fill=Y)
+    self.frames["leftPoolFrame"].pack(side=TOP, fill=Y)
+
+    self.frames["leftPoolFrame2"] = Frame(self.frames["leftPoolContainer"])
+    self.frames["leftPoolFrame2"].pack(side=LEFT, fill=Y)
     
     self.frames["rightPoolFrame"] = Frame(self.frames["poolFrame"])
     self.frames["rightPoolFrame"].pack(side=RIGHT)
@@ -62,14 +65,16 @@ def item_page(parent):
             for key in dictWidgets:
                 self.widgets[key] = dictWidgets[key]
                 packAttrs = {"anchor":E}
-                if self.widgets[key].type == "checkbox" or framename == "leftPoolFrame":
+                if key == "retro":
+                    packAttrs["side"] = RIGHT
+                if self.widgets[key].type == "checkbox" or framename.startswith("leftPoolFrame"):
                     packAttrs["anchor"] = W
                 if framename == "checkboxes":
                     packAttrs["side"] = LEFT
-                    packAttrs["padx"] = (10,0)
+                    packAttrs["padx"] = (10, 0)
                 elif framename == "leftPoolHeader":
                     packAttrs["side"] = LEFT
-                    packAttrs["padx"] = (0,20)
+                    packAttrs["padx"] = (0, 20)
                 packAttrs = widgets.add_padding_from_config(packAttrs, theseWidgets[key])
                 self.widgets[key].pack(packAttrs)
 

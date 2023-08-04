@@ -404,7 +404,7 @@ CLI: `--logic owglitches`
 New supported goals:
 
 * Trinity: Find one of 3 triforces to win. One is at pedestal. One is with Ganon. One is with Murahdahla who wants you to find 8 of 10 triforce pieces to complete.
-* Triforce Hunt + Ganon: Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
+* Ganonhunt: Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
 * Completionist: All dungeons not enough for you? You have to obtain every item in the game too. This option turns on the collection rate counter and forces accessibility to be 100% locations. Finish by defeating Ganon.
 
 
@@ -573,13 +573,14 @@ Create bps patch(es) instead of generating rom(s) for distribution. `--bps`
 
 ### Triforce Hunt Settings
 
-A collection of settings to control the triforce piece pool for the CLI/Mystery
+A collection of settings to control the triforce piece pool if not specified through --triforce_goal and --triforce_pool
 
 * --triforce_goal_min: Minimum number of pieces to collect to win
 * --triforce_goal_max: Maximum number of pieces to collect to win
 * --triforce_pool_min: Minimum number of pieces in item pool
 * --triforce_pool_max: Maximum number of pieces in item pool
 * --triforce_min_difference: Minimum difference between pool and goal to win
+* --triforce_max_difference: Maximum difference between pool and goal to win
 
 ### Seed
 

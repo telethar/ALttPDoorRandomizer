@@ -108,6 +108,7 @@
   triforce_pool_min: 20
   triforce_pool_max: 40
   triforce_min_difference: 10
+  triforce_max_difference: 15
   dungeon_items:
     standard: 10
     mc: 3

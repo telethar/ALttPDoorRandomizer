@@ -1,4 +1,6 @@
+
 from tkinter import messagebox, Checkbutton, Entry, Frame, IntVar, Label, OptionMenu, Spinbox, StringVar, LEFT, RIGHT, X
+from tkinter import Button
 from source.classes.Empty import Empty
 
 # Override Spinbox to include mousewheel support for changing value
@@ -172,6 +174,22 @@ def make_textbox(self, parent, label, storageVar, manager, managerAttrs):
         widget.textbox.pack(managerAttrs["textbox"] if managerAttrs is not None and "textbox" in managerAttrs else None)
     return widget
 
+
+def make_button(self, parent, label, manager, managerAttrs, config):
+    self = Frame(parent)
+    if config and "command" in config:
+        self.command = config["command"]
+    else:
+        self.command = lambda: None
+
+    self.button = Button(parent, text=label, command=lambda: widget_command(self, self.command))
+    if managerAttrs is not None:
+        self.button.pack(managerAttrs)
+    else:
+        self.button.pack(anchor='w')
+    return self
+
+
 # Make a generic widget
 def make_widget(self, type, parent, label, storageVar=None, manager=None, managerAttrs=dict(),
                 options=None, config=None):
@@ -201,6 +219,8 @@ def make_widget(self, type, parent, label, storageVar=None, manager=None, manage
         if thisStorageVar is None:
             thisStorageVar = StringVar()
         widget = make_textbox(self, parent, label, thisStorageVar, manager, managerAttrs)
+    elif type == 'button':
+        widget = make_button(self, parent, label, manager, managerAttrs, config)
     widget.type = type
     return widget
 
@@ -243,47 +263,36 @@ def add_padding_from_config(packAttrs, defn):
 def widget_command(widget, command=""):
     root = widget.winfo_toplevel()
     text_output = ""
-    if command == "worldstate":
-        if widget.storageVar.get() == 'retro':
-            temp_widget = root.pages["randomizer"].pages["dungeon"].widgets["smallkeyshuffle"]
-            text_output += f'\n    {temp_widget.label.cget("text")}'
-            temp_widget.storageVar.set('universal')
+    if command == "retro":
+        temp_widget = root.pages["randomizer"].pages["dungeon"].widgets["smallkeyshuffle"]
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        temp_widget.storageVar.set('universal')
 
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["bow_mode"]
-            text_output += f'\n    {temp_widget.label.cget("text")}'
-            if temp_widget.storageVar.get() == 'progressive':
-                temp_widget.storageVar.set('retro')
-            elif temp_widget.storageVar.get() == 'silvers':
-                temp_widget.storageVar.set('retro_silvers')
+        temp_widget = root.pages["randomizer"].pages["item"].widgets["bow_mode"]
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        if temp_widget.storageVar.get() == 'progressive':
+            temp_widget.storageVar.set('retro')
+        elif temp_widget.storageVar.get() == 'silvers':
+            temp_widget.storageVar.set('retro_silvers')
 
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["take_any"]
-            text_output += f'\n    {temp_widget.label.cget("text")}'
-            if temp_widget.storageVar.get() == 'none':
-                temp_widget.storageVar.set('random')
+        temp_widget = root.pages["randomizer"].pages["item"].widgets["take_any"]
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        if temp_widget.storageVar.get() == 'none':
+            temp_widget.storageVar.set('random')
 
-            widget.storageVar.set('open')
-            messagebox.showinfo('', f'The following settings were changed:{text_output}')
+        messagebox.showinfo('', f'The following settings were changed:{text_output}')
     elif command == "keydropshuffle":
-        if widget.storageVar.get() > 0:
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["pottery"]
-            if temp_widget.storageVar.get() == 'none':
-                text_output += f'\n    {temp_widget.label.cget("text")}'
-                temp_widget.storageVar.set('keys')
+        temp_widget = root.pages["randomizer"].pages["item"].widgets["pottery"]
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        if temp_widget.storageVar.get() == 'none':
 
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
-            if temp_widget.storageVar.get() == 'none':
-                temp_widget.storageVar.set('keys')
-                text_output += f'\n    {temp_widget.label.cget("text")}'
-            if text_output:
-                messagebox.showinfo('', f'The following settings were changed:{text_output}')
-        else:
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["pottery"]
-            if temp_widget.storageVar.get() == 'keys':
-                text_output += f'\n    {temp_widget.label.cget("text")}'
-                temp_widget.storageVar.set('none')
-            temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
-            if temp_widget.storageVar.get() == 'keys':
-                temp_widget.storageVar.set('none')
-                text_output += f'\n    {temp_widget.label.cget("text")}'
-            if text_output:
-                messagebox.showinfo('', f'The following settings were changed:{text_output}')
+            temp_widget.storageVar.set('keys')
+
+        temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        if temp_widget.storageVar.get() == 'none':
+            temp_widget.storageVar.set('keys')
+
+        if text_output:
+            messagebox.showinfo('', f'The following settings were changed:{text_output}')
+

@@ -57,7 +57,10 @@ def loadcliargs(gui, args, settings=None):
                                 pagewidgets[widget].selectbox.options = theseOptions
                             elif thisType == "spinbox":
                                 pagewidgets[widget].label.configure(text=label)
-                        pagewidgets[widget].storageVar.set(args[arg])
+                            elif thisType == 'button':
+                                pagewidgets[widget].button.configure(text=label)
+                        if hasattr(pagewidgets[widget], 'storageVar'):
+                            pagewidgets[widget].storageVar.set(args[arg])
                         # If we're on the Game Options page and it's not about Hints
                         if subpage == "gameoptions" and widget not in ["hints", "collection_rate"]:
                             # Check if we've got settings

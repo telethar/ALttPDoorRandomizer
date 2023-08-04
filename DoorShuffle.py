@@ -1962,7 +1962,7 @@ def shuffle_big_key_doors(door_type_pools, used_doors, start_regions_map, all_cu
                 if flex_map[dungeon] > 0:
                     queue.append(dungeon)
         # time to re-assign
-        reassign_big_key_doors(bk_map, world, player)
+        reassign_big_key_doors(bk_map, used_doors, world, player)
         for name, big_list in bk_map.items():
             used_doors.update(flatten_pair_list(big_list))
     return used_doors
@@ -2047,7 +2047,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, all_
             else:
                 builder.key_doors_num -= 1
         # time to re-assign
-        reassign_key_doors(small_map, world, player)
+        reassign_key_doors(small_map, used_doors, world, player)
         for dungeon_name in pool:
             if world.keyshuffle[player] != 'universal':
                 builder = world.dungeon_layouts[player][dungeon_name]
@@ -2129,7 +2129,7 @@ def shuffle_bomb_dash_doors(door_type_pools, used_doors, start_regions_map, all_
                 suggestion_map[dungeon] = pair
                 queue.append(dungeon)
         # time to re-assign
-        reassign_bd_doors(bd_map, world, player)
+        reassign_bd_doors(bd_map, used_doors, world, player)
         for name, pair in bd_map.items():
             used_doors.update(flatten_pair_list(pair[0]))
             used_doors.update(flatten_pair_list(pair[1]))
@@ -2539,7 +2539,7 @@ def find_current_bk_doors(builder):
     return current_doors
 
 
-def reassign_big_key_doors(bk_map, world, player):
+def reassign_big_key_doors(bk_map, used_doors, world, player):
     logger = logging.getLogger('')
     for name, big_doors in bk_map.items():
         flat_proposal = flatten_pair_list(big_doors)
@@ -2548,11 +2548,11 @@ def reassign_big_key_doors(bk_map, world, player):
         while len(queue) > 0:
             d = queue.pop()
             if d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
-                if not d.entranceFlag:
+                if not d.entranceFlag and d not in used_doors and d.dest not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
-            elif d.type is DoorType.Normal and d not in flat_proposal:
-                if not d.entranceFlag:
+            elif d.type is DoorType.Normal and d not in flat_proposal :
+                if not d.entranceFlag and d not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.bigKey = False
         for obj in big_doors:
@@ -2795,7 +2795,7 @@ def find_valid_bd_combination(builder, suggested, world, player):
     return bomb_proposal, dash_proposal, ttl_needed
 
 
-def reassign_bd_doors(bd_map, world, player):
+def reassign_bd_doors(bd_map, used_doors, world, player):
     for name, pair in bd_map.items():
         flat_bomb_proposal = flatten_pair_list(pair[0])
         flat_dash_proposal = flatten_pair_list(pair[1])
@@ -2808,10 +2808,10 @@ def reassign_bd_doors(bd_map, world, player):
         queue = deque(find_current_bd_doors(builder, world))
         while len(queue) > 0:
             d = queue.pop()
-            if d.type is DoorType.Interior and not_in_proposal(d):
+            if d.type is DoorType.Interior and not_in_proposal(d) and d not in used_doors and d.dest not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
-            elif d.type is DoorType.Normal and not_in_proposal(d):
+            elif d.type is DoorType.Normal and not_in_proposal(d) and d not in used_doors:
                 if not d.entranceFlag:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
         do_bombable_dashable(pair[0], DoorKind.Bombable, world, player)
@@ -3003,7 +3003,7 @@ def valid_key_door_pair(door1, door2):
     return len(door1.entrance.parent_region.exits) <= 1 or len(door2.entrance.parent_region.exits) <= 1
 
 
-def reassign_key_doors(small_map, world, player):
+def reassign_key_doors(small_map, used_doors, world, player):
     logger = logging.getLogger('')
     for name, small_doors in small_map.items():
         logger.debug(f'Key doors for {name}')
@@ -3024,13 +3024,13 @@ def reassign_key_doors(small_map, world, player):
                         room.delete(d.doorListPos)
                 d.smallKey = False
             elif d.type is DoorType.Interior and d not in flat_proposal and d.dest not in flat_proposal:
-                if not d.entranceFlag:
+                if not d.entranceFlag and d not in used_doors and d.dest not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
                 d.dest.smallKey = False
                 queue.remove(d.dest)
             elif d.type is DoorType.Normal and d not in flat_proposal:
-                if not d.entranceFlag:
+                if not d.entranceFlag and d not in used_doors:
                     world.get_room(d.roomIndex, player).change(d.doorListPos, DoorKind.Normal)
                 d.smallKey = False
                 for dp in world.paired_doors[player]:
@@ -3295,7 +3295,7 @@ def find_inaccessible_regions(world, player):
     while len(queue) > 0:
         next_region = queue.popleft()
         visited_regions.add(next_region)
-        if next_region.name == 'Dark Sanctuary Hint':  # special spawn point in cave
+        if world.mode[player] == 'inverted' and next_region.name == 'Dark Sanctuary Hint':  # special spawn point in cave
             for ent in next_region.entrances:
                 parent = ent.parent_region
                 if parent and parent.type is not RegionType.Dungeon and parent not in queue and parent not in visited_regions:
@@ -3811,6 +3811,8 @@ logical_connections = [
     ('GT Blocked Stairs Block Path', 'GT Big Chest'),
     ('GT Speed Torch South Path', 'GT Speed Torch'),
     ('GT Speed Torch North Path', 'GT Speed Torch Upper'),
+    ('GT Conveyor Cross Hammer Path', 'GT Conveyor Cross Across Pits'),
+    ('GT Conveyor Cross Hookshot Path', 'GT Conveyor Cross'),
     ('GT Hookshot East-Mid Path', 'GT Hookshot Mid Platform'),
     ('GT Hookshot Mid-East Path', 'GT Hookshot East Platform'),
     ('GT Hookshot North-Mid Path', 'GT Hookshot Mid Platform'),
@@ -4159,7 +4161,7 @@ interior_doors = [
     ('Mire Neglected Room SE', 'Mire Chest View NE'),
     ('Mire BK Chest Ledge WS', 'Mire Warping Pool ES'),  # technically one-way
     ('Mire Torches Top SW', 'Mire Torches Bottom NW'),
-    ('Mire Torches Bottom WS', 'Mire Attic Hint ES'),
+    ('Mire Torches Bottom ES', 'Mire Attic Hint WS'),
     ('Mire Dark Shooters SE', 'Mire Key Rupees NE'),
     ('Mire Dark Shooters SW', 'Mire Block X NW'),
     ('Mire Tall Dark and Roomy WS', 'Mire Crystal Right ES'),

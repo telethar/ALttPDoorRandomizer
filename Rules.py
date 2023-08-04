@@ -209,7 +209,6 @@ def global_rules(world, player):
     set_rule(world.get_location('Purple Chest', player), lambda state: state.has('Pick Up Purple Chest', player))  # Can S&Q with chest
 
     # underworld rules
-    set_rule(world.get_entrance('Old Man Cave Exit (West)', player), lambda state: False)  # drop cannot be climbed up
     set_rule(world.get_location('Mimic Cave', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('Paradox Cave Push Block Reverse', player), lambda state: state.has_Mirror(player))  # can erase block - overridden in noglitches
     set_rule(world.get_location('Potion Shop', player), lambda state: state.has('Mushroom', player) and state.can_reach('Potion Shop Area', 'Region', player))
@@ -479,8 +478,8 @@ def global_rules(world, player):
 
     set_rule(world.get_location('Ganons Tower - Bob\'s Torch', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('GT Hope Room EN', player), lambda state: state.has('Cane of Somaria', player))
-    set_rule(world.get_entrance('GT Conveyor Cross WN', player), lambda state: state.has('Hammer', player))
-    set_rule(world.get_entrance('GT Conveyor Cross EN', player), lambda state: state.has('Hookshot', player))
+    set_rule(world.get_entrance('GT Conveyor Cross Hammer Path', player), lambda state: state.has('Hammer', player))
+    set_rule(world.get_entrance('GT Conveyor Cross Hookshot Path', player), lambda state: state.has('Hookshot', player))
     if not world.get_door('GT Speed Torch SE', player).entranceFlag:
         set_rule(world.get_entrance('GT Speed Torch SE', player), lambda state: state.has('Fire Rod', player))
     set_rule(world.get_entrance('GT Hookshot South-Mid Path', player), lambda state: state.has('Hookshot', player))
@@ -887,7 +886,7 @@ def ow_inverted_rules(world, player):
         set_rule(world.get_entrance('Hyrule Castle Main Gate', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_entrance('Hyrule Castle Main Gate (North)', player), lambda state: state.has_Mirror(player))
         set_rule(world.get_location('Frog', player), lambda state: state.can_lift_heavy_rocks(player) and state.has_Pearl(player))
-        set_rule(world.get_entrance('Pyramid Hole', player), lambda state: world.open_pyramid[player] or world.goal[player] == 'trinity' or state.has('Beat Agahnim 2', player))
+        set_rule(world.get_entrance('Pyramid Hole', player), lambda state: world.is_pyramid_open(player) or state.has('Beat Agahnim 2', player))
     else:
         set_rule(world.get_entrance('East Dark Death Mountain Teleporter (Top)', player), lambda state: state.can_lift_heavy_rocks(player) and state.has('Hammer', player) and state.has_Pearl(player))  # bunny cannot use hammer
         set_rule(world.get_entrance('East Dark Death Mountain Teleporter (Bottom)', player), lambda state: state.can_lift_heavy_rocks(player))
@@ -965,6 +964,8 @@ def ow_bunny_rules(world, player):
 
     add_bunny_rule(world.get_entrance('East Dark Death Mountain Bushes', player), player)
     add_bunny_rule(world.get_entrance('Bumper Cave Entrance Rock', player), player)
+    add_bunny_rule(world.get_entrance('Dark Graveyard Bush (South)', player), player)
+    add_bunny_rule(world.get_entrance('Dark Graveyard Bush (North)', player), player)
     add_bunny_rule(world.get_entrance('Dark Witch Rock (North)', player), player)
     add_bunny_rule(world.get_entrance('Dark Witch Rock (South)', player), player)
     add_bunny_rule(world.get_entrance('Grassy Lawn Pegs (Bottom)', player), player)
@@ -2056,7 +2057,9 @@ def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
     eval_func = eval_small_key_door
     if world.key_logic_algorithm[player] == 'strict' and world.keyshuffle[player] == 'wild':
-         eval_func = eval_small_key_door_strict
+        eval_func = eval_small_key_door_strict
+    elif world.key_logic_algorithm[player] != 'default':
+        eval_func = eval_small_key_door_partial
     for d_name, d_logic in key_logic.items():
         for door_name, rule in d_logic.door_rules.items():
             door_entrance = world.get_entrance(door_name, player)
@@ -2112,6 +2115,36 @@ def eval_small_key_door_main(state, door_name, dungeon, player):
     return door_openable
 
 
+def eval_small_key_door_partial_main(state, door_name, dungeon, player):
+    if state.is_door_open(door_name, player):
+        return True
+    key_logic = state.world.key_logic[player][dungeon]
+    if door_name not in key_logic.door_rules:
+        return False
+    door_rule = key_logic.door_rules[door_name]
+    door_openable = False
+    for ruleType, number in door_rule.new_rules.items():
+        if door_openable:
+            return True
+        if ruleType == KeyRuleType.WorstCase:
+            number = min(number, door_rule.small_key_num)
+            door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+        elif ruleType == KeyRuleType.AllowSmall:
+            small_loc_item = door_rule.small_location.item
+            if small_loc_item and small_loc_item.name == key_logic.small_key_name and small_loc_item.player == player:
+                door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+        elif isinstance(ruleType, tuple):
+            lock, lock_item = ruleType
+            # this doesn't track logical locks yet, i.e. hammer locks the item and hammer is there, but the item isn't
+            for loc in door_rule.alternate_big_key_loc:
+                spot = state.world.get_location(loc, player)
+                if spot.item and spot.item.name == lock_item:
+                    number = min(number, door_rule.alternate_small_key)
+                    door_openable |= state.has_sm_key(key_logic.small_key_name, player, number)
+                    break
+    return door_openable
+
+
 def eval_small_key_door_strict_main(state, door_name, dungeon, player):
     if state.is_door_open(door_name, player):
         return True
@@ -2124,6 +2157,10 @@ def eval_small_key_door_strict_main(state, door_name, dungeon, player):
 
 def eval_small_key_door(door_name, dungeon, player):
     return lambda state: eval_small_key_door_main(state, door_name, dungeon, player)
+
+
+def eval_small_key_door_partial(door_name, dungeon, player):
+    return lambda state: eval_small_key_door_partial_main(state, door_name, dungeon, player)
 
 
 def eval_small_key_door_strict(door_name, dungeon, player):

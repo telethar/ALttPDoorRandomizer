@@ -1294,7 +1294,8 @@ def make_customizer_pool(world, player):
     bow_found = next((i for i in pool if i in {'Bow', 'Progressive Bow'}), None)
     if not bow_found:
         missing_items.append('Progressive Bow')
-    logging.getLogger('').warning(f'The following items are not in the custom item pool {", ".join(missing_items)}')
+    if missing_items:
+        logging.getLogger('').warning(f'The following items are not in the custom item pool {", ".join(missing_items)}')
 
     g, t = set_default_triforce(world.goal[player], world.treasure_hunt_count[player],
                                 world.treasure_hunt_total[player])
@@ -1303,20 +1304,23 @@ def make_customizer_pool(world, player):
         if pieces < t:
             pool.extend(['Triforce Piece'] * (t - pieces))
 
-    if not world.customizer.get_start_inventory():
-        if world.logic[player] in ['owglitches', 'nologic']:
-            precollected_items.append('Pegasus Boots')
-            if 'Pegasus Boots' in pool:
-                pool.remove('Pegasus Boots')
-                pool.append('Rupees (20)')
-        if world.swords[player] == 'assured':
-            precollected_items.append('Progressive Sword')
-            if 'Progressive Sword' in pool:
-                pool.remove('Progressive Sword')
-                pool.append('Rupees (50)')
-            elif 'Fighter Sword' in pool:
-                pool.remove('Fighter Sword')
-                pool.append('Rupees (50)')
+    sphere_0 = world.customizer.get_start_inventory()
+    no_start_inventory = not sphere_0 or not sphere_0[player]
+    init_equip = [] if no_start_inventory else sphere_0[player]
+    if (world.logic[player] in ['owglitches', 'nologic']
+       and (no_start_inventory or all(x != 'Pegasus Boots' for x in init_equip))):
+        precollected_items.append('Pegasus Boots')
+        if 'Pegasus Boots' in pool:
+            pool.remove('Pegasus Boots')
+            pool.append('Rupees (20)')
+    if world.swords[player] == 'assured' and (no_start_inventory or all(' Sword' not in x for x in init_equip)):
+        precollected_items.append('Progressive Sword')
+        if 'Progressive Sword' in pool:
+            pool.remove('Progressive Sword')
+            pool.append('Rupees (50)')
+        elif 'Fighter Sword' in pool:
+            pool.remove('Fighter Sword')
+            pool.append('Rupees (50)')
 
     return pool, placed_items, precollected_items, clock_mode, 1
 
@@ -1399,10 +1403,13 @@ def fill_specific_items(world):
                                                                         dungeon_pool, prize_set, prize_pool)
                     if item_to_place:
                         world.push_item(loc, item_to_place, False)
+                        loc.locked = True
                         track_outside_keys(item_to_place, loc, world)
                         track_dungeon_items(item_to_place, loc, world)
                         loc.event = (event_flag or item_to_place.advancement
                                      or item_to_place.bigkey or item_to_place.smallkey)
+                    else:
+                        raise Exception(f'Did not find "{item}" in item pool to place at "{location}"')
         advanced_placements = world.customizer.get_advanced_placements()
         if advanced_placements:
             for player, placement_list in advanced_placements.items():
@@ -1412,7 +1419,7 @@ def fill_specific_items(world):
                         item_to_place, event_flag = get_item_and_event_flag(item, world, player,
                                                                             dungeon_pool, prize_set, prize_pool)
                         if not item_to_place:
-                            continue
+                            raise Exception(f'Did not find "{item}" in item pool to place for a LocationGroup"')
                         locations = placement['locations']
                         handled = False
                         while not handled:
@@ -1432,6 +1439,7 @@ def fill_specific_items(world):
                                 if loc.item:
                                     continue
                                 world.push_item(loc, item_to_place, False)
+                                loc.locked = True
                                 track_outside_keys(item_to_place, loc, world)
                                 track_dungeon_items(item_to_place, loc, world)
                                 loc.event = (event_flag or item_to_place.advancement

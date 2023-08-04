@@ -2,6 +2,7 @@ import os
 import urllib.request
 import urllib.parse
 import yaml
+from typing import Any
 from yaml.representer import Representer
 from collections import defaultdict
 from pathlib import Path
@@ -46,8 +47,8 @@ class CustomSettings(object):
         return meta['players']
 
     def adjust_args(self, args):
-        def get_setting(value, default):
-            if value:
+        def get_setting(value: Any, default):
+            if value or value == 0:
                 if isinstance(value, dict):
                     return random.choices(list(value.keys()), list(value.values()), k=1)[0]
                 else:
@@ -117,6 +118,7 @@ class CustomSettings(object):
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
                 args.crystals_ganon[p] = get_setting(settings['crystals_ganon'], args.crystals_ganon[p])
                 args.experimental[p] = get_setting(settings['experimental'], args.experimental[p])
+                args.collection_rate[p] = get_setting(settings['collection_rate'], args.collection_rate[p])
                 args.openpyramid[p] = get_setting(settings['openpyramid'], args.openpyramid[p])
                 args.bigkeyshuffle[p] = get_setting(settings['bigkeyshuffle'], args.bigkeyshuffle[p])
                 args.keyshuffle[p] = get_setting(settings['keyshuffle'], args.keyshuffle[p])
@@ -144,6 +146,12 @@ class CustomSettings(object):
                 args.pseudoboots[p] = get_setting(settings['pseudoboots'], args.pseudoboots[p])
                 args.triforce_goal[p] = get_setting(settings['triforce_goal'], args.triforce_goal[p])
                 args.triforce_pool[p] = get_setting(settings['triforce_pool'], args.triforce_pool[p])
+                args.triforce_goal_min[p] = get_setting(settings['triforce_goal_min'], args.triforce_goal_min[p])
+                args.triforce_goal_max[p] = get_setting(settings['triforce_goal_max'], args.triforce_goal_max[p])
+                args.triforce_pool_min[p] = get_setting(settings['triforce_pool_min'], args.triforce_pool_min[p])
+                args.triforce_pool_max[p] = get_setting(settings['triforce_pool_max'], args.triforce_pool_max[p])
+                args.triforce_min_difference[p] = get_setting(settings['triforce_min_difference'], args.triforce_min_difference[p])
+                args.triforce_max_difference[p] = get_setting(settings['triforce_max_difference'], args.triforce_max_difference[p])
                 args.beemizer[p] = get_setting(settings['beemizer'], args.beemizer[p])
 
                 # mystery usage
@@ -251,6 +259,7 @@ class CustomSettings(object):
             settings_dict[p]['crystals_gt'] = world.crystals_gt_orig[p]
             settings_dict[p]['crystals_ganon'] = world.crystals_ganon_orig[p]
             settings_dict[p]['experimental'] = world.experimental[p]
+            settings_dict[p]['collection_rate'] = world.collection_rate[p]
             settings_dict[p]['openpyramid'] = world.open_pyramid[p]
             settings_dict[p]['bigkeyshuffle'] = world.bigkeyshuffle[p]
             settings_dict[p]['keyshuffle'] = world.keyshuffle[p]

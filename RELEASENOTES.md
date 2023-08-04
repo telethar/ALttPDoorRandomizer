@@ -57,7 +57,7 @@ Please see [Customizer documentation](docs/Customizer.md) on how to create custo
 
 ## New Goals
 
-### Triforce Hunt + Ganon
+### Ganonhunt
 Collect the requisite triforce pieces, then defeat Ganon. (Aga2 not required). Use `ganonhunt` on CLI
 
 ### Completionist
@@ -109,8 +109,35 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.19u
+  * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
+  * Fixed a bug with dungeon generation
+  * Multiworld: Fixed /missing command to not list all the pots
+  * Changed the "Ganonhunt" goal to use open pyramid on the Auto setting
+  * Customizer: Fixed the example yaml for shopsanity
+* 1.2.0.18u
+  * Fixed an issue with pyramid hole being in logic when it is not opened.
+  * Crystal cutscene at GT use new symmetrical layouts (thanks Codemann)
+  * Fix for Hera Boss music (thanks Codemann)
+  * Fixed an issue where certain vanilla door types would not allow other types to be placed.
+  * Customizer: fixed an issue where last ditch placements would move customized items. Those are now locked and the generation will fail instead if no alternatives are found.
+  * Customizer: fixed an issue with assured sword and start_inventory
+  * Customizer: warns when trying to specifically place an item that's not in the item pool
+  * Fixed "accessibility: none" displaying a spoiling message
+  * Fixed warning message about custom item pool when it is fine
+* 1.2.0.17u
+  * Fixed logic bug that allowed Pearl to be behind Graveyard Cave or King's Tomb entrances with only Mirror and West Dark World access (cross world shuffles only) 
+  * Removed backup locations for Dungeon Only and Major Only algorithms. If item cannot be placed in the appropriate location, the seed will fail to generate instead 
+  * Fix for Non-ER Inverted Experimental (Aga and GT weren't logically swapped)
+  * Fix for customizer setting crystals to 0 for either GT/Ganon
+* 1.2.0.16u
+  * Fix for partial key logic on vanilla Mire
+  * Fix for Kholdstare Shell collision when at Lanmo 2
+  * Fix for Mire Attic Hint door (direction was swapped)
+  * Dungeon at Chest Game displays correctly on OW map option
 * 1.2.0.15u
   * GUI reorganization
+  * Logic fix for pots in GT conveyor cross
   * Auto option for pyramid open (trinity or ER + crystals goal)
   * World model refactor (combining inverted and normal world models)
   * Partitioned fix for lamp logic and links house
@@ -118,6 +145,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Reduced universal keys in pool slightly for non-vanilla dungeons
   * Fake world fix finally
   * Some extra restrictions on links house placement for lite/lean
+  * Collection_rate works in customizer files
 * 1.2.0.14u
   * Small fix for key logic validation (got rid of a false negative)
   * Customized doors in ice cross work properly now

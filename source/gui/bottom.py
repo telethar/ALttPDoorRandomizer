@@ -214,7 +214,8 @@ def create_guiargs(parent):
                 arg = options[mainpage][subpage][widget] if subpage != "" else options[mainpage][widget]
                 page = parent.pages[mainpage].pages[subpage] if subpage != "" else parent.pages[mainpage]
                 pagewidgets = page.content.customWidgets if mainpage == "custom" else page.content.startingWidgets if mainpage == "startinventory" else page.widgets
-                setattr(guiargs, arg, pagewidgets[widget].storageVar.get())
+                if hasattr(pagewidgets[widget], 'storageVar'):
+                    setattr(guiargs, arg, pagewidgets[widget].storageVar.get())
 
     # Get Multiworld Worlds count
     guiargs.multi = int(parent.pages["bottom"].pages["content"].widgets["worlds"].storageVar.get())
@@ -281,18 +282,5 @@ def create_guiargs(parent):
     guiargs.outputpath = parent.settings["outputpath"]
 
     guiargs = update_deprecated_args(guiargs)
-
-    # Key drop shuffle stuff
-    if guiargs.keydropshuffle:
-        guiargs.dropshuffle = 'keys' if guiargs.dropshuffle == 'none' else guiargs.dropshuffle
-        guiargs.pottery = 'keys' if guiargs.pottery == 'none' else guiargs.pottery
-
-    if (hasattr(guiargs, 'retro') and guiargs.retro) or guiargs.mode == 'retro':
-        if guiargs.bow_mode == 'progressive':
-            guiargs.bow_mode = 'retro'
-        elif guiargs.bow_mode == 'silvers':
-            guiargs.bow_mode = 'retro_silvers'
-        guiargs.take_any = 'random' if guiargs.take_any == 'none' else guiargs.take_any
-        guiargs.keyshuffle = 'universal'
 
     return guiargs

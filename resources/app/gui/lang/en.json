@@ -228,6 +228,7 @@
     "randomizer.item.worldstate.open": "Open",
     "randomizer.item.worldstate.inverted": "Inverted",
     "randomizer.item.worldstate.retro": "Retro",
+    "randomizer.item.retro": "Enable Retro",
 
     "randomizer.item.logiclevel": "Logic Level",
     "randomizer.item.logiclevel.noglitches": "No Glitches",
@@ -242,7 +243,7 @@
     "randomizer.item.goal.triforcehunt": "Triforce Hunt",
     "randomizer.item.goal.trinity": "Trinity",
     "randomizer.item.goal.crystals": "Crystals",
-    "randomizer.item.goal.ganonhunt": "Triforce Hunt + Ganon",
+    "randomizer.item.goal.ganonhunt": "Ganonhunt",
     "randomizer.item.goal.completionist": "Completionist",
 
     "randomizer.item.crystals_gt": "Crystals to open GT",
@@ -325,7 +326,7 @@
     "randomizer.item.dropshuffle.none": "None",
     "randomizer.item.dropshuffle.keys": "Small Key Enemies",
     "randomizer.item.dropshuffle.underworld": "Underworld Enemies",
-    "randomizer.item.keydropshuffle": "Key Drop Shuffle (Legacy)",
+    "randomizer.item.keydropshuffle": "Enable Key Drop Shuffle (Legacy)",
 
     "randomizer.item.take_any": "Take Any Caves",
     "randomizer.item.take_any.none": "None",
