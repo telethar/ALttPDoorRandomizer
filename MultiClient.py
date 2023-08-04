@@ -867,7 +867,6 @@ def init_lookups(ctx):
                 location_id = Regions.pot_address(pot_index, super_tile)
                 ctx.lookup_name_to_id[loc_name] = location_id
                 ctx.lookup_id_to_name[location_id] = loc_name
-    logging.info('Init Lookups')
     uw_table = DataTables.get_uw_enemy_table()
     key_drop_data = {(v[1][1], v[1][2]): k for k, v in PotShuffle.key_drop_data.items() if v[1] == 'Drop'}
     for super_tile, enemy_list in uw_table.room_map.items():
