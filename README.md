@@ -174,7 +174,13 @@ CLI: `--key_logic [default|partial|strict]`
 
 This is similar to insanity mode in ER where door entrances and exits are not paired anymore. Tends to remove more logic from dungeons as many rooms will not be required to traverse to explore. Hope you like transitions.
 
-CLI `--decoupledoors`
+CLI: `--decoupledoors`
+
+### Self-Looping Spiral Stairs
+
+If enabled, spiral stairs are allowed to lead to themselves.
+
+CLI: `--door_self_loops`
 
 ### Pottery
 

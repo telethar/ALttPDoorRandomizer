@@ -276,11 +276,18 @@ def global_rules(world, player):
     # Start of door rando rules
     # TODO: Do these need to flag off when door rando is off? - some of them, yes
 
+    def is_trapped(entrance):
+        return world.get_entrance(entrance, player).door.trapped
+
     # Eastern Palace
     # Eyegore room needs a bow
     set_rule(world.get_entrance('Eastern Duo Eyegores NE', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('Eastern Single Eyegore NE', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('Eastern Map Balcony Hook Path', player), lambda state: state.has('Hookshot', player))
+    if is_trapped('Eastern Single Eyegore ES'):
+        set_rule(world.get_entrance('Eastern Single Eyegore ES', player), lambda state: state.can_shoot_arrows(player))
+    if is_trapped('Eastern Duo Eyegores SE'):
+        set_rule(world.get_entrance('Eastern Duo Eyegores SE', player), lambda state: state.can_shoot_arrows(player))
 
     # Boss rules. Same as below but no BK or arrow requirement.
     set_defeat_dungeon_boss_rule(world.get_location('Eastern Palace - Prize', player))
@@ -305,13 +312,18 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Tower Red Spears WN', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('Tower Red Guards EN', player), lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('Tower Red Guards SW', player), lambda state: state.can_kill_most_things(player))
+    set_rule(world.get_entrance('Tower Circle of Pots NW', player), lambda state: state.can_kill_most_things(player))
+    if is_trapped('Tower Circle of Pots ES'):
+        set_rule(world.get_entrance('Tower Circle of Pots ES', player),
+                 lambda state: state.can_kill_most_things(player))
     set_rule(world.get_entrance('Tower Altar NW', player), lambda state: state.has_sword(player))
     set_defeat_dungeon_boss_rule(world.get_location('Agahnim 1', player))
-
 
     set_rule(world.get_entrance('PoD Arena Landing Bonk Path', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('PoD Mimics 1 NW', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('PoD Mimics 2 NW', player), lambda state: state.can_shoot_arrows(player))
+    if is_trapped('PoD Mimics 2 SW'):
+        set_rule(world.get_entrance('PoD Mimics 2 SW', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('PoD Bow Statue Down Ladder', player), lambda state: state.can_shoot_arrows(player))
     set_rule(world.get_entrance('PoD Map Balcony Drop Down', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('PoD Dark Pegs Landing to Right', player), lambda state: state.has('Hammer', player))
@@ -360,6 +372,8 @@ def global_rules(world, player):
 
     set_rule(world.get_entrance('Skull Big Chest Hookpath', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Skull Torch Room WN', player), lambda state: state.has('Fire Rod', player))
+    if is_trapped('Skull Torch Room WS'):
+        set_rule(world.get_entrance('Skull Torch Room WS', player), lambda state: state.has('Fire Rod', player))
     set_rule(world.get_entrance('Skull Vines NW', player), lambda state: state.has_sword(player))
 
     hidden_pits_door = world.get_door('Skull Small Hall WS', player)
@@ -397,6 +411,8 @@ def global_rules(world, player):
     set_rule(world.get_location('Thieves\' Town - Prize', player), lambda state: state.has('Maiden Unmasked', player) and world.get_location('Thieves\' Town - Prize', player).parent_region.dungeon.boss.can_defeat(state))
 
     set_rule(world.get_entrance('Ice Lobby WS', player), lambda state: state.can_melt_things(player))
+    if is_trapped('Ice Lobby SE'):
+        set_rule(world.get_entrance('Ice Lobby SE', player), lambda state: state.can_melt_things(player))
     set_rule(world.get_entrance('Ice Hammer Block ES', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
     set_rule(world.get_location('Ice Palace - Hammer Block Key Drop', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
     set_rule(world.get_location('Ice Palace - Map Chest', player), lambda state: state.can_lift_rocks(player) and state.has('Hammer', player))
@@ -411,6 +427,12 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Ice Hookshot Balcony Path', player), lambda state: state.has('Hookshot', player))
     if not world.get_door('Ice Switch Room SE', player).entranceFlag:
         set_rule(world.get_entrance('Ice Switch Room SE', player), lambda state: state.has('Cane of Somaria', player) or state.has('Convenient Block', player))
+    if is_trapped('Ice Switch Room ES'):
+        set_rule(world.get_entrance('Ice Switch Room ES', player),
+                 lambda state: state.has('Cane of Somaria', player) or state.has('Convenient Block', player))
+    if is_trapped('Ice Switch Room NE'):
+        set_rule(world.get_entrance('Ice Switch Room NE', player),
+                 lambda state: state.has('Cane of Somaria', player) or state.has('Convenient Block', player))
     set_defeat_dungeon_boss_rule(world.get_location('Ice Palace - Boss', player))
     set_defeat_dungeon_boss_rule(world.get_location('Ice Palace - Prize', player))
 
@@ -431,8 +453,15 @@ def global_rules(world, player):
                      or state.has('Cane of Byrna', player) or state.has('Cape', player))
     set_rule(world.get_entrance('Mire Left Bridge Hook Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('Mire Tile Room NW', player), lambda state: state.has_fire_source(player))
+    if is_trapped('Mire Tile Room SW'):
+        set_rule(world.get_entrance('Mire Tile Room SW', player), lambda state: state.has_fire_source(player))
+    if is_trapped('Mire Tile Room ES'):
+        set_rule(world.get_entrance('Mire Tile Room ES', player), lambda state: state.has_fire_source(player))
     set_rule(world.get_entrance('Mire Attic Hint Hole', player), lambda state: state.has_fire_source(player))
     set_rule(world.get_entrance('Mire Dark Shooters SW', player), lambda state: state.has('Cane of Somaria', player))
+    if is_trapped('Mire Dark Shooters SE'):
+        set_rule(world.get_entrance('Mire Dark Shooters SE', player),
+                 lambda state: state.has('Cane of Somaria', player))
 
     set_defeat_dungeon_boss_rule(world.get_location('Misery Mire - Boss', player))
     set_defeat_dungeon_boss_rule(world.get_location('Misery Mire - Prize', player))
@@ -448,6 +477,9 @@ def global_rules(world, player):
     set_rule(world.get_entrance('TR Hub Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Hub Ledges Path', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('TR Torches NW', player), lambda state: state.has('Cane of Somaria', player) and state.has('Fire Rod', player))
+    if is_trapped('TR Torches WN'):
+        set_rule(world.get_entrance('TR Torches WN', player),
+                 lambda state: state.has('Cane of Somaria', player) and state.has('Fire Rod', player))
     set_rule(world.get_entrance('TR Big Chest Entrance Gap', player), lambda state: state.has('Cane of Somaria', player) or state.has('Hookshot', player))
     set_rule(world.get_entrance('TR Big Chest Gap', player), lambda state: state.has('Cane of Somaria', player) or state.has_Boots(player))
     set_rule(world.get_entrance('TR Dark Ride Up Stairs', player), lambda state: state.has('Cane of Somaria', player))
@@ -467,10 +499,20 @@ def global_rules(world, player):
 
     set_rule(world.get_location('Ganons Tower - Bob\'s Torch', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('GT Hope Room EN', player), lambda state: state.has('Cane of Somaria', player))
+    if is_trapped('GT Hope Room WN'):
+        set_rule(world.get_entrance('GT Hope Room WN', player), lambda state: state.has('Cane of Somaria', player))
     set_rule(world.get_entrance('GT Conveyor Cross Hammer Path', player), lambda state: state.has('Hammer', player))
     set_rule(world.get_entrance('GT Conveyor Cross Hookshot Path', player), lambda state: state.has('Hookshot', player))
+    if is_trapped('GT Conveyor Cross EN'):
+        set_rule(world.get_entrance('GT Conveyor Cross EN', player), lambda state: state.has('Hammer', player))
     if not world.get_door('GT Speed Torch SE', player).entranceFlag:
         set_rule(world.get_entrance('GT Speed Torch SE', player), lambda state: state.has('Fire Rod', player))
+    if is_trapped('GT Speed Torch NE'):
+        set_rule(world.get_entrance('GT Speed Torch NE', player), lambda state: state.has('Fire Rod', player))
+    if is_trapped('GT Speed Torch WS'):
+        set_rule(world.get_entrance('GT Speed Torch WS', player), lambda state: state.has('Fire Rod', player))
+    if is_trapped('GT Speed Torch WN'):
+        set_rule(world.get_entrance('GT Speed Torch WN', player), lambda state: state.has('Fire Rod', player))
     set_rule(world.get_entrance('GT Hookshot South-Mid Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('GT Hookshot Mid-North Path', player), lambda state: state.has('Hookshot', player))
     set_rule(world.get_entrance('GT Hookshot East-Mid Path', player), lambda state: state.has('Hookshot', player) or state.has_Boots(player))
@@ -505,6 +547,8 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Lanmolas 2 ES', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
     set_rule(world.get_entrance('GT Lanmolas 2 NW', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
     set_rule(world.get_entrance('GT Torch Cross ES', player), lambda state: state.has_fire_source(player))
+    if is_trapped('GT Torch Cross WN'):
+        set_rule(world.get_entrance('GT Torch Cross WN', player), lambda state: state.has_fire_source(player))
     set_rule(world.get_entrance('GT Falling Torches NE', player), lambda state: state.has_fire_source(player))
     # todo: the following only applies to crystal state propagation from this supertile
     # you can also reset the supertile, but I'm not sure how to model that
@@ -760,13 +804,29 @@ def bomb_rules(world, player):
         ('GT Petting Zoo SE', False), # Dont make anyone do this room with bombs and/or pots.
         ('GT DMs Room SW', False) # Four red stalfos
     ]
+    conditional_kill_traps = [
+        ('Hyrule Dungeon Armory Interior Key Door N', True),
+        ('Desert Compass Key Door WN', True),
+        ('Thieves Blocked Entry SW', True),
+        ('TR Tongue Pull WS', True),
+        ('TR Twin Pokeys NW', False),
+    ]
     for killdoor,bombable in easy_kill_rooms:
         if bombable:
             add_rule(world.get_entrance(killdoor, player), lambda state: (state.can_use_bombs(player) or state.can_kill_most_things(player)))
         else:
             add_rule(world.get_entrance(killdoor, player), lambda state: state.can_kill_most_things(player))
+    for kill_door, bombable in conditional_kill_traps:
+        if world.get_entrance(kill_door, player).door.trapped:
+            if bombable:
+                add_rule(world.get_entrance(kill_door, player),
+                         lambda state: (state.can_use_bombs(player) or state.can_kill_most_things(player)))
+            else:
+                add_rule(world.get_entrance(kill_door, player), lambda state: state.can_kill_most_things(player))
     add_rule(world.get_entrance('Ice Stalfos Hint SE', player), lambda state: state.can_use_bombs(player)) # Need bombs for big stalfos knights
-    add_rule(world.get_entrance('Mire Cross ES', player), lambda state: state.can_kill_most_things(player)) # 4 Sluggulas. Bombs don't work // or (state.can_use_bombs(player) and state.has('Magic Powder'), player) 
+    add_rule(world.get_entrance('Mire Cross ES', player), lambda state: state.can_kill_most_things(player)) # 4 Sluggulas. Bombs don't work // or (state.can_use_bombs(player) and state.has('Magic Powder'), player)
+    if world.get_entrance('Mire Cross SW', player).door.trapped:
+        add_rule(world.get_entrance('Mire Cross SW', player), lambda state: state.can_kill_most_things(player))
 
     enemy_kill_drops = [ # Location, bool-bombable
         ('Hyrule Castle - Map Guard Key Drop', True),
@@ -1143,6 +1203,9 @@ def swordless_rules(world, player):
     set_rule(world.get_entrance('Tower Altar NW', player), lambda state: True)
     set_rule(world.get_entrance('Skull Vines NW', player), lambda state: True)
     set_rule(world.get_entrance('Ice Lobby WS', player), lambda state: state.has('Fire Rod', player) or state.has('Bombos', player))
+    if world.get_entrance('Ice Lobby SE', player).door.trapped:
+        set_rule(world.get_entrance('Ice Lobby SE', player),
+                 lambda state: state.has('Fire Rod', player) or state.has('Bombos', player))
     set_rule(world.get_location('Ice Palace - Freezor Chest', player), lambda state: state.has('Fire Rod', player) or state.has('Bombos', player))
 
     set_rule(world.get_location('Ether Tablet', player), lambda state: state.has('Book of Mudora', player) and state.has('Hammer', player))
@@ -1156,7 +1219,7 @@ def swordless_rules(world, player):
     if world.mode[player] != 'inverted':
         set_rule(world.get_entrance('Agahnims Tower', player), lambda state: state.has('Cape', player) or state.has('Hammer', player))
 
-
+# todo: new traps
 std_kill_rooms = {
     'Hyrule Dungeon Armory Main': ['Hyrule Dungeon Armory S', 'Hyrule Dungeon Armory ES'], # One green guard
     'Hyrule Dungeon Armory Boomerang': ['Hyrule Dungeon Armory Boomerang WS'], # One blue guard
@@ -1186,6 +1249,18 @@ std_kill_rooms = {
     'GT Wizzrobes 1': ['GT Wizzrobes 1 SW'], # Wizzrobes. Bombs don't work
     'GT Wizzrobes 2': ['GT Wizzrobes 2 SE', 'GT Wizzrobes 2 NE'] # Wizzrobes. Bombs don't work
 }  # all trap rooms?
+
+std_kill_doors_if_trapped = {
+    'Hyrule Dungeon Armory Main': 'Hyrule Dungeon Armory Interior Key Door N',
+    # 'Eastern Single Eyegore ES',  # arrow rule is sufficient
+    # 'Eastern Duo Eyegores S', # arrow rule is sufficient
+    'TR Twin Pokeys': 'TR Twin Pokeys NW',
+    'Thieves Basement Block': 'Thieves Blocked Entry SW',
+    'Desert Compass Room': 'Desert Compass Key Door WN',
+    'Mire Cross': 'Mire Cross SW',
+    'Tower Circle of Pots': 'Tower Circle of Pots ES',
+    # 'Ice Lobby S'  # can melt rule is sufficient
+}
 
 def add_connection(parent_name, target_name, entrance_name, world, player):
     parent = world.get_region(parent_name, player)
@@ -1241,6 +1316,10 @@ def standard_rules(world, player):
         if region.name in std_kill_rooms:
             for ent in std_kill_rooms[region.name]:
                 add_rule(world.get_entrance(ent, player), lambda state: standard_escape_rule(state))
+        if region.name in std_kill_doors_if_trapped:
+            ent = world.get_entrance(std_kill_doors_if_trapped[region.name], player)
+            if ent.door.trapped:
+                add_rule(ent, lambda state: standard_escape_rule(state))
 
     set_rule(world.get_location('Zelda Pickup', player), lambda state: state.has('Big Key (Escape)', player))
     set_rule(world.get_entrance('Hyrule Castle Throne Room Tapestry', player), lambda state: state.has('Zelda Herself', player))
@@ -1866,6 +1945,11 @@ def set_bunny_rules(world, player, inverted):
         if is_bunny(bunny_exit.parent_region):
             add_rule(bunny_exit, get_rule_to_add(bunny_exit.parent_region))
 
+    for ent_name in bunny_impassible_if_trapped:
+        bunny_exit = world.get_entrance(ent_name, player)
+        if bunny_exit.door.trapped and is_bunny(bunny_exit.parent_region):
+            add_rule(bunny_exit, get_rule_to_add(bunny_exit.parent_region))
+
     doors_to_check = [x for x in world.doors if x.player == player and x not in bunny_impassible_doors]
     doors_to_check = [x for x in doors_to_check if x.type in [DoorType.Normal, DoorType.Interior] and not x.blocked]
     for door in doors_to_check:
@@ -1995,6 +2079,17 @@ bunny_impassible_doors = {
     'GT Gauntlet 5 NW', 'GT Gauntlet 5 WS', 'GT Lanmolas 2 ES', 'GT Lanmolas 2 NW', 'GT Wizzrobes 1 SW',
     'GT Wizzrobes 2 SE', 'GT Wizzrobes 2 NE', 'GT Torch Cross ES', 'GT Falling Torches NE', 'GT Moldorm Gap',
     'GT Validation Block Path'
+}
+
+bunny_impassible_if_trapped = {
+    'Hyrule Dungeon Armory Interior Key Door N', 'Eastern Pot Switch WN', 'Eastern Lobby NW',
+    'Eastern Lobby NE', 'Desert Compass Key Door WN', 'Tower Circle of Pots ES', 'PoD Mimics 2 SW',
+    'PoD Middle Cage S', 'Swamp Push Statue S', 'Skull 2 East Lobby WS', 'Skull Torch Room WS',
+    'Thieves Conveyor Maze WN', 'Thieves Conveyor Maze SW', 'Thieves Blocked Entry SW', 'Ice Bomb Jump NW',
+    'Ice Tall Hint EN', 'Ice Switch Room ES', 'Ice Switch Room NE', 'Mire Cross SW',
+    'Mire Tile Room SW', 'Mire Tile Room ES', 'TR Twin Pokeys NW', 'TR Torches WN', 'GT Hope Room WN',
+    'GT Speed Torch NE', 'GT Speed Torch WS', 'GT Torch Cross WN', 'GT Hidden Spikes SE', 'GT Conveyor Cross EN',
+    'GT Speed Torch WN', 'Ice Lobby SE'
 }
 
 

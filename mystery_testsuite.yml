@@ -31,6 +31,9 @@ key_logic_algorithm:
 decoupledoors:
   off: 9  # more strict
   on: 1
+door_self_loops:
+  on: 1
+  off: 1
 dropshuffle:
   on: 1
   off: 1

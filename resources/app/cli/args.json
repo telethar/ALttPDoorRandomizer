@@ -176,7 +176,6 @@
   "door_shuffle": {
     "choices": [
       "basic",
-      "paired",
       "partitioned",
       "crossed",
       "vanilla"
@@ -211,6 +210,10 @@
     ]
   },
   "decoupledoors": {
+    "action": "store_true",
+    "type": "bool"
+  },
+  "door_self_loops": {
     "action": "store_true",
     "type": "bool"
   },
@@ -515,5 +518,6 @@
     ]
   },
   "outputname": {},
+  "notes": {},
   "code": {}
 }

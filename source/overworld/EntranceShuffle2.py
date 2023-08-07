@@ -66,6 +66,10 @@ def link_entrances_new(world, player):
         default_map['Old Man Cave (East)'] = 'Death Mountain Return Cave Exit (West)'
         one_way_map['Bumper Cave (Top)'] = 'Dark Death Mountain Healer Fairy'
         del default_map['Bumper Cave (Top)']
+        del one_way_map['Big Bomb Shop']
+        one_way_map['Links House'] = 'Big Bomb Shop'
+        del default_map['Links House']
+        default_map['Big Bomb Shop'] = 'Links House Exit'
     avail_pool.default_map = default_map
     avail_pool.one_way_map = one_way_map
 

@@ -1022,7 +1022,7 @@ key_drop_data = {
     'Ice Palace - Jelly Key Drop': ['Drop', (0x09DA21, 0xE, 3), 'dropped in Ice Palace', 'Small Key (Ice Palace)'],
     'Ice Palace - Conveyor Key Drop': ['Drop', (0x09DE08, 0x3E, 8), 'dropped in Ice Palace', 'Small Key (Ice Palace)'],
     'Ice Palace - Hammer Block Key Drop': ['Pot', 0x3F, 'under a block in Ice Palace', 'Small Key (Ice Palace)'],
-    'Ice Palace - Many Pots Pot Key': ['Pot', 0x9F, 'int a pot in Ice Palace', 'Small Key (Ice Palace)'],
+    'Ice Palace - Many Pots Pot Key': ['Pot', 0x9F, 'in a pot in Ice Palace', 'Small Key (Ice Palace)'],
     'Misery Mire - Spikes Pot Key': ['Pot', 0xB3, 'in a pot in Misery Mire', 'Small Key (Misery Mire)'],
     'Misery Mire - Fishbone Pot Key': ['Pot', 0xA1, 'in a pot in forgotten Mire', 'Small Key (Misery Mire)'],
     'Misery Mire - Conveyor Crystal Key Drop': ['Drop', (0x09E7FB, 0xC1, 9), 'dropped in Misery Mire', 'Small Key (Misery Mire)'],
