@@ -111,7 +111,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.2.0.20u
   * Added logic for trap doors that could be opened using existing room triggers
-  * Added a notes field for user added notes either via CLI or Customizer
+  * Fixed a problem with inverted generation and the experimental flag
+  * Added a notes field for user added notes either via CLI or Customizer (thanks Hiimcody and Codemann)
+  * Fixed a typo for a specific pot hint
 * 1.2.0.19u
   * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
   * Fixed a bug with dungeon generation
