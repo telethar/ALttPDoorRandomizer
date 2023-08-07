@@ -326,9 +326,28 @@ def massage_item_pool(world):
         for _ in range(removed):
             world.itempool.append(ItemFactory('Rupees (5)', random.randint(1, world.players)))
     if world.algorithm == 'swapped':
-        x = 0
-        # todo: time to massage things
-        pass
+        pool_counts = defaultdict(lambda: defaultdict(list))
+        for item in world.itempool:
+            pool_counts[item.player][item.get_name()].append(item)
+        for dungeon in world.dungeons:
+            for item in dungeon.all_items:
+                if item.is_inside_dungeon_item(world):
+                    pool_counts[item.player][item.get_name()].append(item)
+        # todo: multiworld
+        item_map = world.item_pool_config.vanilla_item_to_locations
+        location_map = world.item_pool_config.vanilla_item_to_locations
+        for player, pool_counter in pool_counts.items():
+            free_locations = {loc.name for loc in world.get_unfilled_locations(player) if not loc.crystal}
+            needs_map = {}
+            for item_name, item_list in pool_counter.items():
+                extra_locations = len(item_map[item_name]) - len(item_list)
+                if extra_locations > 0:  # then we have free locations to distribute
+                    chosen = random.choices(item_map[item_name], k=extra_locations)
+                    item_map[item_name] = [x for x in item_map[item_name] not in chosen]
+                elif extra_locations < 0:  # we have a need for more locations
+                    needs_map[item_name] = -extra_locations  # change to positive number
+                map(lambda x: free_locations.remove(x), item_map[item_name])
+            x = 0
 
 
 def replace_trash_item(item_pool, replacement):
