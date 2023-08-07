@@ -2229,6 +2229,7 @@ def find_valid_trap_combination(builder, suggested, start_regions, paths, world,
             itr = 0
         proposal = kth_combination(sample_list[itr], trap_door_pool, trap_doors_needed)
         proposal.extend(custom_trap_doors)
+        filtered_proposal = [x for x in proposal if x.name not in trap_door_exceptions]
     builder.trap_door_proposal = proposal
     return proposal, trap_doors_needed
 
