@@ -114,6 +114,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fixed a problem with inverted generation and the experimental flag
   * Added a notes field for user added notes either via CLI or Customizer (thanks Hiimcody and Codemann)
   * Fixed a typo for a specific pot hint
+* 1.1.6 (from Stable)
+    * Minor issue with dungeon counter hud interfering with timer
 * 1.2.0.19u
   * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
   * Fixed a bug with dungeon generation
@@ -199,8 +201,6 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fix for unintentional decoupled door in standard
   * Fix a problem with BK doors being one-sided
   * Change to how wilds keys are placed in standard, better randomization
-  * Removed a Triforce text
-  * Fix for Desert Tiles 1 key door
 * 1.2.0.7-u
   * Fix for some misery mire key logic
   * Minor standard generation fix
