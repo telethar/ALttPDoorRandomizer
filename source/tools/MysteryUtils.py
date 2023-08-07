@@ -87,6 +87,7 @@ def roll_settings(weights):
     ret.trap_door_mode = get_choice('trap_door_mode')
     ret.key_logic_algorithm = get_choice('key_logic_algorithm')
     ret.decoupledoors = get_choice('decoupledoors') == 'on'
+    ret.door_self_loops = get_choice('door_self_loops') == 'on'
     ret.experimental = get_choice('experimental') == 'on'
     ret.collection_rate = get_choice('collection_rate') == 'on'
 

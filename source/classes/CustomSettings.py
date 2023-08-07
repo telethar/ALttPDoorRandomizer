@@ -114,6 +114,7 @@ class CustomSettings(object):
                 args.trap_door_mode[p] = get_setting(settings['trap_door_mode'], args.trap_door_mode[p])
                 args.key_logic_algorithm[p] = get_setting(settings['key_logic_algorithm'], args.key_logic_algorithm[p])
                 args.decoupledoors[p] = get_setting(settings['decoupledoors'], args.decoupledoors[p])
+                args.door_self_loops[p] = get_setting(settings['door_self_loops'], args.door_self_loops[p])
                 args.dungeon_counters[p] = get_setting(settings['dungeon_counters'], args.dungeon_counters[p])
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
                 args.crystals_ganon[p] = get_setting(settings['crystals_ganon'], args.crystals_ganon[p])
@@ -234,6 +235,7 @@ class CustomSettings(object):
             settings_dict[p]['trap_door_mode'] = world.trap_door_mode[p]
             settings_dict[p]['key_logic_algorithm'] = world.key_logic_algorithm[p]
             settings_dict[p]['decoupledoors'] = world.decoupledoors[p]
+            settings_dict[p]['door_self_loops'] = world.door_self_loops[p]
             settings_dict[p]['logic'] = world.logic[p]
             settings_dict[p]['mode'] = world.mode[p]
             settings_dict[p]['swords'] = world.swords[p]
