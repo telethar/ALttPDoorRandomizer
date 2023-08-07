@@ -68,6 +68,12 @@
     "decoupledoors": {
       "type": "checkbox",
       "config": {
+        "padx": [20,0]
+      }
+    },
+    "door_self_loops": {
+      "type": "checkbox",
+      "config": {
         "padx": [20,0],
         "pady": [0,20]
       }

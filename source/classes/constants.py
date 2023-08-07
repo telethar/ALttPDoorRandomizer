@@ -106,6 +106,7 @@ SETTINGSTOPROCESS = {
       "door_type_mode": "door_type_mode",
       "trap_door_mode": "trap_door_mode",
       "decoupledoors": "decoupledoors",
+      "door_self_loops": "door_self_loops",
       "experimental": "experimental",
       "dungeon_counters": "dungeon_counters",
       "mixed_travel": "mixed_travel",

@@ -254,6 +254,7 @@
       "strict:  Ensure small keys are available"
     ],
     "decoupledoors" : [ "Door entrances and exits are decoupled" ],
+    "door_self_loops" : [ "Spiral stairs are allowed to self-loop" ],
     "experimental": [ "Enable experimental features. (default: %(default)s)" ],
     "dungeon_counters": [ "Enable dungeon chest counters. (default: %(default)s)" ],
     "crystals_ganon": [

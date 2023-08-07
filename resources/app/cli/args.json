@@ -212,6 +212,10 @@
     "action": "store_true",
     "type": "bool"
   },
+  "door_self_loops": {
+    "action": "store_true",
+    "type": "bool"
+  },
   "experimental": {
     "action": "store_true",
     "type": "bool"
