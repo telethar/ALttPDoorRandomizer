@@ -181,6 +181,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.6
+  * Minor issue with dungeon counter hud interfering with timer
 * 1.1.5
   * MultiServer can not disable forfeits if desired
 * 1.1.4
