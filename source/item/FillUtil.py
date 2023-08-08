@@ -25,8 +25,8 @@ class ItemPoolConfig(object):
         self.verify_target = 0
 
         self.recorded_choices = []
-        self.vanilla_item_to_locations = defaultdict(list)
-        self.vanilla_location_to_items = defaultdict(list)
+        self.vanilla_item_to_locations = defaultdict(lambda: defaultdict(list))
+        self.vanilla_location_to_items = defaultdict(lambda: defaultdict(list))
 
 
 class LocationGroup(object):
@@ -171,18 +171,19 @@ def create_item_pool_config(world):
             config.item_pool[player] = determine_major_items(world, player)
             config.location_groups[0].locations = set(dungeon_set)
     elif world.algorithm == 'swapped':
-        for item, location_list in vanilla_mapping.items():
-            if item in config.vanilla_item_to_locations:
-                continue
-            config.vanilla_item_to_locations[item] = [loc for loc in location_list]
-            for loc in location_list:
-                config.vanilla_location_to_items[loc].append(item)
-        # ten bomb handling
-        ten_bomb_home = random.choice(config.vanilla_item_to_locations['Bombs (3)'])
-        config.vanilla_item_to_locations['Bombs (3)'].remove(ten_bomb_home)
-        config.vanilla_item_to_locations['Bombs (10)'].append(ten_bomb_home)
-        config.vanilla_location_to_items[ten_bomb_home].remove('Bombs (3)')
-        config.vanilla_location_to_items[ten_bomb_home].append('Bombs (10)')
+        for player in range(1, world.players + 1):
+            for item, location_list in vanilla_mapping.items():
+                if item in config.vanilla_item_to_locations[player]:
+                    continue
+                config.vanilla_item_to_locations[player][item] = [loc for loc in location_list]
+                for loc in location_list:
+                    config.vanilla_location_to_items[player][loc].append(item)
+            # ten bomb handling
+            ten_bomb_home = random.choice(config.vanilla_item_to_locations[player]['Bombs (3)'])
+            config.vanilla_item_to_locations[player]['Bombs (3)'].remove(ten_bomb_home)
+            config.vanilla_item_to_locations[player]['Bombs (10)'].append(ten_bomb_home)
+            config.vanilla_location_to_items[player][ten_bomb_home].remove('Bombs (3)')
+            config.vanilla_location_to_items[player][ten_bomb_home].append('Bombs (10)')
         # todo: location expansions
 
 
@@ -289,7 +290,7 @@ def massage_item_pool(world):
                 player_pool[item.player].append(item)
     player_locations = defaultdict(list)
     for player in player_pool:
-        player_locations[player] = [x for x in world.get_unfilled_locations(player) if '- Prize' not in x.name]
+        player_locations[player] = [x for x in world.get_unfilled_locations(player) if not x.crystal]
         discrepancy = len(player_pool[player]) - len(player_locations[player])
         if discrepancy:
             trash_options = [x for x in player_pool[player] if x.name in trash_items]
@@ -333,21 +334,34 @@ def massage_item_pool(world):
             for item in dungeon.all_items:
                 if item.is_inside_dungeon_item(world):
                     pool_counts[item.player][item.get_name()].append(item)
-        # todo: multiworld
-        item_map = world.item_pool_config.vanilla_item_to_locations
-        location_map = world.item_pool_config.vanilla_item_to_locations
         for player, pool_counter in pool_counts.items():
+            item_map = world.item_pool_config.vanilla_item_to_locations[player]
+            location_map = world.item_pool_config.vanilla_location_to_items[player]
             free_locations = {loc.name for loc in world.get_unfilled_locations(player) if not loc.crystal}
             needs_map = {}
             for item_name, item_list in pool_counter.items():
-                extra_locations = len(item_map[item_name]) - len(item_list)
+                filtered_list = [x for x in item_map[item_name] if x in free_locations]
+                extra_locations = len(filtered_list) - len(item_list)
                 if extra_locations > 0:  # then we have free locations to distribute
-                    chosen = random.choices(item_map[item_name], k=extra_locations)
-                    item_map[item_name] = [x for x in item_map[item_name] not in chosen]
+                    chosen = random.choices(filtered_list, k=extra_locations)
+                    for x in chosen:
+                        location_map[x].remove(item_name)  # relinquish claim
+                    item_map[item_name] = [x for x in filtered_list if x not in chosen]
                 elif extra_locations < 0:  # we have a need for more locations
                     needs_map[item_name] = -extra_locations  # change to positive number
-                map(lambda x: free_locations.remove(x), item_map[item_name])
-            x = 0
+                free_locations.difference_update(item_map[item_name])
+            # simple assertion here to catch some edge cases
+            assert len(free_locations) == sum(x for x in needs_map.values())
+            free_locations = list(free_locations)
+            random.shuffle(free_locations)
+            unused_idx = 0
+            for item_name, amount_needed in needs_map.items():
+                some_locations = free_locations[unused_idx:unused_idx+amount_needed]
+                item_map[item_name].extend(some_locations)
+                for loc in some_locations:
+                    location_map[loc] = [x for x in location_map[loc] if x in pool_counter]
+                    location_map[loc].append(item_name)
+                unused_idx += amount_needed
 
 
 def replace_trash_item(item_pool, replacement):

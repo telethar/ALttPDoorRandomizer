@@ -72,6 +72,19 @@ def fill_dungeons_restrictive(world, shuffled_locations):
     fill(all_state_base, others, None)
 
 
+def get_items_to_place(placements, itempool):
+    items_to_place = []
+    for item in placements:
+        try:
+            idx = itempool.index(item)
+        except ValueError:
+            continue
+        i = itempool.pop(idx)
+        if not i.location:
+            items_to_place.append(i)
+    return items_to_place
+
+
 def fill_restrictive(world, base_state, locations, itempool, key_pool=None, single_player_placement=False,
                      vanilla=False, other_pools=None, reset_state=False):
     if other_pools is None:
@@ -96,62 +109,64 @@ def fill_restrictive(world, base_state, locations, itempool, key_pool=None, sing
         else:
             reachable_items.setdefault(item.player, []).append(item)
 
+    # this prioritizes no access over reachable and interleaves players
+    placement_order = collections.deque()
     for player_items in [no_access_checks, reachable_items]:
-        while any(player_items.values()) and locations:
-            items_to_place = [items.pop() for items in player_items.values() if items]
-            for item in reversed(items_to_place):
-                if item.location is None:
-                    itempool.remove(item)
-                else:
-                    items_to_place.remove(item)
-            if not items_to_place:
-                continue
+        while any(player_items.values()):
+            placement_order.appendleft([items.pop() for items in player_items.values() if items])
 
-            maximum_exploration_state = sweep_from_pool(placing_item=items_to_place[0])
-            has_beaten_game = world.has_beaten_game(maximum_exploration_state)
+    while len(placement_order) and locations:
+        placements = placement_order.pop()
+        items_to_place = get_items_to_place(placements, itempool)
+        if not items_to_place:  # all already been placed
+            continue
 
-            for item_to_place in items_to_place:
-                perform_access_check = True
-                if world.accessibility[item_to_place.player] == 'none':
-                    perform_access_check = not world.has_beaten_game(maximum_exploration_state, item_to_place.player) if single_player_placement else not has_beaten_game
+        # todo: fix placing_item for multiworld placements
+        maximum_exploration_state = sweep_from_pool(placing_item=items_to_place[0])
+        has_beaten_game = world.has_beaten_game(maximum_exploration_state)
 
-                spot_to_fill = None
+        for item_to_place in items_to_place:
+            perform_access_check = True
+            if world.accessibility[item_to_place.player] == 'none':
+                perform_access_check = not world.has_beaten_game(maximum_exploration_state, item_to_place.player) if single_player_placement else not has_beaten_game
 
-                item_locations = filter_locations(item_to_place, locations, world, vanilla)
-                verify(item_to_place, item_locations, maximum_exploration_state, single_player_placement,
-                       perform_access_check, key_pool, world)
-                for location in item_locations:
-                    spot_to_fill = verify_spot_to_fill(location, item_to_place, maximum_exploration_state,
-                                                       single_player_placement, perform_access_check, key_pool, world)
-                    if world.algorithm == 'swapped' and spot_to_fill:
-                        spot_to_fill = do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state,
-                                                            maximum_exploration_state, single_player_placement,
-                                                            perform_access_check, key_pool, locations, itempool,
-                                                            other_pools, world)
-                    if spot_to_fill:
-                        break
+            spot_to_fill = None
+
+            item_locations = filter_locations(item_to_place, locations, world, vanilla)
+            verify(item_to_place, item_locations, maximum_exploration_state, single_player_placement,
+                   perform_access_check, key_pool, world)
+            for location in item_locations:
+                spot_to_fill = verify_spot_to_fill(location, item_to_place, maximum_exploration_state,
+                                                   single_player_placement, perform_access_check, key_pool, world)
+                if world.algorithm == 'swapped' and spot_to_fill:
+                    spot_to_fill = do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state,
+                                                        maximum_exploration_state, single_player_placement,
+                                                        perform_access_check, key_pool, locations, itempool,
+                                                        other_pools, world)
+                if spot_to_fill:
+                    break
+            if spot_to_fill is None:
+                if vanilla:
+                    unplaced_items.insert(0, item_to_place)
+                    continue
+                spot_to_fill = recovery_placement(item_to_place, locations, world, maximum_exploration_state,
+                                                  base_state, itempool, perform_access_check, item_locations,
+                                                  key_pool, single_player_placement)
                 if spot_to_fill is None:
-                    if vanilla:
-                        unplaced_items.insert(0, item_to_place)
+                    # we filled all reachable spots. Maybe the game can be beaten anyway?
+                    unplaced_items.insert(0, item_to_place)
+                    if world.can_beat_game():
+                        if world.accessibility[item_to_place.player] != 'none':
+                            logging.getLogger('').warning('Not all items placed. Game beatable anyway.'
+                                                          f' (Could not place {item_to_place})')
                         continue
-                    spot_to_fill = recovery_placement(item_to_place, locations, world, maximum_exploration_state,
-                                                      base_state, itempool, perform_access_check, item_locations,
-                                                      key_pool, single_player_placement)
-                    if spot_to_fill is None:
-                        # we filled all reachable spots. Maybe the game can be beaten anyway?
-                        unplaced_items.insert(0, item_to_place)
-                        if world.can_beat_game():
-                            if world.accessibility[item_to_place.player] != 'none':
-                                logging.getLogger('').warning('Not all items placed. Game beatable anyway.'
-                                                              f' (Could not place {item_to_place})')
-                            continue
-                        raise FillError('No more spots to place %s' % item_to_place)
+                    raise FillError('No more spots to place %s' % item_to_place)
 
-                world.push_item(spot_to_fill, item_to_place, False)
-                track_outside_keys(item_to_place, spot_to_fill, world)
-                track_dungeon_items(item_to_place, spot_to_fill, world)
-                locations.remove(spot_to_fill)
-                spot_to_fill.event = True
+            world.push_item(spot_to_fill, item_to_place, False)
+            track_outside_keys(item_to_place, spot_to_fill, world)
+            track_dungeon_items(item_to_place, spot_to_fill, world)
+            locations.remove(spot_to_fill)
+            spot_to_fill.event = True
 
     itempool.extend(unplaced_items)
 
@@ -169,19 +184,19 @@ def create_state_from_base(base_state, itempool, placing_item=None):
 def do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state, current_state, single_player_placement,
                          perform_access_check,  key_pool, locations, itempool, other_pools, world):
     config = world.item_pool_config
-    items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+    items_to_swap = config.vanilla_location_to_items[spot_to_fill.player][spot_to_fill.name]
     if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
         return spot_to_fill  # done, this is a vanilla choice
     pool_search, real_swap_item = [itempool] + other_pools, None
     orig_pool, need_new_state = None, None
     for pool in pool_search:
-        real_swap_item = next((i for i in pool if i.get_name() in items_to_swap), None)
+        real_swap_item = next((i for i in pool if i.get_name() in items_to_swap and not i.location), None)
         if real_swap_item is not None:
             orig_pool = pool
             need_new_state = pool == itempool or base_state.is_item_progressive(real_swap_item)
             pool.remove(real_swap_item)
             break
-    original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+    original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.player][item_to_place.get_name()]
                           if (loc := world.get_location(x, item_to_place.player)).item is None]
     if len(original_locations) == 0:
         return None
@@ -677,11 +692,12 @@ def fast_fill_swapped(world, item_pool, fill_locations, other_item_pools):
     while item_pool and fill_locations:
         spot_to_fill = fill_locations.pop()
         item_to_place = item_pool.pop()
-        items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+        items_to_swap = config.vanilla_location_to_items[spot_to_fill.player][spot_to_fill.name]
         if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
             world.push_item(spot_to_fill, item_to_place, False)
         else:
-            original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+            item_map = config.vanilla_item_to_locations[item_to_place.player]
+            original_locations = [loc for x in item_map[item_to_place.get_name()]
                                   if (loc := world.get_location(x, item_to_place.player)).item is None]
             if len(original_locations) == 0:
                 raise Exception(f'Imbalanced swap: missing swap location for {item_to_place}')
@@ -702,14 +718,15 @@ def fast_fill_swapped(world, item_pool, fill_locations, other_item_pools):
 
 def gt_trash_swap_fill(spot_to_fill, item_to_place, fill_locations, gtower_locations, progitempool, pools, world):
     config = world.item_pool_config
-    items_to_swap = config.vanilla_location_to_items[spot_to_fill.name]
+    items_to_swap = config.vanilla_location_to_items[spot_to_fill.player][spot_to_fill.name]
     if item_to_place.get_name() in items_to_swap and item_to_place.player == spot_to_fill.player:
         return True
     else:
         real_item_swap = next((i for i in progitempool if i.get_name() in items_to_swap), None)
         if real_item_swap is not None:
             return False  # I don't want to do this here, there are constraints to check
-        original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.get_name()]
+        item_map = config.vanilla_item_to_locations[item_to_place.player]
+        original_locations = [loc for x in item_map[item_to_place.get_name()]
                               if (loc := world.get_location(x, item_to_place.player)).item is None]
         if len(original_locations) == 0:
             raise Exception('Imbalanced swap')
