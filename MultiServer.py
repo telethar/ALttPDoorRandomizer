@@ -370,14 +370,15 @@ def init_lookups(ctx):
                 ctx.lookup_name_to_id[loc_name] = location_id
                 ctx.lookup_id_to_name[location_id] = loc_name
     uw_table = DataTables.get_uw_enemy_table()
-    key_drop_data = {(v[1][1], v[1][2]): k for k, v in PotShuffle.key_drop_data.items() if v[1] == 'Drop'}
+    key_drop_data = {(v[1][1], v[1][2]): k for k, v in PotShuffle.key_drop_data.items() if v[0] == 'Drop'}
     for super_tile, enemy_list in uw_table.room_map.items():
         for index, sprite in enumerate(enemy_list):
             if (super_tile, index) in key_drop_data:
                 loc_name = key_drop_data[(super_tile, index)]
+                location_id = PotShuffle.key_drop_data[loc_name][1][0]
             else:
                 loc_name = f'{sprite.region} Enemy #{index+1}'
-            location_id = EnemyList.drop_address(index, super_tile)
+                location_id = EnemyList.drop_address(index, super_tile)
             ctx.lookup_name_to_id[loc_name] = location_id
             ctx.lookup_id_to_name[location_id] = loc_name
 
