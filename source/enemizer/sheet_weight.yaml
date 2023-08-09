@@ -65,7 +65,7 @@ SheetChoices:
   - slots: [1]
     assignments:
       1: 0x2c
-    weight: 2  # Beamos, Popos
+    weight: 4  # Beamos, Popos, Mimics (2)
   - slots: [1]
     assignments:
       1: 0x49
@@ -131,7 +131,7 @@ SheetChoices:
   - slots: [2]
     assignments:
       2: 0x2e
-    weight: 4  # GreenEyeGoreMimic(x2!), RedEyeGoreMimic(x2!)
+    weight: 2  # GreenEyeGoreMimic, RedEyeGoreMimic (Eyegores only)
 
 # Slot 3  (21 enemy types require slot 3)
   - slots: [3]

@@ -463,6 +463,9 @@ def write_enemy_shuffle_settings(world, player, rom):
     if world.dropshuffle[player] in ['underworld']:
         rom.write_byte(snes_to_pc(0x368109), 0x01)
     if world.enemy_shuffle[player] != 'none':
+        # enable new mimics
+        rom.write_byte(snes_to_pc(0x368105), 0x01)
+
         # killable thief
         rom.write_byte(snes_to_pc(0x368108), 0xc4)
         rom.write_byte(snes_to_pc(0x0DB237), 4)  # health value: # todo: thief health value

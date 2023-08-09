@@ -268,6 +268,8 @@ class EnemySprite(FastEnum):
     HeartPiece = 0xeb
     SomariaPlatform = 0xed
     CastleMantle = 0xee
+    GreenMimic = 0xef
+    RedMimic = 0xf0
     MedallionTablet = 0xf2
     PositionTarget = 0xf3
     Boulders = 0xf4
@@ -387,7 +389,7 @@ def init_enemy_stats():
         EnemySprite.CannonTrooper: EnemyStats(EnemySprite.CannonTrooper, False, True, 1, health=3, dmg=1),
         EnemySprite.CricketRat: EnemyStats(EnemySprite.CricketRat, False, True, 2, health=(2, 8), dmg=(0, 5)),
         EnemySprite.Snake: EnemyStats(EnemySprite.Snake, False, True, (1, 7), health=(4, 8), dmg=(1, 5)),
-        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, True, (0, 7), health=(1, 4), ignore=True,
+        EnemySprite.Keese: EnemyStats(EnemySprite.Keese, False, False, (0, 7), health=(1, 4), ignore=True,
                                       dmg=(0, 5), dmask=0x80),
 
         # skip helmafireball for damage
@@ -495,6 +497,8 @@ def init_enemy_stats():
         EnemySprite.MagicShopAssistant: EnemyStats(EnemySprite.MagicShopAssistant, True, ignore=True, dmg=0),
         EnemySprite.HeartPiece: EnemyStats(EnemySprite.HeartPiece, True, ignore=True, dmg=0),
         EnemySprite.CastleMantle: EnemyStats(EnemySprite.CastleMantle, True, dmg=0),
+        EnemySprite.GreenMimic: EnemyStats(EnemySprite.GreenMimic, False, True, 5, health=16, dmg=4),
+        EnemySprite.RedMimic: EnemyStats(EnemySprite.RedMimic, False, True, 5, health=8, dmg=4),
     }
     return stats
 
@@ -2346,8 +2350,8 @@ enemy_names = {
     0x80: 'Firesnake',
     0x81: 'Hover',
     0x82: 'AntiFairyCircle',
-    0x83: 'GreenEyegoreMimic',
-    0x84: 'RedEyegoreMimic',
+    0x83: 'GreenEyegore',
+    0x84: 'RedEyegore',
     0x85: 'YellowStalfos',  # falling stalfos that shoots head
     0x86: 'Kodongo',
     0x88: 'Mothula',
@@ -2444,6 +2448,8 @@ enemy_names = {
     0xeb: 'HeartPiece',
     0xed: 'SomariaPlatform',
     0xee: 'CastleMantle',
+    0xef: 'GreenMimic',
+    0xf0: 'RedMimic',
     0xf2: 'MedallionTablet',
     0xf3: 'PositionTarget',
     0xf4: 'Boulders'
@@ -2513,6 +2519,7 @@ sprite_translation = {
     'GreenEyegoreMimic': EnemySprite.GreenEyegoreMimic,
     'GreenGuard': EnemySprite.GreenGuard,
     'GreenKnifeGuard': EnemySprite.GreenKnifeGuard,
+    'GreenMimic': EnemySprite.GreenMimic,
     'GreenZirro': EnemySprite.GreenZirro,
     'HardhatBeetle': EnemySprite.HardhatBeetle,
     'Hinox': EnemySprite.Hinox,
@@ -2542,6 +2549,7 @@ sprite_translation = {
     'RedBushGuard': EnemySprite.RedBushGuard,
     'RedEyegoreMimic': EnemySprite.RedEyegoreMimic,
     'RedJavelinGuard': EnemySprite.RedJavelinGuard,
+    'RedMimic': EnemySprite.RedMimic,
     'RedSpearGuard': EnemySprite.RedSpearGuard,
     'RedZazak': EnemySprite.RedZazak,
     'Ropa': EnemySprite.Ropa,

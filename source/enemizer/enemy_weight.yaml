@@ -38,6 +38,7 @@ UW:  # Total 94431
   Gibo: 294   # 0.33993% raw:321 2.84071%
   GreenBushGuard: 325   # 0.30816% raw:291 2.57522%
   GreenEyegoreMimic: 175   # 0.57291% raw:541 4.78761%
+  GreenMimic: 175   # 0.57291% raw:541 4.78761%
   GreenGuard: 55   # 1.80237% raw:1702 15.06195%
   GreenKnifeGuard: 621   # 0.16096% raw:152 1.34513%
   GreenZirro: 180   # 0.55702% raw:526 4.65487%
@@ -68,6 +69,7 @@ UW:  # Total 94431
   RedBari: 49   # 2.02688% raw:1914 16.93805%
   RedBushGuard: 163   # 0.61526% raw:581 5.14159%
   RedEyegoreMimic: 175   # 0.57291% raw:541 4.78761%
+  RedMimic: 175   # 0.57291% raw:541 4.78761%
   RedJavelinGuard: 163   # 0.61526% raw:581 5.14159%
   RedSpearGuard: 44   # 2.28527% raw:2158 19.09735%
   RedZazak: 294   # 0.33993% raw:321 2.84071%
@@ -137,6 +139,7 @@ OW:  # Total 117724
   Gibo: 247  # 0.40519% raw:477 4.22124%
   GreenBushGuard: 291  # 0.34403% raw:405 3.58407%
   GreenEyegoreMimic: 171  # 0.58527% raw:689 6.09735%
+  GreenMimic: 171  # 0.58527% raw:689 6.09735%
   GreenGuard: 48  # 2.06330% raw:2429 21.49558%
   GreenKnifeGuard: 589  # 0.16989% raw:200 1.76991%
   GreenZirro: 158  # 0.63369% raw:746 6.60177%
@@ -167,6 +170,7 @@ OW:  # Total 117724
   RedBari: 47  # 2.11767% raw:2493 22.06195%
   RedBushGuard: 121  # 0.82651% raw:973 8.61062%
   RedEyegoreMimic: 171  # 0.58527% raw:689 6.09735%
+  RedMimic: 171  # 0.58527% raw:689 6.09735%
   RedJavelinGuard: 121  # 0.82651% raw:973 8.61062%
   RedSpearGuard: 39  # 2.56617% raw:3021 26.73451%
   RedZazak: 247  # 0.40519% raw:477 4.22124%

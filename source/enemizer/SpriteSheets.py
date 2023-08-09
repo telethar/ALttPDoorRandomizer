@@ -360,6 +360,8 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.MagicShopAssistant).affix().sub_group(0, 0x4b).sub_group(3, 0x5a),
         SpriteRequirement(EnemySprite.SomariaPlatform).affix().sub_group(2, 0x27),
         SpriteRequirement(EnemySprite.CastleMantle).affix().sub_group(0, 0x5d),
+        SpriteRequirement(EnemySprite.GreenMimic).sub_group(1, 0x2c),
+        SpriteRequirement(EnemySprite.RedMimic).sub_group(1, 0x2c),
         SpriteRequirement(EnemySprite.MedallionTablet).affix().sub_group(2, 0x12),
 
         # overlord requirements - encapsulated mostly in the required sheets
