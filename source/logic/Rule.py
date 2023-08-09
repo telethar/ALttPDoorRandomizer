@@ -118,7 +118,7 @@ class RuleFactory(object):
                 rule_lambda = r.rule_lambda
             else:
                 rule_lambda = and_rule(rule_lambda, r.rule_lambda)
-        rule.rule_lambda = rule_lambda
+        rule.rule_lambda = rule_lambda if rule_lambda else lambda state: True
         return rule
 
     @staticmethod
@@ -142,7 +142,7 @@ class RuleFactory(object):
                 rule_lambda = r.rule_lambda
             else:
                 rule_lambda = or_rule(rule_lambda, r.rule_lambda)
-        rule.rule_lambda = rule_lambda
+        rule.rule_lambda = rule_lambda if rule_lambda else lambda state: True
         return rule
 
     @staticmethod

@@ -81,13 +81,13 @@ def defeat_rule_multiple(world, player, enemy_sprite_region_pairs):
     bombs_required = False
 
     for key, vln in vln_list.items():
-        if key[0] == EnemySprite.Terrorpin:
+        if key[0].kind == EnemySprite.Terrorpin:
             if not hammer_required:
                 required_rules.append(has('Hammer', player))
                 hammer_required = True
             picky_enemies.append(key)
             continue
-        if key[0] == EnemySprite.StalfosKnight:
+        if key[0].kind == EnemySprite.StalfosKnight:
             if not bombs_required:
                 required_rules.append(bombs_rule(world, player, 1))
                 bombs_required = True
