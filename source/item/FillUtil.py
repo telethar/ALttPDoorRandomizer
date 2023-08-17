@@ -357,7 +357,7 @@ def determine_major_items(world, player):
         major_item_set.add('Single Arrow')
     if world.keyshuffle[player] == 'universal':
         major_item_set.add('Small Key (Universal)')
-    if world.goal == 'triforcehunt':
+    if world.goal[player] == 'triforcehunt':
         major_item_set.add('Triforce Piece')
     if world.bombbag[player]:
         major_item_set.add('Bomb Upgrade (+10)')
