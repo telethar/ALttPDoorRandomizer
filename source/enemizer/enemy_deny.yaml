@@ -29,8 +29,10 @@ UwGeneralDeny:
   - [ 0x001e, 5, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Blob Ambush - Zol 1"
   - [ 0x001e, 6, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Blob Ambush - Zol 2"
   - [ 0x001f, 0, [ "RollerHorizontalRight" ] ]  #"Ice Palace - Big Key View - Pengator 1"
+  - [ 0x001f, 3, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0021, 3, [ "RollerVerticalDown", "RollerVerticalUp" ] ]  #"Sewers - Dark U - Rat 2"
   - [ 0x0021, 4, [ "RollerVerticalDown", "RollerVerticalUp" ] ]  #"Sewers - Dark U - Rat 3"
+  - [ 0x0024, 6, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0026, 1, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Swamp Palace - Big Spoon - Red Bari 1"
   - [ 0x0026, 8, [ "AntiFairyCircle", "Bumper" ] ]  #"Swamp Palace - Big Spoon - Red Bari 3"
   - [ 0x0026, 9, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - Big Spoon - Kyameron"
@@ -70,6 +72,7 @@ UwGeneralDeny:
   - [ 0x003d, 13, [ "AntiFairyCircle", "Bumper" ] ] #"Ganon's Tower - Torches 2 - Antifairy"
   - [ 0x003f, 1, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - P Room - Stalfos Knight 1"
   - [ 0x003f, 3, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - P Room - Stalfos Knight 2"
+  - [ 0x003f, 4, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0040, 0, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Bridge - Blue Guard 1
   - [ 0x0040, 1, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Bridge - Blue Guard 2
   - [ 0x0041, 0, [ "RollerHorizontalLeft" ] ]  #"Sewers - Dark Cactus - Rat 1"
@@ -85,6 +88,7 @@ UwGeneralDeny:
   - [ 0x0044, 6, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "BigSpike" ] ]  #"Thieves' Town - Joke Room - Red Bari"
   - [ 0x0044, 8, [ "Statue", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Joke Room - Blue Bari 4"
   - [ 0x0045, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Thieves' Town - Basement Block Totems - Red Zazak"
+  - [ 0x0045, 4, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0045, 7, [ "AntiFairyCircle", "Bumper" ] ]  #"Thieves' Town - Cells - Blue Zazak 4"
   - [ 0x0045, 8, [ "RollerHorizontalRight" ] ]  #"Thieves' Town - Cells - Zol"
   - [ 0x0046, 0, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Big O Top - Hover 1"
@@ -111,6 +115,7 @@ UwGeneralDeny:
   - [ 0x0053, 5, [ "RollerVerticalDown" ] ]  #"Desert Palace - Popo Genocide - Popo TL"
   - [ 0x0053, 7, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Desert Palace - Bridge - Popo 5"
   - [ 0x0055, 1, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Secret Passage Exit - Green Knife Guard 1"
+  - [ 0x0057, 0, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0057, 2, [ "RollerVerticalUp", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Big Key Room - Spike Trap"
   - [ 0x0057, 7, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Big Key Room - Gibdo 2"
   - [ 0x0057, 12, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Big Key Room - Gibdo 6"
@@ -127,6 +132,7 @@ UwGeneralDeny:
   - [ 0x0060, 0, [ "RollerVerticalUp", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Hyrule Castle - West - Blue Guard"
   - [ 0x0062, 0, [ "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Hyrule Castle - East - Blue Guard"
   - [ 0x0064, 2, [ "Bumper" , "Beamos" ] ]  #"Thieves' Town - Attic Hall Left - Keese 2"
+  - [ 0x0064, 3, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0064, 4, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Thieves' Town - Attic Hall Left - Rat 1"
   - [ 0x0065, 0, [ "RollerVerticalUp", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Attic Window - Rat 1"
   - [ 0x0065, 1, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Thieves' Town - Attic Window - Rat 2"
@@ -190,6 +196,7 @@ UwGeneralDeny:
   - [ 0x008d, 9, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ganon's Tower - Tile Room - Fire Bar (Clockwise)"
   - [ 0x008d, 10, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Ganon's Tower - Tile Room - Blue Bari 1"
   - [ 0x008d, 12, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Ganon's Tower - Tile Room - Blue Bari 2"
+  - [ 0x008e, 2, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0092, 8, [ "RollerVerticalUp", "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Misery Mire - Dark Weave - Spike Trap"
   - [ 0x0092, 9, [ "RollerHorizontalRight" ] ]  #"Misery Mire - Dark Weave - Antifairy 3"
   - [ 0x0092, 10, [ "RollerHorizontalLeft" ] ]  #"Misery Mire - Dark Weave - Stalfos"
@@ -225,6 +232,7 @@ UwGeneralDeny:
   - [ 0x009e, 3, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Fairy Drop - blue - Red Bari 3"
   - [ 0x00a0, 1, [ "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Boss Antechamber - Antifairy"
   - [ 0x00a1, 2, [ "Statue", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Fish Room  - Spark (Clockwise) 2"
+  - [ 0x00a1, 7, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00a5, 2, [ "BigSpike" ] ]  #"GT Wizzrobes 1 - Wizzrobe 3"
   - [ 0x00a5, 10, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - Laser Bridge - Red Spear Guard"
   - [ 0x00a8, 1, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Eastern Palace - West Wing - Top - Stalfos 2"
@@ -237,6 +245,8 @@ UwGeneralDeny:
   - [ 0x00af, 0, [ "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Ice Clock - Fire Bar (Clockwise)"
   - [ 0x00b1, 2, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Misery Mire - Hourglass - Spike Trap 1"
   - [ 0x00b1, 3, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Misery Mire - Hourglass - Spike Trap 2"
+  - [ 0x00b2, 1, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
+  - [ 0x00b2, 3, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00b2, 6, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Misery Mire - Sluggula Cross - Sluggula TR"
   - [ 0x00b2, 8, [ "RollerVerticalDown" ] ]  #"Misery Mire - Popo Push - Medusa 1"
   - [ 0x00b2, 9, [ "RollerVerticalUp" ] ]  #"Misery Mire - Sluggula Cross - Sluggula BL"
@@ -259,12 +269,18 @@ UwGeneralDeny:
   - [ 0x00bc, 6, [ "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Toilet - Stalfos 2"
   - [ 0x00bc, 7, [ "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Toilet - Stalfos 3"
   - [ 0x00bc, 8, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Thieves' Town - Toilet - Stalfos 4"
+  - [ 0x00bf, 0, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on collision
   - [ 0x00c1, 3, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Misery Mire - 4 Rails - Stalfos 1"
   - [ 0x00c2, 0, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Misery Mire - Main Lobby - blue - Fire Snake 1"
+  - [ 0x00c2, 5, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00c5, 6, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Turtle Rock - Catwalk - Mini Helmasaur"
   - [ 0x00c5, 7, [ "Statue" ] ]  #"Turtle Rock - Catwalk - Laser Eye (Left) 4"
+  - [ 0x00cb, 0, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00cb, 3, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Grand Room NW - Zol 1"
   - [ 0x00cb, 5, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Grand Room NW - Zol 2"
+  - [ 0x00cb, 11, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
+  - [ 0x00cc, 8, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #Prevents Pot access (Beamos okay?)
+  - [ 0x00cc, 12, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #Prevents Pot access (Beamos okay?)
   - [ 0x00ce, 0, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "Antifairy", "BigSpike", "FirebarCCW", "Bumper" ] ]  #"Ice Palace - Over Boss - top - Red Bari 1"
   - [ 0x00ce, 1, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "Antifairy", "BigSpike", "FirebarCW", "Bumper" ] ]  #"Ice Palace - Over Boss - top - Red Bari 2"
   - [ 0x00ce, 3, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "Antifairy", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Over Boss - top - Statue"
@@ -281,6 +297,7 @@ UwGeneralDeny:
   - [ 0x00d8, 7, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Eastern Palace - Kill Room 2 - Popo RB"
   - [ 0x00d8, 8, [ "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Eastern Palace - Kill Room 1 - Red Eyegore"
   - [ 0x00d9, 1, [ "RollerHorizontalRight" ] ]  #"Eastern Palace - Dodgeball - Green Eyegore 1"
+  - [ 0x00db, 0, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00dc, 9, [ "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Thieves' Town - Grand Room SE - Fire Snake 2"
   - [ 0x00df, 0, [ "RollerVerticalDown", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Paradox Cave - Top - Mini Moldorm 1"
   - [ 0x00df, 1, [ "RollerVerticalDown", "RollerHorizontalRight", "AntiFairyCircle" ] ]  #"Paradox Cave - Top - Mini Moldorm 2"

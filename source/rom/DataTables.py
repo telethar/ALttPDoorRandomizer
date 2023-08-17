@@ -82,6 +82,8 @@ class DataTables:
         if self.uw_enemy_table.size() > 0x2800:
             raise Exception('Sprite table is too big for current area')
         self.uw_enemy_table.write_sprite_data_to_rom(rom)
+        self.uw_enemy_table.check_special_bitmasks_size()
+        self.uw_enemy_table.write_special_bitmask_table(rom)
         for area_id, sheet in self.overworld_sprite_sheets.items():
             if area_id in [0x80, 0x81]:
                 offset = area_id - 0x80  # 02E575 for special areas?

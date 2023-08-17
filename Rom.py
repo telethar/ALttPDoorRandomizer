@@ -33,14 +33,14 @@ from InitialSram import InitialSram
 
 from source.classes.SFX import randomize_sfx
 from source.item.FillUtil import valid_pot_items
-from source.dungeon.EnemyList import EnemySprite
+from source.dungeon.EnemyList import EnemySprite, setup_enemy_dungeon_tables
 from source.dungeon.RoomObject import DoorObject
 from source.enemizer.Bossmizer import boss_writes
 from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '8c20d2bcccfc543a1201ff082e0ebe8e'
+RANDOMIZERBASEHASH = '6d43fb7bd4cf5ec2d10d03cf04772240'
 
 
 class JsonRom(object):
@@ -1408,6 +1408,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     if world.data_tables[player]:
         colorize_pots = (world.pottery[player] != 'vanilla', 'lottery'
                          and (world.colorizepots[player] or world.pottery[player] in ['reduced', 'clustered']))
+        setup_enemy_dungeon_tables(world, player)
         world.data_tables[player].write_to_rom(rom, colorize_pots, world.enemy_shuffle[player] == 'random')
 
     write_enemizer_tweaks(rom, world, player)

@@ -536,6 +536,7 @@ class Sprite(object):
         self.static = False  # don't randomize me
         self.water = False  # water types can spawn here
         self.embedded = False  # sprite starts on impassible terrian
+        self.never_drop = False
 
     def copy(self):
         sprite = Sprite(self.super_tile, self.kind, self.sub_type, self.layer, self.tile_x, self.tile_y, self.region,
@@ -571,7 +572,7 @@ vanilla_sprites = {}
 
 
 def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None,
-                  drops_item=False, drop_item_kind=None, fix=False, water=False, embed=False):
+                  drops_item=False, drop_item_kind=None, fix=False, water=False, embed=False, never_drop=False):
     if super_tile not in vanilla_sprites:
         vanilla_sprites[super_tile] = []
     sprite = Sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region, drops_item, drop_item_kind)
@@ -581,6 +582,8 @@ def create_sprite(super_tile, kind, sub_type, layer, tile_x, tile_y, region=None
         sprite.water = True
     if embed:
         sprite.embedded = True
+    if never_drop:
+        sprite.never_drop = True
     vanilla_sprites[super_tile].append(sprite)
 
 
@@ -705,9 +708,9 @@ def init_vanilla_sprites():
     create_sprite(0x0016, EnemySprite.Blob, 0x00, 0, 0x15, 0x08, 'Swamp C')
     create_sprite(0x0016, EnemySprite.BlueBari, 0x00, 0, 0x15, 0x09, 'Swamp C')
     create_sprite(0x0016, EnemySprite.Blob, 0x00, 0, 0x10, 0x0a, 'Swamp I')
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x0c, 0x18, 'Swamp Waterway', False, fix=True)
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x07, 0x1b, 'Swamp Waterway', False, fix=True)
-    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x14, 0x1b, 'Swamp Waterway', False, fix=True)
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x0c, 0x18, 'Swamp Waterway', fix=True, never_drop=True)
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x07, 0x1b, 'Swamp Waterway', fix=True, never_drop=True)
+    create_sprite(0x0016, EnemySprite.Hover, 0x00, 1, 0x14, 0x1b, 'Swamp Waterway', fix=True, never_drop=True)
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x07, 0x0b, 'Hera 5F')
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x10, 0x0e, 'Hera 5F')
     create_sprite(0x0017, EnemySprite.Bumper, 0x00, 0, 0x07, 0x16, 'Hera 5F')
@@ -1282,8 +1285,8 @@ def init_vanilla_sprites():
     create_sprite(0x0074, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x0c, 0x05, 'Desert Map Room')
     create_sprite(0x0074, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x13, 0x05, 'Desert Map Room')
     create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x0c, 0x0a, 'Desert Map Room')
-    create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x13, 0x0a, 'Desert Dead End')
-    create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x0e, 0x1b, 'Desert Map Room')
+    create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x13, 0x0a, 'Desert Map Room')
+    create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x0e, 0x1b, 'Desert Dead End')
     create_sprite(0x0074, EnemySprite.Leever, 0x00, 0, 0x12, 0x1b, 'Desert Dead End')
     create_sprite(0x0075, EnemySprite.Debirando, 0x00, 0, 0x08, 0x07, 'Desert Trap Room')
     create_sprite(0x0075, EnemySprite.Debirando, 0x00, 0, 0x04, 0x1b, 'Desert Arrow Pot Corner')
@@ -2102,6 +2105,7 @@ layered_oam_rooms = {
 class EnemyTable:
     def __init__(self):
         self.room_map = defaultdict(list)
+        self.special_bitmasks = None
 
     def write_sprite_data_to_rom(self, rom):
         pointer_address = snes_to_pc(0x09D62E)
@@ -2139,6 +2143,30 @@ class EnemyTable:
                 size += sum(len(sprite.sprite_data()) for sprite in self.room_map[room]) + 2
         return size
 
+    def check_special_bitmasks_size(self):
+        size = 0
+        for super_tile, dungeon_list in self.special_bitmasks.items():
+            size += (1 if len(dungeon_list) % 2 == 1 else 2) + len(dungeon_list) * 3
+        if size > 256:
+            raise Exception("256 bytes limit reached on special bitmask table. Please revise")
+
+    def write_special_bitmask_table(self, rom):
+        pointer = 0
+        for super_tile, dungeon_list in self.special_bitmasks.items():
+            pointer_index = pointer // 2
+            rom.write_byte(snes_to_pc(0x28AF00) + super_tile, pointer_index)
+            is_even = len(dungeon_list) % 2 == 0
+            for dungeon, bitmask in dungeon_list.items():
+                dungeon_id = dungeon * 2
+                rom.write_bytes(snes_to_pc(0x28B028) + pointer, [dungeon_id] + int16_as_bytes(bitmask))
+                pointer += 3
+            if is_even:
+                rom.write_bytes(snes_to_pc(0x28B028) + pointer, [0xFF, 0xFF])
+                pointer += 2
+            else:
+                rom.write_byte(snes_to_pc(0x28B028) + pointer, 0xFF)
+                pointer += 1
+
 
 def setup_enemy_locations(world, player):
     for super_tile, enemy_list in world.data_tables[player].uw_enemy_table.room_map.items():
@@ -2147,10 +2175,48 @@ def setup_enemy_locations(world, player):
                 create_drop_location(sprite, index, super_tile, world, player)
 
 
+# 1,1,1,1,2,1,2,2,1,2,3,2,2,2,2,2,2,1,2,1(2),1,1,1,1,2
+splittable_supertiles = {0x9, 0x1a, 0x35, 0x36, 0x37, 0x2a, 0x57, 0x74, 0x75, 0x6a, 0x7b, 0x7c, 0x7d, 0x9d, 0x8c,
+                         0x9b, 0x87, 0x82, 0xa2, 0xb2, 0xb6, 0xa9, 0xaa, 0xbc, 0xdb, 0xd1}
+# minimum 159 bytes maybe reserve 256 (0x100)
+# tr pipes, mire left/right bridges, eastern cannonball, tr front entrance = have zero enemies so far but are splittable
+# 0x14, 0xa2, 0xb9, 0xd6
+
+# only a concern once pits are done and cave interiors are shuffled somehow?
+# identify by entrance ids, maybe? may need multiple
+# e8? - separated hardhats, fa (if fairies (quardants)), fd (if fairies (quadrants almost...)
+
+
+def setup_enemy_dungeon_tables(world, player):
+    enemy_table = world.data_tables[player].uw_enemy_table
+    dungeon_map = defaultdict(lambda: defaultdict(list))
+    for super_tile, enemy_list in enemy_table.room_map.items():
+        if super_tile in splittable_supertiles:
+            idx_adj = 0
+            for index, sprite in enumerate(enemy_list):
+                loc_name = f'{sprite.region} Enemy #{index+1}'
+                loc = world.get_location_unsafe(loc_name, player)
+                if sprite.sub_type == 0x07:  # overlord
+                    idx_adj += 1
+                    continue  # overlords can't have locations
+                if loc:
+                    # possible to-do: caves really aren't supported yet - entrance ids?
+                    dungeon = loc.parent_region.dungeon.dungeon_id if loc.parent_region.dungeon else 0xFF
+                    dungeon_map[super_tile][dungeon].append((loc, index-idx_adj))
+    special_bitmasks = defaultdict(lambda: defaultdict(int))
+    for super_tile, dungeon_list in dungeon_map.items():
+        for dungeon, data_list in dungeon_list.items():
+            for loc, index in data_list:
+                special_bitmasks[super_tile][dungeon] |= (1 << (15 - index))
+    enemy_table.special_bitmasks = special_bitmasks
+
+
 def valid_drop_location(sprite, index, world, player):
     if world.dropshuffle[player] == 'underworld':
         if sprite.drops_item and sprite.drop_item_kind in [0xe4, 0xe5]:
             # already has a location
+            return False
+        elif sprite.never_drop:
             return False
         elif sprite.sub_type != SpriteType.Overlord:
             stat = world.data_tables[player].enemy_stats[sprite.kind]
