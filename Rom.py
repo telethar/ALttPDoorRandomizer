@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '6d43fb7bd4cf5ec2d10d03cf04772240'
+RANDOMIZERBASEHASH = '51a592209991a054bb40b7e7789738c3'
 
 
 class JsonRom(object):
@@ -549,6 +549,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     if ((world.collection_rate[player] or world.goal[player] == 'completionist')
        and world.goal[player] not in ['triforcehunt', 'trinity', 'ganonhunt']):
         dr_flags |= DROptions.Debug
+        rom.write_byte(snes_to_pc(0x308039), 1)
     if world.doorShuffle[player] not in ['vanilla', 'basic'] and world.logic[player] != 'nologic'\
        and world.mixed_travel[player] == 'prevent':
         # PoD Falling Bridge or Hammjump
@@ -615,10 +616,10 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         for name, layout in world.key_layout[player].items():
             offset = compass_data[name][4]//2
             if world.keyshuffle[player] == 'universal':
-                rom.write_byte(0x13f030+offset, layout.max_chests + layout.max_drops)
+                rom.write_byte(0x187010+offset, layout.max_chests + layout.max_drops)
             else:
                 rom.write_byte(0x13f020+offset, layout.max_chests + layout.max_drops)  # not currently used
-                rom.write_byte(0x13f030+offset, layout.max_chests)
+                rom.write_byte(0x187010+offset, layout.max_chests)
             builder = world.dungeon_layouts[player][name]
             valid_cnt = len(valid_loc_by_dungeon[name])
             if valid_cnt > 256:
@@ -727,7 +728,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         rom.write_byte(snes_to_pc(0x0DB457), 0x40)
     rom.write_byte(snes_to_pc(0x28AA56), 0 if world.pottery[player] == 'none' else 1)
 
-    write_int16(rom, 0x187010, credits_total)  # dynamic credits
+    write_int16(rom, 0x180196, credits_total)  # dynamic credits
     if credits_total != 216:
         # collection rate address (hi):
         cr_address = 0x238055
@@ -737,12 +738,12 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         last_top, last_bot = credits_digit(credits_total % 10)
         if credits_total >= 1000:
             thousands_top, thousands_bot = credits_digit((credits_total // 1000) % 10)
-            rom.write_byte(cr_pc, 0xa2)  # slash
+            rom.write_byte(cr_pc, 0xDB)  # slash
             rom.write_byte(cr_pc+1, thousands_top)
-            rom.write_byte(cr_pc+0x1e, 0xc2)  # slash
+            rom.write_byte(cr_pc+0x1e, 0xEE)  # slash
             rom.write_byte(cr_pc+0x1f, thousands_bot)
             # modify stat config
-            stat_address = 0x23B969
+            stat_address = 0x2297B2  # 0x23B969 - old
             stat_pc = snes_to_pc(stat_address)
             rom.write_byte(stat_pc, 0xa9)  # change to pos 21 (from b1)
             rom.write_byte(stat_pc+2, 0xc0)  # change to 12 bits (from a0)
@@ -803,8 +804,6 @@ def patch_rom(world, rom, player, team, is_mystery=False):
 
     # set light cones
     rom.write_byte(0x180038, 0x01 if world.sewer_light_cone[player] else 0x00)
-    rom.write_byte(0x180039, 0x01 if world.light_world_light_cone else 0x00)
-    rom.write_byte(0x18003A, 0x01 if world.dark_world_light_cone else 0x00)
 
     GREEN_TWENTY_RUPEES = 0x47
     TRIFORCE_PIECE = ItemFactory('Triforce Piece', player).code
@@ -1133,8 +1132,6 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     if world.pseudoboots[player]:
         rom.write_byte(0x18008E, 0x01)
     rom.initial_sram.set_starting_equipment(world, player)
-    rom.write_byte(0x180034, 10 if not world.bombbag[player] else 0) # starting max bombs
-    rom.write_byte(0x180035, 30) # starting max arrows
 
     rom.write_byte(0x18004A, 0x00 if world.mode[player] != 'inverted' else 0x01)  # Inverted mode
     rom.write_byte(0x18005D, 0x00) # Hammer always breaks barrier
@@ -1150,20 +1147,21 @@ def patch_rom(world, rom, player, team, is_mystery=False):
                               (0x04 if 'magic' in world.escape_assist[player] else 0x00))) # Escape assist
 
     if world.goal[player] in ['pedestal', 'triforcehunt']:
-        rom.write_byte(0x18003E, 0x01)  # make ganon invincible
+        rom.write_byte(0x1801A8, 0x01)  # make ganon invincible
     elif world.goal[player] in ['dungeons']:
-        rom.write_byte(0x18003E, 0x02)  # make ganon invincible until all dungeons are beat
+        rom.write_byte(0x1801A8, 0x02)  # make ganon invincible until all dungeons are beat
     elif world.goal[player] in ['crystals', 'trinity']:
-        rom.write_byte(0x18003E, 0x04)  # make ganon invincible until all crystals
+        rom.write_byte(0x1801A8, 0x04)  # make ganon invincible until all crystals
     elif world.goal[player] in ['ganonhunt']:
-        rom.write_byte(0x18003E, 0x05)  # make ganon invincible until all triforce pieces collected
+        rom.write_byte(0x1801A8, 0x05)  # make ganon invincible until all triforce pieces collected
     elif world.goal[player] in ['completionist']:
-        rom.write_byte(0x18003E, 0x0a)  # make ganon invincible until everything is collected
+        rom.write_byte(0x1801A8, 0x0B)  # make ganon invincible until everything is collected
     else:
-        rom.write_byte(0x18003E, 0x03)  # make ganon invincible until all crystals and aga 2 are collected
+        rom.write_byte(0x1801A8, 0x03)  # make ganon invincible until all crystals and aga 2 are collected
 
-    rom.write_byte(0x18005E, world.crystals_needed_for_gt[player])
-    rom.write_byte(0x18005F, world.crystals_needed_for_ganon[player])
+    rom.write_byte(0x18019A, world.crystals_needed_for_gt[player])
+    rom.write_byte(0x1801A6, world.crystals_needed_for_ganon[player])
+    rom.write_byte(0x1801A2, 0x00)  # ped requirement is vanilla, set to 0x1 for special requirements
 
     # block HC upstairs doors in rain state in standard mode
     prevent_rain = world.mode[player] == "standard" and world.shuffle[player] != 'vanilla'
@@ -1248,7 +1246,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
 
     # Bitfield - enable free items to show up in menu
     #
-    # ----dcba
+    # ---edcba
+    # e - Bosses
     # d - Compass
     # c - Map
     # b - Big Key
@@ -1258,7 +1257,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     rom.write_byte(0x180045, ((0x01 if world.keyshuffle[player] == 'wild' else 0x00)
                               | (0x02 if world.bigkeyshuffle[player] else 0x00)
                               | (0x04 if world.mapshuffle[player] or enable_menu_map_check else 0x00)
-                              | (0x08 if world.compassshuffle[player] else 0x00)))  # free roaming items in menu
+                              | (0x08 if world.compassshuffle[player] else 0x00) # free roaming items in menu
+                              | (0x10 if world.logic[player] == 'nologic' else 0))) # boss icon
 
     # Map reveals
     reveal_bytes = {
@@ -1385,8 +1385,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         if world.get_door('TR Eye Bridge SW', player).entranceFlag:
             world.get_room(0xd5, player).change(0, DoorKind.CaveEntrance)
         # do this unconditionally - gets overwritten by RoomData in doorShufflemodes
-        rom.write_byte(0xFED31, 0x0E)  # preopen bombable exit
-        rom.write_byte(0xFEE41, 0x0E)  # preopen bombable exit
+        rom.initial_sram.pre_open_tr_bomb_doors()  # preopen bombable exits
 
     if world.boss_shuffle[player] != 'none' or world.doorShuffle[player] != 'vanilla':
         rom.write_byte(snes_to_pc(0x30835A), 1)  # fix Prize On The Eyes
@@ -1579,17 +1578,7 @@ def apply_rom_settings(rom, beep, color, quickswap, fastmenu, disable_music, spr
     # set heart color
     if color == 'random':
         color = random.choice(['red', 'blue', 'green', 'yellow'])
-    rom.write_byte(0x6FA1E, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA20, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA22, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA24, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA26, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA28, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA2A, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA2C, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA2E, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x6FA30, {'red': 0x24, 'blue': 0x2C, 'green': 0x3C, 'yellow': 0x28}[color])
-    rom.write_byte(0x65561, {'red': 0x05, 'blue': 0x0D, 'green': 0x19, 'yellow': 0x09}[color])
+    rom.write_byte(0x187020, {'red': 0, 'blue': 1, 'green': 2, 'yellow': 3}[color])
 
     # write link sprite if required
     if sprite is not None:
@@ -1838,6 +1827,16 @@ def write_string_to_rom(rom, target, string):
 def write_strings(rom, world, player, team):
     tt = TextTable()
     tt.removeUnwantedText()
+    if world.shuffle[player] != 'vanilla':
+        tt['houlihan_room'] = CompressedTextMapper.convert(
+            "    Crosskeys\n"
+            "    Tournament\n"
+            "    Winners\n{HARP}\n"
+            "    ~~~2022~~~\n     Schulzer\n\n"
+            "    ~~~2021~~~\n      Goomba\n\n"
+            "    ~~~2020~~~\n    Linlinlin\n\n"
+            "    ~~~2019~~~\n      Kohrek\n"
+        )
 
     # Let's keep this guy's text accurate to the shuffle setting.
     if world.shuffle[player] in ['vanilla', 'dungeonsfull', 'dungeonssimple']:

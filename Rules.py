@@ -1065,8 +1065,7 @@ def add_conditional_lamps(world, player):
             spot = world.get_location(spot, player)
         else:
             spot = world.get_entrance(spot, player)
-        if (not world.dark_world_light_cone and check_is_dark_world(world.get_region(region, player))) or (not world.light_world_light_cone and not check_is_dark_world(world.get_region(region, player))):
-            add_lamp_requirement(spot, player)
+        add_lamp_requirement(spot, player)
 
     dark_rooms = {
         'TR Dark Ride': {'sewer': False, 'entrances': ['TR Dark Ride Up Stairs', 'TR Dark Ride SW', 'TR Dark Ride Path'], 'locations': []},

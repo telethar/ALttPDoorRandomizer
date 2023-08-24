@@ -122,12 +122,6 @@ def fill_world(world, plando, text_patches):
                     elif line.startswith('!light_cone_sewers'):
                         _, sewerstr = line.split(':', 1)
                         world.sewer_light_cone = {1: sewerstr.strip().lower() == 'true'}
-                    elif line.startswith('!light_cone_lw'):
-                        _, lwconestr = line.split(':', 1)
-                        world.light_world_light_cone = lwconestr.strip().lower() == 'true'
-                    elif line.startswith('!light_cone_dw'):
-                        _, dwconestr = line.split(':', 1)
-                        world.dark_world_light_cone = dwconestr.strip().lower() == 'true'
                     elif line.startswith('!fix_trock_doors'):
                         _, trdstr = line.split(':', 1)
                         world.fix_trock_doors = {1: trdstr.strip().lower() == 'true'}
