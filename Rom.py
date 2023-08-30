@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '2a6dee18eedd42420d26cee7bd8479da'
+RANDOMIZERBASEHASH = '6b6b74e487a87fac895dbd7dcd3ac748'
 
 
 class JsonRom(object):
@@ -621,12 +621,6 @@ def patch_rom(world, rom, player, team, is_mystery=False):
                 rom.write_byte(0x13f020+offset, layout.max_chests + layout.max_drops)  # not currently used
                 rom.write_byte(0x187010+offset, layout.max_chests)
             builder = world.dungeon_layouts[player][name]
-            valid_cnt = len(valid_loc_by_dungeon[name])
-            if valid_cnt > 256:
-                logging.getLogger('').warning(f'{name} exceeds 256 in locations ({valid_cnt})')
-            rom.write_byte(0x13f080+offset, valid_cnt % 10)
-            rom.write_byte(0x13f090+offset, valid_cnt // 10)
-            rom.write_byte(0x13f0a0+offset, valid_cnt)
             bk_status = 1 if builder.bk_required else 0
             bk_status = 2 if builder.bk_provided else bk_status
             rom.write_byte(0x13f040+offset*2, bk_status)
