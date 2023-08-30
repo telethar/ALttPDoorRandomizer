@@ -14,7 +14,7 @@ settings:
     intensity: 3
     door_type_mode: big
     pottery: keys
-    dropshuffle: true
+    dropshuffle: keys
     experimental: true
     dungeon_counters: 'on'
     hints: true

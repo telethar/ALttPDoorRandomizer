@@ -1292,7 +1292,7 @@ def standard_rules(world, player):
         for loc in region.locations:
             add_rule(loc, lambda state: standard_escape_rule(state))
         if region.name in std_kill_rooms:
-            for ent in std_kill_rooms[region.name]:
+            for ent in std_kill_rooms[region.name][0]:
                 add_rule(world.get_entrance(ent, player), lambda state: standard_escape_rule(state))
 
     set_rule(world.get_location('Zelda Pickup', player), lambda state: state.has('Big Key (Escape)', player))

@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '51a592209991a054bb40b7e7789738c3'
+RANDOMIZERBASEHASH = '2a6dee18eedd42420d26cee7bd8479da'
 
 
 class JsonRom(object):
@@ -2535,9 +2535,11 @@ def update_compasses(rom, dungeon_locations, world, player):
     for name, builder in layouts.items():
         dungeon_id = compass_data[name][4]
         dungeon_count = len(dungeon_locations[name])
-        if dungeon_count > 255:
-            logging.getLogger('').warning(f'{name} has more locations than 255. Need 16-bit compass counts')
-        rom.write_byte(0x187000 + dungeon_id//2, dungeon_count % 256)
+        rom.write_bytes(0x187040 + dungeon_id, int16_as_bytes(dungeon_count))
+        # total tiles
+        rom.write_bytes(0x187060 + dungeon_id, int16_as_bytes(((dungeon_count // 100) % 10) + 0x2490))
+        rom.write_bytes(0x187080 + dungeon_id, int16_as_bytes(((dungeon_count // 10) % 10) + 0x2490))
+        rom.write_bytes(0x1870A0 + dungeon_id, int16_as_bytes((dungeon_count % 10) + 0x2490))
         if builder.bk_provided:
             if provided_dungeon:
                 logging.getLogger('').warning('Multiple dungeons have forced BKs! Compass code might need updating?')
