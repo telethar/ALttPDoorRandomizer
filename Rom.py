@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '6b6b74e487a87fac895dbd7dcd3ac748'
+RANDOMIZERBASEHASH = 'cd3a693a5f772e83cdad5dd2b53d5586'
 
 
 class JsonRom(object):
@@ -1469,7 +1469,7 @@ def write_custom_shops(rom, world, player):
             if item is None:
                 break
             if world.shopsanity[player] or shop.type == ShopType.TakeAny:
-                rom.write_byte(0x187E40 + shop.sram_address + index, 1)
+                rom.write_byte(0x186E40 + shop.sram_address + index, 1)
             if world.shopsanity[player] and shop.region.name in shop_to_location_table:
                 loc_item = world.get_location(shop_to_location_table[shop.region.name][index], player).item
             elif world.shopsanity[player] and shop.region.name in retro_shops:
