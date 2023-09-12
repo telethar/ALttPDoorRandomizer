@@ -416,10 +416,10 @@ def randomize_enemies(world, player):
         randomize_overworld_sprite_sheets(data_tables.sprite_sheets, data_tables, custom_ow)
         randomize_overworld_enemies(data_tables, custom_ow)
         # fix thief stats
-        subclass_table = world.damage_table[player].damage_table['SubClassTable']
-        subclass_table[EnemySprite.Thief] = subclass_table[EnemySprite.GreenEyegoreMimic]
-        data_tables.enemy_stats[EnemySprite.Thief].health = 4
-        # todo: could turn droppable on here if we wanted for theives
+        # subclass_table = world.damage_table[player].damage_table['SubClassTable']
+        # subclass_table[EnemySprite.Thief] = subclass_table[EnemySprite.GreenEyegoreMimic]
+        # data_tables.enemy_stats[EnemySprite.Thief].health = 4
+        # could turn droppable on here if we wanted for killable theives
     # health shuffle
     if world.enemy_health[player] != 'default':
         stats = world.data_tables[player].enemy_stats
@@ -475,8 +475,8 @@ def write_enemy_shuffle_settings(world, player, rom):
         rom.write_byte(snes_to_pc(0x368105), 0x01)
 
         # killable thief
-        rom.write_byte(snes_to_pc(0x368108), 0xc4)
-        rom.write_byte(snes_to_pc(0x0DB237), 4)  # health value: # todo: thief health value
+        # rom.write_byte(snes_to_pc(0x368108), 0xc4)
+        # rom.write_byte(snes_to_pc(0x0DB237), 4)  # health value - randomize it if killable, maybe
 
         # mimic room barriers
         data_tables = world.data_tables[player]

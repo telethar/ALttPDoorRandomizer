@@ -3545,6 +3545,7 @@ class DROptions(Flag):
     Hide_Total = 0x100
     DarkWorld_Spawns = 0x200
     BigKeyDoor_Shuffle = 0x400
+    EnemyDropIndicator = 0x800  # if on, enemy drop indicator show, else it doesn't
 
 
 # DATA GOES DOWN HERE

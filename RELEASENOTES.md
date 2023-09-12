@@ -1,5 +1,37 @@
 # New Features
 
+FastROM changes have been included now.
+
+## Enemizer Features
+
+Please see this document for extensive details. [Enemizer in DR](https://docs.google.com/document/d/1iwY7Gy50DR3SsdXVaLFIbx4xRBqo9a-e1_jAl5LMCX8/edit?usp=sharing)
+
+Key points:
+* Enemizer no longer uses a third party program. It is now built-in.
+* New option under Shuffle Enemy Drops: Underworld. Any underworld enemy can drop items.
+* New option under Enemizer tab: Enemy Logic
+
+Please read the entire document above for extensive details about enemizer and enemy drop shuffle systems.
+
+Enemizer main changes:
+* Several sprites added to the pool. Most notable is how enemies behave on shallow water. They work now.
+* Clearing rooms, spawnable chests, and enemy keys drops can now have enemies with specific logic in the room. This logic is controlled by the new Enemy Logic option
+* New system for banning enemies that cause issue is place. If you see an enemy in a place that would cause issue, please report it and it can be banned to never happen again. Initial bans can be found [in the code](source/enemizer/enemy_deny.yaml) for the curious
+* Thieves are always unkillable, but banned from the entire underworld. We can selectively ban them from problematic places in the overworld, and if someone wants to figure out where they could be safe in the underworld, I'll allow them there once the major problems have been banned.
+* THe old "random" and "legacy" options have been discarded for enemy shuffle. Tile room patterns are currently shuffled with enemies.
+
+Underworld drops:
+ 
+* A flashing blue square added to help locate enemies that have remaining drops on the supertile. (Dungeons and caves without a compass get this for free.)
+* Flying enemies, spawned enemies, and enemies with special death routines will not drop items.
+* Pikits do not drop their item if they have eaten a shield.
+* Hovers in swamp waterway do no drop items due to a layer issue that's not been solved.
+* Enemies that are over pits require boomerang or hookshot to collect the item
+* Enemies behind rails require the boomerang (hookshot can sequence break in certain cases)
+* Enemies that spawn on walls do not drop items. (Keese normally don't, but in enemizer these can be valid drops otherwise. The document has a visual guide.)
+
+(Older notes below)
+
 One major change with this update is that big key doors and certain trap doors are no longer guaranteed to be vanilla in Dungeon Door Shuffle modes even if you choose not to shuffle those types. A newer algorithm for putting dungeons together has been written and it will remove big key doors and trap doors when necessary to ensure progress can be made.
 
 Please note that retro features are now independently customizable as referenced below. Selecting Retro mode or World State: Retro will change Bow Mode to Retro (Progressive). Take Anys to Random, and Small Keys to Universal.

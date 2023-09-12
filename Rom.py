@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'f3cc032fa0a1ccf9624d0fb3e9926c3b'
+RANDOMIZERBASEHASH = 'c8b9a36f11cb3cd070f83f31219f5cba'
 
 
 class JsonRom(object):
@@ -573,6 +573,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         dr_flags |= DROptions.Fix_EG
     if world.door_type_mode[player] in ['big', 'all', 'chaos']:
         dr_flags |= DROptions.BigKeyDoor_Shuffle
+    if world.dropshuffle[player] in ['underworld']:
+        dr_flags |= DROptions.EnemyDropIndicator
 
     my_locations = world.get_filled_locations(player)
     valid_locations = [l for l in my_locations if ((l.type == LocationType.Pot and not l.forced_item)

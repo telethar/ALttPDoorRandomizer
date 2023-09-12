@@ -333,6 +333,8 @@ OwGeneralDeny:
   - [0x5e, 4, ["RollerVerticalUp", "Gibo"]]  # forbid that one roller for kiki pod, and the kiki eating Gibo
   - [0x5e, 5, ["Gibo"]]  # kiki eating Gibo
 UwEnemyDrop:
+  - [0x003d, 9, ["HardhatBeetle", "MiniHelmasaur", "Wizzrobe"]]  # kept falling off before killing was possible
+  - [0x003d, 10, ["HardhatBeetle", "MiniHelmasaur", "Wizzrobe"]]  # kept falling off before killing was possible
   - [0x0044, 4, ["HardhatBeetle"]]  # kept falling off before killing was possible
   - [0x0085, 9, ["Babasu"]]  # ran off the edge and didn't return
   - [0x00cc, 5, ["Babasu"]]  # little hard to see and kill appropriately
@@ -385,6 +387,18 @@ UwEnemyDrop:
   - [0x00c6, 6, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
                  "BombGuard", "GreenKnifeGuard"]]
+  # wizzrobe despawn issues - on pots/blocks
+  - [0x004e, 3, ["Wizzrobe"]]
+  - [0x005e, 4, ["Wizzrobe"]]
+  - [0x007e, 1, ["Wizzrobe"]]
+  - [0x007e, 6, ["Wizzrobe"]]
+  - [0x009f, 5, ["Wizzrobe"]]
+  - [0x00af, 0, ["Wizzrobe"]]
+  - [0x00bf, 1, ["Wizzrobe"]]
+  - [0x00ce, 5, ["Wizzrobe"]]
+  - [0x00ce, 6, ["Wizzrobe"]]
+  - [0x00ce, 7, ["Wizzrobe"]]
+  - [0x00ce, 8, ["Wizzrobe"]]
   # the following are all slightly in the wall on spawn
   - [0x0064, 0, ["Leever"]]
   - [0x00e5, 4, ["Leever"]]

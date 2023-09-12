@@ -335,7 +335,7 @@ def init_sprite_requirements():
         .sub_group(2, 0x42).sub_group(3, 0x43),
         SpriteRequirement(EnemySprite.Boulder).affix().sub_group(3, 0x10),
         SpriteRequirement(EnemySprite.Gibo).sub_group(2, 0x28),
-        SpriteRequirement(EnemySprite.Thief).no_drop().sub_group(0, [0xe, 0x15]),
+        SpriteRequirement(EnemySprite.Thief).immune().uw_skip().sub_group(0, [0xe, 0x15]),
         SpriteRequirement(EnemySprite.Medusa).affix(),
         SpriteRequirement(EnemySprite.FourWayShooter).affix(),
         SpriteRequirement(EnemySprite.Pokey).sub_group(2, 0x27),

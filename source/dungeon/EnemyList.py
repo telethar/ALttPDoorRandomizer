@@ -468,7 +468,7 @@ def init_enemy_stats():
         EnemySprite.Boulder: EnemyStats(EnemySprite.Boulder, True, dmg=4),
         EnemySprite.Gibo: EnemyStats(EnemySprite.Gibo, False, True, 0, health=8, dmg=3),  # patrick!
         # could drop if killable thieves is on
-        EnemySprite.Thief: EnemyStats(EnemySprite.Thief, False, False, health=0, dmg=2),
+        EnemySprite.Thief: EnemyStats(EnemySprite.Thief, False, False, health=None, dmg=2),
         EnemySprite.Medusa: EnemyStats(EnemySprite.Medusa, True, ignore=True, dmg=0, dmask=0x10),
         EnemySprite.FourWayShooter: EnemyStats(EnemySprite.FourWayShooter, True, ignore=True, dmg=0),
         EnemySprite.Pokey: EnemyStats(EnemySprite.Pokey, False, True, 7, health=32, dmg=6),
