@@ -237,6 +237,7 @@ UwGeneralDeny:
   - [ 0x00a5, 10, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - Laser Bridge - Red Spear Guard"
   - [ 0x00a8, 1, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Eastern Palace - West Wing - Top - Stalfos 2"
   - [ 0x00a8, 3, [ "RollerVerticalDown", "RollerHorizontalLeft" ] ]  #"Eastern Palace - West Wing - Top - Stalfos 4"
+  - [ 0x00a9, 1, [ "RollerHorizontalRight", "RollerHorizontalLeft" ] ]
   - [ 0x00aa, 4, [ "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Eastern Palace - East Wing - Top - Stalfos 3"
   - [ 0x00aa, 5, [ "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Eastern Palace - East Wing - Top - Popo B 2"
   - [ 0x00ab, 7, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Thieves' Town - Spike Dodge - Spike Trap 6"

@@ -474,9 +474,7 @@
   "shuffleenemies": {
     "choices": [
       "none",
-      "shuffled",
-      "random",
-      "legacy"
+      "shuffled"
     ]
   },
   "enemy_health": {

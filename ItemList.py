@@ -509,7 +509,7 @@ def set_up_take_anys(world, player, skip_adjustments=False):
     else:
         if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Rupees (300)', player))
-        old_man_take_any.shop.add_inventory(0, 'Rupees (300)', 0, 0, create_location=world.shopsanity[player])
+        old_man_take_any.shop.add_inventory(0, 'Rupees (300)', 0, 0, create_location=True)
 
     take_any_type = ShopType.Shop if world.shopsanity[player] else ShopType.TakeAny
     for num in range(4):
@@ -524,7 +524,7 @@ def set_up_take_anys(world, player, skip_adjustments=False):
         take_any.shop = Shop(take_any, room_id, take_any_type, 0xE3, True, not world.shopsanity[player], 33 + num*2)
         world.shops[player].append(take_any.shop)
         take_any.shop.add_inventory(0, 'Blue Potion', 0, 0, create_location=world.shopsanity[player])
-        take_any.shop.add_inventory(1, 'Boss Heart Container', 0, 0, create_location=world.shopsanity[player])
+        take_any.shop.add_inventory(1, 'Boss Heart Container', 0, 0, create_location=True)
         if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Blue Potion', player))
             world.itempool.append(ItemFactory('Boss Heart Container', player))

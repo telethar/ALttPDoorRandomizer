@@ -405,7 +405,7 @@ def randomize_enemies(world, player):
     if world.enemy_shuffle[player] != 'none':
         data_tables = world.data_tables[player]
         custom_uw, custom_ow = {}, {}
-        enemy_map = world.customizer.get_enemies()
+        enemy_map = world.customizer.get_enemies() if world.customizer else None
         if enemy_map and player in enemy_map:
             if 'Underworld' in enemy_map[player]:
                 custom_uw = enemy_map[player]['Underworld']
@@ -430,6 +430,10 @@ def randomize_enemies(world, player):
         for sprite, stat in stats.items():
             if sprite == EnemySprite.Octorok4Way:
                 stat.health = stats[EnemySprite.Octorok].health   # these guys share data
+            elif sprite == EnemySprite.GreenMimic:
+                stat.health = stats[EnemySprite.GreenEyegoreMimic].health  # these share data
+            elif sprite == EnemySprite.RedMimic:
+                stat.health = stats[EnemySprite.RedEyegoreMimic].health  # these share data
             elif sprite not in skip_sprites:
                 if isinstance(stat.health, tuple):
                     stat.health = random.randint(min_h, max_h), random.randint(min_h, max_h)
@@ -441,6 +445,10 @@ def randomize_enemies(world, player):
         for sprite, stat in stats.items():
             if sprite == EnemySprite.Octorok4Way:
                 stat.damage = stats[EnemySprite.Octorok].damage  # these guys share data
+            elif sprite == EnemySprite.GreenMimic:
+                stat.damage = stats[EnemySprite.GreenEyegoreMimic].damage  # these share data
+            elif sprite == EnemySprite.RedMimic:
+                stat.damage = stats[EnemySprite.RedEyegoreMimic].damage  # these share data
             elif sprite not in skip_sprites:
                 if isinstance(stat.damage, tuple):
                     stat.damage = random.randint(0, 8), random.randint(0, 8)
@@ -477,11 +485,12 @@ def write_enemy_shuffle_settings(world, player, rom):
         mimic_room.layer1[40].data[1] = 0x9C
         mimic_room.layer1[45].data[1] = 0xB0  # block adjust 1
         mimic_room.layer1[47].data[1] = 0xD0  # block adjust 2
-    if world.enemy_shuffle[player] == 'random':
-        rom.write_byte(snes_to_pc(0x368100), 1)  # randomize bushes
+
         # random tile pattern
         pattern_name, tile_pattern = random.choice(tile_patterns)
         rom.write_byte(snes_to_pc(0x9BA1D), len(tile_pattern))
         for idx, pair in enumerate(tile_pattern):
             rom.write_byte(snes_to_pc(0x09BA2A + idx), (pair[0] + 3) * 16)
             rom.write_byte(snes_to_pc(0x09BA40 + idx), (pair[1] + 4) * 16)
+    if world.enemy_shuffle[player] == 'random':
+        rom.write_byte(snes_to_pc(0x368100), 1)  # randomize bushes

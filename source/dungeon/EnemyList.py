@@ -283,7 +283,7 @@ class SpriteType(FastEnum):
 def init_enemy_stats():
     stats = {
         EnemySprite.Raven: EnemyStats(EnemySprite.Raven, False, False, (6, 2), health=(4, 8), dmg=(1, 8), dmask=0x80),
-        EnemySprite.Vulture: EnemyStats(EnemySprite.Vulture, False, True, 6, health=6, dmg=3, dmask=0x80),
+        EnemySprite.Vulture: EnemyStats(EnemySprite.Vulture, False, False, 6, health=6, dmg=3, dmask=0x80),
         EnemySprite.CorrectPullSwitch: EnemyStats(EnemySprite.CorrectPullSwitch, True, ignore=True, dmg=2),
         EnemySprite.WrongPullSwitch: EnemyStats(EnemySprite.WrongPullSwitch, True, ignore=True, dmg=2),
         EnemySprite.Octorok: EnemyStats(EnemySprite.Octorok, False, True, 2, health=(2, 4), dmg=(3, 5)),
@@ -301,7 +301,7 @@ def init_enemy_stats():
         EnemySprite.ThievesTownGrate: EnemyStats(EnemySprite.ThievesTownGrate, True, dmg=0, dmask=0x40),
         EnemySprite.AntiFairy: EnemyStats(EnemySprite.AntiFairy, False, False, dmg=4),
         EnemySprite.Wiseman: EnemyStats(EnemySprite.Wiseman, True, dmg=0),
-        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, False, health=2, dmg=2),
+        EnemySprite.Hoarder: EnemyStats(EnemySprite.Hoarder, False, True, health=2, dmg=2),
         EnemySprite.MiniMoldorm: EnemyStats(EnemySprite.MiniMoldorm, False, True, 2, health=3, dmg=3),
         EnemySprite.Poe: EnemyStats(EnemySprite.Poe, False, False, 6, health=8, dmg=5, dmask=0x80),
         EnemySprite.Smithy: EnemyStats(EnemySprite.Smithy, True, dmg=0),
@@ -340,7 +340,7 @@ def init_enemy_stats():
         EnemySprite.BonkItem: EnemyStats(EnemySprite.BonkItem, True, dmg=0),
         EnemySprite.KidInKak: EnemyStats(EnemySprite.KidInKak, True, dmg=0),
         EnemySprite.OldSnitch: EnemyStats(EnemySprite.OldSnitch, True, dmg=0),
-        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, False, health=2, dmg=2),
+        EnemySprite.Hoarder2: EnemyStats(EnemySprite.Hoarder2, False, True, health=2, dmg=2),
         EnemySprite.TutorialGuard: EnemyStats(EnemySprite.TutorialGuard, True, dmg=2),
 
         EnemySprite.LightningGate: EnemyStats(EnemySprite.LightningGate, True, dmg=0),
