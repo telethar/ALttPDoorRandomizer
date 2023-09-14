@@ -544,6 +544,7 @@ class CollectionState(object):
             self.dungeons_to_check = {player: defaultdict(dict) for player in range(1, parent.players + 1)}
         self.dungeon_limits = None
         self.placing_item = None
+        self.test_item_location_pair = None
         # self.trace = None
 
     def update_reachable_regions(self, player):
@@ -875,13 +876,18 @@ class CollectionState(object):
                                        for name, checklist in self.dungeons_to_check[player].items()})
             for player in range(1, self.world.players + 1)}
         ret.placing_item = self.placing_item
+        ret.test_item_location_pair = self.test_item_location_pair
         return ret
 
     def apply_dungeon_exploration(self, rrp, player, dungeon_name, checklist):
         bc = self.blocked_connections[player]
         ec = self.world.exp_cache[player]
         prog_set = self.reduce_prog_items(player, dungeon_name)
-        exp_key = (prog_set, frozenset(checklist))
+        test_key = None
+        if self.test_item_location_pair:
+            item, loc = self.test_item_location_pair
+            test_key = item.name, item.player, loc.name, loc.player
+        exp_key = (prog_set, frozenset(checklist), test_key)
         if dungeon_name in ec and exp_key in ec[dungeon_name]:
             # apply
             common_doors, missing_regions, missing_bc, paths = ec[dungeon_name][exp_key]
@@ -922,7 +928,11 @@ class CollectionState(object):
                                    common_doors, missing_regions, missing_bc, paths):
         ec = self.world.exp_cache[player]
         prog_set = self.reduce_prog_items(player, dungeon_name)
-        exp_key = (prog_set, frozenset(checklist))
+        test_key = None
+        if self.test_item_location_pair:
+            item, loc = self.test_item_location_pair
+            test_key = item.name, item.player, loc.name, loc.player
+        exp_key = (prog_set, frozenset(checklist), test_key)
         ec[dungeon_name][exp_key] = (common_doors, missing_regions, missing_bc, paths)
 
     def reduce_prog_items(self, player, dungeon_name):

@@ -148,6 +148,7 @@ def verify_spot_to_fill(location, item_to_place, max_exp_state, single_player_pl
                 key_pool.remove(item_to_place)
         test_state = max_exp_state.copy()
         test_state.stale[item_to_place.player] = True
+        test_state.test_item_location_pair = item_to_place, location
     else:
         test_state = max_exp_state
     if not single_player_placement or location.player == item_to_place.player:
