@@ -1164,20 +1164,19 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         pool.extend(['Nothing'] * nothings)
 
     start_inventory = [x for x in world.precollected_items if x.player == player]
-    if not start_inventory:
-        if world.logic[player] in ['owglitches', 'nologic']:
-            precollected_items.append('Pegasus Boots')
-            if 'Pegasus Boots' in pool:
-                pool.remove('Pegasus Boots')
-                pool.append('Rupees (20)')
-        if world.swords[player] == 'assured':
-            precollected_items.append('Progressive Sword')
-            if 'Progressive Sword' in pool:
-                pool.remove('Progressive Sword')
-                pool.append('Rupees (50)')
-            elif 'Fighter Sword' in pool:
-                pool.remove('Fighter Sword')
-                pool.append('Rupees (50)')
+    if world.logic[player] in ['owglitches', 'nologic'] and all(x !=' Pegasus Boots' for x in start_inventory):
+        precollected_items.append('Pegasus Boots')
+        if 'Pegasus Boots' in pool:
+            pool.remove('Pegasus Boots')
+            pool.append('Rupees (20)')
+    if world.swords[player] == 'assured' and all(' Sword' not in x for x in start_inventory):
+        precollected_items.append('Progressive Sword')
+        if 'Progressive Sword' in pool:
+            pool.remove('Progressive Sword')
+            pool.append('Rupees (50)')
+        elif 'Fighter Sword' in pool:
+            pool.remove('Fighter Sword')
+            pool.append('Rupees (50)')
 
     return (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms)
 

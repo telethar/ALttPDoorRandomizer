@@ -3095,7 +3095,7 @@ class Settings(object):
         args.intensity[p] = "random" if intensity == 0 else intensity
 
         args.shuffletavern[p] = True if settings[4] & 0x80 else False
-        args.dropshuffle[p] = r(drop_shuffle_mode)[settings[4] & 0x70]
+        args.dropshuffle[p] = r(drop_shuffle_mode)[(settings[4] & 0x70) >> 4]
         args.pottery[p] = r(pottery_mode)[settings[4] & 0x0F]
 
         args.dungeon_counters[p] = r(counter_mode)[(settings[5] & 0x6) >> 1]

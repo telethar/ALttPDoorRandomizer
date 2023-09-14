@@ -358,6 +358,10 @@ def filter_choices(options, room_id, sprite_idx, denials):
     return [x for x in options if key not in denials or x.sprite not in denials[key]]
 
 
+def filter_water_phobic(options, sprite):
+    return [x for x in options if not x.water_phobic or not sprite.water]
+
+
 def randomize_overworld_enemies(data_tables, custom_ow):
     ow_candidates, ow_sheets, all_sheets = find_candidate_sprites(data_tables, range(1, 64), False)
     areas_to_randomize = [0, 2, 3, 5, 7, 0xA, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
@@ -382,6 +386,7 @@ def randomize_overworld_enemies(data_tables, custom_ow):
                     sprite.kind = sprite_translation[custom_ow[area_id][i]]
                 else:
                     candidate_sprites = filter_choices(candidate_sprites, area_id, i, data_tables.ow_enemy_denials)
+                    candidate_sprites = filter_water_phobic(candidate_sprites, sprite)
                     weight = [data_tables.ow_weights[r.sprite] for r in candidate_sprites]
                     chosen = random.choices(candidate_sprites, weight, k=1)[0]
                     sprite.kind = chosen.sprite

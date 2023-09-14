@@ -34,8 +34,10 @@ UwGeneralDeny:
   - [ 0x0021, 4, [ "RollerVerticalDown", "RollerVerticalUp" ] ]  #"Sewers - Dark U - Rat 3"
   - [ 0x0024, 6, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0026, 1, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Swamp Palace - Big Spoon - Red Bari 1"
-  - [ 0x0026, 8, [ "AntiFairyCircle", "Bumper" ] ]  #"Swamp Palace - Big Spoon - Red Bari 3"
-  - [ 0x0026, 9, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - Big Spoon - Kyameron"
+  - [ 0x0026, 8, [ "AntiFairyCircle", "Bumper", "Statue" ] ]  #"Swamp Palace - Big Spoon - Red Bari 3"
+  - [ 0x0026, 9, [ "RollerHorizontalRight", "Statue" ] ]  #"Swamp Palace - Big Spoon - Kyameron"
+  - [ 0x0026, 10, [ "Statue" ] ]  # multiple push statues in this room can cause issues
+  - [ 0x0026, 11, [ "Statue" ] ]  # multiple push statues in this room can cause issues
   - [ 0x0027, 0, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalLeft", "FirebarCW" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 1"
   - [ 0x0027, 1, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 2"
   - [ 0x0027, 2, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 3"
@@ -350,43 +352,43 @@ UwEnemyDrop:
   - [0x010C, 2, ["StalfosKnight", "Geldman", "Blob"]]
   - [0x010C, 3, ["StalfosKnight", "Geldman", "Blob"]]
 # the following are not allowed at certain pits
-# because they despawned or clipped away or immediately fell
+# because they despawned or clipped away or immediately fell, etc
   - [0x007f, 0, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x007f, 1, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x007f, 2, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x007f, 3, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00b5, 0, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00b5, 1, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00b5, 2, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00c6, 2, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00c6, 3, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00c6, 4, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   - [0x00c6, 5, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard", "Bumper"]]
+                 "BombGuard", "GreenKnifeGuard", "Bumper", "Stal"]]
   - [0x00c6, 6, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
-                 "BombGuard", "GreenKnifeGuard"]]
+                 "BombGuard", "GreenKnifeGuard", "Stal"]]
   # wizzrobe despawn issues - on pots/blocks
   - [0x004e, 3, ["Wizzrobe"]]
   - [0x005e, 4, ["Wizzrobe"]]

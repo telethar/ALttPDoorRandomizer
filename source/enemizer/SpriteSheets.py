@@ -20,6 +20,7 @@ class SpriteRequirement:
         self.ow_valid = True
         self.uw_valid = True
         self.can_randomize = True
+        self.water_phobic = False
 
         self.groups = []
         self.sub_groups = defaultdict(list)
@@ -75,6 +76,10 @@ class SpriteRequirement:
 
     def immerse(self):
         self.water_only = True
+        return self
+
+    def aquaphobia(self):
+        self.water_phobic = True
         return self
 
     def skip(self):
@@ -290,7 +295,7 @@ def init_sprite_requirements():
         .allow(WallmasterValidRooms),
         SpriteRequirement(EnemySprite.StalfosKnight).sub_group(1, 0x20).exclude({0x10c}),
         SpriteRequirement(EnemySprite.HelmasaurKing).exalt().sub_group(2, 0x3a).sub_group(3, 0x3e),
-        SpriteRequirement(EnemySprite.Bumper).immune().sub_group(3, [0x52, 0x53]),
+        SpriteRequirement(EnemySprite.Bumper).immune().aquaphobia().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeLeft).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeRight).affix().sub_group(3, [0x52, 0x53]),
         SpriteRequirement(EnemySprite.LaserEyeTop).affix().sub_group(3, [0x52, 0x53]),

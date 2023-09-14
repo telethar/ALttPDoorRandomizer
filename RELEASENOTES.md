@@ -141,6 +141,14 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.1v
+  * Fixed bugs with item duping and disappearing drops
+  * Fixed multiworld crash
+  * Fixed assured sword missing when using start inventory (via GUI/CLI)
+  * Forbid extra statues in Swamp Push Statue room
+  * Forbid bumpers on OW waterr
+  * Forbid Stal on pits
+  * Text fix on sprite author (thanks Synack)
 * 1.2.0.19u
   * Added min/max for triforce pool, goal, and difference for CLI and Customizer. (Thanks Catobat)
   * Fixed a bug with dungeon generation
