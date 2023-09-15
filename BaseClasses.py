@@ -569,6 +569,9 @@ class CollectionState(object):
             unresolved_events = self._do_not_flood_the_keys(unresolved_events)
             if len(unresolved_events) == 0:
                 self.check_key_doors_in_dungeons(rrp, player)
+                # check for new blocked connections
+                queue = deque(self.blocked_connections[player].items())
+                self.traverse_world(queue, rrp, bc, player)
 
     def traverse_world(self, queue, rrp, bc, player):
         # run BFS on all connections, and keep track of those blocked by missing items
@@ -576,6 +579,9 @@ class CollectionState(object):
             connection, crystal_state = queue.popleft()
             new_region = connection.connected_region
             if not self.should_visit(new_region, rrp, crystal_state, player):
+                # dungeon as potential connector to another region
+                if self.dungeon_limits and not self.possibly_connected_to_dungeon(new_region, player):
+                    bc[connection] = None
                 if not new_region or not self.dungeon_limits or self.possibly_connected_to_dungeon(new_region, player):
                     bc.pop(connection, None)
             elif connection.can_reach(self):
