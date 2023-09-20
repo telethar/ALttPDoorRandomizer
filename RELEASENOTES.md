@@ -141,12 +141,30 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.2v
+  * Fix for multiworld received keys not counting correctly
+  * Fix for multiworld lamps incorrect graphics
+  * Fix for collection rate decreasing on item "pickup"
+  * Fix for pendants as prizes counting as items
+  * Fix for castle barrier gfx in rain state
+  * Enemizer fixes and bans:
+    * Fixed a generation issue where ChainChomp placement would cause a failure. (Invincible enemies banned in Sprial Cave for early game traversal for now)
+    * Skull Pot Prison should not be blocked by "impassable" enemies
+    * Bumpers banned in Ice Hookshot room
+    * Fixed issue in GT Spike Crystal room
+    * Fixed blockage issues in TT Ambush and Compass rooms
+    * Forbid Bumper in Fairy Ascension cave; needed to clip into wall weirdly to pass.
+  * Enemy Drop bans
+    * Forbid Stals in many places where they cannot be woken up. Behind rails and on top of blocks, for example.
+    * A couple minor wizzrobes bans because of despawns.
+    * Enemies over pits and on conveyors near pits have been issued standard bans for falling enemies. Mimics join the ranks here as they don't work well on pits or on conveyors.
+    * Mimics banned where conveyors touch walls and could clip out unintentionally
 * 1.3.0.1v
   * Fixed bugs with item duping and disappearing drops
   * Fixed multiworld crash
   * Fixed assured sword missing when using start inventory (via GUI/CLI)
   * Forbid extra statues in Swamp Push Statue room
-  * Forbid bumpers on OW waterr
+  * Forbid bumpers on OW water
   * Forbid Stal on pits
   * Text fix on sprite author (thanks Synack)
 * 1.2.0.19u
