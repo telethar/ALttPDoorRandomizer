@@ -86,25 +86,25 @@ def roll_settings(weights):
     ret.door_type_mode = get_choice('door_type_mode')
     ret.trap_door_mode = get_choice('trap_door_mode')
     ret.key_logic_algorithm = get_choice('key_logic_algorithm')
-    ret.decoupledoors = get_choice('decoupledoors') == 'on'
-    ret.experimental = get_choice('experimental') == 'on'
-    ret.collection_rate = get_choice('collection_rate') == 'on'
+    ret.decoupledoors = get_choice('decoupledoors')
+    ret.experimental = get_choice('experimental')
+    ret.collection_rate = get_choice('collection_rate')
 
     ret.dungeon_counters = get_choice('dungeon_counters') if 'dungeon_counters' in weights else 'default'
     if ret.dungeon_counters == 'default':
         ret.dungeon_counters = 'pickup' if ret.door_shuffle != 'vanilla' or ret.compassshuffle == 'on' else 'off'
 
-    ret.shufflelinks = get_choice('shufflelinks') == 'on'
-    ret.shuffletavern = get_choice('shuffletavern') == 'on'
-    ret.pseudoboots = get_choice('pseudoboots') == 'on'
-    ret.shopsanity = get_choice('shopsanity') == 'on'
-    keydropshuffle = get_choice('keydropshuffle') == 'on'
+    ret.shufflelinks = get_choice('shufflelinks')
+    ret.shuffletavern = get_choice('shuffletavern')
+    ret.pseudoboots = get_choice('pseudoboots')
+    ret.shopsanity = get_choice('shopsanity')
+    keydropshuffle = get_choice('keydropshuffle')
     ret.dropshuffle = get_choice('dropshuffle') if 'dropshuffle' in weights else 'none'
     ret.dropshuffle = 'keys' if ret.dropshuffle == 'none' and keydropshuffle else ret.dropshuffle
     ret.pottery = get_choice('pottery') if 'pottery' in weights else 'none'
     ret.pottery = 'keys' if ret.pottery == 'none' and keydropshuffle else ret.pottery
-    ret.colorizepots = get_choice_default('colorizepots', default='on') == 'on'
-    ret.shufflepots = get_choice('pot_shuffle') == 'on'
+    ret.colorizepots = get_choice_default('colorizepots', default=True)
+    ret.shufflepots = get_choice('pot_shuffle')
     ret.mixed_travel = get_choice('mixed_travel') if 'mixed_travel' in weights else 'prevent'
     ret.standardize_palettes = (get_choice('standardize_palettes') if 'standardize_palettes' in weights
                                 else 'standardize')
@@ -139,12 +139,12 @@ def roll_settings(weights):
     if ret.mode == 'retro':
         ret.mode = 'open'
         ret.retro = True
-    ret.retro = get_choice('retro') == 'on'  # this overrides world_state if used
+    ret.retro = get_choice('retro')  # this overrides world_state if used
     ret.take_any = get_choice_default('take_any', default='none')
 
-    ret.bombbag = get_choice('bombbag') == 'on'
+    ret.bombbag = get_choice('bombbag')
 
-    ret.hints = get_choice('hints') == 'on'
+    ret.hints = get_choice('hints')
 
     swords = get_choice('weapons')
     if swords is not None:
@@ -197,15 +197,15 @@ def roll_settings(weights):
     if 'rom' in weights:
         romweights = weights['rom']
         ret.sprite = get_choice('sprite', romweights)
-        ret.disablemusic = get_choice('disablemusic', romweights) == 'on'
-        ret.quickswap = get_choice('quickswap', romweights) == 'on'
-        ret.reduce_flashing = get_choice('reduce_flashing', romweights) == 'on'
+        ret.disablemusic = get_choice('disablemusic', romweights)
+        ret.quickswap = get_choice('quickswap', romweights)
+        ret.reduce_flashing = get_choice('reduce_flashing', romweights)
         ret.fastmenu = get_choice('menuspeed', romweights)
         ret.heartcolor = get_choice('heartcolor', romweights)
         ret.heartbeep = get_choice('heartbeep', romweights)
         ret.ow_palettes = get_choice('ow_palettes', romweights)
         ret.uw_palettes = get_choice('uw_palettes', romweights)
-        ret.shuffle_sfx = get_choice('shuffle_sfx', romweights) == 'on'
-        ret.msu_resume = get_choice('msu_resume', romweights) == 'on'
+        ret.shuffle_sfx = get_choice('shuffle_sfx', romweights)
+        ret.msu_resume = get_choice('msu_resume', romweights)
 
     return ret

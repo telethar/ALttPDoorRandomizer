@@ -141,6 +141,15 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.3v
+  * Faeries now part of the enemy shuffle pool. Take note, this will increase enemy drop locations to include fairy pools both in dungeons and in caves.
+  * Enemy drop indicator (blue square) now works in caves based on entrance used
+  * Fixes:
+    * Collection rate counter is properly hidden in mystery seeds
+    * Sprite limit lowered where possible to allow for lifting of pots
+    * Hovers in Swamp Waterway properly do not drop items anymore
+    * Lots more bans (thanks to jsd in particular but also thanks to all the reports)
+    * Minor issue with customizer/mystery files not allowing "true" for booleans
 * 1.3.0.2v
   * Fix for multiworld received keys not counting correctly
   * Fix for multiworld lamps incorrect graphics
