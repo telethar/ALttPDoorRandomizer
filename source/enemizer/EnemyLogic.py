@@ -223,7 +223,7 @@ special_rules_check = {
     'Swamp Waterway': None,
     'Hera Back': [5, 6],
     'GT Petting Zoo': [5, 8, 9, 11],
-    'Mimic Cave': [3, 4],
+    'Mimic Cave': [4, 5, 6, 7],
     'Ice Hookshot Ledge': None,
     'TR Hub Ledges': [3, 4, 5, 6, 7],
     'TR Dark Ride': [1, 2, 3],
@@ -233,7 +233,8 @@ special_rules_check = {
     'Old Man House': [1, 3],
     'Old Man House Back': [4, 5, 6],
     'Death Mountain Return Cave (left)': None,
-    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7]  # 2, 5, 6 are considered embedded
+    'Death Mountain Return Cave (right)': [1, 2, 3, 6, 7],  # 2, 5, 6 are considered embedded
+    'Hookshot Fairy': [0, 1, 2, 3]
 }
 
 
@@ -244,6 +245,11 @@ def special_rules_for_region(world, player, region_name, location, original_rule
                        medallion_rule(world, player, 'Bombos', 1))
     elif region_name in ['Hera Back', 'GT Petting Zoo', 'Mimic Cave']:
         enemy_number = int(location.name.split('#')[1])
+        if region_name == 'Mimic Cave':
+            if enemy_number in [4, 5]:  # these are behind hammer blocks potentially
+                return and_rule(original_rule, has('Hammer', player))
+            elif enemy_number in special_rules_check[region_name]:   # these are behind rails
+                return and_rule(original_rule, has_boomerang(player))
         if enemy_number in special_rules_check[region_name]:
             return and_rule(original_rule, has_boomerang(player))
         else:
@@ -255,7 +261,8 @@ def special_rules_for_region(world, player, region_name, location, original_rule
         else:
             return original_rule
     elif region_name in ['Old Man Cave (West)', 'Old Man Cave (East)', 'Old Man House Back', 'Old Man House',
-                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)']:
+                         'Death Mountain Return Cave (left)', 'Death Mountain Return Cave (right)',
+                         'Hookshot Fairy']:
         enemy_number = int(location.name.split('#')[1])
         if region_name == 'Death Mountain Return Cave (left)':
             if enemy_number in [1, 5]:

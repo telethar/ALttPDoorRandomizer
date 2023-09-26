@@ -43,7 +43,7 @@ SheetChoices:
   - slots: [0]
     assignments:
       0: 0x1f
-    weight: 7  # Sparks, Firebars, FloatingSkull, RedBari, BlueBari, Firesnake, Stalfos
+    weight: 7  # Sparks, Firebars, FloatingSkull, RedBari, BlueBari, Firesnake, Stalfos, ~~YellowStalfos~~
   - slots: [0]
     assignments:
       0: 0x2f

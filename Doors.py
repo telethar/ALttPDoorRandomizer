@@ -410,6 +410,8 @@ def create_doors(world, player):
         create_door(player, 'PoD Map Balcony Drop Down', Lgcl),
         create_door(player, 'PoD Map Balcony to Ranged Crystal', Lgcl),
         create_door(player, 'PoD Map Balcony Ranged Crystal Exit', Lgcl),
+        create_door(player, 'PoD Map Balcony ES', Intr).dir(Ea, 0x2b, Bot, High).pos(0),
+        create_door(player, 'PoD Fairy Pool WS', Intr).dir(We, 0x2b, Bot, High).pos(0),
         create_door(player, 'PoD Map Balcony WS', Nrml).dir(We, 0x2b, Bot, High).pos(1),
         create_door(player, 'PoD Map Balcony South Stairs', StrS).dir(So, 0x2b, Left, High),
         create_door(player, 'PoD Conveyor North Stairs', StrS).dir(No, 0x3b, Left, High),

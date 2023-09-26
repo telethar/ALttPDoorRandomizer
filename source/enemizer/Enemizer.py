@@ -273,7 +273,7 @@ sprite_limiter = {
 
 
 def exceeds_sprite_limit(limit, sprite):
-    return sprite_limiter[sprite.sprite]-1+limit > 16 if sprite.sprite in sprite_limiter else False
+    return sprite_limiter[sprite.sprite]-1+limit > 15 if sprite.sprite in sprite_limiter else False
 
 
 def randomize_underworld_rooms(data_tables, world, player, custom_uw):
@@ -282,7 +282,7 @@ def randomize_underworld_rooms(data_tables, world, player, custom_uw):
     specific = setup_specific_requirements(data_tables)
     uw_candidates, uw_sheets, all_sheets = find_candidate_sprites(data_tables, range(65, 124))
     for room_id in range(0, 0x128):
-        if room_id in {0, 1, 3, 6, 7, 0xd, 0x14, 0x1c, 0x20, 0x29, 0x30, 0x33,
+        if room_id in {0, 1, 3, 6, 7, 0xd, 0x14, 0x20, 0x29, 0x30, 0x33,
                        0x4d, 0x5a, 0x90, 0xa4, 0xac, 0xc8, 0xde}:
             continue
         current_sprites = data_tables.uw_enemy_table.room_map[room_id]

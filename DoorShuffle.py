@@ -4351,6 +4351,7 @@ default_door_connections = [
     ('PoD Arena Crystals E', 'PoD Sexy Statue W'),
     ('PoD Mimics 1 NW', 'PoD Conveyor SW'),
     ('PoD Map Balcony WS', 'PoD Arena Ledge ES'),
+    ('PoD Map Balcony ES', 'PoD Fairy Pool WS'),
     ('PoD Falling Bridge WN', 'PoD Dark Maze EN'),
     ('PoD Dark Maze E', 'PoD Big Chest Balcony W'),
     ('PoD Sexy Statue NW', 'PoD Mimics 2 SW'),
