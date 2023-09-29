@@ -63,6 +63,7 @@ class CustomSettings(object):
             args.suppress_rom = get_setting(meta['suppress_rom'], args.suppress_rom)
             args.names = get_setting(meta['names'], args.names)
             args.race = get_setting(meta['race'], args.race)
+            args.notes = get_setting(meta['user_notes'], args.notes)
         self.player_range = range(1, args.multi + 1)
         if 'settings' in self.file_source:
             for p in self.player_range:
@@ -114,6 +115,7 @@ class CustomSettings(object):
                 args.trap_door_mode[p] = get_setting(settings['trap_door_mode'], args.trap_door_mode[p])
                 args.key_logic_algorithm[p] = get_setting(settings['key_logic_algorithm'], args.key_logic_algorithm[p])
                 args.decoupledoors[p] = get_setting(settings['decoupledoors'], args.decoupledoors[p])
+                args.door_self_loops[p] = get_setting(settings['door_self_loops'], args.door_self_loops[p])
                 args.dungeon_counters[p] = get_setting(settings['dungeon_counters'], args.dungeon_counters[p])
                 args.crystals_gt[p] = get_setting(settings['crystals_gt'], args.crystals_gt[p])
                 args.crystals_ganon[p] = get_setting(settings['crystals_ganon'], args.crystals_ganon[p])
@@ -221,14 +223,15 @@ class CustomSettings(object):
             return self.file_source['enemies']
         return None
 
-    def create_from_world(self, world, race):
+    def create_from_world(self, world, settings):
         self.player_range = range(1, world.players + 1)
         settings_dict, meta_dict = {}, {}
         self.world_rep['meta'] = meta_dict
         meta_dict['players'] = world.players
         meta_dict['algorithm'] = world.algorithm
         meta_dict['seed'] = world.seed
-        meta_dict['race'] = race
+        meta_dict['race'] = settings.race
+        meta_dict['user_notes'] = settings.notes
         self.world_rep['settings'] = settings_dict
         for p in self.player_range:
             settings_dict[p] = {}
@@ -239,6 +242,7 @@ class CustomSettings(object):
             settings_dict[p]['trap_door_mode'] = world.trap_door_mode[p]
             settings_dict[p]['key_logic_algorithm'] = world.key_logic_algorithm[p]
             settings_dict[p]['decoupledoors'] = world.decoupledoors[p]
+            settings_dict[p]['door_self_loops'] = world.door_self_loops[p]
             settings_dict[p]['logic'] = world.logic[p]
             settings_dict[p]['mode'] = world.mode[p]
             settings_dict[p]['swords'] = world.swords[p]

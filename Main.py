@@ -119,6 +119,7 @@ def main(args, seed=None, fish=None):
     world.trap_door_mode = args.trap_door_mode.copy()
     world.key_logic_algorithm = args.key_logic_algorithm.copy()
     world.decoupledoors = args.decoupledoors.copy()
+    world.door_self_loops = args.door_self_loops.copy()
     world.experimental = args.experimental.copy()
     world.dungeon_counters = args.dungeon_counters.copy()
     world.fish = fish
@@ -176,7 +177,7 @@ def main(args, seed=None, fish=None):
             world.player_names[player].append(name)
     logger.info('')
     world.settings = CustomSettings()
-    world.settings.create_from_world(world, args.race)
+    world.settings.create_from_world(world, args)
 
     outfilebase = f'DR_{args.outputname if args.outputname else world.seed}'
 
@@ -475,6 +476,7 @@ def copy_world(world):
     ret.beemizer = world.beemizer.copy()
     ret.intensity = world.intensity.copy()
     ret.decoupledoors = world.decoupledoors.copy()
+    ret.door_self_loops = world.door_self_loops.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
     ret.dropshuffle = world.dropshuffle.copy()

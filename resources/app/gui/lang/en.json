@@ -58,10 +58,12 @@
     "randomizer.dungeon.smallkeyshuffle.universal": "Universal",
     "randomizer.dungeon.bigkeyshuffle": "Big Keys",
     "randomizer.dungeon.decoupledoors": "Decouple Doors",
+    "randomizer.dungeon.door_self_loops": "Allow Self-Looping Spiral Stairs",
 
     "randomizer.dungeon.dungeondoorshuffle": "Dungeon Door Shuffle",
     "randomizer.dungeon.dungeondoorshuffle.vanilla": "Vanilla",
     "randomizer.dungeon.dungeondoorshuffle.basic": "Basic",
+    "randomizer.dungeon.dungeondoorshuffle.paired": "Paired",
     "randomizer.dungeon.dungeondoorshuffle.partitioned": "Partitioned",
     "randomizer.dungeon.dungeondoorshuffle.crossed": "Crossed",
 

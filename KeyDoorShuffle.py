@@ -459,7 +459,7 @@ def refine_placement_rules(key_layout, max_ctr):
     changed = True
     while changed:
         changed = False
-        rules_to_remove = []
+        rules_to_remove = {}
         for rule in key_logic.placement_rules:
             if rule.check_locations_w_bk:
                 rule.check_locations_w_bk.difference_update(key_logic.sm_restricted)
@@ -468,7 +468,7 @@ def refine_placement_rules(key_layout, max_ctr):
                     rule.check_locations_w_bk.difference_update(key_onlys)
                     rule.needed_keys_w_bk -= len(key_onlys)
                 if rule.needed_keys_w_bk == 0:
-                    rules_to_remove.append(rule)
+                    rules_to_remove[rule] = None
                 # todo: evaluate this usage
                 # if rule.bk_relevant and len(rule.check_locations_w_bk) == rule.needed_keys_w_bk + 1:
                 #     new_restricted = set(max_ctr.free_locations) - rule.check_locations_w_bk
@@ -481,13 +481,13 @@ def refine_placement_rules(key_layout, max_ctr):
                 #         changed = True
                 if rule.needed_keys_w_bk > key_layout.max_chests or len(rule.check_locations_w_bk) < rule.needed_keys_w_bk:
                     logging.getLogger('').warning('Invalid rule - what went wrong here??')
-                    rules_to_remove.append(rule)
+                    rules_to_remove[rule] = None
                     changed = True
             if rule.bk_conditional_set is not None:
                 rule.bk_conditional_set.difference_update(key_logic.bk_restricted)
                 rule.bk_conditional_set.difference_update(max_ctr.key_only_locations)
                 if len(rule.bk_conditional_set) == 0:
-                    rules_to_remove.append(rule)
+                    rules_to_remove[rule] = None
             if rule.check_locations_wo_bk:
                 rule.check_locations_wo_bk.difference_update(key_logic.sm_restricted)
                 key_onlys = rule.check_locations_wo_bk.intersection(max_ctr.key_only_locations)
@@ -495,11 +495,11 @@ def refine_placement_rules(key_layout, max_ctr):
                     rule.check_locations_wo_bk.difference_update(key_onlys)
                     rule.needed_keys_wo_bk -= len(key_onlys)
                 if rule.needed_keys_wo_bk == 0:
-                    rules_to_remove.append(rule)
+                    rules_to_remove[rule] = None
                 if len(rule.check_locations_wo_bk) < rule.needed_keys_wo_bk or rule.needed_keys_wo_bk > key_layout.max_chests:
                     if not rule.prize_relevance and len(rule.bk_conditional_set) > 0:
                         key_logic.bk_restricted.update(rule.bk_conditional_set)
-                        rules_to_remove.append(rule)
+                        rules_to_remove[rule] = None
                         changed = True  # impossible for bk to be here, I think
         for rule_a, rule_b in itertools.combinations([x for x in key_logic.placement_rules if x not in rules_to_remove], 2):
             if rule_b.bk_conditional_set and rule_a.check_locations_w_bk:
@@ -511,25 +511,25 @@ def refine_placement_rules(key_layout, max_ctr):
                 common_locs = len(rule_b.check_locations_w_bk & rule_a.check_locations_wo_bk)
                 if (common_needed - common_locs) * 2 > key_layout.max_chests:
                     key_logic.bk_restricted.update(rule_a.bk_conditional_set)
-                    rules_to_remove.append(rule_a)
+                    rules_to_remove[rule_a] = None
                     changed = True
                     break
         equivalent_rules = []
         for rule in key_logic.placement_rules:
             for rule2 in key_logic.placement_rules:
-                if rule != rule2:
+                if rule != rule2 and rule not in rules_to_remove and rule2 not in rules_to_remove:
                     if rule.check_locations_w_bk and rule2.check_locations_w_bk:
                         if rule2.check_locations_w_bk == rule.check_locations_w_bk and rule2.needed_keys_w_bk > rule.needed_keys_w_bk:
-                            rules_to_remove.append(rule)
+                            rules_to_remove[rule] = None
                         elif rule2.needed_keys_w_bk == rule.needed_keys_w_bk and rule2.check_locations_w_bk < rule.check_locations_w_bk:
-                            rules_to_remove.append(rule)
+                            rules_to_remove[rule] = None
                         elif rule2.check_locations_w_bk == rule.check_locations_w_bk and rule2.needed_keys_w_bk == rule.needed_keys_w_bk:
                             equivalent_rules.append((rule, rule2))
                     if rule.check_locations_wo_bk and rule2.check_locations_wo_bk and rule.bk_conditional_set == rule2.bk_conditional_set:
                         if rule2.check_locations_wo_bk == rule.check_locations_wo_bk and rule2.needed_keys_wo_bk > rule.needed_keys_wo_bk:
-                            rules_to_remove.append(rule)
+                            rules_to_remove[rule] = None
                         elif rule2.needed_keys_wo_bk == rule.needed_keys_wo_bk and rule2.check_locations_wo_bk < rule.check_locations_wo_bk:
-                            rules_to_remove.append(rule)
+                            rules_to_remove[rule] = None
                         elif rule2.check_locations_wo_bk == rule.check_locations_wo_bk and rule2.needed_keys_wo_bk == rule.needed_keys_wo_bk:
                             equivalent_rules.append((rule, rule2))
         if len(rules_to_remove) > 0:

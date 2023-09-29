@@ -3,6 +3,7 @@ meta:
   players: 1
   seed: 41  # note to self: seed 42 had an interesting Swamp Palace problem
   names: Lonk
+  notes: "Some notes specified by the user"
 settings:
   1:
     door_shuffle: basic

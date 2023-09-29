@@ -141,7 +141,7 @@ def parse_cli(argv, no_defaults=False):
                          'heartbeep', 'remote_items', 'shopsanity', 'dropshuffle', 'pottery', 'keydropshuffle',
                          'mixed_travel', 'standardize_palettes', 'code', 'reduce_flashing', 'shuffle_sfx',
                          'msu_resume', 'collection_rate', 'colorizepots', 'decoupledoors', 'door_type_mode',
-                         'trap_door_mode', 'key_logic_algorithm', 'any_enemy_logic']:
+                         'trap_door_mode', 'key_logic_algorithm', 'door_self_loops', 'any_enemy_logic']:
                 value = getattr(defaults, name) if getattr(playerargs, name) is None else getattr(playerargs, name)
                 if player == 1:
                     setattr(ret, name, {1: value})
@@ -218,6 +218,7 @@ def parse_settings():
         'trap_door_mode': 'optional',
         'key_logic_algorithm': 'default',
         'decoupledoors': False,
+        'door_self_loops': False,
         'experimental': False,
         'dungeon_counters': 'default',
         'mixed_travel': 'prevent',
@@ -346,7 +347,8 @@ def parse_settings():
         "outputpath": os.path.join("."),
         "saveonexit": "ask",
         "outputname": "",
-        "startinventoryarray": {}
+        "startinventoryarray": {},
+        "notes": ""
     }
 
     # read saved settings file if it exists and set these
