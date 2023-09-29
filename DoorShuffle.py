@@ -2425,15 +2425,15 @@ def change_door_to_trap(d, world, player):
 trap_door_exceptions = {
     'PoD Mimics 2 SW', 'TR Twin Pokeys NW', 'Thieves Blocked Entry SW', 'Hyrule Dungeon Armory Interior Key Door N',
     'Desert Compass Key Door WN', 'TR Tile Room SE', 'Mire Cross SW', 'Tower Circle of Pots ES',
-    'Eastern Single Eyegore ES', 'Eastern Duo Eyegores SE', 'Swamp Push Statue S',
+    'PoD Mimics 1 SW', 'Eastern Single Eyegore ES', 'Eastern Duo Eyegores SE', 'Swamp Push Statue S',
     'Skull 2 East Lobby WS', 'GT Hope Room WN', 'Eastern Courtyard Ledge S', 'Ice Lobby SE', 'GT Speed Torch WN',
     'Ice Switch Room ES', 'Ice Switch Room NE', 'Skull Torch Room WS', 'GT Speed Torch NE', 'GT Speed Torch WS',
     'GT Torch Cross WN', 'Mire Tile Room SW', 'Mire Tile Room ES', 'TR Torches WN', 'PoD Lobby N', 'PoD Middle Cage S',
-    'Ice Bomb Jump NW', 'GT Hidden Spikes SE', 'Ice Tall Hint EN', 'GT Conveyor Cross EN', 'Eastern Pot Switch WN',
+    'Ice Bomb Jump NW', 'GT Hidden Spikes SE', 'Ice Tall Hint EN', 'Ice Tall Hint SE', 'Eastern Pot Switch WN',
     'Thieves Conveyor Maze WN', 'Thieves Conveyor Maze SW', 'Eastern Dark Square Key Door WN', 'Eastern Lobby NW',
     'Eastern Lobby NE', 'Ice Cross Bottom SE', 'Desert Back Lobby S', 'Desert West S',
     'Desert West Lobby ES', 'Mire Hidden Shooters SE', 'Mire Hidden Shooters ES', 'Mire Hidden Shooters WS',
-    'Tower Dark Pits EN', 'Tower Dark Maze ES', 'TR Tongue Pull WS',
+    'Tower Dark Pits EN', 'Tower Dark Maze ES', 'TR Tongue Pull WS', 'GT Conveyor Cross EN',
 }
 
 

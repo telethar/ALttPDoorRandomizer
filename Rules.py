@@ -2107,17 +2107,16 @@ bunny_impassible_doors = {
     'GT Validation Block Path'
 }
 
-# todo: for trap_door_exceptions: 'Ice Tall Hint SE' (not excepted)
-# todo: 'Eastern Courtyard Ledge S', 'PoD Lobby N', 'Ice Tall Hint SE', 'TR Tongue Pull WS'
 
 # these should generally match trap_door_exceptions unless the switch is in the open/push block
 bunny_impassible_if_trapped = {
     'Hyrule Dungeon Armory Interior Key Door N', 'Eastern Pot Switch WN', 'Eastern Lobby NW',
-    'Eastern Lobby NE', 'Desert Compass Key Door WN', 'Tower Circle of Pots ES', 'PoD Mimics 2 SW',
-    'PoD Middle Cage S', 'Swamp Push Statue S', 'Skull 2 East Lobby WS', 'Skull Torch Room WS',
-    'Thieves Conveyor Maze WN', 'Thieves Conveyor Maze SW', 'Thieves Blocked Entry SW', 'Ice Bomb Jump NW',
-    'Ice Tall Hint EN', 'Ice Switch Room ES', 'Ice Switch Room NE', 'Mire Cross SW',
-    'Mire Tile Room SW', 'Mire Tile Room ES', 'TR Twin Pokeys NW', 'TR Torches WN', 'GT Hope Room WN',
+    'Eastern Lobby NE', 'Eastern Courtyard Ledge S',  'Desert Compass Key Door WN', 'Tower Circle of Pots ES',
+    'PoD Mimics 1 SW', 'PoD Mimics 2 SW', 'PoD Middle Cage S', 'PoD Lobby N', 'Swamp Push Statue S',
+    'Skull 2 East Lobby WS', 'Skull Torch Room WS', 'Thieves Conveyor Maze WN', 'Thieves Conveyor Maze SW',
+    'Thieves Blocked Entry SW', 'Ice Bomb Jump NW',
+    'Ice Tall Hint EN', 'Ice Tall Hint SE', 'Ice Switch Room ES', 'Ice Switch Room NE', 'Mire Cross SW',
+    'Mire Tile Room SW', 'Mire Tile Room ES', 'TR Tongue Pull WS', 'TR Twin Pokeys NW', 'TR Torches WN', 'GT Hope Room WN',
     'GT Speed Torch NE', 'GT Speed Torch WS', 'GT Torch Cross WN', 'GT Hidden Spikes SE', 'GT Conveyor Cross EN',
     'GT Speed Torch WN', 'Ice Lobby SE'
 }
