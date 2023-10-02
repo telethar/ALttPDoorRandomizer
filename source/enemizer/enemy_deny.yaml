@@ -94,9 +94,9 @@ UwGeneralDeny:
   - [ 0x0045, 4, [ "Wizzrobe" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0045, 7, [ "AntiFairyCircle", "Bumper" ] ]  #"Thieves' Town - Cells - Blue Zazak 4"
   - [ 0x0045, 8, [ "RollerHorizontalRight" ] ]  #"Thieves' Town - Cells - Zol"
-  - [ 0x0046, 0, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Big O Top - Hover 1"
-  - [ 0x0046, 2, [ "RollerVerticalDown", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Big O Top - Hover 2"
-  - [ 0x0046, 4, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Big O Top - Hover 3"
+  - [ 0x0046, 0, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper", "Statue" ] ]  #"Swamp Palace - Big O Top - Hover 1"
+  - [ 0x0046, 2, [ "RollerVerticalDown", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper", "Statue" ] ]  #"Swamp Palace - Big O Top - Hover 2"
+  - [ 0x0046, 4, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper", "Statue" ] ]  #"Swamp Palace - Big O Top - Hover 3"
   - [ 0x0049, 5, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Bari Pits - Gibdo 2"
   - [ 0x0049, 7, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Bari Pits - Gibdo 4"
   - [ 0x0049, 8, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Bari Pits - Gibdo 5"
@@ -178,7 +178,7 @@ UwGeneralDeny:
   - [ 0x007d, 8, [ "RollerVerticalUp", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Ganon's Tower - The Zoo - Red Bari"
 # todo - consider adding firesnake to 0-3: has a hard time moving, could block hookshots for quite a while
   - [ 0x007f, 0, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Big Spikes - Red Bari 1"
-  - [ 0x007f, 1, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Big Spikes - Red Bari 2"
+  - [ 0x007f, 1, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper", "ArmosStatue" ] ]  #"Ice Palace - Big Spikes - Red Bari 2"
   - [ 0x007f, 2, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Big Spikes - Red Bari 3"
   - [ 0x007f, 3, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Big Spikes - Red Bari 4"
   - [ 0x007f, 4, [ "RollerVerticalDown" ] ]  #"Ice Palace - Big Spikes - Big Spike Trap 1"
@@ -293,7 +293,11 @@ UwGeneralDeny:
   - [ 0x00ce, 4, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
   - [ 0x00ce, 5, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
   - [ 0x00ce, 6, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
+  - [ 0x00d0, 0, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
+  - [ 0x00d0, 4, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
+  - [ 0x00d0, 5, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
   - [ 0x00ce, 7, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
+  - [ 0x00d0, 9, [ "AntiFairyCircle", "BigSpike", "Bumper"]]
   - [ 0x00d0, 6, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Dark Maze - Blue Guard 2
   - [ 0x00d2, 8, [ "RollerVerticalDown", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Mire 2 - Popo BL"
   - [ 0x00d5, 4, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Turtle Rock - Eye Bridge - Hardhat Beetle"
@@ -350,10 +354,9 @@ OwGeneralDeny:
   - [0x5e, 4, ["RollerVerticalUp", "Gibo"]]  # forbid that one roller for kiki pod, and the kiki eating Gibo
   - [0x5e, 5, ["Gibo"]]  # kiki eating Gibo
 UwEnemyDrop:
-  - [0x0044, 4, ["HardhatBeetle"]]  # kept falling off before killing was possible
   - [0x0085, 9, ["Babasu"]]  # ran off the edge and didn't return
   - [0x00cc, 5, ["Babasu"]]  # little hard to see and kill appropriately
-# the following are behind rails
+# the following are behind rails or otherwise unactivate-able
   - [0x0077, 4, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]  # can't activate here
   - [0x0077, 5, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]
   - [0x007D, 4, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
@@ -362,6 +365,8 @@ UwEnemyDrop:
   - [0x007D, 10, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
   - [0x008D, 10, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
   - [0x008D, 12, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
+  - [0x00b0, 7, ["StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
+  - [0x00b0, 8, ["StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
   - [0x010C, 6, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]
   - [0x010C, 7, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]
 # the following are not allowed at certain pits (or on conveyors near pits)
@@ -372,7 +377,22 @@ UwEnemyDrop:
   - [0x003d, 10, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                   "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
                   "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic", "StalfosKnight", "Geldman", "Blob"]]
+  - [0x0044, 0, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
+                 "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
+                 "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
+  - [0x0044, 1, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
+                 "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
+                 "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
+  - [0x0044, 2, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
+                 "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
+                 "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
+  - [0x0044, 3, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
+                 "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
+                 "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
   - [0x0044, 4, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
+                 "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
+                 "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
+  - [0x0044, 5, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
                  "BluesainBolt", "UsainBolt", "BlueArcher", "GreenBushGuard", "RedJavelinGuard", "RedBushGuard",
                  "BombGuard", "GreenKnifeGuard", "Stal", "GreenMimic", "RedMimic"]]
   - [0x0044, 6, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard",
@@ -490,6 +510,11 @@ UwEnemyDrop:
                  "BlueArcher", "RedJavelinGuard", "GreenKnifeGuard", "GreenMimic", "RedMimic"]]
   - [0x00ce, 8, ["Wizzrobe", "Leever", "BlueGuard", "GreenGuard", "RedSpearGuard", "BluesainBolt", "UsainBolt",
                  "BlueArcher", "RedJavelinGuard", "GreenKnifeGuard", "GreenMimic", "RedMimic"]]
+  - [0x00d0, 0, ["Wizzrobe"]]
+  - [0x00d0, 2, ["Wizzrobe"]]
+  - [0x00d0, 4, ["Wizzrobe"]]
+  - [0x00d0, 5, ["Wizzrobe"]]
+  - [0x00d0, 9, ["Wizzrobe"]]
   - [0x00d5, 4, ["Wizzrobe"]]
   - [0x00df, 1, ["Wizzrobe"]] # slightly on wall
   - [0x00e7, 4, ["Wizzrobe"]] # slightly on wall
