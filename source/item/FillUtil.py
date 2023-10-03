@@ -8,6 +8,7 @@ from DoorShuffle import validate_vanilla_reservation
 from Dungeons import dungeon_table
 from Items import item_table, ItemFactory
 from PotShuffle import vanilla_pots
+from Regions import valid_pot_location
 
 
 class ItemPoolConfig(object):
@@ -184,7 +185,53 @@ def create_item_pool_config(world):
             config.vanilla_item_to_locations[player]['Bombs (10)'].append(ten_bomb_home)
             config.vanilla_location_to_items[player][ten_bomb_home].remove('Bombs (3)')
             config.vanilla_location_to_items[player][ten_bomb_home].append('Bombs (10)')
-        # todo: location expansions
+            if world.dropshuffle[player] in {True, 'keys', 'underworld'}:
+                for item, location_list in keydrop_vanilla_mapping.items():
+                    config.vanilla_item_to_locations[player][item].extend(location_list)
+                    for loc in location_list:
+                        config.vanilla_location_to_items[player][loc].append(item)
+            # todo: underworld dropshuffle
+            if world.pottery[player] not in {'none', 'cave'}:
+                for item, location_list in potkeys_vanilla_mapping.items():
+                    config.vanilla_item_to_locations[player][item].extend(location_list)
+                    for loc in location_list:
+                        config.vanilla_location_to_items[player][loc].append(item)
+            if world.pottery[player] != 'none':
+                for super_tile, pot_list in vanilla_pots.items():
+                    for pot_index, pot in enumerate(pot_list):
+                        if (pot.item not in [PotItem.Key, PotItem.Hole, PotItem.Switch]
+                           and valid_pot_location(pot, world.pot_pool[player], world, player)):
+                            descriptor = 'Large Block' if pot.flags & PotFlags.Block else f'Pot #{pot_index+1}'
+                            loc_name = f'{pot.room} {descriptor}'
+                            item = pot_items[pot.item]
+                            location = world.get_location(loc_name, player)
+                            config.vanilla_item_to_locations[player][item].append(location.name)
+                            config.vanilla_location_to_items[player][location.name].append(item)
+            if world.shopsanity[player]:
+                for item, location_list in shop_vanilla_mapping.items():
+                    config.vanilla_item_to_locations[player][item].extend(location_list)
+                    for loc in location_list:
+                        config.vanilla_location_to_items[player][loc].append(item)
+                if world.take_any[player]:
+                    for item, location_list in retro_vanilla_mapping.items():
+                        config.vanilla_item_to_locations[player][item].extend(location_list)
+                        for loc in location_list:
+                            config.vanilla_location_to_items[player][loc].append(item)
+            # todo: universal keys - better
+            if world.keyshuffle[player] == 'universal':
+                universal_key_locations = []
+                for item, location_list in config.vanilla_item_to_locations[player].items():
+                    if item.startswith('Small Key'):
+                        universal_key_locations.extend(location_list)
+                        location_list.clear()
+                # todo: small heart and blue shield locations
+                for loc in universal_key_locations:
+                    old_list = config.vanilla_location_to_items[player][loc]
+                    new_list = [i for i in old_list if not i.startswith('Small Key')]
+                    config.vanilla_location_to_items[player][loc] = new_list
+                    config.vanilla_location_to_items[player][loc].append('Small Key (Universal)')
+                config.vanilla_item_to_locations[player]['Small Key (Universal)'].extend(universal_key_locations)
+            # todo: retro bow and Quivers
 
 
 def district_item_pool_config(world):
