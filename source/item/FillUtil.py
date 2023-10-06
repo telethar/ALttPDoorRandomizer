@@ -1,5 +1,6 @@
 import RaceRandom as random
 import logging
+import re
 from collections import defaultdict
 
 from source.item.District import resolve_districts
@@ -375,22 +376,76 @@ def massage_item_pool(world):
             world.itempool.append(ItemFactory('Rupees (5)', random.randint(1, world.players)))
     if world.algorithm == 'swapped':
         pool_counts = defaultdict(lambda: defaultdict(list))
+        dungeon_items = defaultdict(lambda: defaultdict(set))
         for item in world.itempool:
             pool_counts[item.player][item.get_name()].append(item)
+            dungeon = item.dungeon
+            if dungeon is not None:
+                dungeon_items[item.player][dungeon].add(item.get_name())
         for dungeon in world.dungeons:
             for item in dungeon.all_items:
                 if item.is_inside_dungeon_item(world):
                     pool_counts[item.player][item.get_name()].append(item)
+                    dungeon = item.dungeon
+                    if dungeon is not None:
+                        dungeon_items[item.player][dungeon].add(item.get_name())
         for player, pool_counter in pool_counts.items():
             item_map = world.item_pool_config.vanilla_item_to_locations[player]
             location_map = world.item_pool_config.vanilla_location_to_items[player]
-            free_locations = {loc.name for loc in world.get_unfilled_locations(player) if not loc.crystal}
-            needs_map = {}
+            player_locations = [loc for loc in world.get_unfilled_locations(player) if not loc.crystal]
+            if world.doorShuffle[player] not in {'vanilla', 'basic'}:
+                dungeon_location_map = defaultdict(set)
+                dungeon_options_map = defaultdict(set)
+                dungeon_counts = defaultdict(int)
+                for location in player_locations:
+                    if location.parent_region.dungeon:
+                        dungeon_options_map[location.parent_region.dungeon.name].add(location.name)
+                for dungeon, item_set in dungeon_items[player].items():
+                    for item in sorted(list(item_set)):
+                        locations = [world.get_location(x, player) for x in item_map[item]]
+                        for location in locations:
+                            if location.parent_region.dungeon:
+                                dungeon_location_map[location.parent_region.dungeon.name].add(location.name)
+                        item_map[item].clear()
+                        dungeon_counts[dungeon] += len(pool_counter[item])
+                for dungeon, location_list in dungeon_location_map.items():
+                    needed = dungeon_counts[dungeon] - len(location_list)
+                    if needed > 0:
+                        potential_set = dungeon_options_map[dungeon] - location_list
+                        free_list = determine_free_set(potential_set, location_map, item_map)
+                        if len(free_list) < needed:
+                            free_list = sorted(list(potential_set))
+                        chosen_locations = random.sample(free_list, k=needed)
+                        location_list.update(chosen_locations)
+                        for choice in chosen_locations:
+                            for old_item in location_map[choice]:
+                                item_map[old_item].remove(choice)
+                    for loc in location_list:
+                        location_map[loc] = sorted(list(dungeon_items[player][dungeon]))
+                for dungeon, item_set in dungeon_items[player].items():
+                    for item in item_set:
+                        item_map[item] = sorted(list(dungeon_location_map[dungeon]))
+            free_locations = {x.name for x in player_locations}
+            needs_map, dungeon_match = {}, re.compile('\(.+\)$')
+            skip_set = set()
             for item_name, item_list in pool_counter.items():
-                filtered_list = [x for x in item_map[item_name] if x in free_locations]
-                extra_locations = len(filtered_list) - len(item_list)
+                if item_name in skip_set:
+                    continue
+                if world.doorShuffle[player] not in {'vanilla', 'basic'} and dungeon_match.search(item_name):
+                    combined = {x for loc in item_map[item_name] for x in location_map.get(loc, [])}
+                    all_items = sorted(list(combined))
+                    total_items = sum(len(pool_counter[i]) for i in all_items)
+                else:
+                    all_items = [item_name]
+                    total_items = len(item_list)
+                skip_set.update(all_items)
+                filtered = set()
+                for item_name_sub in all_items:
+                    filtered.update([x for x in item_map[item_name_sub] if x in free_locations])
+                filtered_list = sorted(list(filtered))
+                extra_locations = len(filtered_list) - total_items
                 if extra_locations > 0:  # then we have free locations to distribute
-                    chosen = random.choices(filtered_list, k=extra_locations)
+                    chosen = random.sample(filtered_list, k=extra_locations)
                     for x in chosen:
                         location_map[x].remove(item_name)  # relinquish claim
                     item_map[item_name] = [x for x in filtered_list if x not in chosen]
@@ -399,7 +454,7 @@ def massage_item_pool(world):
                 free_locations.difference_update(item_map[item_name])
             # simple assertion here to catch some edge cases
             assert len(free_locations) == sum(x for x in needs_map.values())
-            free_locations = list(free_locations)
+            free_locations = sorted(list(free_locations))
             random.shuffle(free_locations)
             unused_idx = 0
             for item_name, amount_needed in needs_map.items():
@@ -409,6 +464,16 @@ def massage_item_pool(world):
                     location_map[loc] = [x for x in location_map[loc] if x in pool_counter]
                     location_map[loc].append(item_name)
                 unused_idx += amount_needed
+
+
+def determine_free_set(potential_set, location_map, item_map):
+    free_list = []
+    for loc in potential_set:
+        if all(s not in loc for s in {'- Boss', '- Prize', '- Big Chest'}):
+            items = location_map[loc]
+            if len(items) > 1 or len(item_map[items[0]]) > 1:
+                free_list.append(loc)
+    return sorted(free_list)
 
 
 def replace_trash_item(item_pool, replacement):

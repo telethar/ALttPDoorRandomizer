@@ -71,7 +71,7 @@ def fill_dungeons_restrictive(world, shuffled_locations):
     random.shuffle(shuffled_locations)
     fill(all_state_base, others, None)
 
-
+# todo: this thing sucks
 def get_items_to_place(placements, itempool):
     items_to_place = []
     for item in placements:
@@ -196,6 +196,8 @@ def do_swapped_placement(item_to_place, spot_to_fill, base_state, reset_state, c
             need_new_state = pool == itempool or base_state.is_item_progressive(real_swap_item)
             pool.remove(real_swap_item)
             break
+    if real_swap_item is None:
+        raise Exception(f'Could not find any of these {items_to_swap} that came from {spot_to_fill.name}')
     original_locations = [loc for x in config.vanilla_item_to_locations[item_to_place.player][item_to_place.get_name()]
                           if (loc := world.get_location(x, item_to_place.player)).item is None]
     if len(original_locations) == 0:
