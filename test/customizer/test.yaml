@@ -1,0 +1,38 @@
+meta:
+  players: 1
+  seed: 96
+settings:
+  1:
+#    mode: standard
+
+    boss_shuffle: random
+    dropshuffle: underworld
+    enemy_shuffle: shuffled
+    door_shuffle: crossed
+    intensity: 3
+
+    dungeon_counters: 'on'
+doors:
+  1:
+    lobbies:
+      Hyrule Castle South: GT Bob's Room SE
+bosses:
+  1:
+    Ganons Tower (bottom): Armos Knights
+
+
+#    keyshuffle: wild
+#placements:
+#  1:
+#    'Hera Basement Cage Enemy #4': Small Key (Palace of Darkness)
+#    'Hera Basement Cage Enemy #9': Small Key (Tower of Hera)
+#    'Hera Basement Cage Enemy #11': Fire Rod
+#    Tower of Hera - Basement Cage: Small Key (Turtle Rock)
+#start_inventory:
+#  1:
+#    - Lamp
+#    - Progressive Sword
+#    - Ocarina (Activated)
+#    - Hookshot
+
+

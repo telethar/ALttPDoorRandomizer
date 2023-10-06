@@ -142,6 +142,7 @@ UwGeneralDeny:
   - [ 0x0065, 2, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Thieves' Town - Attic Window - Rat 3"
   - [ 0x0066, 0, [ "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Waterfall Room - Hover 1"
   - [ 0x0067, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Blue Bari 1"
+  - [ 0x0067, 2, ["Bumper"]]  #"Skull Woods - Firebar Pits - Blue Bari 2"
   - [ 0x0067, 3, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 1"
   - [ 0x0067, 5, [ "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 3"
   - [ 0x0067, 6, [ "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 4"
@@ -293,10 +294,13 @@ UwGeneralDeny:
   - [ 0x00ce, 4, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
   - [ 0x00ce, 5, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
   - [ 0x00ce, 6, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
+  - [ 0x00ce, 7, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
   - [ 0x00d0, 0, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
+  - [ 0x00d0, 1, [ "AntiFairyCircle", "BigSpike", "Bumper"]]
   - [ 0x00d0, 4, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
   - [ 0x00d0, 5, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
-  - [ 0x00ce, 7, [ "RollerVerticalDown", "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Beamos", "Bumper", "FirebarCW", "FirebarCCW"]]
+  - [ 0x00d0, 6, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
+  - [ 0x00d0, 7, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
   - [ 0x00d0, 9, [ "AntiFairyCircle", "BigSpike", "Bumper"]]
   - [ 0x00d0, 6, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Dark Maze - Blue Guard 2
   - [ 0x00d2, 8, [ "RollerVerticalDown", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Misery Mire - Mire 2 - Popo BL"
@@ -347,14 +351,18 @@ UwGeneralDeny:
   - [ 0x0107, 2, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
 OwGeneralDeny:
   - [0x1e, 3, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]  # forbid a beamos here
-  - [0x40, 0, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
-  - [0x40, 7, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
-  - [0x40, 13, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
-  - [0x40, 14, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
+  - [0x40, 0, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
+  - [0x40, 7, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
+  - [0x40, 13, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
+  - [0x40, 14, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
   - [0x5e, 4, ["RollerVerticalUp", "Gibo"]]  # forbid that one roller for kiki pod, and the kiki eating Gibo
   - [0x5e, 5, ["Gibo"]]  # kiki eating Gibo
 UwEnemyDrop:
   - [0x0085, 9, ["Babasu"]]  # ran off the edge and didn't return
+  - [0x00cb, 3, ["Zoro"]]  # layer issues
+  - [0x00cb, 5, ["Zoro"]]  # layer issues
+  - [0x00cb, 9, ["Zoro"]]  # layer issues
+  - [0x00cb, 10, ["Zoro"]]  # layer issues
   - [0x00cc, 5, ["Babasu"]]  # little hard to see and kill appropriately
 # the following are behind rails or otherwise unactivate-able
   - [0x0077, 4, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]  # can't activate here

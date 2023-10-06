@@ -1211,7 +1211,7 @@ std_kill_rooms = {
     'Eastern Single Eyegore':
         (['Eastern Single Eyegore NE'], ['Eastern Single Eyegore ES'], 0xd8, [8, 9, 10]),
     'Eastern Duo Eyegores':
-        (['Eastern Duo Eyegores NE'], ['Eastern Duo Eyegores S'], 0xd8, [0, 1, 2, 3, 4, 5, 6, 7]),
+        (['Eastern Duo Eyegores NE'], ['Eastern Duo Eyegores SE'], 0xd8, [0, 1, 2, 3, 4, 5, 6, 7]),
     'Desert Compass Room':  # Three popos (beamos)
         (['Desert Compass NE'], ['Desert Compass Key Door WN'], 0x085, [2, 3, 4, 5]),
     'Desert Four Statues':  # Four popos (beamos)

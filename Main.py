@@ -37,7 +37,7 @@ from source.enemizer.DamageTables import DamageTable
 from source.enemizer.Enemizer import randomize_enemies
 from source.rom.DataTables import init_data_tables
 
-version_number = '1.3.0.3'
+version_number = '1.3.0.4'
 version_branch = '-v'
 __version__ = f'{version_number}{version_branch}'
 
@@ -213,9 +213,9 @@ def main(args, seed=None, fish=None):
         create_dungeons(world, player)
         world.damage_table[player] = DamageTable()
         world.data_tables[player] = init_data_tables(world, player)
+        place_bosses(world, player)
         randomize_enemies(world, player)
         adjust_locations(world, player)
-        place_bosses(world, player)
 
     if world.customizer and world.customizer.get_start_inventory():
         for p, inv_list in world.customizer.get_start_inventory().items():

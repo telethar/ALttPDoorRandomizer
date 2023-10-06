@@ -110,7 +110,8 @@ def add_kholdstare_to_list(sprite_list, room_id):
 
 
 def add_vitreous_to_list(sprite_list, room_id):
-    sprite_list.insert(0, create_sprite(room_id, EnemySprite.Vitreous, 0x00, 0, 0x07, 0x05))
+    sprite_list.clear()  # vitreous does not play nice which other sprites on the tile, just kill them
+    sprite_list.append(create_sprite(room_id, EnemySprite.Vitreous, 0x00, 0, 0x07, 0x05))
 
 
 def add_trinexx_to_list(sprite_list, room_id):
@@ -119,14 +120,8 @@ def add_trinexx_to_list(sprite_list, room_id):
     sprite_list.insert(2, create_sprite(room_id, EnemySprite.TrinexxIceHead, 0x00, 0, 0x07, 0x05))
 
 
-def boss_writes(world, player, rom):
-    rom.write_byte(snes_to_pc(0x368107), 1)  # centralize drops
-    eye_number = random.randint(0, 8)  # randomize moldorm eyes (var + 1)
-    rom.write_byte(snes_to_pc(0x368102), eye_number)  # enemizer flag
-    rom.write_byte(snes_to_pc(0x1DDBB3), eye_number)  # loop variable
+def boss_adjust(world, player):
     data_tables = world.data_tables[player]
-    arrghus_can_swim = True
-    water_tiles_on = True
     for dungeon in world.get_dungeons(player):
         for level, boss in dungeon.bosses.items():
             if not boss or boss.name in ['Agahnim', 'Agahnim2']:
@@ -143,6 +138,22 @@ def boss_writes(world, player, rom):
                 if len(sprite_list) > 16:
                     del sprite_list[16:]
                 data_tables.room_headers[room_id].sprite_sheet = required_boss_sheets[sprite_type]
+
+
+def boss_writes(world, player, rom):
+    rom.write_byte(snes_to_pc(0x368107), 1)  # centralize drops
+    eye_number = random.randint(0, 8)  # randomize moldorm eyes (var + 1)
+    rom.write_byte(snes_to_pc(0x368102), eye_number)  # enemizer flag
+    rom.write_byte(snes_to_pc(0x1DDBB3), eye_number)  # loop variable
+    data_tables = world.data_tables[player]
+    arrghus_can_swim = True
+    water_tiles_on = True
+    for dungeon in world.get_dungeons(player):
+        for level, boss in dungeon.bosses.items():
+            if not boss or boss.name in ['Agahnim', 'Agahnim2']:
+                continue
+            room_data = get_dungeon_boss_room(dungeon.name, level)
+            room_id = room_data[0]
             # room changes
             if boss.name == 'Arrghus' and (dungeon.name != 'Swamp Palace' or level is not None):
                 rom.write_byte(snes_to_pc(0x0DB6BE), 0)   # arrghus can stand on ground

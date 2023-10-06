@@ -13,6 +13,7 @@ import RaceRandom as random
 from BaseClasses import Location, LocationType, RegionType
 from EntranceShuffle import door_addresses
 from Items import ItemFactory
+from PotShuffle import key_drop_special
 from Utils import snes_to_pc, pc_to_snes, int16_as_bytes
 
 
@@ -750,10 +751,10 @@ def init_vanilla_sprites():
     create_sprite(0x001c, EnemySprite.ArmosKnight, 0x00, 0, 0x07, 0x08)
     create_sprite(0x001c, EnemySprite.ArmosKnight, 0x00, 0, 0x04, 0x08)
     create_sprite(0x001c, 0x19, SpriteType.Overlord, 0, 0x07, 0x08)
-    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x07, 0x07, 'GT Fairy Abyss')
-    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x08, 0x07, 'GT Fairy Abyss')
-    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x07, 0x08, 'GT Fairy Abyss')
-    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x08, 0x08, 'GT Fairy Abyss')
+    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x07, 0x07, 'GT Fairy Abyss', fix=True)
+    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x08, 0x07, 'GT Fairy Abyss', fix=True)
+    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x07, 0x08, 'GT Fairy Abyss', fix=True)
+    create_sprite(0x001c, EnemySprite.Faerie, 0x00, 0, 0x08, 0x08, 'GT Fairy Abyss', fix=True)
     create_sprite(0x001e, EnemySprite.CrystalSwitch, 0x00, 0, 0x1a, 0x09)
     create_sprite(0x001e, EnemySprite.RedBari, 0x00, 0, 0x16, 0x05, 'Ice Bomb Drop - Top')
     create_sprite(0x001e, EnemySprite.RedBari, 0x00, 0, 0x19, 0x05, 'Ice Bomb Drop - Top')
@@ -2199,7 +2200,10 @@ def setup_enemy_dungeon_tables(world, player):
         if super_tile in splittable_supertiles:
             idx_adj = 0
             for index, sprite in enumerate(enemy_list):
-                loc_name = f'{sprite.region} Enemy #{index+1}'
+                if (super_tile, index) in key_drop_special:
+                    loc_name = key_drop_special[(super_tile, index)]
+                else:
+                    loc_name = f'{sprite.region} Enemy #{index+1}'
                 loc = world.get_location_unsafe(loc_name, player)
                 if sprite.sub_type == 0x07:  # overlord
                     idx_adj += 1

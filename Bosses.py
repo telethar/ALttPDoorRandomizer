@@ -2,6 +2,7 @@ import logging
 import RaceRandom as random
 
 from BaseClasses import Boss, FillError
+from source.enemizer.Bossmizer import boss_adjust
 
 
 def BossFactory(boss, player):
@@ -238,6 +239,7 @@ def place_bosses(world, player):
                 raise FillError('Could not place boss for location %s' % loc_text)
 
             place_boss(boss, level, loc, loc_text, world, player)
+    boss_adjust(world, player)
 
 
 def place_boss(boss, level, loc, loc_text, world, player):

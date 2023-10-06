@@ -141,6 +141,11 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.4v
+  * Enemizer: The bunny beam near Lanmo 2 and the 4 fairies near Ice Armos are not shuffled anymore. This is due to how bosses shuffle works and since it cannot be guaranteed to work within the current system, they are vanilla. (Vitreous still overwrites the fairies and Arrghus only lets two spawn, etc.)
+  * Dropshuffle: Pokey 1 has been fixed to drop his item
+  * Mystery/Customizer: true/false and on/off in yaml files should behave the same.
+  * More enemy bans as have been reported
 * 1.3.0.3v
   * Faeries now part of the enemy shuffle pool. Take note, this will increase enemy drop locations to include fairy pools both in dungeons and in caves.
   * Enemy drop indicator (blue square) now works in caves based on entrance used

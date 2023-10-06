@@ -1034,6 +1034,8 @@ key_drop_data = {
     'Ganons Tower - Mini Helmasaur Key Drop': ['Drop', (0x09DDC4, 0x3D, 2), "dropped atop Ganon's Tower", 'Small Key (Ganons Tower)']
 }
 
+key_drop_special = {(data[1][1], data[1][2]): name for name, data in key_drop_data.items() if data[0] == 'Drop'}
+
 
 class PotSecretTable(object):
     def __init__(self):
