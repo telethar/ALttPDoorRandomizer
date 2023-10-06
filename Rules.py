@@ -1375,12 +1375,12 @@ def find_rules_for_zelda_delivery(world, player):
                 if not rule(blank_state):
                     rule_list.append(rule)
                     next_path.append(ext.name)
-                if connect.name == 'Sanctuary':
+                if connect.name == 'Hyrule Castle Throne Room':
                     return rule_list, next_path
                 else:
                     visited.add(connect)
                     queue.append((connect, rule_list, next_path))
-    raise Exception('No path to Sanctuary found')
+    raise Exception('No path to Throne Room found')
 
 
 def set_big_bomb_rules(world, player):
