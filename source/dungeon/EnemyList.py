@@ -181,7 +181,7 @@ class EnemySprite(FastEnum):
     Gibdo = 0x8b
     Arrghus = 0x8c
     Arrghi = 0x8d
-    Terrorpin = 0x8e 
+    Terrorpin = 0x8e
     Blob = 0x8f    
     Wallmaster = 0x90
     StalfosKnight = 0x91

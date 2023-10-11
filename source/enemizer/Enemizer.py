@@ -268,6 +268,21 @@ def get_randomize_able_sprites_ow(area_id, data_tables):
 sprite_limiter = {
     EnemySprite.Debirando: 2,
     EnemySprite.DebirandoPit: 2,
+    EnemySprite.Hinox: 2,
+    EnemySprite.Sluggula: 2,
+    EnemySprite.BombGuard: 2,
+    EnemySprite.Beamos: 2,
+    EnemySprite.Gibo: 2,
+    # EnemySprite.CannonTrooper: 2, ??
+    EnemySprite.WallCannonHorzTop: 2,
+    EnemySprite.WallCannonHorzBottom: 2,
+    EnemySprite.WallCannonVertLeft: 2,
+    EnemySprite.WallCannonVertRight: 2,
+    EnemySprite.BlueArcher: 2,
+    EnemySprite.BlueGuard: 2,
+    EnemySprite.GreenGuard: 2,
+    EnemySprite.RedSpearGuard: 2,
+    EnemySprite.RedJavelinGuard: 2,
     EnemySprite.AntiFairyCircle: 4
 }
 
@@ -300,7 +315,8 @@ def randomize_underworld_rooms(data_tables, world, player, custom_uw):
                 data_tables.room_headers[room_id].sprite_sheet = chosen_sheet.id - 0x40
                 candidate_sprites = get_possible_enemy_sprites(room_id, chosen_sheet, uw_candidates, data_tables)
                 randomized = True
-                wallmaster_chosen = room_id in {0x0039, 0x0049, 0x0056, 0x0057, 0x0068, 0x008d}
+                # wallmaster in hera basement throws off hera basement key code
+                wallmaster_chosen = room_id in {0x0039, 0x0049, 0x0056, 0x0057, 0x0068, 0x0087, 0x008d}
                 for i, sprite in randomizeable_sprites.items():
                     if room_id in custom_uw and i in custom_uw[room_id]:
                         sprite.kind = sprite_translation[custom_uw[room_id][i]]

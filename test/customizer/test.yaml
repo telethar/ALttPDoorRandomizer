@@ -1,12 +1,12 @@
 meta:
   players: 1
-  seed: 96
+  seed: 94
 settings:
   1:
 #    mode: standard
 
-    boss_shuffle: random
-    dropshuffle: underworld
+#    boss_shuffle: random
+#    dropshuffle: underworld
     enemy_shuffle: shuffled
     door_shuffle: crossed
     intensity: 3
@@ -15,10 +15,12 @@ settings:
 doors:
   1:
     lobbies:
-      Hyrule Castle South: GT Bob's Room SE
-bosses:
+      Hyrule Castle South: Hyrule Castle Lobby S
+    doors:
+      Hyrule Castle Lobby W: Desert Sandworm Corner E Edge
+placements:
   1:
-    Ganons Tower (bottom): Armos Knights
+    Desert Palace - Torch: Small Key (Escape)
 
 
 #    keyshuffle: wild
@@ -28,9 +30,9 @@ bosses:
 #    'Hera Basement Cage Enemy #9': Small Key (Tower of Hera)
 #    'Hera Basement Cage Enemy #11': Fire Rod
 #    Tower of Hera - Basement Cage: Small Key (Turtle Rock)
-#start_inventory:
-#  1:
-#    - Lamp
+start_inventory:
+  1:
+    - Pegasus Boots
 #    - Progressive Sword
 #    - Ocarina (Activated)
 #    - Hookshot

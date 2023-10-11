@@ -141,6 +141,12 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.5v
+  * Hud/Map Counter: Collecting a keys for this dungeon of a bonk torch no longer increments the counter twice and immediately updates the hud.  
+  * Enemizer: Hera basement item counting twice fixed by banning wallmasters on the tile.
+  * Enemizer: Statues banned offscreen for pull switches 
+  * Enemizer: Several sprite producing enemies have been limited on crowded tiles. Offenders: Hinox, Sluggula, Bomb Guard, Beamos, Gibo, Wall Cannons, Probe using Guards. Others do not spam as many projectiles.
+  * Enemizer: More enemy bans (mostly Wizzrobes near walls where they won't spawn, couple missed firebar spots)
 * 1.3.0.4v
   * Enemizer: The bunny beam near Lanmo 2 and the 4 fairies near Ice Armos are not shuffled anymore. This is due to how bosses shuffle works and since it cannot be guaranteed to work within the current system, they are vanilla. (Vitreous still overwrites the fairies and Arrghus only lets two spawn, etc.)
   * Dropshuffle: Pokey 1 has been fixed to drop his item
