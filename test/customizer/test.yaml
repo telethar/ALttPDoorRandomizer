@@ -6,7 +6,7 @@ settings:
 #    mode: standard
 
 #    boss_shuffle: random
-#    dropshuffle: underworld
+    dropshuffle: underworld
     enemy_shuffle: shuffled
     door_shuffle: crossed
     intensity: 3
@@ -15,12 +15,15 @@ settings:
 doors:
   1:
     lobbies:
-      Hyrule Castle South: Hyrule Castle Lobby S
+      Hyrule Castle South: GT Lobby S
     doors:
-      Hyrule Castle Lobby W: Desert Sandworm Corner E Edge
-placements:
+      GT Lobby Left Down Stairs: GT Quad Pot Up Stairs
+bosses:
   1:
-    Desert Palace - Torch: Small Key (Escape)
+    Ganons Tower (middle): Arrghus
+#placements:
+#  1:
+#    Desert Palace - Torch: Small Key (Escape)
 
 
 #    keyshuffle: wild

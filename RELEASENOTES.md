@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.6v
+  * Enemizer: Arrghus at Lanmo 2 no longer prevents pot pickups
+  * Various enemy bans
 * 1.3.0.5v
   * Hud/Map Counter: Collecting a keys for this dungeon of a bonk torch no longer increments the counter twice and immediately updates the hud.  
   * Enemizer: Hera basement item counting twice fixed by banning wallmasters on the tile.

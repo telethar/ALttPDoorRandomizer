@@ -135,8 +135,8 @@ def boss_adjust(world, player):
                 del sprite_list[:data]
                 add_func, sprite_type = boss_addition_table[boss.name]
                 add_func(sprite_list, room_id)
-                if len(sprite_list) > 16:
-                    del sprite_list[16:]
+                if len(sprite_list) > 15:
+                    del sprite_list[15:]
                 data_tables.room_headers[room_id].sprite_sheet = required_boss_sheets[sprite_type]
 
 
