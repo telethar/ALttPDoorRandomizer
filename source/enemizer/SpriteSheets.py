@@ -229,7 +229,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.BombGuard).sub_group(0, 0x46).sub_group(1, 0x49),
         SpriteRequirement(EnemySprite.GreenKnifeGuard).sub_group(1, 0x49).sub_group(2, 0x13),
         SpriteRequirement(EnemySprite.Geldman).sub_group(2, 0x12).exclude({0x10c}),
-        SpriteRequirement(EnemySprite.Toppo).no_drop().sub_group(3, 0x11),
+        SpriteRequirement(EnemySprite.Toppo).immune().sub_group(3, 0x11),
         SpriteRequirement(EnemySprite.Popo).sub_group(1, 0x2c),
         SpriteRequirement(EnemySprite.Popo2).sub_group(1, 0x2c),
         SpriteRequirement(EnemySprite.ArmosStatue).sub_group(3, 0x10).exclude({0x10c}),
