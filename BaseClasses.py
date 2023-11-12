@@ -10,7 +10,6 @@ try:
 except ImportError:
     from enum import IntFlag as FastEnum
 
-
 from source.classes.BabelFish import BabelFish
 from EntranceShuffle import door_addresses, indirect_connections
 from Utils import int16_as_bytes
@@ -94,6 +93,7 @@ class World(object):
         for player in range(1, players + 1):
             def set_player_attr(attr, val):
                 self.__dict__.setdefault(attr, {})[player] = val
+
             set_player_attr('_region_cache', {})
             set_player_attr('player_names', [])
             set_player_attr('remote_items', False)
@@ -408,7 +408,7 @@ class World(object):
     def push_precollected(self, item):
         item.world = self
         if ((item.smallkey and self.keyshuffle[item.player] != 'none')
-           or (item.bigkey and self.bigkeyshuffle[item.player])):
+                or (item.bigkey and self.bigkeyshuffle[item.player])):
             item.advancement = True
         self.precollected_items.append(item)
         self.state.collect(item, True)
@@ -761,7 +761,7 @@ class CollectionState(object):
             bc_ = self.blocked_connections[player]
             for block, crystal in bc_.items():
                 if (block, crystal) not in terminal_queue and self.possibly_connected_to_dungeon(block.connected_region, player):
-                        terminal_queue.append((block, crystal))
+                    terminal_queue.append((block, crystal))
             self.traverse_world(terminal_queue, rrp_, bc_, player)
             self.dungeon_limits = None
 
@@ -784,7 +784,7 @@ class CollectionState(object):
             missing_bc = {}
             for blocked, crystal in common_bc.items():
                 if (blocked not in bc and blocked.parent_region in rrp
-                   and self.should_visit(blocked.connected_region, rrp, crystal, player)):
+                        and self.should_visit(blocked.connected_region, rrp, crystal, player)):
                     missing_bc[blocked] = crystal
             for k in missing_bc:
                 bc[k] = missing_bc[k]
@@ -833,15 +833,15 @@ class CollectionState(object):
             return door_candidates
         door_candidates, skip = [], set()
         if (state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal'
-           and state.placing_item and state.placing_item.name == small_key_name):
+                and state.placing_item and state.placing_item.name == small_key_name):
             key_logic = state.world.key_logic[player][dungeon_name]
             for door, paired in key_logic.sm_doors.items():
                 if door.name in key_logic.door_rules:
                     rule = key_logic.door_rules[door.name]
                     key = KeyRuleType.AllowSmall
                     if (key in rule.new_rules and key_total >= rule.new_rules[key] and door.name not in skip
-                       and door.name in state.reached_doors[player] and door.name not in state.opened_doors[player]
-                       and rule.small_location.item is None):
+                            and door.name in state.reached_doors[player] and door.name not in state.opened_doors[player]
+                            and rule.small_location.item is None):
                         if paired:
                             door_candidates.append((door.name, paired.name))
                             skip.add(paired.name)
@@ -965,8 +965,8 @@ class CollectionState(object):
                  'Mirror Shield', 'Progressive Shield', 'Bug Catching Net', 'Cane of Byrna', 'Ocarina (Activated)',
                  'Boss Heart Container', 'Sanctuary Heart Container', 'Piece of Heart', 'Magic Upgrade (1/2)',
                  'Magic Upgrade (1/4)']
-            or item_name.startswith(('Bottle', 'Small Key', 'Big Key'))
-            or (self.world.restrict_boss_items[player] != 'none' and item_name.startswith(('Map', 'Compass'))))
+                or item_name.startswith(('Bottle', 'Small Key', 'Big Key'))
+                or (self.world.restrict_boss_items[player] != 'none' and item_name.startswith(('Map', 'Compass'))))
 
     def can_reach(self, spot, resolution_hint=None, player=None):
         try:
@@ -1013,7 +1013,6 @@ class CollectionState(object):
                     self.collect(event.item, True, event)
                     new_locations = True
 
-
     def can_reach_blue(self, region, player):
         return region in self.reachable_regions[player] and self.reachable_regions[player][region] in [CrystalBarrier.Blue, CrystalBarrier.Either]
 
@@ -1026,7 +1025,7 @@ class CollectionState(object):
             if event.name in flooded_keys.keys():
                 flood_location = self.world.get_location(flooded_keys[event.name], event.player)
                 if (flood_location.item and flood_location not in self.locations_checked
-                   and self.location_can_be_flooded(flood_location)):
+                        and self.location_can_be_flooded(flood_location)):
                     adjusted_checks.remove(event)
         if len(adjusted_checks) < len(reachable_events):
             return adjusted_checks
@@ -1115,16 +1114,16 @@ class CollectionState(object):
         # Warning: This only considers items that are marked as advancement items
         diff = self.world.difficulty_requirements[player]
         return (
-            min(self.item_count('Boss Heart Container', player), diff.boss_heart_container_limit)
-            + self.item_count('Sanctuary Heart Container', player)
-            + min(self.item_count('Piece of Heart', player), diff.heart_piece_limit) // 4
-            + 3 # starting hearts
+                min(self.item_count('Boss Heart Container', player), diff.boss_heart_container_limit)
+                + self.item_count('Sanctuary Heart Container', player)
+                + min(self.item_count('Piece of Heart', player), diff.heart_piece_limit) // 4
+                + 3  # starting hearts
         )
 
     def can_lift_heavy_rocks(self, player):
         return self.has('Titans Mitts', player)
 
-    def can_extend_magic(self, player, smallmagic=16, fullrefill=False): #This reflects the total magic Link has, not the total extra he has.
+    def can_extend_magic(self, player, smallmagic=16, fullrefill=False):  # This reflects the total magic Link has, not the total extra he has.
         basemagic = 8
         if self.has('Magic Upgrade (1/4)', player):
             basemagic = 32
@@ -1162,19 +1161,19 @@ class CollectionState(object):
                 or self.has('Ice Rod', player)
                 or self.has('Cane of Somaria', player)
                 or self.has('Cane of Byrna', player))
-    
+
     def can_hit_crystal_through_barrier(self, player):
         return (self.can_use_bombs(player)
-            or self.can_shoot_arrows(player)
-            or self.has('Blue Boomerang', player)
-            or self.has('Red Boomerang', player)
-            or self.has('Fire Rod', player)
-            or self.has('Ice Rod', player)
-            or self.has('Cane of Somaria', player))
+                or self.can_shoot_arrows(player)
+                or self.has('Blue Boomerang', player)
+                or self.has('Red Boomerang', player)
+                or self.has('Fire Rod', player)
+                or self.has('Ice Rod', player)
+                or self.has('Cane of Somaria', player))
 
     def can_shoot_arrows(self, player):
         if self.world.bow_mode[player] in ['retro', 'retro_silvers']:
-            #todo: Non-progressive silvers grant wooden arrows, but progressive bows do not.  Always require shop arrows to be safe
+            # todo: Non-progressive silvers grant wooden arrows, but progressive bows do not.  Always require shop arrows to be safe
             return self.has('Bow', player) and (self.can_buy_unlimited('Single Arrow', player) or self.has('Single Arrow', player))
         return self.has('Bow', player)
 
@@ -1215,7 +1214,7 @@ class CollectionState(object):
             return False  # can't flute in rain state
         lw = self.world.get_region('Light World', player)
         return self.has('Ocarina (Activated)', player) or (self.has('Ocarina', player) and lw.can_reach(self)
-                                                         and self.is_not_bunny(lw, player))
+                                                           and self.is_not_bunny(lw, player))
 
     def can_melt_things(self, player):
         return self.has('Fire Rod', player) or (self.has('Bombos', player) and self.has_sword(player))
@@ -1403,12 +1402,13 @@ class CollectionState(object):
     def __getattr__(self, item):
         if item.startswith('can_reach_'):
             return self.can_reach(item[10])
-        #elif item.startswith('has_'):
+        # elif item.startswith('has_'):
         #    return self.has(item[4])
         if item == '__len__':
             return
 
         raise RuntimeError('Cannot parse %s.' % item)
+
 
 @unique
 class RegionType(Enum):
@@ -1435,7 +1435,7 @@ class Region(object):
         self.dungeon = None
         self.shop = None
         self.world = None
-        self.is_light_world = False # will be set aftermaking connections.
+        self.is_light_world = False  # will be set aftermaking connections.
         self.is_dark_world = False
         self.spot_type = 'Region'
         self.hint_text = hint
@@ -1747,7 +1747,7 @@ class Door(object):
         self.edge_id = None
         self.edge_width = None
 
-        #portal items
+        # portal items
         self.portalAble = False
         self.roomLayout = 0x22  # free scroll-  both directions
         self.entranceFlag = False
@@ -2093,17 +2093,17 @@ class Portal(object):
         return self.door.roomIndex
 
     def relative_coords(self):
-        y_rel = (self.door.roomIndex & 0xf0) >> 3 #todo: fix the shift!!!!
+        y_rel = (self.door.roomIndex & 0xf0) >> 3  # todo: fix the shift!!!!
         x_rel = (self.door.roomIndex & 0x0f) * 2
         quad = self.door.quadrant
         if quad == 0:
-            return [y_rel, y_rel, y_rel, y_rel+1, x_rel, x_rel, x_rel, x_rel+1]
+            return [y_rel, y_rel, y_rel, y_rel + 1, x_rel, x_rel, x_rel, x_rel + 1]
         elif quad == 1:
-            return [y_rel, y_rel, y_rel, y_rel+1, x_rel+1, x_rel, x_rel+1, x_rel+1]
+            return [y_rel, y_rel, y_rel, y_rel + 1, x_rel + 1, x_rel, x_rel + 1, x_rel + 1]
         elif quad == 2:
-            return [y_rel+1, y_rel, y_rel+1, y_rel+1, x_rel, x_rel, x_rel, x_rel+1]
+            return [y_rel + 1, y_rel, y_rel + 1, y_rel + 1, x_rel, x_rel, x_rel, x_rel + 1]
         else:
-            return [y_rel+1, y_rel, y_rel+1, y_rel+1, x_rel+1, x_rel, x_rel+1, x_rel+1]
+            return [y_rel + 1, y_rel, y_rel + 1, y_rel + 1, x_rel + 1, x_rel, x_rel + 1, x_rel + 1]
 
     def scroll_x(self):
         x_rel = (self.door.roomIndex & 0x0f) * 2
@@ -2112,7 +2112,7 @@ class Portal(object):
         elif self.door.doorIndex == 1:
             return [0x80, x_rel]
         else:
-            return [0x00, x_rel+1]
+            return [0x00, x_rel + 1]
 
     def scroll_y(self):
         y_rel = ((self.door.roomIndex & 0xf0) >> 3) + 1
@@ -2132,7 +2132,7 @@ class Portal(object):
         elif self.door.doorIndex == 1:
             return [0xf8, x_rel]
         else:
-            return [0x78, x_rel+1]
+            return [0x78, x_rel + 1]
 
     # def camera_y(self):
     #     return [0x87, 0x01]
@@ -2191,21 +2191,22 @@ class Boss(object):
     def can_defeat(self, state):
         return self.defeat_rule(state, self.player)
 
+
 class Location(object):
     def __init__(self, player, name='', address=None, crystal=False, hint_text=None, parent=None, forced_item=None,
                  player_address=None, note=None):
         self.name = name
         self.parent_region = parent
         if forced_item is not None:
-          from Items import ItemFactory
-          self.forced_item = ItemFactory([forced_item], player)[0]
-          self.item = self.forced_item
-          self.item.location = self
-          self.event = True
+            from Items import ItemFactory
+            self.forced_item = ItemFactory([forced_item], player)[0]
+            self.item = self.forced_item
+            self.item.location = self
+            self.event = True
         else:
-          self.forced_item = None
-          self.item = None
-          self.event = False
+            self.forced_item = None
+            self.item = None
+            self.event = False
         self.crystal = crystal
         self.address = address
         self.player_address = player_address
@@ -2353,11 +2354,13 @@ class Item(object):
 class Crystal(Item):
     pass
 
+
 @unique
 class ShopType(Enum):
     Shop = 0
     TakeAny = 1
     UpgradeShop = 2
+
 
 class Shop(object):
     def __init__(self, region, room_id, type, shopkeeper_config, custom, locked, sram_address):
@@ -2382,7 +2385,7 @@ class Shop(object):
         entrances = self.region.entrances
         config = self.item_count
         if len(entrances) == 1 and entrances[0].name in door_addresses:
-            door_id = door_addresses[entrances[0].name][0]+1
+            door_id = door_addresses[entrances[0].name][0] + 1
         else:
             door_id = 0
             config |= 0x40  # ignore door id
@@ -2390,7 +2393,7 @@ class Shop(object):
             config |= 0x80
         if self.type == ShopType.UpgradeShop:
             config |= 0x10  # Alt. VRAM
-        return [0x00]+int16_as_bytes(self.room_id)+[door_id, 0x00, config, self.shopkeeper_config, 0x00]
+        return [0x00] + int16_as_bytes(self.room_id) + [door_id, 0x00, config, self.shopkeeper_config, 0x00]
 
     def has_unlimited(self, item):
         for inv in self.inventory:
@@ -2632,7 +2635,7 @@ class Spoiler(object):
         out['Special'] = self.medallions
         out['Bottles'] = self.bottles
         if self.hashes:
-            out['Hashes'] = {f"{self.world.player_names[player][team]} (Team {team+1})": hash for (player, team), hash in self.hashes.items()}
+            out['Hashes'] = {f"{self.world.player_names[player][team]} (Team {team + 1})": hash for (player, team), hash in self.hashes.items()}
         if self.shops:
             out['Shops'] = self.shops
         out['playthrough'] = self.playthrough
@@ -2723,7 +2726,7 @@ class Spoiler(object):
 
             if self.startinventory:
                 outfile.write('Starting Inventory:'.ljust(line_width))
-                outfile.write('\n'.ljust(line_width+1).join(self.startinventory) + '\n')
+                outfile.write('\n'.ljust(line_width + 1).join(self.startinventory) + '\n')
 
     def hashes_to_file(self, filename):
         with open(filename, 'r') as infile:
@@ -2743,7 +2746,7 @@ class Spoiler(object):
             if len(self.hashes) > 0:
                 for team in range(self.world.teams):
                     player_name = self.world.player_names[player][team]
-                    label = f"Hash - {player_name} (Team {team+1}): " if self.world.teams > 1 else 'Hash: '
+                    label = f"Hash - {player_name} (Team {team + 1}): " if self.world.teams > 1 else 'Hash: '
                     idx = insert(contents, idx, f'{label}{self.hashes[player, team]}\n')
         if self.world.players > 1:
             insert(contents, idx, '\n')  # return value ignored here, if you want to add more lines
@@ -2774,16 +2777,16 @@ class Spoiler(object):
             if self.entrances:
                 # entrances: To/From overworld; Checking w/ & w/out "Exit" and translating accordingly
                 outfile.write('\nEntrances:\n\n')
-                outfile.write('\n'.join(['%s%s %s %s' % (f'{self.world.get_player_names(entry["player"])}: ' if self.world.players > 1 else '', self.world.fish.translate("meta","entrances",entry['entrance']), '<=>' if entry['direction'] == 'both' else '<=' if entry['direction'] == 'exit' else '=>', self.world.fish.translate("meta","entrances",entry['exit'])) for entry in self.entrances.values()]))
+                outfile.write('\n'.join(['%s%s %s %s' % (f'{self.world.get_player_names(entry["player"])}: ' if self.world.players > 1 else '', self.world.fish.translate("meta", "entrances", entry['entrance']), '<=>' if entry['direction'] == 'both' else '<=' if entry['direction'] == 'exit' else '=>', self.world.fish.translate("meta", "entrances", entry['exit'])) for entry in self.entrances.values()]))
 
             if self.doors:
                 outfile.write('\n\nDoors:\n\n')
                 outfile.write('\n'.join(
                     ['%s%s %s %s %s' % ('Player {0}: '.format(entry['player']) if self.world.players > 1 else '',
-                                        self.world.fish.translate("meta","doors",entry['entrance']),
+                                        self.world.fish.translate("meta", "doors", entry['entrance']),
                                         '<=>' if entry['direction'] == 'both' else '<=' if entry['direction'] == 'exit' else '=>',
-                                        self.world.fish.translate("meta","doors",entry['exit']),
-                                        '({0})'.format(entry['dname']) if self.world.doorShuffle[entry['player']] == 'crossed' else '') for
+                                        self.world.fish.translate("meta", "doors", entry['exit']),
+                                        '({0})'.format(entry['dname']) if self.world.doorShuffle[entry['player']] != 'basic' else '') for
                      entry in self.doors.values()]))
             if self.lobbies:
                 outfile.write('\n\nDungeon Lobbies:\n\n')
@@ -2795,7 +2798,7 @@ class Spoiler(object):
                 # doorNames: For some reason these come in combined, somehow need to split on the thing to translate
                 # doorTypes: Small Key, Bombable, Bonkable
                 outfile.write('\n\nDoor Types:\n\n')
-                outfile.write('\n'.join(['%s%s %s' % ('Player {0}: '.format(entry['player']) if self.world.players > 1 else '', self.world.fish.translate("meta","doors",entry['doorNames']), self.world.fish.translate("meta","doorTypes",entry['type'])) for entry in self.doorTypes.values()]))
+                outfile.write('\n'.join(['%s%s %s' % ('Player {0}: '.format(entry['player']) if self.world.players > 1 else '', self.world.fish.translate("meta", "doors", entry['doorNames']), self.world.fish.translate("meta", "doorTypes", entry['type'])) for entry in self.doorTypes.values()]))
 
             # locations: Change up location names; in the instance of a location with multiple sections, it'll try to translate the room name
             # items: Item names
@@ -2805,7 +2808,7 @@ class Spoiler(object):
             # locations: Change up location names; in the instance of a location with multiple sections, it'll try to translate the room name
             # items: Item names
             outfile.write('\n\nShops:\n\n')
-            outfile.write('\n'.join("{} [{}]\n    {}".format(self.world.fish.translate("meta","locations",shop['location']), shop['type'], "\n    ".join(self.world.fish.translate("meta","items",item) for item in [shop.get('item_0', None), shop.get('item_1', None), shop.get('item_2', None)] if item)) for shop in self.shops))
+            outfile.write('\n'.join("{} [{}]\n    {}".format(self.world.fish.translate("meta", "locations", shop['location']), shop['type'], "\n    ".join(self.world.fish.translate("meta", "items", item) for item in [shop.get('item_0', None), shop.get('item_1', None), shop.get('item_2', None)] if item)) for shop in self.shops))
 
             for player in range(1, self.world.players + 1):
                 if self.world.boss_shuffle[player] != 'none':
@@ -2818,23 +2821,23 @@ class Spoiler(object):
         with open(filename, 'a') as outfile:
             outfile.write('\n\nOverworld Enemies:\n\n')
             for player in range(1, self.world.players + 1):
-                player_tag = ' '+self.world.get_player_names(player) if self.world.players > 1 else ''
+                player_tag = ' ' + self.world.get_player_names(player) if self.world.players > 1 else ''
                 for area, sprite_list in self.world.data_tables[player].ow_enemy_table.items():
                     for idx, sprite in enumerate(sprite_list):
-                        outfile.write(f'{hex(area)} Enemy #{idx+1}{player_tag}: {str(sprite)}\n')
+                        outfile.write(f'{hex(area)} Enemy #{idx + 1}{player_tag}: {str(sprite)}\n')
             outfile.write('\n\nUnderworld Enemies:\n\n')
             for player in range(1, self.world.players + 1):
-                player_tag = ' '+self.world.get_player_names(player) if self.world.players > 1 else ''
+                player_tag = ' ' + self.world.get_player_names(player) if self.world.players > 1 else ''
                 for area, sprite_list in self.world.data_tables[player].uw_enemy_table.room_map.items():
                     for idx, sprite in enumerate(sprite_list):
-                        outfile.write(f'{hex(area)} Enemy #{idx+1}{player_tag}: {str(sprite)}\n')
+                        outfile.write(f'{hex(area)} Enemy #{idx + 1}{player_tag}: {str(sprite)}\n')
 
     def playthrough_to_file(self, filename):
         with open(filename, 'a') as outfile:
             # locations: Change up location names; in the instance of a location with multiple sections, it'll try to translate the room name
             # items: Item names
             outfile.write('\n\nPlaythrough:\n\n')
-            outfile.write('\n'.join(['%s: {\n%s\n}' % (sphere_nr, '\n'.join(['  %s: %s' % (self.world.fish.translate("meta","locations",location), self.world.fish.translate("meta","items",item)) for (location, item) in sphere.items()] if sphere_nr != '0' else [f'  {item}' for item in sphere])) for (sphere_nr, sphere) in self.playthrough.items()]))
+            outfile.write('\n'.join(['%s: {\n%s\n}' % (sphere_nr, '\n'.join(['  %s: %s' % (self.world.fish.translate("meta", "locations", location), self.world.fish.translate("meta", "items", item)) for (location, item) in sphere.items()] if sphere_nr != '0' else [f'  {item}' for item in sphere])) for (sphere_nr, sphere) in self.playthrough.items()]))
             if self.unreachables:
                 # locations: Change up location names; in the instance of a location with multiple sections, it'll try to translate the room name
                 # items: Item names
@@ -2852,10 +2855,10 @@ class Spoiler(object):
                 path_lines = []
                 for region, exit in path:
                     if exit is not None:
-                        path_lines.append("{} -> {}".format(self.world.fish.translate("meta","rooms",region), self.world.fish.translate("meta","entrances",exit)))
+                        path_lines.append("{} -> {}".format(self.world.fish.translate("meta", "rooms", region), self.world.fish.translate("meta", "entrances", exit)))
                     else:
-                        path_lines.append(self.world.fish.translate("meta","rooms",region))
-                path_listings.append("{}\n        {}".format(self.world.fish.translate("meta","locations",location), "\n   =>   ".join(path_lines)))
+                        path_lines.append(self.world.fish.translate("meta", "rooms", region))
+                path_listings.append("{}\n        {}".format(self.world.fish.translate("meta", "locations", location), "\n   =>   ".join(path_lines)))
 
             outfile.write('\n'.join(path_listings))
 
@@ -2886,6 +2889,7 @@ dungeon_keys = {
     'Ganons Tower': 'Small Key (Ganons Tower)',
     'Universal': 'Small Key (Universal)'
 }
+
 
 class PotItem(FastEnum):
     Nothing = 0x0
@@ -2968,7 +2972,7 @@ er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, 
 # byte 1: LLLW WSS? (logic, mode, sword)
 logic_mode = {"noglitches": 0, "minorglitches": 1, "nologic": 2, "owglitches": 3, "majorglitches": 4}
 world_mode = {"open": 0, "standard": 1, "inverted": 2}
-sword_mode = {"random": 0,  "assured": 1, "swordless": 2, "vanilla": 3}
+sword_mode = {"random": 0, "assured": 1, "swordless": 2, "vanilla": 3}
 
 # byte 2: GGGD DFFH (goal, diff, item_func, hints)
 goal_mode = {'ganon': 0, 'pedestal': 1, 'dungeons': 2, 'triforcehunt': 3, 'crystals': 4, 'trinity': 5,
@@ -3007,7 +3011,6 @@ rb_mode = {"none": 0, "mapcompass": 1, "dungeon": 2}
 # algorithm:
 algo_mode = {"balanced": 0, "equitable": 1, "vanilla_fill": 2, "dungeon_only": 3, "district": 4, 'major_only': 5}
 boss_mode = {"none": 0, "simple": 1, "full": 2, "chaos": 3, 'random': 3, 'unique': 4}
-
 
 # byte 10: settings_version
 # byte 11: FBBB TTSS (flute_mode, bow_mode, take_any, small_key_mode)
@@ -3071,7 +3074,7 @@ class Settings(object):
 
             ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 5
              | trap_door_mode[w.trap_door_mode[p]] << 3 | key_logic_algo[w.key_logic_algorithm[p]]),
-            ])
+        ])
         return base64.b64encode(code, "+-".encode()).decode()
 
     @staticmethod
