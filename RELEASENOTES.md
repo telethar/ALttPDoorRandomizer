@@ -181,6 +181,10 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.7
+  * Fixed logic issues:
+    * Self-locking key not allowed in Sanctuary in standard (typo fixed)
+    * More advanced bunny-walking logic in dungeons (multiple paths considred)
 * 1.1.6
   * Minor issue with dungeon counter hud interfering with timer
 * 1.1.5
