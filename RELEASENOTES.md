@@ -143,6 +143,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.3.0.6v
   * Enemizer: Arrghus at Lanmo 2 no longer prevents pot pickups
+  * Fixed logic issues:
+      * Self-locking key not allowed in Sanctuary in standard (typo fixed)
+      * More advanced bunny-walking logic in dungeons (multiple paths considered)
   * Various enemy bans
     * More Gibos near kiki and Old Man
     * Bumper obstacles

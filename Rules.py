@@ -108,8 +108,10 @@ def mirrorless_path_to_castle_courtyard(world, player):
                 else:
                     queue.append((entrance.connected_region, new_path))
 
+
 def set_rule(spot, rule):
     spot.access_rule = rule
+
 
 def set_defeat_dungeon_boss_rule(location):
     # Lambda required to defer evaluation of dungeon.boss since it will change later if boos shuffle is used
@@ -157,9 +159,11 @@ def forbid_item(location, item, player):
     old_rule = location.item_rule
     location.item_rule = lambda i: (i.name != item or i.player != player) and old_rule(i)
 
+
 def add_item_rule(location, rule):
     old_rule = location.item_rule
     location.item_rule = lambda item: rule(item) and old_rule(item)
+
 
 def item_in_locations(state, item, player, locations):
     for location in locations:
@@ -167,11 +171,13 @@ def item_in_locations(state, item, player, locations):
             return True
     return False
 
+
 def item_name(state, location, player):
     location = state.world.get_location(location, player)
     if location.item is None:
         return None
     return (location.item.name, location.item.player)
+
 
 def global_rules(world, player):
     # ganon can only carry triforce
@@ -204,7 +210,7 @@ def global_rules(world, player):
     set_rule(world.get_location('Ether Tablet', player), lambda state: state.has('Book of Mudora', player) and state.has_beam_sword(player))
     set_rule(world.get_location('Bombos Tablet', player), lambda state: state.has('Book of Mudora', player) and state.has_beam_sword(player))
 
-    set_rule(world.get_location('Missing Smith', player), lambda state: state.has('Get Frog', player) and state.can_reach('Blacksmiths Hut', 'Region', player)) # Can't S&Q with smith
+    set_rule(world.get_location('Missing Smith', player), lambda state: state.has('Get Frog', player) and state.can_reach('Blacksmiths Hut', 'Region', player))  # Can't S&Q with smith
     set_rule(world.get_location('Dark Blacksmith Ruins', player), lambda state: state.has('Return Smith', player))
     set_rule(world.get_location('Purple Chest', player), lambda state: state.has('Pick Up Purple Chest', player))  # Can S&Q with chest
 
@@ -615,7 +621,7 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Swamp Barrier - Orange', player), lambda state: state.can_reach_orange(world.get_region('Swamp Barrier', player), player))
 
     set_rule(world.get_entrance('Swamp Crystal Switch Inner to Crystal', player), lambda state: state.can_hit_crystal(player))
-    set_rule(world.get_entrance('Swamp Crystal Switch Outer to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or state.has_beam_sword(player) or (state.has('Hookshot', player) and state.can_reach_blue(world.get_region('Swamp Crystal Switch Outer', player), player))) # It is the length of the sword, not the beam itself that allows this
+    set_rule(world.get_entrance('Swamp Crystal Switch Outer to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or state.has_beam_sword(player) or (state.has('Hookshot', player) and state.can_reach_blue(world.get_region('Swamp Crystal Switch Outer', player), player)))  # It is the length of the sword, not the beam itself that allows this
     set_rule(world.get_entrance('Swamp Crystal Switch Outer to Inner Bypass', player), lambda state: state.world.can_take_damage or state.has('Cape', player) or state.has('Cane of Byrna', player))
     set_rule(world.get_entrance('Swamp Crystal Switch Inner to Outer Bypass', player), lambda state: state.world.can_take_damage or state.has('Cape', player) or state.has('Cane of Byrna', player))
 
@@ -659,8 +665,8 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Mire Crystal Left Blue Barrier', player), lambda state: state.can_reach_blue(world.get_region('Mire Crystal Left', player), player))
 
     set_rule(world.get_entrance('Mire Conveyor to Crystal', player), lambda state: state.can_hit_crystal(player))
-    set_rule(world.get_entrance('Mire Tall Dark and Roomy to Ranged Crystal', player), lambda state: True) # Can always throw pots
-    set_rule(world.get_entrance('Mire Fishbone Blue Barrier Bypass', player), lambda state: False) # (state.world.can_take_damage or state.has('Cape', player) or state.has('Cane of Byrna', player)) and state.can_tastate.can_use_bombs(player) // Easy to do but obscure. Should it be in logic?
+    set_rule(world.get_entrance('Mire Tall Dark and Roomy to Ranged Crystal', player), lambda state: True)  # Can always throw pots
+    set_rule(world.get_entrance('Mire Fishbone Blue Barrier Bypass', player), lambda state: False)  # (state.world.can_take_damage or state.has('Cape', player) or state.has('Cane of Byrna', player)) and state.can_tastate.can_use_bombs(player) // Easy to do but obscure. Should it be in logic?
 
     set_rule(world.get_location('Turtle Rock - Chain Chomps', player), lambda state: state.can_reach('TR Chain Chomps Top', 'Region', player) and state.can_hit_crystal_through_barrier(player))
     set_rule(world.get_entrance('TR Chain Chomps Top to Bottom Barrier - Orange', player), lambda state: state.can_reach_orange(world.get_region('TR Chain Chomps Top', player), player))
@@ -682,14 +688,14 @@ def global_rules(world, player):
     set_rule(world.get_entrance('TR Pokey 2 Top to Crystal', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('TR Crystaroller Top to Crystal', player), lambda state: state.can_hit_crystal(player))
     set_rule(world.get_entrance('TR Crystal Maze Start to Crystal', player), lambda state: state.can_hit_crystal(player))
-    set_rule(world.get_entrance('TR Chain Chomps Bottom to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Chain Chomps Bottom', player), player))) # or state.has_beam_sword(player)
-    set_rule(world.get_entrance('TR Pokey 2 Bottom to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_blue(world.get_region('TR Pokey 2 Bottom', player), player))) # or state.has_beam_sword(player)
-    set_rule(world.get_entrance('TR Crystaroller Bottom to Ranged Crystal', player), lambda state: state.can_shoot_arrows(player) or state.has('Fire Rod', player) or state.has('Ice Rod', player) or state.has('Cane of Somaria', player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Crystaroller Bottom', player), player))) # or state.has_beam_sword(player)
-    set_rule(world.get_entrance('TR Crystaroller Middle to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Crystaroller Middle', player), player))) # or state.has_beam_sword(player)
+    set_rule(world.get_entrance('TR Chain Chomps Bottom to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Chain Chomps Bottom', player), player)))  # or state.has_beam_sword(player)
+    set_rule(world.get_entrance('TR Pokey 2 Bottom to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_blue(world.get_region('TR Pokey 2 Bottom', player), player)))  # or state.has_beam_sword(player)
+    set_rule(world.get_entrance('TR Crystaroller Bottom to Ranged Crystal', player), lambda state: state.can_shoot_arrows(player) or state.has('Fire Rod', player) or state.has('Ice Rod', player) or state.has('Cane of Somaria', player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Crystaroller Bottom', player), player)))  # or state.has_beam_sword(player)
+    set_rule(world.get_entrance('TR Crystaroller Middle to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or (state.has('Hookshot', player) and state.can_reach_orange(world.get_region('TR Crystaroller Middle', player), player)))  # or state.has_beam_sword(player)
     set_rule(world.get_entrance('TR Crystaroller Middle to Bottom Bypass', player), lambda state: state.can_use_bombs(player) or state.has('Blue Boomerang', player))
-    set_rule(world.get_entrance('TR Crystal Maze End to Ranged Crystal', player), lambda state: state.has('Cane of Somaria', player)) # or state.has('Blue Boomerang', player) or state.has('Red Boomerang', player) // These work by clipping the rang through the two stone blocks, which works sometimes.
-    set_rule(world.get_entrance('TR Crystal Maze Interior to End Bypass', player), lambda state: state.can_use_bombs(player) or state.can_shoot_arrows(player) or state.has('Red Boomerang', player) or state.has('Blue Boomerang', player) or state.has('Fire Rod', player) or state.has('Ice Rod', player) or state.has('Cane of Somaria', player)) # Beam sword does NOT work
-    set_rule(world.get_entrance('TR Crystal Maze Interior to Start Bypass', player), lambda state: True) # Can always grab a pot from the interior and walk it to the start region and throw it there
+    set_rule(world.get_entrance('TR Crystal Maze End to Ranged Crystal', player), lambda state: state.has('Cane of Somaria', player))  # or state.has('Blue Boomerang', player) or state.has('Red Boomerang', player) // These work by clipping the rang through the two stone blocks, which works sometimes.
+    set_rule(world.get_entrance('TR Crystal Maze Interior to End Bypass', player), lambda state: state.can_use_bombs(player) or state.can_shoot_arrows(player) or state.has('Red Boomerang', player) or state.has('Blue Boomerang', player) or state.has('Fire Rod', player) or state.has('Ice Rod', player) or state.has('Cane of Somaria', player))  # Beam sword does NOT work
+    set_rule(world.get_entrance('TR Crystal Maze Interior to Start Bypass', player), lambda state: True)  # Can always grab a pot from the interior and walk it to the start region and throw it there
 
     set_rule(world.get_entrance('GT Hookshot Platform Blue Barrier', player), lambda state: state.can_reach_blue(world.get_region('GT Hookshot South Platform', player), player))
     set_rule(world.get_entrance('GT Hookshot Entry Blue Barrier', player), lambda state: state.can_reach_blue(world.get_region('GT Hookshot South Entry', player), player))
@@ -779,20 +785,20 @@ def bomb_rules(world, player):
     add_rule(world.get_location('Attic Cracked Floor', player), lambda state: state.can_use_bombs(player))
     bombable_floors = ['PoD Pit Room Bomb Hole', 'Ice Bomb Drop Hole', 'Ice Freezors Bomb Hole', 'GT Bob\'s Room Hole']
     for entrance in bombable_floors:
-        add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player)) 
+        add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player))
 
     if world.doorShuffle[player] == 'vanilla':
-        add_rule(world.get_entrance('TR Lazy Eyes SE', player), lambda state: state.can_use_bombs(player)) # ToDo: Add always true for inverted, cross-entrance, and door-variants and so on.
-        add_rule(world.get_entrance('Turtle Rock Ledge Exit (West)', player), lambda state: state.can_use_bombs(player)) # Is this the same as above?
+        add_rule(world.get_entrance('TR Lazy Eyes SE', player), lambda state: state.can_use_bombs(player))  # ToDo: Add always true for inverted, cross-entrance, and door-variants and so on.
+        add_rule(world.get_entrance('Turtle Rock Ledge Exit (West)', player), lambda state: state.can_use_bombs(player))  # Is this the same as above?
 
         dungeon_bonkable = ['Sewers Rat Path WS', 'Sewers Rat Path WN',
                             'PoD Warp Hint SE', 'PoD Jelly Hall NW', 'PoD Jelly Hall NE', 'PoD Mimics 1 SW',
                             'Thieves Ambush E', 'Thieves Rail Ledge W',
                             'TR Dash Room NW', 'TR Crystaroller SW', 'TR Dash Room ES',
-                            'GT Four Torches NW','GT Fairy Abyss SW'
+                            'GT Four Torches NW', 'GT Fairy Abyss SW'
                             ]
         dungeon_bombable = ['PoD Map Balcony WS', 'PoD Arena Ledge ES', 'PoD Dark Maze E', 'PoD Big Chest Balcony W',
-                            'Swamp Pot Row WN','Swamp Map Ledge EN', 'Swamp Hammer Switch WN', 'Swamp Hub Dead Ledge EN', 'Swamp Waterway N', 'Swamp I S',
+                            'Swamp Pot Row WN', 'Swamp Map Ledge EN', 'Swamp Hammer Switch WN', 'Swamp Hub Dead Ledge EN', 'Swamp Waterway N', 'Swamp I S',
                             'Skull Pot Circle WN', 'Skull Pull Switch EN', 'Skull Big Key EN', 'Skull Lone Pot WN',
                             'Thieves Rail Ledge NW', 'Thieves Pot Alcove Bottom SW',
                             'Ice Bomb Drop Hole', 'Ice Freezors Bomb Hole',
@@ -800,9 +806,9 @@ def bomb_rules(world, player):
                             'GT Warp Maze (Rails) WS', 'GT Bob\'s Room Hole', 'GT Randomizer Room ES', 'GT Bomb Conveyor SW', 'GT Crystal Circles NW', 'GT Cannonball Bridge SE', 'GT Refill NE'
                             ]
         for entrance in dungeon_bonkable:
-            add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player)) 
+            add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player) or state.has_Boots(player))
         for entrance in dungeon_bombable:
-            add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player)) 
+            add_rule(world.get_entrance(entrance, player), lambda state: state.can_use_bombs(player))
     else:
         doors_to_bomb_check = [x for x in world.doors if x.player == player and x.type in [DoorType.Normal, DoorType.Interior]]
         for door in doors_to_bomb_check:
@@ -965,13 +971,13 @@ def ow_bunny_rules(world, player):
     add_bunny_rule(world.get_entrance('20 Rupee Cave', player), player)
     add_bunny_rule(world.get_entrance('50 Rupee Cave', player), player)
 
-    add_bunny_rule(world.get_entrance('Skull Woods First Section Hole (North)', player), player) # bunny cannot lift bush
-    add_bunny_rule(world.get_entrance('Skull Woods Second Section Hole', player), player) # bunny cannot lift bush
-    add_bunny_rule(world.get_entrance('Skull Woods Final Section', player), player) # bunny cannot use fire rod
+    add_bunny_rule(world.get_entrance('Skull Woods First Section Hole (North)', player), player)  # bunny cannot lift bush
+    add_bunny_rule(world.get_entrance('Skull Woods Second Section Hole', player), player)  # bunny cannot lift bush
+    add_bunny_rule(world.get_entrance('Skull Woods Final Section', player), player)  # bunny cannot use fire rod
     add_bunny_rule(world.get_entrance('Hookshot Cave', player), player)
-    add_bunny_rule(world.get_entrance('Thieves Town', player), player) # bunny cannot pull
+    add_bunny_rule(world.get_entrance('Thieves Town', player), player)  # bunny cannot pull
     add_bunny_rule(world.get_entrance('Turtle Rock', player), player)
-    add_bunny_rule(world.get_entrance('Palace of Darkness', player), player) # kiki needs pearl
+    add_bunny_rule(world.get_entrance('Palace of Darkness', player), player)  # kiki needs pearl
     add_bunny_rule(world.get_entrance('Hammer Peg Cave', player), player)
     add_bunny_rule(world.get_entrance('Bonk Fairy (Dark)', player), player)
     add_bunny_rule(world.get_entrance('Misery Mire', player), player)
@@ -1090,16 +1096,19 @@ def forbid_bomb_jump_requirements(world, player):
     set_rule(world.get_entrance('Paradox Cave Bomb Jump', player), lambda state: False)
     set_rule(world.get_entrance('Ice Island To East Pier', player), lambda state: False)
 
+
 # Light cones in standard depend on which world we actually are in, not which one the location would normally be
 # We add Lamp requirements only to those locations which lie in the dark world (or everything if open
 DW_Entrances = ['Bumper Cave (Bottom)', 'Superbunny Cave (Top)', 'Superbunny Cave (Bottom)', 'Hookshot Cave', 'Bumper Cave (Top)', 'Hookshot Cave Back Entrance', 'Dark Death Mountain Ledge (East)',
                 'Turtle Rock Isolated Ledge Entrance', 'Thieves Town', 'Skull Woods Final Section', 'Ice Palace', 'Misery Mire', 'Palace of Darkness', 'Swamp Palace', 'Turtle Rock', 'Dark Death Mountain Ledge (West)']
+
 
 def check_is_dark_world(region):
     for entrance in region.entrances:
         if entrance.name in DW_Entrances:
             return True
     return False
+
 
 def add_conditional_lamps(world, player):
     def add_conditional_lamp(spot, region, spottype='Location'):
@@ -1285,6 +1294,7 @@ kill_chests = {
 }
 
 
+
 def add_connection(parent_name, target_name, entrance_name, world, player):
     parent = world.get_region(parent_name, player)
     target = world.get_region(target_name, player)
@@ -1322,7 +1332,7 @@ def standard_rules(world, player):
         return loc.item and loc.item.name in ['Bomb Upgrade (+10)' if world.bombbag[player] else 'Bombs (10)']
 
     def standard_escape_rule(state):
-        return state.can_kill_most_things(player) or bomb_escape_rule() 
+        return state.can_kill_most_things(player) or bomb_escape_rule()
 
     add_item_rule(world.get_location('Link\'s Uncle', player), uncle_item_rule)
 
@@ -1349,6 +1359,7 @@ def standard_rules(world, player):
 
     def check_rule_list(state, r_list):
         return True if len(r_list) <= 0 else r_list[0](state) and check_rule_list(state, r_list[1:])
+
     rule_list, debug_path = find_rules_for_zelda_delivery(world, player)
     set_rule(world.get_entrance('Hyrule Castle Throne Room Tapestry', player),
              lambda state: state.has('Zelda Herself', player) and check_rule_list(state, rule_list))
@@ -1525,7 +1536,7 @@ def set_big_bomb_rules(world, player):
 
     set_rule(world.get_entrance('Pyramid Fairy', player), lambda state: state.can_reach('East Dark World', 'Region', player) and state.can_reach('Big Bomb Shop', 'Region', player) and state.has('Crystal 5', player) and state.has('Crystal 6', player))
 
-    #crossing peg bridge starting from the southern dark world
+    # crossing peg bridge starting from the southern dark world
     def cross_peg_bridge(state):
         return state.has('Hammer', player) and state.has_Pearl(player)
 
@@ -1547,28 +1558,28 @@ def set_big_bomb_rules(world, player):
     # G = Glove
 
     if bombshop_entrance.name in Normal_LW_entrances:
-        #1. basic routes
-        #2. Can reach Eastern dark world some other way, mirror, get bomb, return to mirror spot, walk to pyramid: Needs mirror
+        # 1. basic routes
+        # 2. Can reach Eastern dark world some other way, mirror, get bomb, return to mirror spot, walk to pyramid: Needs mirror
         # -> M or BR
         add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: basic_routes(state) or state.has_Mirror(player))
     elif bombshop_entrance.name in LW_walkable_entrances:
-        #1. Mirror then basic routes
+        # 1. Mirror then basic routes
         # -> M and BR
         add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: state.has_Mirror(player) and basic_routes(state))
     elif bombshop_entrance.name in Northern_DW_entrances:
-        #1. Mirror and basic routes
-        #2. Go to south DW and then cross peg bridge: Need Mitts and hammer and moon pearl
+        # 1. Mirror and basic routes
+        # 2. Go to south DW and then cross peg bridge: Need Mitts and hammer and moon pearl
         # -> (Mitts and CPB) or (M and BR)
         add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: (state.can_lift_heavy_rocks(player) and cross_peg_bridge(state)) or (state.has_Mirror(player) and basic_routes(state)))
     elif bombshop_entrance.name == 'Bumper Cave (Bottom)':
-        #1. Mirror and Lift rock and basic_routes
-        #2. Mirror and Flute and basic routes (can make difference if accessed via insanity or w/ mirror from connector, and then via hyrule castle gate, because no gloves are needed in that case)
-        #3. Go to south DW and then cross peg bridge: Need Mitts and hammer and moon pearl
+        # 1. Mirror and Lift rock and basic_routes
+        # 2. Mirror and Flute and basic routes (can make difference if accessed via insanity or w/ mirror from connector, and then via hyrule castle gate, because no gloves are needed in that case)
+        # 3. Go to south DW and then cross peg bridge: Need Mitts and hammer and moon pearl
         # -> (Mitts and CPB) or (((G or Flute) and M) and BR))
         add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: (state.can_lift_heavy_rocks(player) and cross_peg_bridge(state)) or (((state.can_lift_rocks(player) or state.can_flute(player)) and state.has_Mirror(player)) and basic_routes(state)))
     elif bombshop_entrance.name in Southern_DW_entrances:
-        #1. Mirror and enter via gate: Need mirror and Aga1
-        #2. cross peg bridge: Need hammer and moon pearl
+        # 1. Mirror and enter via gate: Need mirror and Aga1
+        # 2. cross peg bridge: Need hammer and moon pearl
         # -> CPB or (M and A)
         add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: cross_peg_bridge(state) or (state.has_Mirror(player) and state.has('Beat Agahnim 1', player)))
     elif bombshop_entrance.name in Isolated_DW_entrances:
@@ -1832,7 +1843,6 @@ def set_inverted_big_bomb_rules(world, player):
 
 
 def set_bunny_rules(world, player, inverted):
-
     # regions for the exits of multi-entrace caves/drops that bunny cannot pass
     # Note spiral cave may be technically passible, but it would be too absurd to require since OHKO mode is a thing.
     bunny_impassable_caves = ['Bumper Cave (top)', 'Bumper Cave (bottom)', 'Two Brothers House',
@@ -1871,13 +1881,14 @@ def set_bunny_rules(world, player, inverted):
             return region.is_light_world
         else:
             return region.is_dark_world
+
     def is_link(region):
         if inverted:
             return region.is_dark_world
         else:
             return region.is_light_world
 
-    def get_rule_to_add(region, location = None, connecting_entrance = None):
+    def get_rule_to_add(region, location=None, connecting_entrance=None):
         # In OWG, a location can potentially be superbunny-mirror accessible or
         # bunny revival accessible.
         if world.logic[player] == 'owglitches':
@@ -1900,16 +1911,15 @@ def set_bunny_rules(world, player, inverted):
         # for each such entrance a new option is added that consist of:
         #    a) being able to reach it, and
         #    b) being able to access all entrances from there to `region`
-        seen = {region}
-        queue = deque([(region, [])])
+        queue = deque([(region, [], {region})])
         while queue:
-            (current, path) = queue.popleft()
+            (current, path, seen) = queue.popleft()
             for entrance in current.entrances:
                 new_region = entrance.parent_region
                 if new_region.type in (RegionType.Cave, RegionType.Dungeon) and new_region in seen:
                     continue
                 new_path = path + [entrance.access_rule]
-                seen.add(new_region)
+                new_seen = seen.union({new_region})
                 if not is_link(new_region):
                     if world.logic[player] == 'owglitches':
                         if region.type == RegionType.Dungeon and new_region.type != RegionType.Dungeon:
@@ -1946,7 +1956,7 @@ def set_bunny_rules(world, player, inverted):
                     else:
                         continue
                 if is_bunny(new_region):
-                    queue.append((new_region, new_path))
+                    queue.append((new_region, new_path, new_seen))
                 else:
                     # we have reached pure light world, so we have a new possible option
                     possible_options.append(path_to_access_rule(new_path, entrance))
@@ -1997,7 +2007,6 @@ drop_dungeon_entrances = {
     "Skull Pot Circle",
     "Skull Back Drop"
 }
-
 
 bunny_revivable_entrances = {
     "Sewers Pull Switch", "TR Dash Room", "Swamp Boss", "Hera Boss",
@@ -2058,14 +2067,14 @@ bunny_impassible_doors = {
     'PoD Arena Landing Bonk Path', 'PoD Sexy Statue NW', 'PoD Map Balcony Drop Down',
     'PoD Mimics 1 NW', 'PoD Falling Bridge Path N', 'PoD Falling Bridge Path S',
     'PoD Mimics 2 NW', 'PoD Bow Statue Down Ladder', 'PoD Dark Pegs Landing to Right',
-    'PoD Dark Pegs Left to Middle Barrier - Blue', 'PoD Dark Pegs Left to Ranged Crystal', 
+    'PoD Dark Pegs Left to Middle Barrier - Blue', 'PoD Dark Pegs Left to Ranged Crystal',
     'PoD Turtle Party ES', 'PoD Turtle Party NW', 'PoD Callback Warp', 'Swamp Lobby Moat', 'Swamp Entrance Moat',
     'Swamp Trench 1 Approach Swim Depart', 'Swamp Trench 1 Approach Key', 'Swamp Trench 1 Key Approach',
     'Swamp Trench 1 Key Ledge Depart', 'Swamp Trench 1 Departure Approach', 'Swamp Trench 1 Departure Key',
     'Swamp Hub Hook Path', 'Swamp Shortcut Blue Barrier', 'Swamp Trench 2 Pots Blue Barrier',
     'Swamp Trench 2 Pots Wet', 'Swamp Trench 2 Departure Wet', 'Swamp West Ledge Hook Path', 'Swamp Barrier Ledge Hook Path',
     'Swamp Attic Left Pit', 'Swamp Attic Right Pit', 'Swamp Push Statue NW', 'Swamp Push Statue NE',
-    'Swamp Drain Right Switch', 'Swamp Waterway NE', 'Swamp Waterway N', 'Swamp Waterway NW', 
+    'Swamp Drain Right Switch', 'Swamp Waterway NE', 'Swamp Waterway N', 'Swamp Waterway NW',
     'Skull Pot Circle WN', 'Skull Pot Circle Star Path', 'Skull Pull Switch S', 'Skull Big Chest N',
     'Skull Big Chest Hookpath', 'Skull 2 East Lobby NW', 'Skull Back Drop Star Path', 'Skull 2 West Lobby NW',
     'Skull 3 Lobby EN', 'Skull Star Pits SW', 'Skull Star Pits ES', 'Skull Torch Room WN', 'Skull Vines NW',
@@ -2101,7 +2110,7 @@ bunny_impassible_doors = {
     'GT Double Switch Exit to Blue Barrier', 'GT Firesnake Room Hook Path', 'GT Falling Bridge WN', 'GT Falling Bridge WS',
     'GT Ice Armos NE', 'GT Ice Armos WS', 'GT Crystal Paths SW', 'GT Mimics 1 NW', 'GT Mimics 1 ES', 'GT Mimics 2 WS',
     'GT Mimics 2 NE', 'GT Hidden Spikes EN', 'GT Cannonball Bridge SE', 'GT Gauntlet 1 WN', 'GT Gauntlet 2 EN',
-    'GT Gauntlet 2 SW', 'GT Gauntlet 3 NW',  'GT Gauntlet 3 SW', 'GT Gauntlet 4 NW', 'GT Gauntlet 4 SW',
+    'GT Gauntlet 2 SW', 'GT Gauntlet 3 NW', 'GT Gauntlet 3 SW', 'GT Gauntlet 4 NW', 'GT Gauntlet 4 SW',
     'GT Gauntlet 5 NW', 'GT Gauntlet 5 WS', 'GT Lanmolas 2 ES', 'GT Lanmolas 2 NW', 'GT Wizzrobes 1 SW',
     'GT Wizzrobes 2 SE', 'GT Wizzrobes 2 NE', 'GT Torch Cross ES', 'GT Falling Torches NE', 'GT Moldorm Gap',
     'GT Validation Block Path'
@@ -2254,7 +2263,7 @@ def create_key_rule(small_key_name, player, keys):
 
 def create_key_rule_allow_small(small_key_name, player, keys, location):
     loc = location.name
-    return lambda state: state.has_sm_key(small_key_name, player, keys) or (item_name(state, loc, player) in [(small_key_name, player)] and state.has_sm_key(small_key_name, player, keys-1))
+    return lambda state: state.has_sm_key(small_key_name, player, keys) or (item_name(state, loc, player) in [(small_key_name, player)] and state.has_sm_key(small_key_name, player, keys - 1))
 
 
 def create_key_rule_bk_exception(small_key_name, big_key_name, player, keys, bk_keys, bk_locs):
@@ -2265,7 +2274,7 @@ def create_key_rule_bk_exception(small_key_name, big_key_name, player, keys, bk_
 def create_key_rule_bk_exception_or_allow(small_key_name, big_key_name, player, keys, location, bk_keys, bk_locs):
     loc = location.name
     chest_names = [x.name for x in bk_locs]
-    return lambda state: (state.has_sm_key(small_key_name, player, keys) and not item_in_locations(state, big_key_name, player, zip(chest_names, [player] * len(chest_names)))) or (item_name(state, loc, player) in [(small_key_name, player)] and state.has_sm_key(small_key_name, player, keys-1)) or (item_in_locations(state, big_key_name, player, zip(chest_names, [player] * len(chest_names))) and state.has_sm_key(small_key_name, player, bk_keys))
+    return lambda state: (state.has_sm_key(small_key_name, player, keys) and not item_in_locations(state, big_key_name, player, zip(chest_names, [player] * len(chest_names)))) or (item_name(state, loc, player) in [(small_key_name, player)] and state.has_sm_key(small_key_name, player, keys - 1)) or (item_in_locations(state, big_key_name, player, zip(chest_names, [player] * len(chest_names))) and state.has_sm_key(small_key_name, player, bk_keys))
 
 
 def create_advanced_key_rule(key_logic, player, rule):
