@@ -109,7 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
-* * 1.2.0.22u
+* 1.2.0.22u
+  * ? 
+  * ER: Minor fix for Link's House on DM in Insanity (escape cave should not be re-used) 
   * Fixed logic issues:
     * Self-locking key not allowed in Sanctuary in standard (typo fixed)
     * More advanced bunny-walking logic in dungeons (multiple paths considred)
