@@ -302,6 +302,8 @@ def randomize_underworld_rooms(data_tables, world, player, custom_uw):
             continue
         current_sprites = data_tables.uw_enemy_table.room_map[room_id]
         sprite_limit = sum(sprite_limiter[x.kind] if x.kind in sprite_limiter else 1 for x in current_sprites)
+        if room_id in {0x3f, 0x44, 0x45, 0x93, 0xce, 0x117}:
+            sprite_limit += 1  # for liftable blocks see PotFlags.Block in PotShuffle
         randomizeable_sprites = get_randomize_able_sprites(room_id, data_tables)
         if not randomizeable_sprites:
             candidate_sheets = get_possible_sheets(room_id, data_tables, specific, all_sheets, uw_sheets)

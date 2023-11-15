@@ -143,19 +143,23 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.3.0.6v
   * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
-  * Enemizer: Arrghus at Lanmo 2 no longer prevents pot pickups
+  * Enemizer
+    * Arrghus at Lanmo 2 no longer prevents pot pickups
+    * Lift-able Blocks require a sprite slot (should help reduce problems)
   * Fixed logic issues:
       * Self-locking key not allowed in Sanctuary in standard (typo fixed)
       * More advanced bunny-walking logic in dungeons (multiple paths considered)
   * ER: Minor fix for Link's House on DM in Insanity (escape cave should not be re-used)
   * MSU: GTBK song fix for DR (Thanks codemann!)
+  * District Algorithm: Fails if no available location outside chosen districts
   * Various enemy bans
     * More Gibos near kiki and Old Man
-    * Bumper obstacles
+    * Bumper/AntiFairy obstacles
     * Damaging roller
     * Statue + Pots don't mix
+    * Statues on Skull Big Key Chest tile  
     * Toppo in challenge rooms
-    * Misc
+    * Misc others
 * 1.3.0.5v
   * Hud/Map Counter: Collecting a keys for this dungeon of a bonk torch no longer increments the counter twice and immediately updates the hud.  
   * Enemizer: Hera basement item counting twice fixed by banning wallmasters on the tile.

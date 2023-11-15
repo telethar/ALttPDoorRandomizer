@@ -73,6 +73,7 @@ UwGeneralDeny:
   - [ 0x0039, 4, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "FirebarCW", "FirebarCCW" ] ]  #"Skull Woods - Play Pen - Spike Trap 1"
   - [ 0x0039, 5, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft" ] ]  #"Skull Woods - Play Pen - Hardhat Beetle"
   - [ 0x0039, 6, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "FirebarCW", "FirebarCCW" ] ]  #"Skull Woods - Play Pen - Spike Trap 2"
+  - [ 0x003b, 1, [ "Bumper" ]]
   - [ 0x003c, 1, [ "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Hookshot Cave - Blue Bari 1"
   - [ 0x003c, 2, [ "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Hookshot Cave - Blue Bari 2"
   - [ 0x003d, 9, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ganon's Tower - Torches 2 - Spark (Counterclockwise)"
@@ -81,7 +82,7 @@ UwGeneralDeny:
   - [ 0x003d, 13, [ "AntiFairyCircle", "Bumper" ] ] #"Ganon's Tower - Torches 2 - Antifairy"
   - [ 0x003f, 1, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper", "Statue"] ]  #"Ice Palace - P Room - Stalfos Knight 1"
   - [ 0x003f, 3, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper", "Statue"] ]  #"Ice Palace - P Room - Stalfos Knight 2"
-  - [ 0x003f, 4, [ "Wizzrobe", "Statue"] ]  # Wizzrobes can't spawn on pots
+  - [ 0x003f, 4, [ "Wizzrobe", "Statue", "Bumper", "BigSpike", "AntiFairyCircle"]]  # Wizzrobes can't spawn on pots
   - [ 0x0040, 0, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Bridge - Blue Guard 1
   - [ 0x0040, 1, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  # Agahnims Tower - Bridge - Blue Guard 2
   - [ 0x0041, 0, [ "RollerHorizontalLeft" ] ]  #"Sewers - Dark Cactus - Rat 1"
@@ -125,20 +126,27 @@ UwGeneralDeny:
   - [ 0x0053, 7, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Desert Palace - Bridge - Popo 5"
   - [ 0x0055, 1, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Secret Passage Exit - Green Knife Guard 1"
   - [ 0x0057, 0, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
-  - [ 0x0057, 2, [ "RollerVerticalUp", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Big Key Room - Spike Trap"
-  - [ 0x0057, 7, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Big Key Room - Gibdo 2"
-  - [ 0x0057, 12, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "BigSpike", "SpikeBlock"]]  #"Skull Woods - Big Key Room - Gibdo 6"
-  - [ 0x0057, 13, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Big Key Room - Blue Bari 1"
-  - [ 0x0057, 14, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Big Key Room - Blue Bari 2"
+  - [ 0x0057, 1, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 2, [ "RollerVerticalUp", "AntiFairyCircle", "Bumper", "Statue" ] ]  #"Skull Woods - Big Key Room - Spike Trap"
+  - [ 0x0057, 3, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 4, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 5, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 7, [ "RollerVerticalUp", "RollerVerticalDown", "Statue" ] ]  #"Skull Woods - Big Key Room - Gibdo 2"
+  - [ 0x0057, 8, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 9, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 10, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 11, ["Statue"]]  # Statue switch issues
+  - [ 0x0057, 12, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "BigSpike", "SpikeBlock", "Statue"]]  #"Skull Woods - Big Key Room - Gibdo 6"
+  - [ 0x0057, 13, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "Statue" ] ]  #"Skull Woods - Big Key Room - Blue Bari 1"
+  - [ 0x0057, 14, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "Statue" ] ]  #"Skull Woods - Big Key Room - Blue Bari 2"
   - [ 0x0058, 0, ["Statue"]]
   - [ 0x0058, 1, ["Statue"]]
   - [ 0x0058, 2, ["Statue"]]
   - [ 0x0058, 3, ["Statue"]]
   - [ 0x0058, 4, ["Statue"]]
   - [ 0x0058, 6, ["Statue"]]
-  - [ 0x0058, 7, ["Statue"]]
+  - [ 0x0058, 7, [ "RollerHorizontalLeft", "Statue" ] ]  #"Skull Woods - Lever Room - Hardhat Beetle 2"
   - [ 0x0058, 8, ["Statue"]]
-  - [ 0x0058, 7, [ "RollerHorizontalLeft" ] ]  #"Skull Woods - Lever Room - Hardhat Beetle 2"
   - [ 0x0059, 0, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Mini Moldorm 1"
   - [ 0x0059, 1, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Mini Moldorm 2"
   - [ 0x0059, 9, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Gibdo 1"
