@@ -1,13 +1,13 @@
 meta:
   players: 1
-  seed: 94
+  seed: 91
 settings:
   1:
 #    mode: standard
 
-#    boss_shuffle: random
-    dropshuffle: underworld
-    enemy_shuffle: shuffled
+    boss_shuffle: random
+#    dropshuffle: underworld
+#    enemy_shuffle: shuffled
     door_shuffle: crossed
     intensity: 3
 
@@ -18,12 +18,16 @@ doors:
       Hyrule Castle South: GT Lobby S
     doors:
       GT Lobby Left Down Stairs: GT Quad Pot Up Stairs
+      GT Lobby Right Down Stairs: GT Lobby Up Stairs
+      GT Beam Dash ES: Swamp Big Key Ledge WN
+
 bosses:
   1:
-    Ganons Tower (middle): Arrghus
-#placements:
-#  1:
-#    Desert Palace - Torch: Small Key (Escape)
+    Ganons Tower (middle): Trinexx
+placements:
+  1:
+    Swamp Palace - Big Key Chest: Progressive Glove
+    Lumberjack Tree: Piece of Heart
 
 
 #    keyshuffle: wild

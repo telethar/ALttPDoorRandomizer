@@ -851,7 +851,7 @@ def create_dungeon_regions(world, player):
         create_dungeon_region(player, 'GT Cannonball Bridge', 'Ganon\'s Tower', None, ['GT Cannonball Bridge WN', 'GT Cannonball Bridge Up Stairs', 'GT Cannonball Bridge SE']),
         create_dungeon_region(player, 'GT Refill', 'Ganon\'s Tower', None, ['GT Refill NE']),
         create_dungeon_region(player, 'GT Gauntlet 1', 'Ganon\'s Tower', None, ['GT Gauntlet 1 Down Stairs', 'GT Gauntlet 1 WN']),
-        create_dungeon_region(player, 'GT Gauntlet 2', 'Ganon\'s Tower', None, ['GT Gauntlet 2 EN', 'GT Gauntlet 2 SW']),
+        create_dungeon_region(player, 'GT Gauntlet 2', 'Ganon\'s TowerA', None, ['GT Gauntlet 2 EN', 'GT Gauntlet 2 SW']),
         create_dungeon_region(player, 'GT Gauntlet 3', 'Ganon\'s Tower', None, ['GT Gauntlet 3 NW', 'GT Gauntlet 3 SW']),
         create_dungeon_region(player, 'GT Gauntlet 4', 'Ganon\'s Tower', None, ['GT Gauntlet 4 NW', 'GT Gauntlet 4 SW']),
         create_dungeon_region(player, 'GT Gauntlet 5', 'Ganon\'s Tower', None, ['GT Gauntlet 5 NW', 'GT Gauntlet 5 WS']),

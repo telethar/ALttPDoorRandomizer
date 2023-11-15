@@ -145,6 +145,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
   * Enemizer
     * Arrghus at Lanmo 2 no longer prevents pot pickups
+    * Trinexx at Lanmo 2 requires the Cape go backwards to face him
     * Lift-able Blocks require a sprite slot (should help reduce problems)
   * Fixed logic issues:
       * Self-locking key not allowed in Sanctuary in standard (typo fixed)

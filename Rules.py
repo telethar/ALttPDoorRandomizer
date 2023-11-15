@@ -542,6 +542,10 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Cannonball Bridge SE', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('GT Lanmolas 2 ES', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
     set_rule(world.get_entrance('GT Lanmolas 2 NW', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
+    # Need cape to safely get past trinexx backwards in this room, makes magic usage tighter
+    # Could not guarantee safety with byrna, not sure why
+    if world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].name == 'Trinexx':
+        add_rule(world.get_entrance('GT Quad Pot SW', player), lambda state: state.has('Cape', player))
     set_rule(world.get_entrance('GT Torch Cross ES', player), lambda state: state.has_fire_source(player))
     if is_trapped('GT Torch Cross WN'):
         set_rule(world.get_entrance('GT Torch Cross WN', player), lambda state: state.has_fire_source(player))
