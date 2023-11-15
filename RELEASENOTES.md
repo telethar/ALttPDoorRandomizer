@@ -142,11 +142,13 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.3.0.6v
+  * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
   * Enemizer: Arrghus at Lanmo 2 no longer prevents pot pickups
   * Fixed logic issues:
       * Self-locking key not allowed in Sanctuary in standard (typo fixed)
       * More advanced bunny-walking logic in dungeons (multiple paths considered)
   * ER: Minor fix for Link's House on DM in Insanity (escape cave should not be re-used)
+  * MSU: GTBK song fix for DR (Thanks codemann!)
   * Various enemy bans
     * More Gibos near kiki and Old Man
     * Bumper obstacles
