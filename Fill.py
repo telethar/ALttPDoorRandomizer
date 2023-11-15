@@ -280,9 +280,10 @@ def recovery_placement(item_to_place, locations, world, state, base_state, itemp
                     return spot_to_fill
             return None
     # explicitly fail these cases
-    elif world.algorithm in ['dungeon_only', 'major_only']:
+    elif world.algorithm in ['dungeon_only', 'major_only', 'district']:
         raise FillError(f'Rare placement for {world.algorithm} detected. {item_to_place} unable to be placed.'
                         f' Try a different seed')
+    # I don't think any algorithm uses fallback placement anymore, vanilla is special. Others simply fail.
     else:
         other_locations = [x for x in locations if x not in attempted]
         for location in other_locations:
