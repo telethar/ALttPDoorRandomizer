@@ -514,6 +514,10 @@
     "action": "store_true",
     "type": "bool"
   },
+  "aga_randomness": {
+    "action": "store_false",
+    "type": "bool"
+  },
   "saveonexit": {
     "choices": [
       "ask",

@@ -54,7 +54,6 @@ class World(object):
         self.shuffle_bonk_prizes = False
         self.clock_mode = 'none'
         self.rupoor_cost = 10
-        self.aga_randomness = True
         self.lock_aga_door_in_escape = False
         self.save_and_quit_from_boss = True
         self.accessibility = accessibility.copy()
@@ -150,6 +149,7 @@ class World(object):
             set_player_attr('door_type_mode', 'original')
             set_player_attr('trap_door_mode', 'optional')
             set_player_attr('key_logic_algorithm', 'default')
+            set_player_attr('aga_randomness', True)
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')

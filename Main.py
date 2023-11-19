@@ -137,6 +137,7 @@ def main(args, seed=None, fish=None):
     world.restrict_boss_items = args.restrict_boss_items.copy()
     world.collection_rate = args.collection_rate.copy()
     world.colorizepots = args.colorizepots.copy()
+    world.aga_randomness = args.aga_randomness.copy()
 
     world.treasure_hunt_count = {}
     world.treasure_hunt_total = {}

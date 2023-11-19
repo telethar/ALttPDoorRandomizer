@@ -155,6 +155,7 @@ class CustomSettings(object):
                 args.triforce_min_difference[p] = get_setting(settings['triforce_min_difference'], args.triforce_min_difference[p])
                 args.triforce_max_difference[p] = get_setting(settings['triforce_max_difference'], args.triforce_max_difference[p])
                 args.beemizer[p] = get_setting(settings['beemizer'], args.beemizer[p])
+                args.aga_randomness[p] = get_setting(settings['aga_randomness'], args.aga_randomness[p])
 
                 # mystery usage
                 args.usestartinventory[p] = get_setting(settings['usestartinventory'], args.usestartinventory[p])
@@ -283,6 +284,7 @@ class CustomSettings(object):
             settings_dict[p]['triforce_goal'] = world.treasure_hunt_count[p]
             settings_dict[p]['triforce_pool'] = world.treasure_hunt_total[p]
             settings_dict[p]['beemizer'] = world.beemizer[p]
+            settings_dict[p]['aga_randomness'] = world.aga_randomness[p]
 
             # rom adjust stuff
             # settings_dict[p]['sprite'] = world.sprite[p]
