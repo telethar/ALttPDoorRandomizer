@@ -249,7 +249,9 @@ def create_guiargs(parent):
       "heartbeep": "heartbeep",
       "menuspeed": "fastmenu",
       "owpalettes": "ow_palettes",
-      "uwpalettes": "uw_palettes"
+      "uwpalettes": "uw_palettes",
+      "reduce_flashing": "reduce_flashing",
+      "shuffle_sfx": "shuffle_sfx"
     }
     for adjustarg in adjustargs:
       internal = adjustargs[adjustarg]

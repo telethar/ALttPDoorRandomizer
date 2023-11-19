@@ -192,7 +192,9 @@ def loadadjustargs(gui, settings):
                 "heartbeep": "adjust.heartbeep",
                 "menuspeed": "adjust.menuspeed",
                 "owpalettes": "adjust.owpalettes",
-                "uwpalettes": "adjust.uwpalettes"
+                "uwpalettes": "adjust.uwpalettes",
+                "reduce_flashing": "adjust.reduce_flashing",
+                "shuffle_sfx": "adjust.shuffle_sfx"
             }
         }
     }
