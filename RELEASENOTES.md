@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.7v
+  * Fix for Mimic Cave enemy drops
+  * No longer shuffles fairy bonks (from trees) as part of Enemizer
 * 1.3.0.6v
   * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
   * Enemizer

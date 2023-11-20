@@ -70,7 +70,7 @@ class EnemySprite(FastEnum):
     Smithy = 0x1a
     Arrow = 0x1b
     Statue = 0x1c
-    FluteQuest = 0x1d    
+    FluteQuest = 0x1d
     CrystalSwitch = 0x1e
     SickKid = 0x1f
     Sluggula = 0x20
@@ -105,7 +105,7 @@ class EnemySprite(FastEnum):
     OldSnitch = 0x3d
     Hoarder2 = 0x3e
     TutorialGuard = 0x3f
-    
+
     LightningGate = 0x40
     BlueGuard = 0x41
     GreenGuard = 0x42
@@ -115,7 +115,7 @@ class EnemySprite(FastEnum):
     BlueArcher = 0x46
     GreenBushGuard = 0x47
     RedJavelinGuard = 0x48
-    RedBushGuard = 0x49    
+    RedBushGuard = 0x49
     BombGuard = 0x4a
     GreenKnifeGuard = 0x4b
     Geldman = 0x4c
@@ -148,13 +148,13 @@ class EnemySprite(FastEnum):
     WallCannonVertLeft = 0x66
     WallCannonVertRight = 0x67
     WallCannonHorzTop = 0x68
-    WallCannonHorzBottom = 0x69    
+    WallCannonHorzBottom = 0x69
     BallNChain = 0x6a
     CannonTrooper = 0x6b
     CricketRat = 0x6d
     Snake = 0x6e
     Keese = 0x6f
-    
+
     Leever = 0x71
     FairyPondTrigger = 0x72
     UnclePriest = 0x73
@@ -182,7 +182,7 @@ class EnemySprite(FastEnum):
     Arrghus = 0x8c
     Arrghi = 0x8d
     Terrorpin = 0x8e
-    Blob = 0x8f    
+    Blob = 0x8f
     Wallmaster = 0x90
     StalfosKnight = 0x91
     HelmasaurKing = 0x92
@@ -199,7 +199,7 @@ class EnemySprite(FastEnum):
     Babasu = 0x9d  # babasu vertical?
     GroveOstritch = 0x9e
     GroveRabbit = 0x9f
-    GroveBird = 0xa0    
+    GroveBird = 0xa0
     Freezor = 0xa1
     Kholdstare = 0xa2
     KholdstareShell = 0xa3
@@ -228,7 +228,7 @@ class EnemySprite(FastEnum):
     Whirlpool = 0xba
     Shopkeeper = 0xbb
     Drunkard = 0xbc
-    Vitreous = 0xbd   
+    Vitreous = 0xbd
     # ... (spawnables)
     Catfish = 0xc0
     CutsceneAgahnim = 0xc1
@@ -245,7 +245,7 @@ class EnemySprite(FastEnum):
     TrinexxFireHead = 0xcc
     TrinexxIceHead = 0xcd
     Blind = 0xce
-    Swamola = 0xcf    
+    Swamola = 0xcf
     Lynel = 0xd0
     BunnyBeam = 0xd1
     FloppingFish = 0xd2
@@ -275,8 +275,8 @@ class EnemySprite(FastEnum):
     MedallionTablet = 0xf2
     PositionTarget = 0xf3
     Boulders = 0xf4
-    
-    
+
+
 class SpriteType(FastEnum):
     Normal = 0x00
     Overlord = 0x07
@@ -765,7 +765,7 @@ def init_vanilla_sprites():
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x04, 0x15, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x09, 0x15, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.AntiFairy, 0x00, 0, 0x06, 0x16, 'Ice Pengator Switch')
-    create_sprite(0x001f, EnemySprite.BunnyBeam, 0x00, 0, 0x07, 0x17, 'Ice Pengator Switch')  #, fix=True)
+    create_sprite(0x001f, EnemySprite.BunnyBeam, 0x00, 0, 0x07, 0x17, 'Ice Pengator Switch')  # , fix=True)
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x0a, 0x17, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x0a, 0x19, 'Ice Pengator Switch')
     create_sprite(0x001f, EnemySprite.Pengator, 0x00, 0, 0x04, 0x1b, 'Ice Pengator Switch')
@@ -800,7 +800,7 @@ def init_vanilla_sprites():
     create_sprite(0x0024, EnemySprite.Pokey, 0x00, 0, 0x05, 0x08, 'TR Twin Pokeys')
     create_sprite(0x0024, EnemySprite.Medusa, 0x00, 0, 0x07, 0x08, 'TR Twin Pokeys')
     create_sprite(0x0024, EnemySprite.Pokey, 0x00, 0, 0x0a, 0x08, 'TR Twin Pokeys')
-    create_sprite(0x0024, EnemySprite.BunnyBeam, 0x00, 0, 0x0c, 0x0c, 'TR Twin Pokeys')  #, fix=True)
+    create_sprite(0x0024, EnemySprite.BunnyBeam, 0x00, 0, 0x0c, 0x0c, 'TR Twin Pokeys')  # , fix=True)
     create_sprite(0x0026, EnemySprite.Medusa, 0x00, 0, 0x03, 0x04)
     create_sprite(0x0026, EnemySprite.RedBari, 0x00, 0, 0x1a, 0x05, 'Swamp Right Elbow')
     create_sprite(0x0026, EnemySprite.RedBari, 0x00, 0, 0x05, 0x06, 'Swamp Shooters')
@@ -927,12 +927,12 @@ def init_vanilla_sprites():
     create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x16, 'Skull Final Drop')
     create_sprite(0x0039, EnemySprite.HardhatBeetle, 0x00, 0, 0x0b, 0x18, 'Skull Spike Corner')
     create_sprite(0x0039, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x1a, 'Skull Final Drop')
-    create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x0e, 0x11, 'PoD Pit Room',)
-    create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x11, 0x11, 'PoD Pit Room',)
-    create_sprite(0x003a, EnemySprite.Medusa, 0x00, 0, 0x04, 0x14, 'PoD Pit Room',)
-    create_sprite(0x003a, EnemySprite.BlueBari, 0x00, 0, 0x0a, 0x14, 'PoD Pit Room',)
-    create_sprite(0x003a, EnemySprite.BlueBari, 0x00, 0, 0x15, 0x14, 'PoD Pit Room',)
-    create_sprite(0x003a, EnemySprite.Medusa, 0x00, 0, 0x1b, 0x14, 'PoD Pit Room',)
+    create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x0e, 0x11, 'PoD Pit Room')
+    create_sprite(0x003a, EnemySprite.Terrorpin, 0x00, 0, 0x11, 0x11, 'PoD Pit Room')
+    create_sprite(0x003a, EnemySprite.Medusa, 0x00, 0, 0x04, 0x14, 'PoD Pit Room')
+    create_sprite(0x003a, EnemySprite.BlueBari, 0x00, 0, 0x0a, 0x14, 'PoD Pit Room')
+    create_sprite(0x003a, EnemySprite.BlueBari, 0x00, 0, 0x15, 0x14, 'PoD Pit Room')
+    create_sprite(0x003a, EnemySprite.Medusa, 0x00, 0, 0x1b, 0x14, 'PoD Pit Room')
     create_sprite(0x003b, EnemySprite.SpikeBlock, 0x00, 0, 0x03, 0x06, 'PoD Conveyor')
     create_sprite(0x003b, EnemySprite.RedBari, 0x00, 0, 0x07, 0x09, 'PoD Conveyor')
     create_sprite(0x003b, EnemySprite.SpikeBlock, 0x00, 0, 0x0c, 0x0d, 'PoD Conveyor')
@@ -1005,7 +1005,7 @@ def init_vanilla_sprites():
     create_sprite(0x0045, EnemySprite.RedZazak, 0x00, 0, 0x06, 0x06, 'Thieves Basement Block')
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x04, 0x0b, 'Thieves Basement Block')
     create_sprite(0x0045, EnemySprite.Stalfos, 0x00, 0, 0x0b, 0x0b, 'Thieves Basement Block')
-    create_sprite(0x0045, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x0b, "Thieves Blind's Cell Interior")  #, fix=True)
+    create_sprite(0x0045, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x0b, "Thieves Blind's Cell Interior")  # , fix=True)
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x18, 0x0c, "Thieves Blind's Cell Interior")
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x1a, 0x0c, "Thieves Blind's Cell Interior")
     create_sprite(0x0045, EnemySprite.BlueZazak, 0x00, 0, 0x18, 0x11, "Thieves Blind's Cell Interior")
@@ -1103,7 +1103,7 @@ def init_vanilla_sprites():
     create_sprite(0x0056, EnemySprite.HardhatBeetle, 0x00, 0, 0x03, 0x1b, 'Skull 2 West Lobby')
     create_sprite(0x0056, EnemySprite.Firesnake, 0x00, 0, 0x13, 0x1c, 'Skull Small Hall')
     create_sprite(0x0056, EnemySprite.HardhatBeetle, 0x00, 0, 0x19, 0x1c, 'Skull Small Hall')
-    create_sprite(0x0057, EnemySprite.BunnyBeam, 0x00, 0, 0x08, 0x04, 'Skull Big Key')  #, fix=True)
+    create_sprite(0x0057, EnemySprite.BunnyBeam, 0x00, 0, 0x08, 0x04, 'Skull Big Key')  # , fix=True)
     create_sprite(0x0057, EnemySprite.RedBari, 0x00, 0, 0x0c, 0x04, 'Skull Big Key')
     create_sprite(0x0057, EnemySprite.SpikeBlock, 0x00, 0, 0x08, 0x05, 'Skull Big Key')
     create_sprite(0x0057, EnemySprite.Stalfos, 0x00, 0, 0x04, 0x07, 'Skull Big Key')
@@ -1188,7 +1188,7 @@ def init_vanilla_sprites():
     create_sprite(0x0064, EnemySprite.Keese, 0x00, 0, 0x05, 0x12, 'Thieves Attic Hint', embed=True)
     create_sprite(0x0064, EnemySprite.WrongPullSwitch, 0x00, 0, 0x0b, 0x13)
     create_sprite(0x0064, EnemySprite.Keese, 0x00, 0, 0x05, 0x13, 'Thieves Attic Hint')
-    create_sprite(0x0064, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x16, 'Thieves Attic Hint')  #, fix=True)
+    create_sprite(0x0064, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x16, 'Thieves Attic Hint')  # , fix=True)
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x17, 0x17, 'Thieves Cricket Hall Left')
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x19, 0x19, 'Thieves Cricket Hall Left')
     create_sprite(0x0064, EnemySprite.CricketRat, 0x00, 0, 0x05, 0x1a, 'Thieves Attic')
@@ -1422,7 +1422,7 @@ def init_vanilla_sprites():
     create_sprite(0x008c, 0x1a, SpriteType.Overlord, 0, 0x1a, 0x06)
     create_sprite(0x008c, 0x1a, SpriteType.Overlord, 0, 0x15, 0x0a)
     create_sprite(0x008c, 0x1a, SpriteType.Overlord, 0, 0x1a, 0x0a)
-    create_sprite(0x008c, EnemySprite.SparkCW, 0x00, 0, 0x08, 0x08, 'GT Bob\'s Torch',)
+    create_sprite(0x008c, EnemySprite.SparkCW, 0x00, 0, 0x08, 0x08, 'GT Bob\'s Torch')
     create_sprite(0x008c, EnemySprite.SpikeBlock, 0x00, 0, 0x17, 0x08, 'GT Hope Room')
     create_sprite(0x008c, EnemySprite.Stalfos, 0x00, 0, 0x0b, 0x09, 'GT Bob\'s Torch')
     create_sprite(0x008c, EnemySprite.Stalfos, 0x00, 0, 0x03, 0x0b, 'GT Bob\'s Torch')
@@ -1447,7 +1447,7 @@ def init_vanilla_sprites():
     create_sprite(0x008d, EnemySprite.BlueBari, 0x00, 0, 0x14, 0x1c, 'GT Speed Torch')
     create_sprite(0x008e, EnemySprite.Freezor, 0x00, 0, 0x1b, 0x02, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x18, 0x05, 'Ice Lonely Freezor')
-    create_sprite(0x008e, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x06, 'Ice Lonely Freezor')  #, fix=True)
+    create_sprite(0x008e, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x06, 'Ice Lonely Freezor')  # , fix=True)
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x1b, 0x08, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x14, 0x09, 'Ice Lonely Freezor')
     create_sprite(0x008e, EnemySprite.Blob, 0x00, 0, 0x16, 0x0a, 'Ice Lonely Freezor')
@@ -1557,7 +1557,7 @@ def init_vanilla_sprites():
     create_sprite(0x00a1, EnemySprite.Medusa, 0x00, 0, 0x15, 0x15, 'Mire South Fish')
     create_sprite(0x00a1, EnemySprite.Medusa, 0x00, 0, 0x1a, 0x15, 'Mire South Fish')
     create_sprite(0x00a1, EnemySprite.Stalfos, 0x00, 0, 0x15, 0x19, 'Mire South Fish')
-    create_sprite(0x00a1, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x19, 'Mire South Fish')  #, fix=True)
+    create_sprite(0x00a1, EnemySprite.BunnyBeam, 0x00, 0, 0x17, 0x19, 'Mire South Fish')  # , fix=True)
     create_sprite(0x00a1, EnemySprite.Stalfos, 0x00, 0, 0x1b, 0x19, 'Mire South Fish')
     create_sprite(0x00a4, EnemySprite.TrinexxRockHead, 0x00, 0, 0x07, 0x05)
     create_sprite(0x00a4, EnemySprite.TrinexxFireHead, 0x00, 0, 0x07, 0x05)
@@ -1633,9 +1633,9 @@ def init_vanilla_sprites():
     create_sprite(0x00b1, EnemySprite.AntiFairy, 0x00, 0, 0x15, 0x1a, 'Mire Spike Barrier')
     create_sprite(0x00b1, EnemySprite.Wizzrobe, 0x00, 0, 0x08, 0x1c, 'Mire Square Rail')
     create_sprite(0x00b2, EnemySprite.Wizzrobe, 0x00, 1, 0x14, 0x08, 'Mire BK Door Room')
-    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x0c, 0x0a, 'Mire BK Door Room')  #, fix=True)
+    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x0c, 0x0a, 'Mire BK Door Room')  # , fix=True)
     create_sprite(0x00b2, EnemySprite.AntiFairy, 0x00, 1, 0x12, 0x0a, 'Mire BK Door Room')
-    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x13, 0x0a, 'Mire BK Door Room')  #, fix=True)
+    create_sprite(0x00b2, EnemySprite.BunnyBeam, 0x00, 1, 0x13, 0x0a, 'Mire BK Door Room')  # , fix=True)
     create_sprite(0x00b2, EnemySprite.AntiFairy, 0x00, 1, 0x07, 0x0b, 'Mire BK Door Room')
     create_sprite(0x00b2, EnemySprite.Sluggula, 0x00, 0, 0x04, 0x15, 'Mire Cross')
     create_sprite(0x00b2, EnemySprite.Sluggula, 0x00, 0, 0x0b, 0x15, 'Mire Cross')
@@ -1736,7 +1736,7 @@ def init_vanilla_sprites():
     create_sprite(0x00c2, EnemySprite.Medusa, 0x00, 0, 0x08, 0x10, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x10, 0x12, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x19, 0x12, 'Mire Hub')
-    create_sprite(0x00c2, EnemySprite.BunnyBeam, 0x00, 1, 0x10, 0x14, 'Mire Hub')  #, fix=True)
+    create_sprite(0x00c2, EnemySprite.BunnyBeam, 0x00, 1, 0x10, 0x14, 'Mire Hub')  # , fix=True)
     create_sprite(0x00c2, EnemySprite.Firesnake, 0x00, 1, 0x08, 0x16, 'Mire Hub')
     create_sprite(0x00c2, EnemySprite.SparkCW, 0x00, 1, 0x16, 0x16, 'Mire Hub')
     create_sprite(0x00c3, EnemySprite.Medusa, 0x00, 0, 0x05, 0x06)
@@ -1782,7 +1782,7 @@ def init_vanilla_sprites():
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x10, 0x05, 'Eastern Lobby Bridge')
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x0f, 0x06, 'Eastern Lobby Bridge')
     create_sprite(0x00c9, EnemySprite.Popo2, 0x00, 0, 0x10, 0x07, 'Eastern Lobby Bridge')
-    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x04, 'Thieves Ambush')  #, fix=True)
+    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x04, 'Thieves Ambush')  # , fix=True)
     create_sprite(0x00cb, EnemySprite.Firesnake, 0x00, 1, 0x08, 0x09, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.BlueZazak, 0x00, 1, 0x10, 0x0a, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x13, 0x0a, 'Thieves Ambush')
@@ -1793,7 +1793,7 @@ def init_vanilla_sprites():
     create_sprite(0x00cb, EnemySprite.RedZazak, 0x00, 1, 0x08, 0x17, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x0b, 0x17, 'Thieves Ambush')
     create_sprite(0x00cb, EnemySprite.Blob, 0x00, 0, 0x0c, 0x18, 'Thieves Ambush')
-    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x1c, 'Thieves Ambush')  #, fix=True)
+    create_sprite(0x00cb, EnemySprite.BunnyBeam, 0x00, 0, 0x14, 0x1c, 'Thieves Ambush')  # , fix=True)
     create_sprite(0x00cc, EnemySprite.Firesnake, 0x00, 0, 0x13, 0x04, 'Thieves BK Corner')
     create_sprite(0x00cc, EnemySprite.BunnyBeam, 0x00, 1, 0x0b, 0x09, 'Thieves BK Corner')
     create_sprite(0x00cc, EnemySprite.BlueZazak, 0x00, 1, 0x08, 0x0a, 'Thieves BK Corner')
@@ -1870,7 +1870,7 @@ def init_vanilla_sprites():
     create_sprite(0x00d9, EnemySprite.GreenEyegoreMimic, 0x00, 0, 0x18, 0x1b, 'Eastern False Switches')
     create_sprite(0x00da, EnemySprite.AntiFairy, 0x00, 0, 0x07, 0x18, 'Eastern Attic Start')
     create_sprite(0x00da, EnemySprite.AntiFairy, 0x00, 0, 0x08, 0x18, 'Eastern Attic Start')
-    create_sprite(0x00db, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x04, 'Thieves Lobby')  #, fix=True)
+    create_sprite(0x00db, EnemySprite.BunnyBeam, 0x00, 0, 0x03, 0x04, 'Thieves Lobby')  # , fix=True)
     create_sprite(0x00db, EnemySprite.SparkCW, 0x00, 1, 0x0e, 0x0a, 'Thieves Lobby')
     create_sprite(0x00db, EnemySprite.RedZazak, 0x00, 1, 0x17, 0x0b, 'Thieves Lobby')
     create_sprite(0x00db, EnemySprite.BlueZazak, 0x00, 1, 0x0f, 0x0c, 'Thieves Lobby')
@@ -2183,6 +2183,7 @@ splittable_supertiles = {0x9, 0x1a, 0x35, 0x36, 0x37, 0x2a, 0x57, 0x74, 0x75, 0x
                          # fairy needs
                          0x107, 0x10c, 0x115, 0x11e, 0x120, 0x126}
 
+
 # minimum 159 bytes maybe reserve 256 (0x100)
 # tr pipes, mire left/right bridges, eastern cannonball, tr front entrance = have zero enemies so far but are splittable
 # 0x14, 0xa2, 0xb9, 0xd6
@@ -2203,7 +2204,7 @@ def setup_enemy_dungeon_tables(world, player):
                 if (super_tile, index) in key_drop_special:
                     loc_name = key_drop_special[(super_tile, index)]
                 else:
-                    loc_name = f'{sprite.region} Enemy #{index+1}'
+                    loc_name = f'{sprite.region} Enemy #{index + 1}'
                 loc = world.get_location_unsafe(loc_name, player)
                 if sprite.sub_type == 0x07:  # overlord
                     idx_adj += 1
@@ -2212,12 +2213,13 @@ def setup_enemy_dungeon_tables(world, player):
                     # possible to-do: caves really aren't supported yet - entrance ids?
                     if loc.parent_region.dungeon:
                         dungeon = loc.parent_region.dungeon.dungeon_id * 2
-                        dungeon_map[super_tile][dungeon].append((loc, index-idx_adj))
+                        dungeon_map[super_tile][dungeon].append((loc, index - idx_adj))
                     else:
-                        if super_tile not in super_tile_entrance_id_map:
-                            super_tile_entrance_id_map[super_tile] = find_entrance_ids(loc.parent_region)
-                        for entrance_id in super_tile_entrance_id_map[super_tile]:
-                            dungeon_map[super_tile][entrance_id].append((loc, index-idx_adj))
+                        map_key = super_tile, loc.parent_region.name
+                        if map_key not in super_tile_entrance_id_map:
+                            super_tile_entrance_id_map[map_key] = find_entrance_ids(loc.parent_region)
+                        for entrance_id in super_tile_entrance_id_map[map_key]:
+                            dungeon_map[super_tile][entrance_id].append((loc, index - idx_adj))
     special_bitmasks = defaultdict(lambda: defaultdict(int))
     for super_tile, dungeon_list in dungeon_map.items():
         for dungeon, data_list in dungeon_list.items():
@@ -2254,12 +2256,11 @@ def valid_drop_location(sprite, index, world, player):
 
 
 def create_drop_location(sprite, index, super_tile, world, player):
-
     address = drop_address(index, super_tile)
     region_name = sprite.region
     parent = world.get_region(region_name, player)
     enemy_name = enemy_names[sprite.kind]
-    descriptor = f'Enemy #{index+1}'
+    descriptor = f'Enemy #{index + 1}'
     modifier = parent.hint_text not in {'a storyteller', 'fairies deep in a cave', 'a spiky hint',
                                         'a bounty of five items', 'the sick kid', 'Sahasrahla'}
     hint_text = f'held by a {enemy_name} {"in" if modifier else "near"} {parent.hint_text}'
@@ -2298,7 +2299,7 @@ prize_pack_selector = {
 
 def add_drop_contents(world, player):
     retro_bow = world.bow_mode[player].startswith('retro')
-    index_selector = [0]*8
+    index_selector = [0] * 8
     for super_tile, enemy_list in world.data_tables[player].uw_enemy_table.room_map.items():
         for sprite in enemy_list:
             if sprite.drops_item and sprite.drop_item_kind == 0xe4:
@@ -2552,14 +2553,14 @@ enemy_names = {
 }
 
 overlord_names = {
-    0x01: 'PositionTarget',  0x02: 'FullRoomCannons',  0x03: 'VerticalCanon',
+    0x01: 'PositionTarget', 0x02: 'FullRoomCannons', 0x03: 'VerticalCanon',
     0x05: 'FallingStalfos', 0x06: 'SnakeTrap',
-    0x07: 'MovingFloor',  0x08: 'BlobSpawner',  0x09: 'Wallmaster',
-    0x0A: 'FallingSquare',  0x0B: 'FallingBridge',
+    0x07: 'MovingFloor', 0x08: 'BlobSpawner', 0x09: 'Wallmaster',
+    0x0A: 'FallingSquare', 0x0B: 'FallingBridge',
     0x10: 'Pirogusu_Left', 0x11: 'Pirogusu_Right', 0x12: 'Pirogusu_Top', 0x13: 'Pirogusu_Bottom',
     0x14: 'TileRoom',
-    0x15: 'WizzrobeSpawner', 0x16: 'ZoroSpawner',  0x17: 'PotTrap',  0x18: 'InvisibleStalfos',
-    0x19: 'ArmosCoordinator',  0x1A: 'BombTrap',
+    0x15: 'WizzrobeSpawner', 0x16: 'ZoroSpawner', 0x17: 'PotTrap', 0x18: 'InvisibleStalfos',
+    0x19: 'ArmosCoordinator', 0x1A: 'BombTrap',
 }
 
 sprite_translation = {

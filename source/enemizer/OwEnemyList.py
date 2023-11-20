@@ -62,7 +62,7 @@ def init_vanilla_sprites_ow():
     # Screen42:
     create_sprite(0x42, EnemySprite.Snapdragon, 0x0C, 0x11, '', 0x09CBB7)
     create_sprite(0x42, EnemySprite.Snapdragon, 0x0C, 0x13, '', 0x09CBBA)
-    create_sprite(0x42, EnemySprite.Faerie, 0x06, 0x16, '', 0x09CBBD)
+    create_sprite(0x42, EnemySprite.Faerie, 0x06, 0x16, '', 0x09CBBD, fix=True)
     create_sprite(0x42, EnemySprite.Moblin, 0x0E, 0x19, '', 0x09CBC0)
     # Screen43:
     create_sprite(0x43, EnemySprite.Waterfall, 0x2F, 0x0C, '', 0x09CBC4)
@@ -96,8 +96,8 @@ def init_vanilla_sprites_ow():
     create_sprite(0x50, EnemySprite.Moblin, 0x08, 0x18, '', 0x09CC0E)
     # Screen51:
     create_sprite(0x51, EnemySprite.UsainBolt, 0x17, 0x0E, '', 0x09CC12)
-    create_sprite(0x51, EnemySprite.Faerie, 0x08, 0x10, '', 0x09CC15)
-    create_sprite(0x51, EnemySprite.Faerie, 0x09, 0x10, '', 0x09CC18)
+    create_sprite(0x51, EnemySprite.Faerie, 0x08, 0x10, '', 0x09CC15, fix=True)
+    create_sprite(0x51, EnemySprite.Faerie, 0x09, 0x10, '', 0x09CC18, fix=True)
     create_sprite(0x51, EnemySprite.Stal, 0x1C, 0x15, '', 0x09CC1B)
     create_sprite(0x51, EnemySprite.Moblin, 0x14, 0x16, '', 0x09CC1E)
     create_sprite(0x51, EnemySprite.Moblin, 0x0E, 0x17, '', 0x09CC21)
@@ -118,7 +118,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x54, EnemySprite.BombRefill1, 0x05, 0x0B, '', 0x09CC48)
     create_sprite(0x54, EnemySprite.RedRupee, 0x19, 0x0B, '', 0x09CC4B)
     create_sprite(0x54, EnemySprite.Ropa, 0x07, 0x0F, '', 0x09CC4E)
-    create_sprite(0x54, EnemySprite.Faerie, 0x0F, 0x0E, '', 0x09CC51)
+    create_sprite(0x54, EnemySprite.Faerie, 0x0F, 0x0E, '', 0x09CC51, fix=True)
     create_sprite(0x54, EnemySprite.Ropa, 0x19, 0x10, '', 0x09CC54)
     create_sprite(0x54, EnemySprite.Ropa, 0x0D, 0x14, '', 0x09CC57)
     create_sprite(0x54, EnemySprite.Hinox, 0x11, 0x19, '', 0x09CC5A)
@@ -174,7 +174,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x5b, EnemySprite.HeartPiece, 0x34, 0x12, '', 0x09CCE4)
     create_sprite(0x5b, EnemySprite.RupeePull, 0x13, 0x24, '', 0x09CCE7)
     create_sprite(0x5b, EnemySprite.Moblin, 0x0F, 0x27, '', 0x09CCEA)
-    create_sprite(0x5b, EnemySprite.Faerie, 0x17, 0x2A, '', 0x09CCED)
+    create_sprite(0x5b, EnemySprite.Faerie, 0x17, 0x2A, '', 0x09CCED, fix=True)
     create_sprite(0x5b, EnemySprite.Moblin, 0x0C, 0x2A, '', 0x09CCF0)
     create_sprite(0x5b, EnemySprite.Hinox, 0x1E, 0x2C, '', 0x09CCF3)
     create_sprite(0x5b, EnemySprite.Snapdragon, 0x34, 0x25, '', 0x09CCF6)
@@ -208,7 +208,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x5e, EnemySprite.Moblin, 0x32, 0x24, '', 0x09CD46)
     create_sprite(0x5e, EnemySprite.Snapdragon, 0x35, 0x28, '', 0x09CD49)
     create_sprite(0x5e, EnemySprite.Ropa, 0x24, 0x30, '', 0x09CD4C)
-    create_sprite(0x5e, EnemySprite.Faerie, 0x30, 0x30, '', 0x09CD4F)
+    create_sprite(0x5e, EnemySprite.Faerie, 0x30, 0x30, '', 0x09CD4F, fix=True)
     create_sprite(0x5e, EnemySprite.Hinox, 0x35, 0x36, '', 0x09CD52)
     create_sprite(0x5e, EnemySprite.Raven, 0x29, 0x37, '', 0x09CD55, embed=True)
     # Screen62:
@@ -431,7 +431,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x5, EnemySprite.Deadrock, 0x35, 0x0D, '', 0x09CFAF)
     create_sprite(0x5, EnemySprite.Tektite, 0x29, 0x0F, '', 0x09CFB2)
     create_sprite(0x5, EnemySprite.Deadrock, 0x35, 0x0F, '', 0x09CFB5)
-    create_sprite(0x5, EnemySprite.Faerie, 0x34, 0x10, '', 0x09CFB8)
+    create_sprite(0x5, EnemySprite.Faerie, 0x34, 0x10, '', 0x09CFB8, fix=True)
     create_sprite(0x5, EnemySprite.Tektite, 0x1E, 0x31, '', 0x09CFBB)
     create_sprite(0x5, EnemySprite.Tektite, 0x35, 0x2A, '', 0x09CFBE)
     create_sprite(0x5, EnemySprite.Deadrock, 0x2A, 0x2F, '', 0x09CFC1)
@@ -490,7 +490,7 @@ def init_vanilla_sprites_ow():
     # Screen15_1:
     create_sprite(0x15, EnemySprite.Whirlpool, 0x11, 0x09, '', 0x09D051)
     create_sprite(0x15, EnemySprite.BlueGuard, 0x16, 0x0E, '', 0x09D054)
-    create_sprite(0x15, EnemySprite.Faerie, 0x1B, 0x0F, '', 0x09D057)
+    create_sprite(0x15, EnemySprite.Faerie, 0x1B, 0x0F, '', 0x09D057, fix=True)
     create_sprite(0x15, EnemySprite.BlueGuard, 0x0B, 0x17, '', 0x09D05A)
     # Screen16_1:
     create_sprite(0x16, EnemySprite.Buzzblob, 0x0D, 0x0A, '', 0x09D05E)
@@ -503,7 +503,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x17, EnemySprite.Buzzblob, 0x16, 0x0C, '', 0x09D071)
     create_sprite(0x17, EnemySprite.Buzzblob, 0x08, 0x16, '', 0x09D074)
     # Screen18_1:
-    create_sprite(0x18, EnemySprite.Faerie, 0x18, 0x0A, '', 0x09D078)
+    create_sprite(0x18, EnemySprite.Faerie, 0x18, 0x0A, '', 0x09D078, fix=True)
     create_sprite(0x18, EnemySprite.PositionTarget, 0x0C, 0x17, '', 0x09D07B)
     create_sprite(0x18, EnemySprite.BottleMerchant, 0x18, 0x16, '', 0x09D07E)
     create_sprite(0x18, EnemySprite.OldSnitch, 0x0E, 0x1C, '', 0x09D081)
@@ -519,7 +519,7 @@ def init_vanilla_sprites_ow():
     # Screen1A_1:
     create_sprite(0x1a, EnemySprite.BlueGuard, 0x14, 0x0C, '', 0x09D0A0)
     create_sprite(0x1a, EnemySprite.GreenGuard, 0x0C, 0x0E, '', 0x09D0A3)
-    create_sprite(0x1a, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D0A6)
+    create_sprite(0x1a, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D0A6, fix=True)
     create_sprite(0x1a, EnemySprite.BlueRupee, 0x17, 0x17, '', 0x09D0A9)
     # create_sprite(0x1a, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D0AC)
     create_sprite(0x1a, EnemySprite.RedSpearGuard, 0x0F, 0x18, '', 0x09D0AC)  # was 0x09D0AF
@@ -590,7 +590,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x2a, EnemySprite.GroveRabbit, 0x0C, 0x0F, '', 0x09D161)
     create_sprite(0x2a, EnemySprite.GroveRabbit, 0x11, 0x10, '', 0x09D164)
     # Screen2B_1:
-    create_sprite(0x2b, EnemySprite.Faerie, 0x16, 0x0D, '', 0x09D168)
+    create_sprite(0x2b, EnemySprite.Faerie, 0x16, 0x0D, '', 0x09D168, fix=True)
     create_sprite(0x2b, EnemySprite.GreenGuard, 0x14, 0x11, '', 0x09D16B)
     create_sprite(0x2b, EnemySprite.GreenGuard, 0x14, 0x15, '', 0x09D16E)
     create_sprite(0x2b, EnemySprite.GreenGuard, 0x10, 0x17, '', 0x09D171)
@@ -638,7 +638,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x32, EnemySprite.SmallHeart, 0x1A, 0x09, '', 0x09D1E3)
     create_sprite(0x32, EnemySprite.BlueGuard, 0x0B, 0x0B, '', 0x09D1E6)
     create_sprite(0x32, EnemySprite.BlueGuard, 0x12, 0x0B, '', 0x09D1E9)
-    create_sprite(0x32, EnemySprite.Faerie, 0x19, 0x12, '', 0x09D1EC)
+    create_sprite(0x32, EnemySprite.Faerie, 0x19, 0x12, '', 0x09D1EC, fix=True)
     # Screen33_1:
     create_sprite(0x33, EnemySprite.GreenBushGuard, 0x15, 0x0B, '', 0x09D1F0)
     create_sprite(0x33, EnemySprite.BlueArcher, 0x09, 0x0E, '', 0x09D1F3)
@@ -649,7 +649,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x34, EnemySprite.Toppo, 0x15, 0x11, '', 0x09D200)
     create_sprite(0x34, EnemySprite.GreenBushGuard, 0x11, 0x12, '', 0x09D203)
     create_sprite(0x34, EnemySprite.Raven, 0x08, 0x13, '', 0x09D206)
-    create_sprite(0x34, EnemySprite.Faerie, 0x0E, 0x13, '', 0x09D209)
+    create_sprite(0x34, EnemySprite.Faerie, 0x0E, 0x13, '', 0x09D209, fix=True)
     create_sprite(0x34, EnemySprite.GreenBushGuard, 0x15, 0x17, '', 0x09D20C)
     create_sprite(0x34, EnemySprite.BlueArcher, 0x0C, 0x18, '', 0x09D20F)
     # Screen35_1:
@@ -753,7 +753,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x95, EnemySprite.Deadrock, 0x35, 0x0D, '', 0x09D324)
     create_sprite(0x95, EnemySprite.Tektite, 0x29, 0x0F, '', 0x09D327)
     create_sprite(0x95, EnemySprite.Deadrock, 0x35, 0x0F, '', 0x09D32A)
-    create_sprite(0x95, EnemySprite.Faerie, 0x34, 0x10, '', 0x09D32D)
+    create_sprite(0x95, EnemySprite.Faerie, 0x34, 0x10, '', 0x09D32D, fix=True)
     create_sprite(0x95, EnemySprite.Tektite, 0x1E, 0x31, '', 0x09D330)
     create_sprite(0x95, EnemySprite.Tektite, 0x35, 0x2A, '', 0x09D333)
     create_sprite(0x95, EnemySprite.Deadrock, 0x2A, 0x2F, '', 0x09D336)
@@ -794,7 +794,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xa1, EnemySprite.BombRefill1, 0x08, 0x10, '', 0x09D395)
     create_sprite(0xa1, EnemySprite.Cucco, 0x08, 0x17, '', 0x09D398)
     # Screen12_2:
-    create_sprite(0xa2, EnemySprite.Faerie, 0x14, 0x0A, '', 0x09D39C)
+    create_sprite(0xa2, EnemySprite.Faerie, 0x14, 0x0A, '', 0x09D39C, fix=True)
     create_sprite(0xa2, EnemySprite.BlueGuard, 0x15, 0x0E, '', 0x09D39F)
     create_sprite(0xa2, EnemySprite.Whirlpool, 0x0F, 0x10, '', 0x09D3A2)
     create_sprite(0xa2, EnemySprite.GreenGuard, 0x15, 0x15, '', 0x09D3A5)
@@ -813,7 +813,7 @@ def init_vanilla_sprites_ow():
     # Screen15_2:
     create_sprite(0xa5, EnemySprite.Whirlpool, 0x11, 0x09, '', 0x09D3C9)
     create_sprite(0xa5, EnemySprite.UsainBolt, 0x16, 0x0E, '', 0x09D3CC)
-    create_sprite(0xa5, EnemySprite.Faerie, 0x1B, 0x0F, '', 0x09D3CF)
+    create_sprite(0xa5, EnemySprite.Faerie, 0x1B, 0x0F, '', 0x09D3CF, fix=True)
     create_sprite(0xa5, EnemySprite.RedSpearGuard, 0x0B, 0x17, '', 0x09D3D2)
     create_sprite(0xa5, EnemySprite.Apple, 0x04, 0x1A, '', 0x09D3D5)
     # Screen16_2:
@@ -842,7 +842,7 @@ def init_vanilla_sprites_ow():
     # Screen1A_2:
     create_sprite(0xaa, EnemySprite.BlueGuard, 0x0F, 0x08, '', 0x09D418)
     create_sprite(0xaa, EnemySprite.BlueGuard, 0x0C, 0x0E, '', 0x09D41B)
-    create_sprite(0xaa, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D41E)
+    create_sprite(0xaa, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D41E, fix=True)
     # create_sprite(0xaa, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D421)
     create_sprite(0xaa, EnemySprite.UsainBolt, 0x0F, 0x18, '', 0x09D421)  # was 0x09D424
     # Screen1B_2:
@@ -881,7 +881,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xae, EnemySprite.ArmosStatue, 0x28, 0x29, '', 0x09D481)
     create_sprite(0xae, EnemySprite.ArmosStatue, 0x3A, 0x29, '', 0x09D484)
     create_sprite(0xae, EnemySprite.ArmosStatue, 0x3D, 0x29, '', 0x09D487)
-    create_sprite(0xae, EnemySprite.Faerie, 0x22, 0x37, '', 0x09D48A)
+    create_sprite(0xae, EnemySprite.Faerie, 0x22, 0x37, '', 0x09D48A, fix=True)
     create_sprite(0xae, EnemySprite.UsainBolt, 0x2D, 0x3A, '', 0x09D48D)
     # Screen22_2:
     create_sprite(0xb2, EnemySprite.BunnyBeam, 0x0C, 0x04, '', 0x09D491, fix=True)  # smithy smoke
@@ -914,7 +914,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xba, EnemySprite.RedRupee, 0x0F, 0x18, '', 0x09D4DA)
     # Screen2B_2:
     create_sprite(0xbb, EnemySprite.BlueGuard, 0x08, 0x06, '', 0x09D4DE)
-    create_sprite(0xbb, EnemySprite.Faerie, 0x16, 0x0D, '', 0x09D4E1)
+    create_sprite(0xbb, EnemySprite.Faerie, 0x16, 0x0D, '', 0x09D4E1, fix=True)
     create_sprite(0xbb, EnemySprite.BlueGuard, 0x14, 0x11, '', 0x09D4E4)
     create_sprite(0xbb, EnemySprite.BlueGuard, 0x14, 0x15, '', 0x09D4E7)
     create_sprite(0xbb, EnemySprite.BlueGuard, 0x10, 0x17, '', 0x09D4EA)
@@ -927,7 +927,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xbd, EnemySprite.UsainBolt, 0x12, 0x16, '', 0x09D4FB)
     create_sprite(0xbd, EnemySprite.FireballZora, 0x1C, 0x17, '', 0x09D4FE, water=True)
     # Screen2E_2:
-    create_sprite(0xbe, EnemySprite.Faerie, 0x0C, 0x09, '', 0x09D502)
+    create_sprite(0xbe, EnemySprite.Faerie, 0x0C, 0x09, '', 0x09D502, fix=True)
     create_sprite(0xbe, EnemySprite.Bee, 0x14, 0x0B, '', 0x09D505)
     create_sprite(0xbe, EnemySprite.UsainBolt, 0x0E, 0x0C, '', 0x09D508)
     create_sprite(0xbe, EnemySprite.BlueGuard, 0x17, 0x0E, '', 0x09D50B)
