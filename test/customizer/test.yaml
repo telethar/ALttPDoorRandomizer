@@ -1,33 +1,43 @@
 meta:
-  players: 1
-  seed: 91
+  players: 2
+  seed: 400
 settings:
   1:
 #    mode: standard
 
-    boss_shuffle: random
+#    boss_shuffle: random
 #    dropshuffle: underworld
 #    enemy_shuffle: shuffled
-    door_shuffle: crossed
-    intensity: 3
+#    door_shuffle: crossed
+#    intensity: 3
+    shuffle: lean
 
-    dungeon_counters: 'on'
-doors:
+#    dungeon_counters: 'on'
+  2: {}
+entrances:
   1:
-    lobbies:
-      Hyrule Castle South: GT Lobby S
-    doors:
-      GT Lobby Left Down Stairs: GT Quad Pot Up Stairs
-      GT Lobby Right Down Stairs: GT Lobby Up Stairs
-      GT Beam Dash ES: Swamp Big Key Ledge WN
+    entrances:
+      Hyrule Castle Secret Entrance Drop: Lumberjack Tree (top)
+    two-way:
+      Hyrule Castle Entrance (South): Links House Exit
+  2: {}
+#doors:
+#  1:
+#    lobbies:
+#      Hyrule Castle South: GT Lobby S
+#    doors:
+#      GT Lobby Left Down Stairs: GT Quad Pot Up Stairs
+#      GT Lobby Right Down Stairs: GT Lobby Up Stairs
+#      GT Beam Dash ES: Swamp Big Key Ledge WN
 
-bosses:
-  1:
-    Ganons Tower (middle): Trinexx
+#bosses:
+#  1:
+#    Ganons Tower (middle): Trinexx
 placements:
   1:
-    Swamp Palace - Big Key Chest: Progressive Glove
-    Lumberjack Tree: Piece of Heart
+    Lumberjack Tree: Lamp#2
+    Link's House: Lamp
+  2: {}
 
 
 #    keyshuffle: wild
@@ -37,9 +47,9 @@ placements:
 #    'Hera Basement Cage Enemy #9': Small Key (Tower of Hera)
 #    'Hera Basement Cage Enemy #11': Fire Rod
 #    Tower of Hera - Basement Cage: Small Key (Turtle Rock)
-start_inventory:
-  1:
-    - Pegasus Boots
+#start_inventory:
+#  1:
+#    - Pegasus Boots
 #    - Progressive Sword
 #    - Ocarina (Activated)
 #    - Hookshot

@@ -47,7 +47,7 @@ UwGeneralDeny:
   - [ 0x0027, 0, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalLeft", "FirebarCW" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 1"
   - [ 0x0027, 1, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 2"
   - [ 0x0027, 2, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Mini Moldorm 3"
-  - [ 0x0027, 4, ["Bumper", "BigSpike", "AntiFairyCircle"]]
+  - [ 0x0027, 4, ["Bumper", "BigSpike", "AntiFairyCircle", "RollerVerticalDown", "RollerVerticalUp"]]
   - [ 0x0027, 5, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Kodongo 1"
   - [ 0x0028, 4, [ "RollerVerticalUp" ] ]  #"Swamp Palace - Entrance Ledge - Spike Trap"
   - [ 0x002a, 2, [ "SparkCW", "SparkCCW", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "SpikeBlock" ] ]  #"Palace of Darkness - Arena Main - Hardhat Beetle 1"
