@@ -144,6 +144,7 @@ These are now independent of retro mode and have three options: None, Random, an
 * 1.3.0.7v
   * Fix for Mimic Cave enemy drops
   * Fix for Spectacle Rock Cave enemy drops (the mini-moldorms)
+  * Fix for multiworld lamps with incorrect graphics
   * No longer shuffles fairy bonks (from trees) as part of Enemizer
 * 1.3.0.6v
   * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
