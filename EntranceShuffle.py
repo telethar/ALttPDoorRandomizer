@@ -836,6 +836,7 @@ def link_entrances(world, player):
         random.shuffle(hole_targets)
         random.shuffle(exit_pool)
 
+
         # fill up holes
         for hole in hole_entrances:
             connect_entrance(world, hole, hole_targets.pop(), player)
@@ -851,6 +852,7 @@ def link_entrances(world, player):
             caves.append(('Hyrule Castle Exit (South)', 'Hyrule Castle Exit (West)', 'Hyrule Castle Exit (East)'))
             if not invFlag:
                 exit_pool.append('Hyrule Castle Entrance (South)')
+            random.shuffle(doors)
 
         # place links house
         if world.mode[player] == 'standard' or not world.shufflelinks[player]:

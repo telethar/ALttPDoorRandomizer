@@ -43,6 +43,23 @@ def roll_settings(weights):
             return choice
         raise Exception("This fields needs to be true/false or off/on")
 
+    def get_choice_non_bool(option, root=weights):
+        choice = get_choice(option, root)
+        if choice is True or choice == 'on':
+            return 'on'
+        if choice is False or choice == 'off':
+            return 'off'
+        return choice
+
+    def get_choice_yn(option, root=weights):
+        choice = get_choice(option, root)
+        if choice is True or choice == 'yes':
+            return 'yes'
+        if choice is False or choice == 'no':
+            return 'no'
+        return choice
+
+
     def get_choice_bool_default(option, root=weights, default=None):
         choice = get_choice_bool(option, root)
         if choice is None and default is not None:
@@ -107,7 +124,7 @@ def roll_settings(weights):
     ret.experimental = get_choice_bool('experimental')
     ret.collection_rate = get_choice_bool('collection_rate')
 
-    ret.dungeon_counters = get_choice('dungeon_counters') if 'dungeon_counters' in weights else 'default'
+    ret.dungeon_counters = get_choice_non_bool('dungeon_counters') if 'dungeon_counters' in weights else 'default'
     if ret.dungeon_counters == 'default':
         ret.dungeon_counters = 'pickup' if ret.door_shuffle != 'vanilla' or ret.compassshuffle == 'on' else 'off'
 
@@ -138,7 +155,7 @@ def roll_settings(weights):
                     'ganonhunt': 'ganonhunt',
                     'completionist': 'completionist'
                     }[goal]
-    ret.openpyramid = get_choice('open_pyramid') if 'open_pyramid' in weights else 'auto'
+    ret.openpyramid = get_choice_yn('open_pyramid') if 'open_pyramid' in weights else 'auto'
 
     ret.crystals_gt = get_choice('tower_open')
 
@@ -220,7 +237,7 @@ def roll_settings(weights):
         ret.reduce_flashing = get_choice_bool('reduce_flashing', romweights)
         ret.fastmenu = get_choice('menuspeed', romweights)
         ret.heartcolor = get_choice('heartcolor', romweights)
-        ret.heartbeep = get_choice('heartbeep', romweights)
+        ret.heartbeep = get_choice_non_bool('heartbeep', romweights)
         ret.ow_palettes = get_choice('ow_palettes', romweights)
         ret.uw_palettes = get_choice('uw_palettes', romweights)
         ret.shuffle_sfx = get_choice_bool('shuffle_sfx', romweights)

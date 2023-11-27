@@ -70,11 +70,11 @@ def bottom_frame(self, parent, args=None):
     def generateRom():
         guiargs = create_guiargs(parent)
         # get default values for missing parameters
-        for k,v in vars(parse_cli(['--multi', str(guiargs.multi)])).items():
+        for k,v in vars(parse_cli(['--multi', str(guiargs.multi), '--customizer', str(guiargs.customizer)])).items():
             if k not in vars(guiargs):
                 setattr(guiargs, k, v)
             elif type(v) is dict: # use same settings for every player
-                setattr(guiargs, k, {player: getattr(guiargs, k) for player in range(1, guiargs.multi + 1)})
+                setattr(guiargs, k, {player: getattr(guiargs, k) for player in range(1, len(v) + 1)})
         argsDump = vars(guiargs)
 
         needEnemizer = False

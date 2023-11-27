@@ -220,10 +220,11 @@ def main(args, seed=None, fish=None):
 
     if world.customizer and world.customizer.get_start_inventory():
         for p, inv_list in world.customizer.get_start_inventory().items():
-            for inv_item in inv_list:
-                item = ItemFactory(inv_item.strip(), p)
-                if item:
-                    world.push_precollected(item)
+            if inv_list:
+                for inv_item in inv_list:
+                    item = ItemFactory(inv_item.strip(), p)
+                    if item:
+                        world.push_precollected(item)
     if args.print_custom_yaml:
         world.settings.record_info(world)
 

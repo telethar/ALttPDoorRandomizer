@@ -1,6 +1,5 @@
 meta:
-  players: 2
-  seed: 400
+  seed: 398
 settings:
   1:
 #    mode: standard
@@ -10,17 +9,16 @@ settings:
 #    enemy_shuffle: shuffled
 #    door_shuffle: crossed
 #    intensity: 3
-    shuffle: lean
+    shuffle: insanity
+    experimental: on
 
 #    dungeon_counters: 'on'
-  2: {}
-entrances:
-  1:
-    entrances:
-      Hyrule Castle Secret Entrance Drop: Lumberjack Tree (top)
-    two-way:
-      Hyrule Castle Entrance (South): Links House Exit
-  2: {}
+#entrances:
+#  1:
+#    entrances:
+#      Hyrule Castle Secret Entrance Drop: Lumberjack Tree (top)
+#    two-way:
+#      Hyrule Castle Entrance (South): Links House Exit
 #doors:
 #  1:
 #    lobbies:
@@ -33,14 +31,14 @@ entrances:
 #bosses:
 #  1:
 #    Ganons Tower (middle): Trinexx
-placements:
-  1:
-    Lumberjack Tree: Lamp#2
-    Link's House: Lamp
-  2: {}
 
 
-#    keyshuffle: wild
+#placements:
+#  1:
+#    Lumberjack Tree: Lamp#2
+#    Link's House: Lamp
+
+
 #placements:
 #  1:
 #    'Hera Basement Cage Enemy #4': Small Key (Palace of Darkness)

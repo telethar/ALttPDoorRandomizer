@@ -167,6 +167,7 @@ UwGeneralDeny:
   - [ 0x0067, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Blue Bari 1"
   - [ 0x0067, 2, ["Bumper"]]  #"Skull Woods - Firebar Pits - Blue Bari 2"
   - [ 0x0067, 3, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 1"
+  - [ 0x0067, 4, [ "AntiFairyCircle", "Bumper" ]]
   - [ 0x0067, 5, [ "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 3"
   - [ 0x0067, 6, [ "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 4"
   - [ 0x0067, 7, [ "Beamos", "AntiFairyCircle", "Bumper", "BunnyBeam" ] ]  #"Skull Woods - Firebar Pits - Fire Bar (Clockwise)"
