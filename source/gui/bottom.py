@@ -1,4 +1,4 @@
-from tkinter import ttk, messagebox, StringVar, Button, Entry, Frame, Label, E, W, LEFT, RIGHT, X
+from tkinter import ttk, messagebox, StringVar, Button, Entry, Frame, Label, LEFT, RIGHT, X
 from argparse import Namespace
 import logging
 import os
@@ -70,7 +70,10 @@ def bottom_frame(self, parent, args=None):
     def generateRom():
         guiargs = create_guiargs(parent)
         # get default values for missing parameters
-        for k,v in vars(parse_cli(['--multi', str(guiargs.multi), '--customizer', str(guiargs.customizer)])).items():
+        cliargs = ['--multi', str(guiargs.multi)]
+        if hasattr(guiargs, 'customizer'):
+            cliargs.extend(['--customizer', str(guiargs.customizer)])
+        for k,v in vars(parse_cli(cliargs)).items():
             if k not in vars(guiargs):
                 setattr(guiargs, k, v)
             elif type(v) is dict: # use same settings for every player
