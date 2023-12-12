@@ -19,7 +19,6 @@ boots_required_superbunny_mirror_locations = [
 
 # Entrances that can't be superbunny-mirrored into.
 invalid_mirror_bunny_entrances = [
-    "Skull Woods Final Section",
     "Hype Cave",
     "Bonk Fairy (Dark)",
     "Thieves Town",
@@ -107,7 +106,7 @@ inverted_non_mandatory_exits = [
     "Hyrule Castle Entrance (East)",
 ] + non_mandatory_exits
 
-open_non_mandatory_exits_ = [
+open_non_mandatory_exits = [
     "Dark Death Mountain Ledge (West)",
     "Dark Death Mountain Ledge (East)",
     "Mimic Cave",
@@ -296,7 +295,12 @@ def overworld_glitches_rules(world, player):
 
     # This is doable even with bad enemies
     add_alternate_rule(world.get_location("Hobo", player), lambda state: state.can_boots_clip_lw(player))
- 
+
+    # Bunny pocket
+    if not inverted:
+        add_alternate_rule(world.get_entrance("Skull Woods Final Section", player), lambda state: state.can_bunny_pocket(player) and state.has("Fire Rod", player))
+        add_alternate_rule(world.get_entrance("Dark World Shop", player), lambda state: state.can_bunny_pocket(player) and state.has("Hammer", player))
+    
 
 
 def add_alternate_rule(entrance, rule):

@@ -550,6 +550,42 @@ class CollectionState(object):
         self.placing_items = None
         # self.trace = None
 
+    def can_reach_from(self, spot, start, player=None):
+        old_state = self.copy()
+        # old_state.path = {old_state.world.get_region(start, player)}
+        old_state.stale[player] = False
+        old_state.reachable_regions[player] = dict()
+        old_state.blocked_connections[player] = dict()
+        rrp = old_state.reachable_regions[player]
+        bc = old_state.blocked_connections[player]
+
+        # init on first call - this can't be done on construction since the regions don't exist yet
+        start = self.world.get_region(start, player)
+        if start in self.reachable_regions[player]:
+            rrp[start] = self.reachable_regions[player][start]
+            for conn in start.exits:
+                bc[conn] = self.blocked_connections[player][conn]
+        else:
+            rrp[start] = CrystalBarrier.Orange
+            for conn in start.exits:
+                bc[conn] = CrystalBarrier.Orange
+
+        queue = deque(old_state.blocked_connections[player].items())
+
+        old_state.traverse_world(queue, rrp, bc, player)
+        if old_state.world.key_logic_algorithm[player] == 'default':
+            unresolved_events = [x for y in old_state.reachable_regions[player] for x in y.locations
+                                 if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
+                                 and x not in old_state.locations_checked and x.can_reach(old_state)]
+            unresolved_events = old_state._do_not_flood_the_keys(unresolved_events)
+            if len(unresolved_events) == 0:
+                old_state.check_key_doors_in_dungeons(rrp, player)
+
+        if self.world.get_region(spot, player) in rrp:
+            return True
+        else:
+            return False
+
     def update_reachable_regions(self, player):
         self.stale[player] = False
         rrp = self.reachable_regions[player]
@@ -1274,6 +1310,9 @@ class CollectionState(object):
 
     def can_superbunny_mirror_with_sword(self, player):
         return self.has_Mirror(player) and self.has_sword(player)
+    
+    def can_bunny_pocket(self, player):
+        return self.has_Boots(player) and (self.has_Mirror(player) or self.has_bottle(player))
 
     def collect(self, item, event=False, location=None):
         if location:
