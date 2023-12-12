@@ -737,6 +737,9 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Crystal Circles to Ranged Crystal', player), lambda state: state.can_hit_crystal_through_barrier(player) or state.has_blunt_weapon(player) or state.has('Cane of Byrna', player)) # or state.has_beam_sword(player)
 
     add_key_logic_rules(world, player)
+
+    if world.logic[player] == 'hybridglitches':
+        add_hmg_key_logic_rules(world, player)
     # End of door rando rules.
 
     if world.restrict_boss_items[player] != 'none':
@@ -2142,6 +2145,11 @@ bunny_impassible_if_trapped = {
     'GT Speed Torch WN', 'Ice Lobby SE'
 }
 
+def add_hmg_key_logic_rules(world, player):
+    for toh_loc in world.key_logic[player]['Tower of Hera'].bk_restricted:
+        set_always_allow(world.get_location(toh_loc.name, player), allow_big_key_in_big_chest('Big Key (Tower of Hera)', player))
+    set_always_allow(world.get_location('Swamp Palace - Entrance', player), allow_big_key_in_big_chest('Big Key (Swamp Palace)', player))
+
 
 def add_key_logic_rules(world, player):
     key_logic = world.key_logic[player]
@@ -2159,9 +2167,6 @@ def add_key_logic_rules(world, player):
                     add_rule(dep.entrance, eval_func(door_name, d_name, player))
         for location in d_logic.bk_restricted:
             if not location.forced_item:
-                # Skip BK restricted locations in hybrid glitches. Bad, but necessary for now.
-                if world.logic[player] == 'hybridglitches' and d_name in ['Tower of Hera', 'Swamp Palace']:
-                    continue
                 forbid_item(location, d_logic.bk_name, player)
         for location in d_logic.sm_restricted:
             forbid_item(location, d_logic.small_key_name, player)
