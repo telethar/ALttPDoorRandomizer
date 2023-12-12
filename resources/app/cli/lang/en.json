@@ -55,7 +55,8 @@
     "building.collection.spheres": "Building up collection spheres",
     "building.calculating.spheres": "Calculated sphere %i, containing %i of %i progress items.",
     "building.final.spheres": "Calculated final sphere %i, containing %i of %i progress items.",
-    "old.python.version": "Door Rando may have issues with python versions earlier than 3.7.  Detected version: %s"
+    "old.python.version": "Door Rando may have issues with python versions earlier than 3.7.  Detected version: %s",
+    "hybridglitches.door.shuffle": "Hybrid Major Glitches is not currently compatible with Door Shuffle."
   },
   "help": {
     "lang": [ "App Language, if available, defaults to English" ],
