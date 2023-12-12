@@ -156,6 +156,7 @@ def underworld_glitches_rules(world, player):
     
 
     Rules.add_rule(world.get_entrance("Hera Startile Corner NW", player), lambda state: mire_clip(state) and state.has("Big Key (Misery Mire)", player), combine="or")
+    Rules.add_rule(world.get_location('Tower of Hera - Big Chest', player), lambda state: mire_clip(state) and state.has("Big Key (Misery Mire)", player), combine="or")
     
     mire_to_hera = world.get_entrance("Mire to Hera Clip", player)
     mire_to_swamp = world.get_entrance("Hera to Swamp Clip", player)
@@ -206,14 +207,14 @@ def underworld_glitches_rules(world, player):
 
             def gt_rule(state):
                 return (state.has("Moon Pearl", player) or inverted) and rule_map.get(
-                    world.get_entrance(("Ganons Tower" if not inverted else "Inverted Ganons Tower"), player).connected_region.name, lambda state: False)(state)
+                    world.get_entrance(("Ganons Tower"), player).connected_region.name, lambda state: False)(state)
 
             def mirrorless_moat_rule(state):
                 return state.can_reach("Old Man S&Q", "Entrance", player) and mire_clip(state) and (hera_rule(state) or gt_rule(state))
 
             Rules.add_rule(world.get_entrance("Swamp Lobby Moat", player), lambda state: mirrorless_moat_rule(state), combine="or")
 
-    # Thieves -> Hera
+    # Thieves -> Desert
     Rules.add_rule(world.get_entrance("Thieves to Desert Clip", player), lambda state: state.can_dash_clip(world.get_region("Thieves Attic", player), player))
     dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert West Portal", "Desert Palace Exit (West)")
     dungeon_reentry_rules(world, player, world.get_entrance("Thieves to Desert Clip", player), "Desert South Portal", "Desert Palace Exit (South)")
