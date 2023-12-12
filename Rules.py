@@ -1860,6 +1860,8 @@ def set_inverted_big_bomb_rules(world, player):
 def set_bunny_rules(world, player, inverted):
     # regions for the exits of multi-entrace caves/drops that bunny cannot pass
     # Note spiral cave may be technically passible, but it would be too absurd to require since OHKO mode is a thing.
+    all_single_exit_dungeons = ['Eastern Palace', 'Tower of Hera', 'Castle Tower', 'Palace of Darkness', 'Swamp Palace', 'Thieves Town', 'Ice Palace', 'Misery Mire', 'Ganons Tower']
+    hmg_single_exit_dungeons = [d for d in all_single_exit_dungeons if d not in ['Tower of Hera', 'Misery Mire', 'Thieves Town']]
     bunny_impassable_caves = ['Bumper Cave (top)', 'Bumper Cave (bottom)', 'Two Brothers House',
                               'Hookshot Cave (Middle)', 'Pyramid', 'Spiral Cave (Top)', 'Fairy Ascension Cave (Drop)']
     bunny_accessible_locations = ['Link\'s Uncle', 'Sahasrahla', 'Sick Kid', 'Lost Woods Hideout', 'Lumberjack Tree',
@@ -1961,6 +1963,13 @@ def set_bunny_rules(world, player, inverted):
                 new_region = entrance.parent_region
                 if new_region.type in (RegionType.Cave, RegionType.Dungeon) and new_region in seen:
                     continue
+                # We don't need to navigate through single entrance dungeons. HMG has more multi-entrance dungeons
+                if (region.type == RegionType.Dungeon and new_region.type == RegionType.Dungeon):
+                    if (
+                    world.logic[player] == 'hybridglitches' and new_region.dungeon != None and new_region.dungeon.name in hmg_single_exit_dungeons) or (
+                    world.logic[player] not in ['hybridglitches', 'nologic'] and new_region.dungeon != None and new_region.dungeon.name in all_single_exit_dungeons
+                    ):
+                        continue
                 new_path = path + [entrance.access_rule]
                 new_seen = seen.union({new_region})
                 if not is_link(new_region):
