@@ -130,7 +130,6 @@ inverted_boots_clip_exits_lw = [
     ("Lake Hylia Island Clip Spot", "Light World", "Lake Hylia Island"),
     ("Death Mountain Descent", "West Death Mountain (Bottom)", "Light World"),
     ("Kings Grave Clip Spot", "West Death Mountain (Bottom)", "Kings Grave Area"),
-    ("Maze Race Clip Spot", "Light World", "Maze Race Ledge"),
 ]
 
 open_boots_clip_exits_lw = [
@@ -290,6 +289,10 @@ def overworld_glitches_rules(world, player):
     add_alternate_rule(
         world.get_location("Zora's Ledge", player), lambda state: state.can_boots_clip_lw(player)
     )  # assumes access to Waterwalk ability
+
+    add_alternate_rule(
+        world.get_location('Maze Race', player), lambda state: state.can_boots_clip_lw(player)
+    )
 
     # This is doable even with bad enemies
     add_alternate_rule(world.get_location("Hobo", player), lambda state: state.can_boots_clip_lw(player))
