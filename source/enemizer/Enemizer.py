@@ -369,6 +369,7 @@ def determine_forbidden(forbid, room_id, drop_flag=False):
         #     forbidden_set.add(EnemySprite.AntiFairy)  # can't drop anyway
         if room_id not in {0x6b, 0x4b, 0x1b, 0xd8}:  # mimics/eyegore are allowed in vanilla rooms
             forbidden_set.add(EnemySprite.RedEyegoreMimic)
+            forbidden_set.add(EnemySprite.RedMimic)
     return forbidden_set
 
 
