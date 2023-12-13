@@ -969,6 +969,7 @@ def balance_money_progression(world):
                     logger.debug(f'Money balancing needed: Player {target_player} short {difference}')
                 else:
                     difference = 0
+                    target_player = next(p for p in solvent)
                 while difference > 0:
                     swap_targets = [x for x in unchecked_locations if x not in sphere_locations and x.item.name.startswith('Rupees') and x.item.player == target_player]
                     if len(swap_targets) == 0:

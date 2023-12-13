@@ -1467,6 +1467,9 @@ class Region(object):
             return self.dungeon and self.dungeon.is_dungeon_item(item) and item.player == self.player
         return True
 
+    def is_outdoors(self):
+        return self.type in {RegionType.LightWorld, RegionType.DarkWorld}
+
     def __str__(self):
         return str(self.__unicode__())
 

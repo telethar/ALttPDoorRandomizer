@@ -518,7 +518,9 @@ def set_up_take_anys(world, player, skip_adjustments=False):
         world.dynamic_regions.append(take_any)
         target, room_id = random.choice([(0x58, 0x0112), (0x60, 0x010F), (0x46, 0x011F)])
         reg = regions.pop()
-        entrance = world.get_region(reg, player).entrances[0]
+        entrance = next((ent for ent in world.get_region(reg, player).entrances if ent.parent_region.is_outdoors()), None)
+        if entrance is None:
+            raise Exception(f'No outside entrance found for {reg}')
         connect_entrance(world, entrance, take_any, player)
         entrance.target = target
         take_any.shop = Shop(take_any, room_id, take_any_type, 0xE3, True, not world.shopsanity[player], 33 + num*2)
