@@ -1160,10 +1160,11 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     rom.write_byte(0x1801A2, 0x00)  # ped requirement is vanilla, set to 0x1 for special requirements
 
     # block HC upstairs doors in rain state in standard mode
-    prevent_rain = world.mode[player] == "standard" and world.shuffle[player] != 'vanilla'
+    prevent_rain = world.mode[player] == 'standard' and world.shuffle[player] != 'vanilla' and world.logic[player] != 'nologic'
     rom.write_byte(0x18008A, 0x01 if prevent_rain else 0x00)
     # block sanc door in rain state and the dungeon is not vanilla
-    rom.write_byte(0x13f0fa, 0x01 if world.mode[player] == "standard" and world.doorShuffle[player] != 'vanilla' else 0x00)
+    block_sanc = world.mode[player] == 'standard' and world.doorShuffle[player] != 'vanilla' and world.logic[player] != 'nologic'
+    rom.write_byte(0x13f0fa, 0x01 if block_sanc else 0x00)
 
     if prevent_rain:
         portals = [world.get_portal('Hyrule Castle East', player), world.get_portal('Hyrule Castle West', player)]
