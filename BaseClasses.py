@@ -512,7 +512,7 @@ class World(object):
             if not sphere:
                 # ran out of places and did not finish yet, quit
                 if log_error:
-                    missing_locations = ", ".join([x.name for x in prog_locations])
+                    missing_locations = ", ".join([f'{x.name} (#{x.player})' for x in prog_locations])
                     logging.getLogger('').error(f'Cannot reach the following locations: {missing_locations}')
                 return False
 
@@ -547,7 +547,7 @@ class CollectionState(object):
             self.opened_doors = {player: set() for player in range(1, parent.players + 1)}
             self.dungeons_to_check = {player: defaultdict(dict) for player in range(1, parent.players + 1)}
         self.dungeon_limits = None
-        self.placing_item = None
+        self.placing_items = None
         # self.trace = None
 
     def update_reachable_regions(self, player):
@@ -833,7 +833,7 @@ class CollectionState(object):
             return door_candidates
         door_candidates, skip = [], set()
         if (state.world.accessibility[player] != 'locations' and remaining_keys == 0 and dungeon_name != 'Universal'
-                and state.placing_item and state.placing_item.name == small_key_name):
+                and state.placing_items and any(i.name == small_key_name and i.player == player for i in state.placing_items)):
             key_logic = state.world.key_logic[player][dungeon_name]
             for door, paired in key_logic.sm_doors.items():
                 if door.name in key_logic.door_rules:
@@ -878,7 +878,7 @@ class CollectionState(object):
             player: defaultdict(dict, {name: copy.copy(checklist)
                                        for name, checklist in self.dungeons_to_check[player].items()})
             for player in range(1, self.world.players + 1)}
-        ret.placing_item = self.placing_item
+        ret.placing_items = self.placing_items
         return ret
 
     def apply_dungeon_exploration(self, rrp, player, dungeon_name, checklist):

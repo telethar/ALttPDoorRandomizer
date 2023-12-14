@@ -141,6 +141,14 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.8v
+  * Enemizer: Red Mimics correctly banned from challenge rooms in appropriate logic setting
+  * No Logic Standard ER: Rain doors aren't blocked if no logic is enabled.
+  * Trinexx: attempt to fix early start
+  * MW Progression Balancing: Change to be percentage based instead of raw count. (80% threshold)
+  * Take anys: Good Bee cave chosen as take any should no longer prevent generation
+  * Money balancing: Fixed generation issue  
+  * Enemizer: various enemy bans
 * 1.3.0.7v
   * Fix for Mimic Cave enemy drops
   * Fix for Spectacle Rock Cave enemy drops (the mini-moldorms)
