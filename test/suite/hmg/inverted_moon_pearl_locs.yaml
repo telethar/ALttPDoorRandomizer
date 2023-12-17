@@ -9,6 +9,7 @@ start_inventory:
     - Flippers
     - Progressive Sword
     - Progressive Sword
+    - Book of Mudora
     - Lamp
     - Magic Mirror
     - Ether
@@ -19,8 +20,11 @@ advanced_placements:
     - type: Verification
       item: Moon Pearl
       locations:
+        Tower of Hera - Big Chest: True
         Desert Palace - Big Chest: True
         Eastern Palace - Big Chest: True
+        Bombos Tablet: True
+        Cave 45: True
 
         
         
