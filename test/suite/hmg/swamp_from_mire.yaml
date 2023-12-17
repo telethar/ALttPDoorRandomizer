@@ -28,3 +28,16 @@ advanced_placements:
         Swamp Palace - Flooded Room - Right: True
         Swamp Palace - Waterfall Room: True
         Swamp Palace - Boss: True
+    - type: Verification
+      item: Big Key (Swamp Palace)
+      locations:
+        Swamp Palace - Entrance: True
+        Swamp Palace - Map Chest: True
+        Swamp Palace - Big Chest: True
+        Swamp Palace - Compass Chest: True
+        Swamp Palace - West Chest: True
+        Swamp Palace - Big Key Chest: True
+        Swamp Palace - Flooded Room - Left: True
+        Swamp Palace - Flooded Room - Right: True
+        Swamp Palace - Waterfall Room: True
+        Swamp Palace - Boss: True

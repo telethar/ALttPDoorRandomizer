@@ -1,0 +1,27 @@
+meta:
+  players: 1
+settings:
+  1:
+    logic: hybridglitches
+    mode: inverted
+start_inventory:
+  1:
+    - Flippers
+    - Progressive Sword
+    - Progressive Sword
+    - Lamp
+    - Magic Mirror
+    - Ether
+    - Quake
+    - Bombos
+advanced_placements:
+  1:
+    - type: Verification
+      item: Moon Pearl
+      locations:
+        Desert Palace - Big Chest: True
+        Eastern Palace - Big Chest: True
+
+        
+        
+      

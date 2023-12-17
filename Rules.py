@@ -1964,12 +1964,12 @@ def set_bunny_rules(world, player, inverted):
                 if new_region.type in (RegionType.Cave, RegionType.Dungeon) and new_region in seen:
                     continue
                 # We don't need to navigate through single entrance dungeons. HMG has more multi-entrance dungeons
-                if (region.type == RegionType.Dungeon and new_region.type == RegionType.Dungeon):
-                    if (
-                    world.logic[player] == 'hybridglitches' and new_region.dungeon != None and new_region.dungeon.name in hmg_single_exit_dungeons) or (
-                    world.logic[player] not in ['hybridglitches', 'nologic'] and new_region.dungeon != None and new_region.dungeon.name in all_single_exit_dungeons
-                    ):
-                        continue
+                # if (region.type == RegionType.Dungeon and new_region.type == RegionType.Dungeon):
+                #     if (
+                #     world.logic[player] == 'hybridglitches' and new_region.dungeon != None and new_region.dungeon.name in hmg_single_exit_dungeons) or (
+                #     world.logic[player] not in ['hybridglitches', 'nologic'] and new_region.dungeon != None and new_region.dungeon.name in all_single_exit_dungeons
+                #     ):
+                #         continue
                 new_path = path + [entrance.access_rule]
                 new_seen = seen.union({new_region})
                 if not is_link(new_region):

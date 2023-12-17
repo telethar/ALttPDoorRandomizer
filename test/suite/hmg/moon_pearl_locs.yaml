@@ -5,8 +5,10 @@ settings:
     logic: hybridglitches
 start_inventory:
   1:
+    - Pegasus Boots
     - Flippers
-    - Moon Pearl
+    - Fire Rod
+    - Book of Mudora
     - Progressive Sword
     - Progressive Sword
     - Lamp
@@ -19,6 +21,8 @@ advanced_placements:
     - type: Verification
       item: Moon Pearl
       locations:
+        Skull Woods - Compass Chest: True
+        Skull Woods - Bridge Room: True
         Palace of Darkness - Shooter Room: True
         Palace of Darkness - The Arena - Bridge: True
         Palace of Darkness - Stalfos Basement: True
