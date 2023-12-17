@@ -37,6 +37,7 @@ See https://alttpr.com/ for more details on the normal randomizer.
    7. [Standard Changes](#standard-changes)
    8. [Game Options](#game-options)
    9. [Generation Setup & Miscellaneous](#generation-setup--miscellaneous)
+   10. [Glitched Logic](#glitched-logic)
 
 ## Setup and Installation
 
@@ -595,6 +596,38 @@ Can be used to set a seed number to generate. Using the same seed with same sett
 ### Count
 
 Use to batch generate multiple seeds with same settings. If a seed number is provided, it will be used for the first seed, then used to derive the next seed (i.e. generating 10 seeds with the same seed number given will produce the same 10 (different) roms each time).
+
+
+## Glitched Logic
+
+Overworld glitches, Hybrid Major Glitches (HMG) and No Logic are currently supported.
+
+### Overworld Glitches
+_Support added by qadan and compiling_
+
+Overworld Glitches logic includes (but is not limited to) the following:
+* Overworld teleports and clips to reach various items/entrances
+* Use of superbunny to obtain items and/or bonk open entrances
+* Use of mirror to access Desert Palace East Entrance
+* Use of bunny pocket to access the Back of Skull Woods and VOO Hammer house entrances
+
+
+### Hybrid Major Glitches
+_Support added by Muffins (ported from work by Espeon)_.
+
+**Not currently compatible with Door Shuffle**
+
+Hybrid Major Glitches logic includes the following:
+* All Overworld Glitches logic
+* Kikiskip to access PoD wihtout MP or DW access
+* IP Lobby clip to skip fire requirement
+* Traversal between Mire -> Hera -> Swamp
+* Stealing SK from Mire to open SP
+* Using the Mire big key to open Hera doors and big chest
+* Traversal between TT -> Desert
+* Traveral between Spec rock upper -> Spec rock mid
+* Traveral between Paradox lower -> Paradox mid + upper
+
 
 
 
