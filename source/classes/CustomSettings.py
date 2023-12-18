@@ -134,8 +134,8 @@ class CustomSettings(object):
                     args.mapshuffle[p] = True
                     args.compassshuffle[p] = True
 
-                args.shufflebosses[p] = get_setting(settings['boss_shuffle'], args.shufflebosses[p])
-                args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], args.shuffleenemies[p])
+                args.shufflebosses[p] = get_setting(settings['boss_shuffle'], get_setting(settings['shufflebosses'], args.shufflebosses[p]))
+                args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], get_setting(settings['shuffleenemies'], args.shuffleenemies[p]))
                 args.enemy_health[p] = get_setting(settings['enemy_health'], args.enemy_health[p])
                 args.enemy_damage[p] = get_setting(settings['enemy_damage'], args.enemy_damage[p])
                 args.any_enemy_logic[p] = get_setting(settings['any_enemy_logic'], args.any_enemy_logic[p])
@@ -270,8 +270,8 @@ class CustomSettings(object):
             settings_dict[p]['keyshuffle'] = world.keyshuffle[p]
             settings_dict[p]['mapshuffle'] = world.mapshuffle[p]
             settings_dict[p]['compassshuffle'] = world.compassshuffle[p]
-            settings_dict[p]['shufflebosses'] = world.boss_shuffle[p]
-            settings_dict[p]['shuffleenemies'] = world.enemy_shuffle[p]
+            settings_dict[p]['boss_shuffle'] = world.boss_shuffle[p]
+            settings_dict[p]['enemy_shuffle'] = world.enemy_shuffle[p]
             settings_dict[p]['enemy_health'] = world.enemy_health[p]
             settings_dict[p]['enemy_damage'] = world.enemy_damage[p]
             settings_dict[p]['any_enemy_logic'] = world.any_enemy_logic[p]
