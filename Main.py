@@ -82,7 +82,6 @@ def main(args, seed=None, fish=None):
     for i in zip(args.logic.values(), args.door_shuffle.values()):
         if i[0] == 'hybridglitches' and i[1] != 'vanilla':
             raise RuntimeError(BabelFish().translate("cli","cli","hybridglitches.door.shuffle"))
-    # print(args)
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
                   args.accessibility, args.shuffleganon, args.custom, args.customitemarray, args.hints)

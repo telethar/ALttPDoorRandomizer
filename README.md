@@ -621,13 +621,11 @@ Hybrid Major Glitches logic includes the following:
 * All Overworld Glitches logic
 * Kikiskip to access PoD wihtout MP or DW access
 * IP Lobby clip to skip fire requirement
+* Traversal between TT -> Desert
+* Traversal between Spec rock upper -> Spec rock mid
+* Traversal between Paradox lower -> Paradox mid + upper
 * Traversal between Mire -> Hera -> Swamp
 * Stealing SK from Mire to open SP
 * Using the Mire big key to open Hera doors and big chest
-* Traversal between TT -> Desert
-* Traveral between Spec rock upper -> Spec rock mid
-* Traveral between Paradox lower -> Paradox mid + upper
 
-
-
-
+All traversals mentioned are considered connectors in entrance shuffle

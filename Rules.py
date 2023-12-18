@@ -1907,12 +1907,6 @@ def set_bunny_rules(world, player, inverted):
         
     # Is it possible to do bunny pocket here        
     def can_bunny_pocket_skull_woods(world, player):
-        # return world.get_entrance(
-        #     "Skull Woods Second Section Door (West)", player
-        # ).connected_region.type != RegionType.Dungeon and (
-        #     not world.state.can_reach_from("Skull Woods Forest (West)", "Light World", 1)
-        #     or not world.state.can_reach_from("Light World", "Skull Woods Forest (West)", 1)
-        # )
         return world.get_entrance(
             "Skull Woods Second Section Door (West)", player
         ).connected_region.type == RegionType.Dungeon or (
@@ -1921,12 +1915,6 @@ def set_bunny_rules(world, player, inverted):
         )
     
     def can_bunny_pocket_voo_shop(world, player):
-        # return world.get_entrance(
-        #     "Dark World Shop", player
-        # ).connected_region.type != RegionType.Dungeon and (
-        #     not world.state.can_reach_from("West Dark World", "Light World", 1)
-        #     or not world.state.can_reach_from("Light World", "West Dark World", 1)
-        # )
         return (
             world.state.can_reach_from("West Dark World", "Light World", 1)
             and world.state.can_reach_from("Light World", "West Dark World", 1)
@@ -1963,13 +1951,6 @@ def set_bunny_rules(world, player, inverted):
                 new_region = entrance.parent_region
                 if new_region.type in (RegionType.Cave, RegionType.Dungeon) and new_region in seen:
                     continue
-                # We don't need to navigate through single entrance dungeons. HMG has more multi-entrance dungeons
-                # if (region.type == RegionType.Dungeon and new_region.type == RegionType.Dungeon):
-                #     if (
-                #     world.logic[player] == 'hybridglitches' and new_region.dungeon != None and new_region.dungeon.name in hmg_single_exit_dungeons) or (
-                #     world.logic[player] not in ['hybridglitches', 'nologic'] and new_region.dungeon != None and new_region.dungeon.name in all_single_exit_dungeons
-                #     ):
-                #         continue
                 new_path = path + [entrance.access_rule]
                 new_seen = seen.union({new_region})
                 if not is_link(new_region):
