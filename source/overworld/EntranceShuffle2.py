@@ -549,19 +549,29 @@ def figure_out_must_exits_same_world(entrances, exits, avail):
     if hyrule_forced:
         remove_from_list(multi_exit_caves, hyrule_forced)
 
-    must_exit_lw, must_exit_dw = must_exits_helper(avail, lw_entrances, dw_entrances)
+    must_exit_lw, must_exit_dw, unfiltered_lw, unfiltered_dw = must_exits_helper(avail, lw_entrances, dw_entrances)
 
     return must_exit_lw, must_exit_dw, lw_entrances, dw_entrances, multi_exit_caves, hyrule_forced
 
 
 def must_exits_helper(avail, lw_entrances, dw_entrances):
-    must_exit_lw = (Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit).copy()
-    must_exit_dw = (Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit).copy()
+    must_exit_lw_orig = (Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit).copy()
+    must_exit_dw_orig = (Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit).copy()
     if not avail.inverted and not avail.skull_handled:
-        must_exit_dw.append(('Skull Woods Second Section Door (West)', 'Skull Woods Final Section'))
-    must_exit_lw = must_exit_filter(avail, must_exit_lw, lw_entrances)
-    must_exit_dw = must_exit_filter(avail, must_exit_dw, dw_entrances)
-    return must_exit_lw, must_exit_dw
+        must_exit_dw_orig.append(('Skull Woods Second Section Door (West)', 'Skull Woods Final Section'))
+    must_exit_lw = must_exit_filter(avail, must_exit_lw_orig, lw_entrances)
+    must_exit_dw = must_exit_filter(avail, must_exit_dw_orig, dw_entrances)
+    return must_exit_lw, must_exit_dw, flatten(must_exit_lw_orig), flatten(must_exit_dw_orig)
+
+
+def flatten(list_to_flatten):
+    ret = []
+    for item in list_to_flatten:
+        if isinstance(item, tuple):
+            ret.extend(item)
+        else:
+            ret.append(item)
+    return ret
 
 
 def figure_out_must_exits_cross_world(entrances, exits, avail):
@@ -766,18 +776,25 @@ def do_limited_shuffle(pool_def, avail):
 def do_limited_shuffle_exclude_drops(pool_def, avail, lw=True):
     ignored_entrances, exits = find_entrances_and_exits(avail, pool_def['entrances'])
     reserved_drops = set(linked_drop_map.values())
-    must_exit_lw, must_exit_dw = must_exits_helper(avail, LW_Entrances, DW_Entrances)
+    must_exit_lw, must_exit_dw, unfiltered_lw, unfiltered_dw = must_exits_helper(avail, LW_Entrances, DW_Entrances)
     must_exit = set(must_exit_lw if lw else must_exit_dw)
+    unfiltered = set(unfiltered_lw if lw else unfiltered_dw)
     base_set = LW_Entrances if lw else DW_Entrances
     entrance_pool = [x for x in base_set if x in avail.entrances and x not in reserved_drops]
     random.shuffle(entrance_pool)
+    all_connectors = {c: tuple(connector) for connector in Connector_List for c in connector}
+    multi_tracker = {tuple(connector): False for connector in Connector_List}  # ensures multi_entrance
     for next_exit in exits:
         if next_exit not in Connector_Exit_Set:
             reduced_pool = [x for x in entrance_pool if x not in must_exit]
+            if next_exit in all_connectors and not multi_tracker[all_connectors[next_exit]]:
+                reduced_pool = [x for x in entrance_pool if x not in unfiltered]
             chosen_entrance = reduced_pool.pop()
             entrance_pool.remove(chosen_entrance)
         else:
             chosen_entrance = entrance_pool.pop()
+            if next_exit in all_connectors and chosen_entrance not in must_exit:
+                multi_tracker[all_connectors[next_exit]] = True
         connect_two_way(chosen_entrance, next_exit, avail)
 
 
