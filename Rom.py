@@ -1381,8 +1381,9 @@ def patch_rom(world, rom, player, team, is_mystery=False):
             world.get_room(0x23, player).change(0, DoorKind.CaveEntrance)
         if world.get_door('TR Eye Bridge SW', player).entranceFlag:
             world.get_room(0xd5, player).change(0, DoorKind.CaveEntrance)
-        # do this unconditionally - gets overwritten by RoomData in doorShufflemodes
-        rom.initial_sram.pre_open_tr_bomb_doors()  # preopen bombable exits
+        # do this conditionally - don't mess with doors
+        if world.doorShuffle[player] == 'vanilla':
+            rom.initial_sram.pre_open_tr_bomb_doors()  # preopen bombable exits
 
     if world.boss_shuffle[player] != 'none' or world.doorShuffle[player] != 'vanilla':
         rom.write_byte(snes_to_pc(0x30835A), 1)  # fix Prize On The Eyes
