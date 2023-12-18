@@ -752,8 +752,11 @@ def global_rules(world, player):
         add_mc_rule('Agahnim 2')
 
     add_rule(world.get_location('Sunken Treasure', player), lambda state: state.has('Open Floodgate', player))
-    set_rule(world.get_location('Ganon', player), lambda state: state.has_beam_sword(player) and state.has_fire_source(player) and state.has_crystals(world.crystals_needed_for_ganon[player], player)
+    set_rule(world.get_location('Ganon', player), lambda state: state.has_beam_sword(player) and state.has_fire_source(player)
                                                                 and (state.has('Tempered Sword', player) or state.has('Golden Sword', player) or (state.has('Silver Arrows', player) and state.can_shoot_arrows(player)) or state.has('Lamp', player) or state.can_extend_magic(player, 12)))  # need to light torch a sufficient amount of times
+    if world.goal[player] != 'ganonhunt':
+        add_rule(world.get_location('Ganon', player), lambda state: state.has_crystals(world.crystals_needed_for_ganon[player], player))
+
     set_rule(world.get_entrance('Ganon Drop', player), lambda state: state.has_beam_sword(player))  # need to damage ganon to get tiles to drop
 
 
