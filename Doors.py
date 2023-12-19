@@ -1506,7 +1506,7 @@ def create_doors(world, player):
 
     # static portal flags
     world.get_door('Sanctuary S', player).dead_end(allowPassage=True)
-    if world.mode[player] == 'open' and world.shuffle[player] not in ['crossed', 'insanity']:
+    if world.mode[player] == 'open' and world.shuffle[player] not in ['lean', 'swapped', 'crossed', 'insanity']:
         world.get_door('Sanctuary S', player).lw_restricted = True
     world.get_door('Eastern Hint Tile Blocked Path SE', player).passage = False
     world.get_door('TR Big Chest Entrance SE', player).passage = False

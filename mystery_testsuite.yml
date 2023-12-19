@@ -60,6 +60,9 @@ entrance_shuffle:
   simple: 1
   restricted: 1
   full: 1
+  lite: 1
+  lean: 1
+  swapped: 1
   crossed: 1
   insanity: 1
 shufflelinks:

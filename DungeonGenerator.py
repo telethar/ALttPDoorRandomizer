@@ -1360,7 +1360,7 @@ def create_dungeon_builders(all_sectors, connections_tuple, world, player, dunge
         for name, builder in dungeon_map.items():
             calc_allowance_and_dead_ends(builder, connections_tuple, world, player)
 
-        if world.mode[player] == 'open' and world.shuffle[player] not in ['crossed', 'insanity']:
+        if world.mode[player] == 'open' and world.shuffle[player] not in ['lean', 'swapped', 'crossed', 'insanity']:
             sanc = find_sector('Sanctuary', candidate_sectors)
             if sanc:  # only run if sanc if a candidate
                 lw_builders = []

@@ -11,6 +11,7 @@ class EntrancePool(object):
         self.exits = set()
         self.inverted = False
         self.coupled = True
+        self.swapped = False
         self.default_map = {}
         self.one_way_map = {}
         self.skull_handled = False
@@ -92,6 +93,7 @@ def link_entrances_new(world, player):
         if mode not in modes:
             raise RuntimeError(f'Shuffle mode {mode} is not yet supported')
         mode_cfg = copy.deepcopy(modes[mode])
+        avail_pool.swapped = mode_cfg['undefined'] == 'swap'
         if avail_pool.is_standard():
             do_standard_connections(avail_pool)
         pool_list = mode_cfg['pools'] if 'pools' in mode_cfg else {}
@@ -99,7 +101,10 @@ def link_entrances_new(world, player):
             special_shuffle = pool['special'] if 'special' in pool else None
             if special_shuffle == 'drops':
                 holes, targets = find_entrances_and_targets_drops(avail_pool, pool['entrances'])
-                connect_random(holes, targets, avail_pool)
+                if avail_pool.swapped:
+                    connect_swapped(holes, targets, avail_pool)
+                else:
+                    connect_random(holes, targets, avail_pool)
             elif special_shuffle == 'fixed_shuffle':
                 do_fixed_shuffle(avail_pool, pool['entrances'])
             elif special_shuffle == 'same_world':
@@ -123,7 +128,10 @@ def link_entrances_new(world, player):
                 do_vanilla_connect(pool, avail_pool)
             elif special_shuffle == 'skull':
                 entrances, exits = find_entrances_and_exits(avail_pool, pool['entrances'])
-                connect_random(entrances, exits, avail_pool, True)
+                if avail_pool.swapped:
+                    connect_swapped(entrances, exits, avail_pool, True)
+                else:
+                    connect_random(entrances, exits, avail_pool, True)
                 avail_pool.skull_handled = True
             else:
                 entrances, exits = find_entrances_and_exits(avail_pool, pool['entrances'])
@@ -131,7 +139,7 @@ def link_entrances_new(world, player):
         undefined_behavior = mode_cfg['undefined']
         if undefined_behavior == 'vanilla':
             do_vanilla_connections(avail_pool)
-        elif undefined_behavior == 'shuffle':
+        elif undefined_behavior in {'shuffle', 'swap'}:
             do_main_shuffle(set(avail_pool.entrances), set(avail_pool.exits), avail_pool, mode_cfg)
 
     # afterward
@@ -186,6 +194,10 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
             if not avail.coupled:
                 avail.decoupled_entrances.remove('Agahnims Tower')
                 avail.decoupled_exits.remove('Ganons Tower Exit')
+            if avail.swapped:
+                connect_swap('Agahnims Tower', 'Ganons Tower Exit', avail)
+                entrances.remove('Ganons Tower')
+                exits.remove('Agahnims Tower Exit')
         elif 'Ganons Tower' in entrances:
             connect_two_way('Ganons Tower', 'Ganons Tower Exit', avail)
             entrances.remove('Ganons Tower')
@@ -207,7 +219,13 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
 
     # inverted sanc
     if avail.inverted and 'Dark Sanctuary Hint' in exits:
-        choices = [e for e in Inverted_Dark_Sanctuary_Doors if e in entrances]
+        forbidden = set()
+        if avail.swapped:
+            forbidden.add('Dark Sanctuary Hint')
+            forbidden.update(Forbidden_Swap_Entrances)
+            if not avail.inverted:
+                forbidden.append('Links House')
+        choices = [e for e in Inverted_Dark_Sanctuary_Doors if e in entrances and e not in forbidden]
         choice = random.choice(choices)
         entrances.remove(choice)
         exits.remove('Dark Sanctuary Hint')
@@ -216,6 +234,10 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         ext.connect(avail.world.get_entrance(choice, avail.player).parent_region)
         if not avail.coupled:
             avail.decoupled_entrances.remove(choice)
+        if avail.swapped and choice != 'Dark Sanctuary Hint':
+            swap_ent, swap_ext = connect_swap(choice, 'Dark Sanctuary Hint', avail)
+            entrances.remove(swap_ent)
+            exits.remove(swap_ext)
 
     # mandatory exits
     rem_entrances, rem_exits = set(), set()
@@ -241,12 +263,19 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
     else:
         # cross world mandantory
         entrance_list = list(entrances)
+        if avail.swapped:
+            forbidden = [e for e in Forbidden_Swap_Entrances if e in entrance_list]
+            entrance_list = [e for e in entrance_list if e not in forbidden]
         must_exit, multi_exit_caves = figure_out_must_exits_cross_world(entrances, exits, avail)
         do_mandatory_connections(avail, entrance_list, multi_exit_caves, must_exit)
         rem_entrances.update(entrance_list)
+        if avail.swapped:
+            rem_entrances.update(forbidden)
 
     rem_exits.update([x for item in multi_exit_caves for x in item])
     rem_exits.update(exits)
+    if avail.swapped:
+        rem_exits = [x for x in rem_exits if x in avail.exits]
 
     # old man cave
     do_old_man_cave_exit(rem_entrances, rem_exits, avail, cross_world)
@@ -254,9 +283,15 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
     # blacksmith
     if 'Blacksmiths Hut' in rem_exits:
         blacksmith_options = [x for x in Blacksmith_Options if x in rem_entrances]
+        if avail.swapped:
+            blacksmith_options = [e for e in blacksmith_options if e not in Forbidden_Swap_Entrances]
         blacksmith_choice = random.choice(blacksmith_options)
         connect_entrance(blacksmith_choice, 'Blacksmiths Hut', avail)
         rem_entrances.remove(blacksmith_choice)
+        if avail.swapped and blacksmith_choice != 'Blacksmiths Hut':
+            swap_ent, swap_ext = connect_swap(blacksmith_choice, 'Blacksmiths Hut', avail)
+            rem_entrances.remove(swap_ent)
+            rem_exits.remove(swap_ext)
         if not avail.coupled:
             avail.decoupled_exits.remove('Blacksmiths Hut')
         rem_exits.remove('Blacksmiths Hut')
@@ -266,9 +301,15 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
     if bomb_shop in rem_exits:
         bomb_shop_options = Inverted_Bomb_Shop_Options if avail.inverted else Bomb_Shop_Options
         bomb_shop_options = [x for x in bomb_shop_options if x in rem_entrances]
+        if avail.swapped and len(bomb_shop_options) > 1:
+            bomb_shop_options = [x for x in bomb_shop_options if x != 'Big Bomb Shop']
         bomb_shop_choice = random.choice(bomb_shop_options)
         connect_entrance(bomb_shop_choice, bomb_shop, avail)
         rem_entrances.remove(bomb_shop_choice)
+        if avail.swapped and bomb_shop_choice != 'Big Bomb Shop':
+            swap_ent, swap_ext = connect_swap(bomb_shop_choice, bomb_shop, avail)
+            rem_exits.remove(swap_ext)
+            rem_entrances.remove(swap_ent)
         if not avail.coupled:
             avail.decoupled_exits.remove(bomb_shop)
         rem_exits.remove(bomb_shop)
@@ -326,12 +367,17 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         rem_entrances = list(unused_entrances)
     rem_entrances.sort()
     rem_exits = list(rem_exits if avail.coupled else avail.decoupled_exits)
+    if avail.swapped:
+        rem_exits = [x for x in rem_exits if x in avail.exits]
     rem_exits.sort()
     random.shuffle(rem_entrances)
     random.shuffle(rem_exits)
     placing = min(len(rem_entrances), len(rem_exits))
-    for door, target in zip(rem_entrances, rem_exits):
-        connect_entrance(door, target, avail)
+    if avail.swapped:
+        connect_swapped(rem_entrances, rem_exits, avail)
+    else:
+        for door, target in zip(rem_entrances, rem_exits):
+            connect_entrance(door, target, avail)
     rem_entrances[:] = rem_entrances[placing:]
     rem_exits[:] = rem_exits[placing:]
     if rem_entrances or rem_exits:
@@ -344,6 +390,8 @@ def do_old_man_cave_exit(entrances, exits, avail, cross_world):
         if avail.inverted and cross_world:
             om_cave_options = Inverted_Old_Man_Entrances + Old_Man_Entrances
         om_cave_options = [x for x in om_cave_options if x in entrances]
+        if avail.swapped:
+            om_cave_options = [e for e in om_cave_options if e not in Forbidden_Swap_Entrances]
         om_cave_choice = random.choice(om_cave_options)
         if not avail.coupled:
             connect_exit('Old Man Cave Exit (East)', om_cave_choice, avail)
@@ -351,6 +399,10 @@ def do_old_man_cave_exit(entrances, exits, avail, cross_world):
         else:
             connect_two_way(om_cave_choice, 'Old Man Cave Exit (East)', avail)
             entrances.remove(om_cave_choice)
+            if avail.swapped and om_cave_choice != 'Old Man Cave (East)':
+                swap_ent, swap_ext = connect_swap(om_cave_choice, 'Old Man Cave Exit (East)', avail)
+                entrances.remove(swap_ent)
+                exits.remove(swap_ext)
         exits.remove('Old Man Cave Exit (East)')
 
 
@@ -405,32 +457,74 @@ def do_holes_and_linked_drops(entrances, exits, avail, cross_world, keep_togethe
 
     random.shuffle(hole_entrances)
     if not cross_world and 'Sanctuary Grave' in holes_to_shuffle:
-        lw_entrance = next(entrance for entrance in hole_entrances if entrance[0] in LW_Entrances)
-        hole_entrances.remove(lw_entrance)
-        sanc_interior = next(target for target in hole_targets if target[0] == 'Sanctuary Exit')
-        hole_targets.remove(sanc_interior)
-        connect_two_way(lw_entrance[0], sanc_interior[0], avail)  # two-way exit
-        connect_entrance(lw_entrance[1], sanc_interior[1], avail)  # hole
-        remove_from_list(entrances, [lw_entrance[0], lw_entrance[1]])
-        remove_from_list(exits, [sanc_interior[0], sanc_interior[1]])
+        hc = avail.world.get_entrance('Hyrule Castle Exit (South)', avail.player)
+        is_hc_in_dw = avail.world.mode[avail.player] == 'inverted'
+        if hc.connected_region:
+            is_hc_in_dw = hc.connected_region.type == RegionType.DarkWorld
+        chosen_entrance = None
+        if is_hc_in_dw:
+            if avail.swapped:
+                chosen_entrance = next(e for e in hole_entrances if e[0] in DW_Entrances and e[0] != 'Sanctuary')
+            if not chosen_entrance:
+                chosen_entrance = next(e for e in hole_entrances if e[0] in DW_Entrances)
+        if not chosen_entrance:
+            if avail.swapped:
+                chosen_entrance = next(e for e in hole_entrances if e[0] in LW_Entrances and e[0] != 'Sanctuary')
+            if not chosen_entrance:
+                chosen_entrance = next(e for e in hole_entrances if e[0] in LW_Entrances)
+
+        if chosen_entrance:
+            hole_entrances.remove(chosen_entrance)
+            sanc_interior = next(target for target in hole_targets if target[0] == 'Sanctuary Exit')
+            hole_targets.remove(sanc_interior)
+            connect_two_way(chosen_entrance[0], sanc_interior[0], avail)  # two-way exit
+            connect_entrance(chosen_entrance[1], sanc_interior[1], avail)  # hole
+            remove_from_list(entrances, [chosen_entrance[0], chosen_entrance[1]])
+            remove_from_list(exits, [sanc_interior[0], sanc_interior[1]])
+            if avail.swapped and drop_map[chosen_entrance[1]] != sanc_interior[1]:
+                swap_ent, swap_ext = connect_swap(chosen_entrance[0], sanc_interior[0], avail)
+                swap_drop, swap_tgt = connect_swap(chosen_entrance[1], sanc_interior[1], avail)
+                hole_entrances.remove((swap_ent, swap_drop))
+                hole_targets.remove((swap_ext, swap_tgt))
+                remove_from_list(entrances, [swap_ent, swap_drop])
+                remove_from_list(exits, [swap_ext, swap_tgt])
 
     random.shuffle(hole_targets)
-    for entrance, drop in hole_entrances:
-        ext, target = hole_targets.pop()
+    while len(hole_entrances):
+        entrance, drop = hole_entrances.pop()
+        if avail.swapped and len(hole_targets) > 1:
+            ext, target = next((x, t) for x, t in hole_targets if x != entrance_map[entrance])
+            hole_targets.remove((ext, target))
+        else:
+            ext, target = hole_targets.pop()
         connect_two_way(entrance, ext, avail)
         connect_entrance(drop, target, avail)
         remove_from_list(entrances, [entrance, drop])
         remove_from_list(exits, [ext, target])
+        if avail.swapped and drop_map[drop] != target:
+            swap_ent, swap_ext = connect_swap(entrance, ext, avail)
+            swap_drop, swap_tgt = connect_swap(drop, target, avail)
+            hole_entrances.remove((swap_ent, swap_drop))
+            hole_targets.remove((swap_ext, swap_tgt))
+            remove_from_list(entrances, [swap_ent, swap_drop])
+            remove_from_list(exits, [swap_ext, swap_tgt])
 
 
 def do_links_house(entrances, exits, avail, cross_world):
     lh_exit = 'Links House Exit'
     if lh_exit in exits:
+        links_house_vanilla = 'Big Bomb Shop' if avail.inverted else 'Links House'
         if not avail.world.shufflelinks[avail.player]:
-            links_house = 'Big Bomb Shop' if avail.inverted else 'Links House'
+            links_house = links_house_vanilla
         else:
             forbidden = list((Isolated_LH_Doors_Inv + Inverted_Dark_Sanctuary_Doors)
                              if avail.inverted else Isolated_LH_Doors_Open)
+            if not avail.inverted:
+                if avail.world.doorShuffle[avail.player] != 'vanilla' and avail.world.intensity[avail.player] > 2:
+                    forbidden.append('Hyrule Castle Entrance (South)')
+            if avail.swapped:
+                forbidden.append(links_house_vanilla)
+                forbidden.extend(Forbidden_Swap_Entrances)
             shuffle_mode = avail.world.shuffle[avail.player]
             # simple shuffle -
             if shuffle_mode == 'simple':
@@ -471,6 +565,11 @@ def do_links_house(entrances, exits, avail, cross_world):
             avail.decoupled_entrances.remove(links_house)
             avail.decoupled_exits.remove('Links House Exit')
             avail.decoupled_exits.remove('Chris Houlihan Room Exit')
+        if avail.swapped and links_house != links_house_vanilla:
+            swap_ent, swap_ext = connect_swap(links_house, lh_exit, avail)
+            entrances.remove(swap_ent)
+            exits.remove(swap_ext)
+
         # links on dm
         dm_spots = LH_DM_Connector_List.union(LH_DM_Exit_Forbidden)
         if links_house in dm_spots:
@@ -491,20 +590,20 @@ def do_links_house(entrances, exits, avail, cross_world):
             possible_exits.sort()
             chosen_dm_escape = random.choice(possible_dm_exits)
             chosen_landing = random.choice(possible_exits)
+            chosen_exit_start = chosen_cave.pop(0)
+            chosen_exit_end = chosen_cave.pop()
             if avail.coupled:
-                connect_two_way(chosen_dm_escape, chosen_cave.pop(0), avail)
-                connect_two_way(chosen_landing, chosen_cave.pop(), avail)
+                connect_two_way(chosen_dm_escape, chosen_exit_start, avail)
+                connect_two_way(chosen_landing, chosen_exit_end, avail)
                 entrances.remove(chosen_dm_escape)
                 entrances.remove(chosen_landing)
             else:
-                chosen_cave_first = chosen_cave.pop(0)
-                connect_entrance(chosen_dm_escape, chosen_cave_first, avail)
-                connect_exit(chosen_cave.pop(), chosen_landing, avail)
+                connect_entrance(chosen_dm_escape, chosen_exit_start, avail)
+                connect_exit(chosen_exit_end, chosen_landing, avail)
                 entrances.remove(chosen_dm_escape)
-                avail.decoupled_exits.remove(chosen_cave_first)
+                avail.decoupled_exits.remove(chosen_exit_start)
                 avail.decoupled_entrances.remove(chosen_landing)
-                # chosen cave has already been removed from exits
-                exits.add(chosen_cave_first)  # this needs to be added back in
+                exits.add(chosen_exit_start)  # this needs to be added back in
             if len(chosen_cave):
                 exits.update([x for x in chosen_cave])
             exits.update([x for item in multi_exit_caves for x in item])
@@ -626,21 +725,44 @@ def do_cross_world_connectors(entrances, caves, avail):
         cave_candidate = (None, 0)
         for i, cave in enumerate(caves):
             if isinstance(cave, str):
-                cave = (cave,)
+                cave = [cave]
             if len(cave) > cave_candidate[1]:
                 cave_candidate = (i, len(cave))
         cave = caves.pop(cave_candidate[0])
 
         if isinstance(cave, str):
-            cave = (cave,)
+            cave = [cave]
 
-        for ext in cave:
+        while len(cave):
+            ext = cave.pop()
             if not avail.coupled:
                 choice = random.choice(avail.decoupled_entrances)
                 connect_exit(ext, choice, avail)
                 avail.decoupled_entrances.remove(choice)
             else:
-                connect_two_way(entrances.pop(), ext, avail)
+                if avail.swapped and len(entrances) > 1:
+                    chosen_entrance = next(e for e in entrances if combine_map[e] != ext)
+                    entrances.remove(chosen_entrance)
+                else:
+                    chosen_entrance = entrances.pop()
+                connect_two_way(chosen_entrance, ext, avail)
+                if avail.swapped:
+                    swap_ent, swap_ext = connect_swap(chosen_entrance, ext, avail)
+                    if swap_ent:
+                        entrances.remove(swap_ent)
+                        if chosen_entrance not in single_entrance_map:
+                            if swap_ext in cave:
+                                cave.remove(swap_ext)
+                            else:
+                                for c in caves:
+                                    if swap_ext == c:
+                                        caves.remove(swap_ext)
+                                        break
+                                    if not isinstance(c, str) and swap_ext in c:
+                                        c.remove(swap_ext)
+                                        if len(c) == 0:
+                                            caves.remove(c)
+                                        break
 
 
 def do_fixed_shuffle(avail, entrance_list):
@@ -841,7 +963,12 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
             invalid_connections[entrance] = set()
             if entrance in must_exit:
                 must_exit.remove(entrance)
-                entrances.append(entrance)
+                if entrance not in entrances:
+                    entrances.append(entrance)
+    if avail.swapped:
+        swap_forbidden = [e for e in entrances if combine_map[e] in must_exit]
+        for e in swap_forbidden:
+            entrances.remove(e)
     entrances.sort()  # sort these for consistency
     random.shuffle(entrances)
     random.shuffle(cave_options)
@@ -854,6 +981,19 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
                     invalid_connections[ext] = invalid_connections[ext].union({'Agahnims Tower', 'Hyrule Castle Entrance (West)', 'Hyrule Castle Entrance (East)'})
                 break
 
+    def connect_cave_swap(entrance, exit, current_cave):
+        swap_entrance, swap_exit = connect_swap(entrance, exit, avail)
+        if swap_entrance and entrance not in single_entrance_map:
+            for option in cave_options:
+                if swap_exit in option and option == current_cave:
+                    x=0
+                if swap_exit in option and option != current_cave:
+                    option.remove(swap_exit)
+                    if len(option) == 0:
+                        cave_options.remove(option)
+                    break
+        return swap_entrance, swap_exit
+
     used_caves = []
     required_entrances = 0  # Number of entrances reserved for used_caves
     while must_exit:
@@ -861,9 +1001,10 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         # find multi exit cave
         candidates = []
         for candidate in cave_options:
-            if not isinstance(candidate, str) and (candidate in used_caves
-                                                   or len(candidate) < len(entrances) - required_entrances):
-                candidates.append(candidate)
+            if not isinstance(candidate, str) and len(candidate) > 1 and (candidate in used_caves
+                                                                          or len(candidate) < len(entrances) - required_entrances):
+                if not avail.swapped or (combine_map[exit] not in candidate and not any(e for e in must_exit if combine_map[e] in candidate)): #maybe someday allow these, but we need to disallow mutual locks in Swapped
+                    candidates.append(candidate)
         cave = random.choice(candidates)
         if cave is None:
             raise RuntimeError('No more caves left. Should not happen!')
@@ -871,13 +1012,23 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         # all caves are sorted so that the last exit is always reachable
         rnd_cave = list(cave)
         shuffle_connector_exits(rnd_cave)  # should be the same as unbiasing some entrances...
-        entrances.remove(exit)
+        if avail.swapped and exit in swap_forbidden:
+            swap_forbidden.remove(exit)
+        else:
+            entrances.remove(exit)
         connect_two_way(exit, rnd_cave[-1], avail)
+        if avail.swapped:
+            swap_ent, _ = connect_cave_swap(exit, rnd_cave[-1], cave)
+            entrances.remove(swap_ent)
         if len(cave) == 2:
             entrance = next(e for e in entrances[::-1] if e not in invalid_connections[exit]
-                            and e not in invalid_cave_connections[tuple(cave)] and e not in must_exit)
+                            and e not in invalid_cave_connections[tuple(cave)] and e not in must_exit
+                            and (not avail.swapped or rnd_cave[0] != combine_map[e]))
             entrances.remove(entrance)
             connect_two_way(entrance, rnd_cave[0], avail)
+            if avail.swapped and combine_map[entrance] != rnd_cave[0]:
+                swap_ent, _ = connect_cave_swap(entrance, rnd_cave[0], cave)
+                entrances.remove(swap_ent)
             if cave in used_caves:
                 required_entrances -= 2
                 used_caves.remove(cave)
@@ -887,10 +1038,18 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         elif cave[-1] == 'Spectacle Rock Cave Exit':  # Spectacle rock only has one exit
             cave_entrances = []
             for cave_exit in rnd_cave[:-1]:
-                entrance = next(e for e in entrances[::-1] if e not in invalid_connections[exit] and e not in must_exit)
-                cave_entrances.append(entrance)
-                entrances.remove(entrance)
-                connect_two_way(entrance, cave_exit, avail)
+                if avail.swapped and cave_exit not in avail.exits:
+                    entrance = avail.world.get_entrance(cave_exit, avail.player).parent_region.entrances[0].name
+                    cave_entrances.append(entrance)
+                else:
+                    entrance = next(e for e in entrances[::-1] if e not in invalid_connections[exit] and e not in must_exit
+                                    and (not avail.swapped or cave_exit != combine_map[e]))
+                    cave_entrances.append(entrance)
+                    entrances.remove(entrance)
+                    connect_two_way(entrance, cave_exit, avail)
+                    if avail.swapped and combine_map[entrance] != cave_exit:
+                        swap_ent, _ = connect_cave_swap(entrance, cave_exit, cave)
+                        entrances.remove(swap_ent)
                 if entrance not in invalid_connections:
                     invalid_connections[exit] = set()
             if all(entrance in invalid_connections for entrance in cave_entrances):
@@ -911,11 +1070,20 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
     for cave in used_caves:
         if cave in cave_options:  # check if we placed multiple entrances from this 3 or 4 exit
             for cave_exit in cave:
-                entrance = next(e for e in entrances[::-1] if e not in invalid_cave_connections[tuple(cave)])
-                invalid_cave_connections[tuple(cave)] = set()
-                entrances.remove(entrance)
-                connect_two_way(entrance, cave_exit, avail)
+                if avail.swapped and cave_exit not in avail.exits:
+                    continue
+                else:
+                    entrance = next(e for e in entrances[::-1] if e not in invalid_cave_connections[tuple(cave)]
+                                    and (not avail.swapped or cave_exit != combine_map[e]))
+                    invalid_cave_connections[tuple(cave)] = set()
+                    entrances.remove(entrance)
+                    connect_two_way(entrance, cave_exit, avail)
+                    if avail.swapped and combine_map[entrance] != cave_exit:
+                        swap_ent, _ = connect_cave_swap(entrance, cave_exit, cave)
+                        entrances.remove(swap_ent)
             cave_options.remove(cave)
+    if avail.swapped:
+        entrances.extend(swap_forbidden)
 
 
 def do_mandatory_connections_decoupled(avail, cave_options, must_exit):
@@ -1032,6 +1200,47 @@ def inverted_substitution(avail_pool, collection, is_entrance, is_set=False):
                 except ValueError:
                     pass
 
+
+def connect_swapped(entrancelist, targetlist, avail, two_way=False):
+    random.shuffle(entrancelist)
+    sorted_targets = list()
+    for ent in entrancelist:
+        if ent in combine_map:
+            if combine_map[ent] not in targetlist:
+                logging.getLogger('').error(f'{combine_map[ent]} not in target list, cannot swap entrance')
+                raise Exception(f'{combine_map[ent]} not in target list, cannot swap entrance')
+            sorted_targets.append(combine_map[ent])
+    if len(sorted_targets):
+        targetlist = list(sorted_targets)
+    else:
+        targetlist = list(targetlist)
+    indexlist = list(range(len(targetlist)))
+    random.shuffle(indexlist)
+
+    while len(indexlist) > 1:
+        index1 = indexlist.pop()
+        index2 = indexlist.pop()
+        targetlist[index1], targetlist[index2] = targetlist[index2], targetlist[index1]
+
+    for exit, target in zip(entrancelist, targetlist):
+        if two_way:
+            connect_two_way(exit, target, avail)
+        else:
+            connect_entrance(exit, target, avail)
+
+
+def connect_swap(entrance, exit, avail):
+    swap_exit = combine_map[entrance]
+    if swap_exit != exit:
+        swap_entrance = next(e for e, x in combine_map.items() if x == exit)
+        if swap_entrance in ['Pyramid Entrance', 'Pyramid Hole'] and avail.inverted:
+            swap_entrance = 'Inverted ' + swap_entrance
+        if entrance in entrance_map:
+            connect_two_way(swap_entrance, swap_exit, avail)
+        else:
+            connect_entrance(swap_entrance, swap_exit, avail)
+        return swap_entrance, swap_exit
+    return None, None
 
 def connect_random(exitlist, targetlist, avail, two_way=False):
     targetlist = list(targetlist)
@@ -1479,6 +1688,23 @@ modes = {
             },
         }
     },
+    'swapped': {
+        'undefined': 'swap',
+        'keep_drops_together': 'on',
+        'cross_world': 'on',
+        'pools': {
+            'skull_drops': {
+                'special': 'drops',
+                'entrances': ['Skull Woods First Section Hole (East)', 'Skull Woods First Section Hole (West)',
+                              'Skull Woods First Section Hole (North)', 'Skull Woods Second Section Hole']
+            },
+            'skull_doors': {
+                'special': 'skull',
+                'entrances': ['Skull Woods First Section Door', 'Skull Woods Second Section Door (East)',
+                              'Skull Woods Second Section Door (West)']
+            },
+        }
+    },
     'crossed': {
         'undefined': 'shuffle',
         'keep_drops_together': 'on',
@@ -1640,6 +1866,8 @@ single_entrance_map = {
     'Bonk Fairy (Light)': 'Bonk Fairy (Light)', 'Lumberjack House': 'Lumberjack House', 'Dam': 'Dam',
     'Blinds Hideout': 'Blinds Hideout', 'Waterfall of Wishing': 'Waterfall of Wishing'
 }
+
+combine_map = {**entrance_map, **single_entrance_map, **drop_map}
 
 default_dw = {
     'Thieves Town Exit', 'Skull Woods First Section Exit', 'Skull Woods Second Section Exit (East)',
@@ -1881,6 +2109,8 @@ Inverted_Bomb_Shop_Options = [
     'Desert Palace Entrance (West)', 'Desert Palace Entrance (North)',
     'Agahnims Tower', 'Ganons Tower', 'Dark Sanctuary Hint', 'Big Bomb Shop', 'Links House'] + Blacksmith_Options
 
+
+Forbidden_Swap_Entrances = {'Old Man Cave (East)', 'Blacksmiths Hut', 'Big Bomb Shop'}
 
 # these are connections that cannot be shuffled and always exist.
 # They link together separate parts of the world we need to divide into regions

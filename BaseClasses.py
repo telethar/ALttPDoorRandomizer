@@ -112,7 +112,7 @@ class World(object):
             set_player_attr('can_access_trock_big_chest', None)
             set_player_attr('can_access_trock_middle', None)
             set_player_attr('fix_fake_world', logic[player] not in ['owglitches', 'nologic']
-                            or shuffle[player] in ['lean', 'crossed', 'insanity'])
+                            or shuffle[player] in ['lean', 'swapped', 'crossed', 'insanity'])
             set_player_attr('mapshuffle', False)
             set_player_attr('compassshuffle', False)
             set_player_attr('keyshuffle', 'none')
@@ -2970,7 +2970,7 @@ class Pot(object):
 # byte 0: DDDE EEEE (DR, ER)
 dr_mode = {"basic": 1, "crossed": 2, "vanilla": 0, "partitioned": 3, 'paired': 4}
 er_mode = {"vanilla": 0, "simple": 1, "restricted": 2, "full": 3, "crossed": 4, "insanity": 5, 'lite': 8,
-           'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6}
+           'lean': 9, "dungeonsfull": 7, "dungeonssimple": 6, 'swapped': 10}
 
 # byte 1: LLLW WSS? (logic, mode, sword)
 logic_mode = {"noglitches": 0, "minorglitches": 1, "nologic": 2, "owglitches": 3, "majorglitches": 4}

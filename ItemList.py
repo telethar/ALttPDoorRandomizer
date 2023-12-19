@@ -809,7 +809,7 @@ def balance_prices(world, player):
 
 
 def check_hints(world, player):
-    if world.shuffle[player] in ['simple', 'restricted', 'full', 'crossed', 'insanity']:
+    if world.shuffle[player] in ['simple', 'restricted', 'full', 'lite', 'lean', 'swapped', 'crossed', 'insanity']:
         for shop, location_list in  shop_to_location_table.items():
             if shop in ['Capacity Upgrade', 'Paradox Shop', 'Potion Shop']:
                 continue  # near the queen, near potions, and near 7 chests are fine

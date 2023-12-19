@@ -1,5 +1,5 @@
 meta:
-  seed: 398
+  seed: 394
 settings:
   1:
 #    mode: standard
@@ -7,10 +7,11 @@ settings:
 #    boss_shuffle: random
 #    dropshuffle: underworld
 #    enemy_shuffle: shuffled
-#    door_shuffle: crossed
-#    intensity: 3
-    shuffle: insanity
+    door_shuffle: partitioned
+    intensity: 3
+    shuffle: lite
     experimental: on
+    shopsanity: on
 
 #    dungeon_counters: 'on'
 #entrances:
@@ -19,23 +20,28 @@ settings:
 #      Hyrule Castle Secret Entrance Drop: Lumberjack Tree (top)
 #    two-way:
 #      Hyrule Castle Entrance (South): Links House Exit
-#doors:
-#  1:
+doors:
+  1:
 #    lobbies:
 #      Hyrule Castle South: GT Lobby S
-#    doors:
-#      GT Lobby Left Down Stairs: GT Quad Pot Up Stairs
-#      GT Lobby Right Down Stairs: GT Lobby Up Stairs
-#      GT Beam Dash ES: Swamp Big Key Ledge WN
+    doors:
+      TR Eye Bridge SW: Ice Compass Room NE
+      TR Lazy Eyes SE: Mire Conveyor Barrier NW
+      Hera Basement Cage Up Stairs: Hera Lobby Down Stairs
+      Hera Lobby Key Stairs:
+        dest: Hera Boss Down Stairs
+        type: Key Door
+      Hera Tile Room Up Stairs: Hera 5F Down Stairs
+
 
 #bosses:
 #  1:
 #    Ganons Tower (middle): Trinexx
 
 
-#placements:
-#  1:
-#    Lumberjack Tree: Lamp#2
+placements:
+  1:
+    Tower of Hera - Basement Cage: Small Key (Tower of Hera)
 #    Link's House: Lamp
 
 

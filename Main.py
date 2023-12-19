@@ -241,7 +241,7 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         create_dynamic_exits(world, player)
-        if world.experimental[player] or world.shuffle[player] in ['lite', 'lean'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
+        if world.experimental[player] or world.shuffle[player] in ['lite', 'lean', 'swapped'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
             link_entrances_new(world, player)
         else:
             link_entrances(world, player)

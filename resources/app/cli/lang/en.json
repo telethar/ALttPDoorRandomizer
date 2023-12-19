@@ -206,6 +206,7 @@
       "                connect remaining entrances.",
       "Crossed:        Mix cave and dungeon entrances freely while allowing",
       "                caves to cross between worlds.",
+      "Swapped:        Same as Crossed, but entrances switch places in pairs.",
       "Insanity:       Decouple entrances and exits from each other and",
       "                shuffle them freely. Caves that used to be single",
       "                entrance will still exit to the same location from",

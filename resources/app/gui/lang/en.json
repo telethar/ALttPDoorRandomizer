@@ -156,6 +156,7 @@
     "randomizer.entrance.entranceshuffle.simple": "Simple",
     "randomizer.entrance.entranceshuffle.restricted": "Restricted",
     "randomizer.entrance.entranceshuffle.full": "Full",
+    "randomizer.entrance.entranceshuffle.swapped": "Swapped",
     "randomizer.entrance.entranceshuffle.crossed": "Crossed",
     "randomizer.entrance.entranceshuffle.insanity": "Insanity",
     "randomizer.entrance.entranceshuffle.dungeonsfull": "Dungeons + Full",
