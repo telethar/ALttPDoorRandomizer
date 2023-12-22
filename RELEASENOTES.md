@@ -141,6 +141,13 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.3.0.9v
+  * ER: New Swapped ER mode borrowed from OWR
+  * ER: fixed a generation error where TR chooses all "must-exits"
+  * Ganonhunt: playthrough no longer collects crystals
+  * Vanilla Fill: Uncle weapon is always a sword, medallions for Mire/TR will be vanilla
+  * Customizer: support shufflebosses/shuffleenemies as well as boss_shuffle/enemy_shuffle
+  * Enemizer: enemy bans
 * 1.3.0.8v
   * Enemizer: Red Mimics correctly banned from challenge rooms in appropriate logic setting
   * No Logic Standard ER: Rain doors aren't blocked if no logic is enabled.

@@ -301,6 +301,8 @@ def generate_itempool(world, player):
                     if not found_sword and world.swords[player] != 'swordless':
                         found_sword = True
                         possible_weapons.append(item)
+                if world.algorithm == 'vanilla_fill':  # skip other possibilities
+                    continue
                 if (item in ['Progressive Bow', 'Bow'] and not found_bow
                    and not world.bow_mode[player].startswith('retro')):
                     found_bow = True
@@ -394,9 +396,15 @@ def generate_itempool(world, player):
                 if tr_medallion == 'Random':
                     tr_medallion = None
     if not mm_medallion:
-        mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+        if world.algorithm == 'vanilla_fill':
+            mm_medallion = 'Ether'
+        else:
+            mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     if not tr_medallion:
-        tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+        if world.algorithm == 'vanilla_fill':
+            tr_medallion = 'Quake'
+        else:
+            tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     world.required_medallions[player] = (mm_medallion, tr_medallion)
 
     # shuffle bottle refills

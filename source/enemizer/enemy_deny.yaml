@@ -50,7 +50,7 @@ UwGeneralDeny:
   - [ 0x0027, 4, ["Bumper", "BigSpike", "AntiFairyCircle", "RollerVerticalDown", "RollerVerticalUp"]]
   - [ 0x0027, 5, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Tower Of Hera - Petting Zoo - Kodongo 1"
   - [ 0x0028, 4, [ "RollerVerticalUp" ] ]  #"Swamp Palace - Entrance Ledge - Spike Trap"
-  - [ 0x002a, 2, [ "SparkCW", "SparkCCW", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "SpikeBlock" ] ]  #"Palace of Darkness - Arena Main - Hardhat Beetle 1"
+  - [ 0x002a, 2, [ "SparkCW", "SparkCCW", "RollerHorizontalRight", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]  #"Palace of Darkness - Arena Main - Hardhat Beetle 1"
   - [ 0x002a, 3, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Palace of Darkness - Arena Main - Hardhat Beetle 2"
   - [ 0x002a, 4, [ "Statue", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ]]
   - [ 0x002a, 6, [ "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Palace of Darkness - Arena Main - Hardhat Beetle 5"
@@ -165,6 +165,7 @@ UwGeneralDeny:
   - [ 0x0065, 1, [ "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Thieves' Town - Attic Window - Rat 2"
   - [ 0x0065, 2, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Thieves' Town - Attic Window - Rat 3"
   - [ 0x0066, 0, [ "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Swamp Palace - Waterfall Room - Hover 1"
+  - [ 0x0066, 2, [ "AntiFairyCircle", "Bumper"]]
   - [ 0x0067, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Blue Bari 1"
   - [ 0x0067, 2, ["Bumper"]]  #"Skull Woods - Firebar Pits - Blue Bari 2"
   - [ 0x0067, 3, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Firebar Pits - Hardhat Beetle 1"
