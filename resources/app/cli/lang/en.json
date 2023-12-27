@@ -55,7 +55,8 @@
     "building.collection.spheres": "Building up collection spheres",
     "building.calculating.spheres": "Calculated sphere %i, containing %i of %i progress items.",
     "building.final.spheres": "Calculated final sphere %i, containing %i of %i progress items.",
-    "old.python.version": "Door Rando may have issues with python versions earlier than 3.7.  Detected version: %s"
+    "old.python.version": "Door Rando may have issues with python versions earlier than 3.7.  Detected version: %s",
+    "hybridglitches.door.shuffle": "Hybrid Major Glitches is not currently compatible with Door Shuffle."
   },
   "help": {
     "lang": [ "App Language, if available, defaults to English" ],
@@ -63,11 +64,13 @@
     "bps": [ "Output BPS patches instead of ROMs"],
     "logic": [
       "Select Enforcement of Item Requirements. (default: %(default)s)",
-      "No Glitches:    No Glitch knowledge required.",
-      "Minor Glitches: May require Fake Flippers, Bunny Revival",
-      "                and Dark Room Navigation.",
-      "No Logic:       Distribute items without regard for",
-      "                item requirements."
+      "No Glitches:           No Glitch knowledge required.",
+      "Minor Glitches:        May require Fake Flippers, Bunny Revival",
+      "                       and Dark Room Navigation.",
+      "Overworld Glitches:    May require overworld clips and teleports.",
+      "Hybrid Major Glitches: May require underworld clips.",
+      "No Logic:              Distribute items without regard for",
+      "                       item requirements."
     ],
     "mode": [
       "Select game mode. (default: %(default)s)",
