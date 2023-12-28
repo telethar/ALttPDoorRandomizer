@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.0.0v
+  * Initial support for HMG (Thanks Muffins!)
+  * Enemizer: enemy bans
 * 1.3.0.9v
   * ER: New Swapped ER mode borrowed from OWR
   * ER: fixed a generation error where TR chooses all "must-exits"

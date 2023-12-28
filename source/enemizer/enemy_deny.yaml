@@ -195,7 +195,7 @@ UwGeneralDeny:
   - [ 0x007b, 7, [ "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ganon's Tower - DMs Room - Hardhat Beetle"
   - [ 0x007c, 1, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ganon's Tower - Randomizer Room - Fire Bar (Counterclockwise)"
   - [ 0x007c, 2, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - Randomizer Room - Spike Trap"
-  - [ 0x007c, 3, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - Randomizer Room - Fire Bar (Clockwise)"
+  - [ 0x007c, 3, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "Bumper", "Statue"]]  #"Ganon's Tower - Randomizer Room - Fire Bar (Clockwise)"
   - [ 0x007c, 4, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ganon's Tower - Randomizer Room - Hardhat Beetle"
   - [ 0x007d, 0, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - The Zoo - Fire Snake 1"
   - [ 0x007d, 1, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ganon's Tower - The Zoo - Fire Snake 2"
@@ -347,6 +347,7 @@ UwGeneralDeny:
   - [ 0x00d8, 8, [ "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Eastern Palace - Kill Room 1 - Red Eyegore"
   - [ 0x00d9, 1, [ "RollerHorizontalRight" ] ]  #"Eastern Palace - Dodgeball - Green Eyegore 1"
   - [ 0x00db, 0, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
+  - [ 0x00db, 3, [ "Bumper" ] ]  # Okay in vanilla
   - [ 0x00dc, 2, [ "AntiFairyCircle", "BigSpike", "Bumper" ] ]
   - [ 0x00dc, 9, [ "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Thieves' Town - Grand Room SE - Fire Snake 2"
   - [ 0x00df, 0, [ "RollerVerticalDown", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Paradox Cave - Top - Mini Moldorm 1"
