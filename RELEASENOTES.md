@@ -109,6 +109,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.2.0.23u
+  * Generation: fix for bunny walk logic taking up too much memory
+  * Key Logic: Partial is now the new default
 * 1.2.0.22u
   * Flute can't be activated in rain state (except glitched modes) (Thanks codemann!)
   * ER: Minor fix for Link's House on DM in Insanity (escape cave should not be re-used) 

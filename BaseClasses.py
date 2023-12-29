@@ -149,7 +149,7 @@ class World(object):
             set_player_attr('door_self_loops', False)
             set_player_attr('door_type_mode', 'original')
             set_player_attr('trap_door_mode', 'optional')
-            set_player_attr('key_logic_algorithm', 'default')
+            set_player_attr('key_logic_algorithm', 'partial')
 
             set_player_attr('shopsanity', False)
             set_player_attr('mixed_travel', 'prevent')
@@ -1158,7 +1158,7 @@ class CollectionState(object):
                 or self.has('Ice Rod', player)
                 or self.has('Cane of Somaria', player)
                 or self.has('Cane of Byrna', player))
-    
+
     def can_hit_crystal_through_barrier(self, player):
         return (self.can_use_bombs(player)
             or self.can_shoot_arrows(player)
