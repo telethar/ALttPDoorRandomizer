@@ -143,6 +143,8 @@ These are now independent of retro mode and have three options: None, Random, an
 
 * 1.4.0.0v
   * Initial support for HMG (Thanks Muffins!)
+  * Generation: fix for bunny walk logic taking up too much memory
+  * Key Logic: Partial is now the new default
   * Enemizer: enemy bans
 * 1.3.0.9v
   * ER: New Swapped ER mode borrowed from OWR
