@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.1.0v
+  * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
+  * Enemy AI: Terrorpin AI code removed. May help with unusual enemy behavior?
 * 1.4.0.1v
   * Key logic: Vanilla key logic fixes. Statically set some HC logic and PoD front door
   * Generation: Fix a broken tile pattern
