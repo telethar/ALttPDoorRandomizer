@@ -144,6 +144,9 @@ These are now independent of retro mode and have three options: None, Random, an
 * 1.4.0.1v
   * Key logic: Vanilla key logic fixes. Statically set some HC logic and PoD front door
   * Generation: Fix a broken tile pattern
+  * Inverted: Castle warp should not appear after defeating Aga 1
+  * Murahdahla: Should not disappear after Aga 1. May fix other subtle issues.
+  * Shopsanity: Buying multiple of an item in the potion shop should no longer increase item count.
 * 1.4.0.0v
   * Initial support for HMG (Thanks Muffins!)
   * Generation: fix for bunny walk logic taking up too much memory

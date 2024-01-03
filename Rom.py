@@ -40,7 +40,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '4d1f3e36e316077823a3e2eb5359ca17'
+RANDOMIZERBASEHASH = '65b433946c72953780d82cdc0bb8fe8e'
 
 
 class JsonRom(object):
@@ -2483,7 +2483,8 @@ def set_inverted_mode(world, player, rom):
     write_int16(rom, 0xDBA71 + 2 * 0x35, 0x06A4)
     if world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
         rom.write_byte(0xDBB73 + 0x35, 0x36)
-    rom.write_byte(snes_to_pc(0x09D436), 0xF3)  # remove castle gate warp
+    # rom.write_byte(snes_to_pc(0x09D436), 0xF3)  # remove castle gate warp
+    del world.data_tables[player].ow_enemy_table[0xab][5]
     if world.shuffle[player] in ['vanilla', 'dungeonssimple', 'dungeonsfull']:
         write_int16(rom, 0x15AEE + 2 * 0x37, 0x0010)  # pyramid exit to new hc area
         rom.write_byte(0x15B8C + 0x37, 0x1B)

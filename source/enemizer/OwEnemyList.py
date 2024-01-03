@@ -846,7 +846,7 @@ def init_vanilla_sprites_ow():
     # create_sprite(0xaa, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D421)
     create_sprite(0xaa, EnemySprite.UsainBolt, 0x0F, 0x18, '', 0x09D421)  # was 0x09D424
     # Screen1B_2:
-    create_sprite(0x1b, EnemySprite.Wiseman, 0x19, 0x12, '', 0x09D425)
+    create_sprite(0xab, EnemySprite.Wiseman, 0x19, 0x12, '', 0x09D425)
     create_sprite(0xab, EnemySprite.UsainBolt, 0x06, 0x0D, '', 0x09D428)
     create_sprite(0xab, EnemySprite.Apple, 0x16, 0x14, '', 0x09D42B)
     create_sprite(0xab, EnemySprite.UsainBolt, 0x1F, 0x1A, '', 0x09D42E)
