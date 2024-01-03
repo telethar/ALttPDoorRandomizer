@@ -3,6 +3,7 @@ import logging
 import copy
 
 from collections import defaultdict
+from BaseClasses import RegionType
 
 
 class EntrancePool(object):
