@@ -28,7 +28,7 @@ def main(args=None):
     def test(test_name: str, command: str, test_file: str):
         tests[test_name] = [command]
 
-        base_command = f"python3.8 DungeonRandomizer.py --suppress_rom --suppress_spoiler"
+        base_command = f"python3 DungeonRandomizer.py --suppress_rom --suppress_spoiler"
 
         def gen_seed():
             task_command = base_command + " " + command

@@ -84,6 +84,9 @@ def set_rules(world, player):
     if not world.swamp_patch_required[player]:
         add_rule(world.get_entrance('Swamp Lobby Moat', player), lambda state: state.has_Mirror(player))
 
+    if world.logic[player] in ['owglitches', 'hybridglitches']:
+        overworld_glitches_rules(world, player)
+
     set_bunny_rules(world, player, world.mode[player] == 'inverted')
 
     # These rules go here because the overwrite/add to some of the above rules
@@ -2050,22 +2053,6 @@ def set_bunny_rules(world, player, inverted):
         else:
             return region.is_light_world
 
-    # Is it possible to do bunny pocket here
-    def can_bunny_pocket_skull_woods(world, player):
-        return world.get_entrance(
-            "Skull Woods Second Section Door (West)", player
-        ).connected_region.type == RegionType.Dungeon or (
-            world.state.can_reach_from("Skull Woods Forest (West)", "Light World", 1)
-            and world.state.can_reach_from("Light World", "Skull Woods Forest (West)", 1)
-        )
-
-    def can_bunny_pocket_voo_shop(world, player):
-        return (
-            world.state.can_reach_from("West Dark World", "Light World", 1)
-            and world.state.can_reach_from("Light World", "West Dark World", 1)
-        )
-
-
     def get_rule_to_add(region, location=None, connecting_entrance=None):
         # In OWG, a location can potentially be superbunny-mirror accessible or
         # bunny revival accessible.
@@ -2105,10 +2092,8 @@ def set_bunny_rules(world, player, inverted):
                         if region.type == RegionType.Dungeon and new_region.type != RegionType.Dungeon:
                             if entrance.name in OverworldGlitchRules.invalid_mirror_bunny_entrances:
                                 continue
-                            # Is this a bunny pocketable entrance?
-                            if entrance.name == 'Skull Woods Final Section' and not can_bunny_pocket_skull_woods(world, player) or \
-                                entrance.name == 'Dark World Shop' and not can_bunny_pocket_voo_shop(world, player):
-                                continue
+                            # todo - Is this a bunny pocketable entrance?
+                            # Is there an entrance reachable to arm bunny pocket? For now, assume there is
                             if entrance.name in drop_dungeon_entrances:
                                 lobby = entrance.connected_region
                             else:
@@ -2124,9 +2109,8 @@ def set_bunny_rules(world, player, inverted):
                         elif region.type == RegionType.Cave and new_region.type != RegionType.Cave:
                             if entrance.name in OverworldGlitchRules.invalid_mirror_bunny_entrances:
                                 continue
-                            if entrance.name == 'Skull Woods Final Section' and not can_bunny_pocket_skull_woods(world, player) or \
-                                entrance.name == 'Dark World Shop' and not can_bunny_pocket_voo_shop(world, player):
-                                continue
+                            # todo - Is this a bunny pocketable entrance?
+                            # Is there an entrance reachable to arm bunny pocket? For now, assume there is
                             if region.name in OverworldGlitchRules.sword_required_superbunny_mirror_regions:
                                 possible_options.append(path_to_access_rule(new_path + [lambda state: state.has_Mirror(player) and state.has_sword(player)], entrance))
                             elif region.name in OverworldGlitchRules.boots_required_superbunny_mirror_regions:

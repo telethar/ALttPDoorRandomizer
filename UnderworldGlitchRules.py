@@ -220,6 +220,7 @@ def underworld_glitches_rules(world, player):
             def mirrorless_moat_rule(state):
                 return (
                     state.can_reach("Old Man S&Q", "Entrance", player)
+                    and state.has("Flippers", player)
                     and mire_clip(state)
                     and (hera_rule(state) or gt_rule(state))
                 )
