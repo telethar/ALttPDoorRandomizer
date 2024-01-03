@@ -288,7 +288,8 @@ UwGeneralDeny:
   - [ 0x00b2, 9, [ "RollerVerticalUp" ] ]  #"Misery Mire - Sluggula Cross - Sluggula BL"
   - [ 0x00b3, 0, [ "RollerVerticalUp", "RollerHorizontalRight", "BigSpike", "SpikeBlock" ] ]  #"Misery Mire - Spike Room - Stalfos 1"
   - [ 0x00b3, 2, [ "Statue", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "Bumper" ] ]  #"Misery Mire - Spike Room - Beamos"
-  - [ 0x00b3, 3, [ "AntiFairyCircle", "Bumper" ] ]  #"Misery Mire - Spike Room - Yomo Medusa"
+  - [ 0x00b3, 3, ["AntiFairyCircle", "Bumper" ]]  #"Misery Mire - Spike Room - Yomo Medusa"
+  - [ 0x00b3, 4, ["AntiFairyCircle", "Bumper"]]
   - [ 0x00b6, 7, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Turtle Rock - Tile Room - Zol 1"
   - [ 0x00b6, 8, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Turtle Rock - Tile Room - Zol 2"
   - [ 0x00ba, 1, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Eastern Palace - Dark Stalfos - Antifairy 1"
