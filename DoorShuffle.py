@@ -262,7 +262,7 @@ def vanilla_key_logic(world, player):
             world.key_layout[player][builder.name] = key_layout
             log_key_logic(builder.name, key_layout.key_logic)
     # special adjustments for vanilla
-    if world.mode[player] != 'standard':
+    if world.mode[player] != 'standard' and world.dropshuffle[player] == 'none':
         # adjust hc doors
         def adjust_hc_door(door_rule):
             if door_rule.new_rules[KeyRuleType.WorstCase] == 3:
