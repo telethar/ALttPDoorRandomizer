@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.0.1v
+  * Key logic: Vanilla key logic fixes. Statically set some HC logic and PoD front door
+  * Generation: Fix a broken tile pattern
 * 1.4.0.0v
   * Initial support for HMG (Thanks Muffins!)
   * Generation: fix for bunny walk logic taking up too much memory

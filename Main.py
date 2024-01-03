@@ -38,7 +38,7 @@ from source.enemizer.DamageTables import DamageTable
 from source.enemizer.Enemizer import randomize_enemies
 from source.rom.DataTables import init_data_tables
 
-version_number = '1.4.0.0'
+version_number = '1.4.0.1'
 version_branch = '-v'
 __version__ = f'{version_number}{version_branch}'
 
@@ -487,6 +487,10 @@ def copy_world(world):
     ret.intensity = world.intensity.copy()
     ret.decoupledoors = world.decoupledoors.copy()
     ret.door_self_loops = world.door_self_loops.copy()
+    ret.door_type_mode = world.door_type_mode.copy()
+    ret.trap_door_mode = world.trap_door_mode.copy()
+    ret.key_logic_algorithm = world.key_logic_algorithm.copy()
+    ret.aga_randomness = world.aga_randomness.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
     ret.dropshuffle = world.dropshuffle.copy()
