@@ -157,6 +157,7 @@ These are now independent of retro mode and have three options: None, Random, an
     * Trinexx on Ice forbidden in doors seeds until we can model some health requirements. Low health Trinexx still isn't realistically feasible (bascially playing OHKO)
   * Logic: Added silver arrows as Arrghus damage option when item functionality is not set to hard or expert
   * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert
+  * Enemzier Damage: Thief damage to player is not randomized
   * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
   * Generation: Trinexx and Lanmolas room allowed as lobbies in intensity 3 (works with enemizer now)
   * Enemy AI: Terrorpin AI code removed. May help with unusual enemy behavior?

@@ -422,7 +422,7 @@ skip_sprites = {
     EnemySprite.HelmasaurKing, EnemySprite.Vitreous, EnemySprite.TrinexxRockHead, EnemySprite.TrinexxFireHead,
     EnemySprite.TrinexxIceHead, EnemySprite.Blind, EnemySprite.Kholdstare, EnemySprite.KholdstareShell,
     EnemySprite.FallingIce, EnemySprite.Arrghi, EnemySprite.Agahnim, EnemySprite.Ganon,
-    EnemySprite.PositionTarget, EnemySprite.Boulders
+    EnemySprite.PositionTarget, EnemySprite.Boulders, EnemySprite.Thief
 }
 
 
