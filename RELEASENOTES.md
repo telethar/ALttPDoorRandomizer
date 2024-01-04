@@ -158,6 +158,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Logic: Added silver arrows as Arrghus damage option when item functionality is not set to hard or expert
   * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert
   * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
+  * Generation: Trinexx and Lanmolas room allowed as lobbies in intensity 3 (works with enemizer now)
   * Enemy AI: Terrorpin AI code removed. May help with unusual enemy behavior?
 * 1.4.0.1v
   * Key logic: Vanilla key logic fixes. Statically set some HC logic and PoD front door
