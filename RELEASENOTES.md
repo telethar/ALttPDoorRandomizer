@@ -142,8 +142,22 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.4.1.0v
-  * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
+  * Logic: New logic for some bosses on ice
+    * Helmasaur on Ice: Bombs for mask, sword or arrows for 2nd phase
+    * Blind on Ice: Beam sword, Somaria, or Byrna plus magic extension for damage. Red shield or Byrna for protection.
+    * Kholdstare on Ice: Three options (after cracking the shell)
+      * Beam sword
+      * Fire Rod with 1.5 magic extensions
+      * Fire Rod & Bombos & any Sword & 1 Magic Extension
+    * Vitreous on Ice: Arrows and Bombs or a Beam Sword
+    * Trinexx on Ice: Boots always required for dodging. Damage options:
+      * Gold sword
+      * Tempered with magic extension
+      * Hammer or Master Sword with 3 magic extensions (Rod spam for elemental heads, non ideal for last phase)
+    * Trinexx on Ice forbidden in doors seeds until we can model some health requirements. Low health Trinexx still isn't realistically feasible (bascially playing OHKO)
+  * Logic: Added silver arrows as Arrghus damage option when item functionality is not set to hard or expert
   * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert
+  * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
   * Enemy AI: Terrorpin AI code removed. May help with unusual enemy behavior?
 * 1.4.0.1v
   * Key logic: Vanilla key logic fixes. Statically set some HC logic and PoD front door
