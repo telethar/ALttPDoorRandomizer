@@ -1179,7 +1179,7 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         pool.extend(['Nothing'] * nothings)
 
     start_inventory = [x for x in world.precollected_items if x.player == player]
-    if world.logic[player] in ['owglitches', 'hybridglitches', 'nologic'] and all(x.name !=' Pegasus Boots' for x in start_inventory):
+    if world.logic[player] in ['owglitches', 'hybridglitches', 'nologic'] and all(x.name != 'Pegasus Boots' for x in start_inventory):
         precollected_items.append('Pegasus Boots')
         if 'Pegasus Boots' in pool:
             pool.remove('Pegasus Boots')
