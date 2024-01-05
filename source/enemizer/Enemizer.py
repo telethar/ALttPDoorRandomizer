@@ -422,7 +422,7 @@ skip_sprites = {
     EnemySprite.HelmasaurKing, EnemySprite.Vitreous, EnemySprite.TrinexxRockHead, EnemySprite.TrinexxFireHead,
     EnemySprite.TrinexxIceHead, EnemySprite.Blind, EnemySprite.Kholdstare, EnemySprite.KholdstareShell,
     EnemySprite.FallingIce, EnemySprite.Arrghi, EnemySprite.Agahnim, EnemySprite.Ganon,
-    EnemySprite.PositionTarget, EnemySprite.Boulders, EnemySprite.Thief
+    EnemySprite.PositionTarget, EnemySprite.Boulders
 }
 
 
@@ -474,21 +474,39 @@ def randomize_enemies(world, player):
                 stat.damage = stats[EnemySprite.GreenEyegoreMimic].damage  # these share data
             elif sprite == EnemySprite.RedMimic:
                 stat.damage = stats[EnemySprite.RedEyegoreMimic].damage  # these share data
+            elif sprite == EnemySprite.Thief:  # always group 0 for 0 damage
+                stat.damage = 0
             elif sprite not in skip_sprites:
                 if isinstance(stat.damage, tuple):
                     stat.damage = random.randint(0, 8), random.randint(0, 8)
                 else:
                     stat.damage = random.randint(0, 8)
         # randomize bump table
+        original_table = [
+            (0x02, 0x01, 0x01),
+            (0x04, 0x04, 0x04),
+            (0x00, 0x00, 0x00),
+            (0x08, 0x04, 0x02),
+            (0x08, 0x08, 0x08),
+            (0x10, 0x08, 0x04),
+            (0x20, 0x10, 0x08),
+            (0x20, 0x18, 0x10),
+            (0x18, 0x10, 0x08),
+            (0x40, 0x30, 0x18)]
         for i in range(0, 10):
-            max_damage = 64 if i == 9 or world.enemy_damage[player] == 'random' else 32
-            green_mail = random.randint(0, max_damage)
-            if world.enemy_damage[player] == 'random':
-                blue_mail = random.randint(0, max_damage)
-                red_mail = random.randint(0, max_damage)
+            if i == 0:  # group 0 will always be 0 for thieves
+                green_mail, blue_mail, red_mail = 0, 0, 0
+                del original_table[2]
             else:
-                blue_mail = (green_mail * 3) // 4
-                red_mail = (green_mail * 3) // 8
+                if world.enemy_damage[player] == 'random':
+                    green_mail = random.randint(0, 64)
+                    if world.enemy_damage[player] == 'random':
+                        blue_mail = random.randint(0, 64)
+                        red_mail = random.randint(0, 64)
+                else:
+                    idx = random.randint(0, len(original_table)-1)
+                    green_mail, blue_mail, red_mail = original_table[idx]
+                    del original_table[idx]
             world.data_tables[player].enemy_damage[i] = [green_mail, blue_mail, red_mail]
 
 

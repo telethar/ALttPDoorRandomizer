@@ -152,12 +152,14 @@ These are now independent of retro mode and have three options: None, Random, an
     * Vitreous on Ice: Arrows and Bombs or a Beam Sword
     * Trinexx on Ice: Boots always required for dodging. Damage options:
       * Gold sword
-      * Tempered with magic extension
-      * Hammer or Master Sword with 3 magic extensions (Rod spam for elemental heads, non ideal for last phase)
+      * Tempered sword with magic extension
+      * Hammer or Master sword with 3 magic extensions (Rod spam for elemental heads, non-ideal weapon for last phase)
     * Trinexx on Ice forbidden in doors seeds until we can model some health requirements. Low health Trinexx still isn't realistically feasible (bascially playing OHKO)
   * Logic: Added silver arrows as Arrghus damage option when item functionality is not set to hard or expert
   * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert
-  * Enemzier Damage: Thief damage to player is not randomized
+  * Enemizer Damage Rework:
+    * Shuffled: Actually shuffles the damage groups in the table instead of picking random numbers and reducing for mails from there. Enemies will still be assigned to a damage group randomly.
+    * There will always be at least one group which does no damage. The thief will always be in that group. Ganon always has his own group.
   * Glitched modes: Aga 1 should be vulnerable in rain state for glitched modes
   * Generation: Trinexx and Lanmolas room allowed as lobbies in intensity 3 (works with enemizer now)
   * Enemy AI: Terrorpin AI code removed. May help with unusual enemy behavior?
