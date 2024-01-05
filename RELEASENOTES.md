@@ -142,6 +142,7 @@ These are now independent of retro mode and have three options: None, Random, an
 # Bug Fixes and Notes
 
 * 1.4.1.0v
+  * World Model Refactor: The overworld has been split up by screen, brings OR and DR a bit closer together in the model sense. A few OWG clips have been rewritten to fit into this new logic better.
   * Logic: New logic for some bosses on ice
     * Helmasaur on Ice: Bombs for mask, sword or arrows for 2nd phase
     * Blind on Ice: Beam sword, Somaria, or Byrna plus magic extension for damage. Red shield or Byrna for protection.
@@ -156,7 +157,7 @@ These are now independent of retro mode and have three options: None, Random, an
       * Hammer or Master sword with 3 magic extensions (Rod spam for elemental heads, non-ideal weapon for last phase)
     * Trinexx on Ice forbidden in doors seeds until we can model some health requirements. Low health Trinexx still isn't realistically feasible (bascially playing OHKO)
   * Logic: Added silver arrows as Arrghus damage option when item functionality is not set to hard or expert
-  * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert
+  * Logic: Byrna not in logic for laser bridge when item functionality is set to hard or expert   
   * Enemizer Damage Rework:
     * Shuffled: Actually shuffles the damage groups in the table instead of picking random numbers and reducing for mails from there. Enemies will still be assigned to a damage group randomly.
     * There will always be at least one group which does no damage. The thief will always be in that group. Ganon always has his own group.
