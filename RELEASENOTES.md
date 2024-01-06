@@ -141,6 +141,8 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.1.1v
+  * Logic: Moon pearl logic respects blocked doors 
 * 1.4.1.0v
   * World Model Refactor: The overworld has been split up by screen, brings OR and DR a bit closer together in the model sense. A few OWG clips have been rewritten to fit into this new logic better.
   * Logic: New logic for some bosses on ice
