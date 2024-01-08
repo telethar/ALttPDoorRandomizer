@@ -1250,12 +1250,12 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     # b - Big Key
     # a - Small Key
     #
-    enable_menu_map_check = world.overworld_map[player] != 'default' and world.shuffle[player] != 'none'
+    enable_menu_map_check = world.overworld_map[player] != 'default' and world.shuffle[player] != 'vanilla'
     rom.write_byte(0x180045, ((0x01 if world.keyshuffle[player] == 'wild' else 0x00)
                               | (0x02 if world.bigkeyshuffle[player] else 0x00)
                               | (0x04 if world.mapshuffle[player] or enable_menu_map_check else 0x00)
-                              | (0x08 if world.compassshuffle[player] else 0x00) # free roaming items in menu
-                              | (0x10 if world.logic[player] == 'nologic' else 0))) # boss icon
+                              | (0x08 if world.compassshuffle[player] else 0x00)  # free roaming items in menu
+                              | (0x10 if world.logic[player] == 'nologic' else 0)))  # boss icon
 
     # Map reveals
     reveal_bytes = {
