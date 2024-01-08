@@ -262,23 +262,24 @@ def vanilla_key_logic(world, player):
             world.key_layout[player][builder.name] = key_layout
             log_key_logic(builder.name, key_layout.key_logic)
     # special adjustments for vanilla
-    if world.mode[player] != 'standard' and world.dropshuffle[player] == 'none':
-        # adjust hc doors
-        def adjust_hc_door(door_rule):
-            if door_rule.new_rules[KeyRuleType.WorstCase] == 3:
-                door_rule.new_rules[KeyRuleType.WorstCase] = 2
-                door_rule.small_key_num = 2
+    if world.keyshuffle[player] != 'universal':
+        if world.mode[player] != 'standard' and world.dropshuffle[player] == 'none' :
+            # adjust hc doors
+            def adjust_hc_door(door_rule):
+                if door_rule.new_rules[KeyRuleType.WorstCase] == 3:
+                    door_rule.new_rules[KeyRuleType.WorstCase] = 2
+                    door_rule.small_key_num = 2
 
-        rules = world.key_logic[player]['Hyrule Castle'].door_rules
-        adjust_hc_door(rules['Sewers Secret Room Key Door S'])
-        adjust_hc_door(rules['Hyrule Dungeon Map Room Key Door S'])
-        adjust_hc_door(rules['Sewers Dark Cross Key Door N'])
-    # adjust pod front door
-    pod_front = world.key_logic[player]['Palace of Darkness'].door_rules['PoD Middle Cage N']
-    if pod_front.new_rules[KeyRuleType.WorstCase] == 6:
-        pod_front.new_rules[KeyRuleType.WorstCase] = 1
-        pod_front.small_key_num = 1
-    # gt logic? I'm unsure it needs adjusting
+            rules = world.key_logic[player]['Hyrule Castle'].door_rules
+            adjust_hc_door(rules['Sewers Secret Room Key Door S'])
+            adjust_hc_door(rules['Hyrule Dungeon Map Room Key Door S'])
+            adjust_hc_door(rules['Sewers Dark Cross Key Door N'])
+        # adjust pod front door
+        pod_front = world.key_logic[player]['Palace of Darkness'].door_rules['PoD Middle Cage N']
+        if pod_front.new_rules[KeyRuleType.WorstCase] == 6:
+            pod_front.new_rules[KeyRuleType.WorstCase] = 1
+            pod_front.small_key_num = 1
+        # gt logic? I'm unsure it needs adjusting
 
 
 def validate_vanilla_reservation(dungeon, world, player):
