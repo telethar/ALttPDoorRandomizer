@@ -223,6 +223,7 @@ def place_bosses(world, player):
         ['Tower of Hera', None],
         ['Skull Woods', None],
         ['Ganons Tower', 'middle'],
+        ['Ganons Tower', 'bottom'],
         ['Eastern Palace', None],
         ['Desert Palace', None],
         ['Palace of Darkness', None],
@@ -231,7 +232,6 @@ def place_bosses(world, player):
         ['Ice Palace', None],
         ['Misery Mire', None],
         ['Turtle Rock', None],
-        ['Ganons Tower', 'bottom'],
     ]
 
     all_bosses = sorted(boss_table.keys()) #s orted to be deterministic on older pythons
