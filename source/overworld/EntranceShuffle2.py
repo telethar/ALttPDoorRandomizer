@@ -1001,6 +1001,15 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
                 if not avail.swapped or (combine_map[exit] not in candidate and not any(e for e in must_exit if combine_map[e] in candidate)): #maybe someday allow these, but we need to disallow mutual locks in Swapped
                     candidates.append(candidate)
         cave = random.choice(candidates)
+
+        if avail.swapped and len(candidates) > 1 and not avail.inverted:
+            DM_Connector_Prefixes = ['Spectacle Rock Cave', 'Old Man House', 'Death Mountain Return']
+            if any(p for p in DM_Connector_Prefixes if p in cave[0]):  # if chosen cave is a DM connector
+                remain = [p for p in DM_Connector_Prefixes if len([e for e in entrances if p in e]) > 0]  # gets remaining DM caves left in pool
+                if len(remain) == 1:  # guarantee that old man rescue cave can still be placed
+                    candidates.remove(cave)
+                    cave = random.choice(candidates)
+
         if cave is None:
             raise RuntimeError('No more caves left. Should not happen!')
 
