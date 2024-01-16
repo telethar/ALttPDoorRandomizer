@@ -5,6 +5,8 @@ import json
 import hashlib
 import logging
 import os
+
+import Items
 import RaceRandom as random
 import struct
 import sys
@@ -1484,8 +1486,8 @@ def write_custom_shops(rom, world, player):
                 loc_item = ItemFactory(item['item'], player)
             if (not world.shopsanity[player] and shop.region.name == 'Capacity Upgrade'
                and world.difficulty[player] != 'normal'):
-                # really should be 5A instead of B0 -- surprise!!!
-                item_id, price, replace, replace_price, item_max = 0xB0, [0, 0], 0xFF, [0, 0], 1
+                # it's a BeeTrap -- surprise!!!
+                item_id, price, replace, replace_price, item_max = Items.item_table['Bee Trap'][3], [0, 0], 0xFF, [0, 0], 1
             else:
                 item_id = loc_item.code
                 price = int16_as_bytes(item['price'])
