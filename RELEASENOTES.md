@@ -141,6 +141,14 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.1.2v
+  * Expert/Hard Item Pool: Capacity fairy no longer gives out free crystal
+  * Vanilla door + Universal Keys: Generation fixed
+  * Boss Shuffle: Generation fixed (thanks Codemann for easy solution)
+  * Vanilla ER: No need for ability to check prizes on keysanity menu
+  * Swapped ER: Possible generation issue fixed (thanks Codemann)
+  * Enemizer: Roller ban
+  * Performance: Faster text boxes. Thanks Kan!
 * 1.4.1.1v
   * Logic: Moon pearl logic respects blocked doors 
 * 1.4.1.0v
