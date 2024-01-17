@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.1.3v
+  * Enemizer: Raven/Murderdactyls using the correct damage table 
+  * Enemzier: Boss drops only center when boss shuffle is on
 * 1.4.1.2v
   * Expert/Hard Item Pool: Capacity fairy no longer gives out free crystal
   * Vanilla door + Universal Keys: Generation fixed
