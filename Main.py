@@ -15,26 +15,30 @@ from KeyDoorShuffle import validate_key_placement
 from OverworldGlitchRules import create_owg_connections
 from PotShuffle import shuffle_pots, shuffle_pot_switches
 from Regions import create_regions, create_shops, mark_light_dark_world_regions, create_dungeon_regions, adjust_locations
-from OverworldShuffle import create_dynamic_exits
+from OverworldShuffle import link_overworld, create_dynamic_exits
 from EntranceShuffle import link_entrances
-from Rom import patch_rom, patch_race_rom, patch_enemizer, apply_rom_settings, LocalRom, JsonRom, get_hash_string
+from Rom import patch_rom, patch_race_rom, apply_rom_settings, LocalRom, JsonRom, get_hash_string
 from Doors import create_doors
 from DoorShuffle import link_doors, connect_portal, link_doors_prep
 from RoomData import create_rooms
 from Rules import set_rules
 from Dungeons import create_dungeons
-from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_pots
+from Fill import distribute_items_restrictive, promote_dungeon_items, fill_dungeons_restrictive, ensure_good_items
 from Fill import dungeon_tracking
 from Fill import sell_potions, sell_keys, balance_multiworld_progression, balance_money_progression, lock_shop_locations
 from ItemList import generate_itempool, difficulties, fill_prizes, customize_shops, fill_specific_items
+from UnderworldGlitchRules import create_hybridmajor_connections, create_hybridmajor_connectors
 from Utils import output_path, parse_player_names
 
 from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
 from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
+from source.enemizer.DamageTables import DamageTable
+from source.enemizer.Enemizer import randomize_enemies
+from source.rom.DataTables import init_data_tables
 
-version_number = '1.2.0.23'
+version_number = '1.4.1.3'
 version_branch = '-u'
 __version__ = f'{version_number}{version_branch}'
 
@@ -75,6 +79,9 @@ def main(args, seed=None, fish=None):
         seed = customized.determine_seed(seed)
         seeded = True
         customized.adjust_args(args)
+    for i in zip(args.logic.values(), args.door_shuffle.values()):
+        if i[0] == 'hybridglitches' and i[1] != 'vanilla':
+            raise RuntimeError(BabelFish().translate("cli","cli","hybridglitches.door.shuffle"))
     world = World(args.multi, args.shuffle, args.door_shuffle, args.logic, args.mode, args.swords,
                   args.difficulty, args.item_functionality, args.timer, args.progressive, args.goal, args.algorithm,
                   args.accessibility, args.shuffleganon, args.custom, args.customitemarray, args.hints)
@@ -109,6 +116,7 @@ def main(args, seed=None, fish=None):
     world.enemy_shuffle = args.shuffleenemies.copy()
     world.enemy_health = args.enemy_health.copy()
     world.enemy_damage = args.enemy_damage.copy()
+    world.any_enemy_logic = args.any_enemy_logic.copy()
     world.beemizer = args.beemizer.copy()
     world.intensity = {player: random.randint(1, 3) if args.intensity[player] == 'random' else int(args.intensity[player]) for player in range(1, world.players + 1)}
     world.door_type_mode = args.door_type_mode.copy()
@@ -133,6 +141,7 @@ def main(args, seed=None, fish=None):
     world.restrict_boss_items = args.restrict_boss_items.copy()
     world.collection_rate = args.collection_rate.copy()
     world.colorizepots = args.colorizepots.copy()
+    world.aga_randomness = args.aga_randomness.copy()
 
     world.treasure_hunt_count = {}
     world.treasure_hunt_total = {}
@@ -200,22 +209,28 @@ def main(args, seed=None, fish=None):
 
     for player in range(1, world.players + 1):
         create_regions(world, player)
-        if world.logic[player] in ('owglitches', 'nologic'):
+        if world.logic[player] in ('owglitches', 'hybridglitches', 'nologic'):
             create_owg_connections(world, player)
         create_dungeon_regions(world, player)
         create_shops(world, player)
         create_doors(world, player)
         create_rooms(world, player)
         create_dungeons(world, player)
-        adjust_locations(world, player)
+        world.damage_table[player] = DamageTable()
+        world.data_tables[player] = init_data_tables(world, player)
         place_bosses(world, player)
+        randomize_enemies(world, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connections(world, player)
+        adjust_locations(world, player)
 
     if world.customizer and world.customizer.get_start_inventory():
         for p, inv_list in world.customizer.get_start_inventory().items():
-            for inv_item in inv_list:
-                item = ItemFactory(inv_item.strip(), p)
-                if item:
-                    world.push_precollected(item)
+            if inv_list:
+                for inv_item in inv_list:
+                    item = ItemFactory(inv_item.strip(), p)
+                    if item:
+                        world.push_precollected(item)
     if args.print_custom_yaml:
         world.settings.record_info(world)
 
@@ -231,11 +246,14 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","shuffling.world"))
 
     for player in range(1, world.players + 1):
+        link_overworld(world, player)
         create_dynamic_exits(world, player)
-        if world.experimental[player] or world.shuffle[player] in ['lite', 'lean'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
+        if world.experimental[player] or world.shuffle[player] in ['lite', 'lean', 'swapped'] or world.shuffletavern[player] or (world.customizer and world.customizer.get_entrances()):
             link_entrances_new(world, player)
         else:
             link_entrances(world, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connectors(world, player)
 
     logger.info(world.fish.translate("cli", "cli", "shuffling.prep"))
     for player in range(1, world.players + 1):
@@ -322,7 +340,7 @@ def main(args, seed=None, fish=None):
             customize_shops(world, player)
     if args.algorithm in ['balanced', 'equitable']:
         balance_money_progression(world)
-    ensure_good_pots(world, True)
+    ensure_good_items(world, True)
 
     if args.print_custom_yaml:
         world.settings.record_item_placements(world)
@@ -330,34 +348,13 @@ def main(args, seed=None, fish=None):
 
     rom_names = []
     jsonout = {}
-    enemized = False
     if not args.suppress_rom or args.bps:
         logger.info(world.fish.translate("cli","cli","patching.rom"))
         for team in range(world.teams):
             for player in range(1, world.players + 1):
-                sprite_random_on_hit = type(args.sprite[player]) is str and args.sprite[player].lower() == 'randomonhit'
-                use_enemizer = (world.boss_shuffle[player] != 'none' or world.enemy_shuffle[player] != 'none'
-                                or world.enemy_health[player] != 'default' or world.enemy_damage[player] != 'default'
-                                or sprite_random_on_hit)
+                rom = JsonRom() if args.jsonout else LocalRom(args.rom)
 
-                rom = JsonRom() if args.jsonout or use_enemizer else LocalRom(args.rom)
-
-                if use_enemizer and (args.enemizercli or not args.jsonout):
-                    local_rom = LocalRom(args.rom)  # update base2current.json (side effect)
-                    if args.rom and not(os.path.isfile(args.rom)):
-                        raise RuntimeError("Could not find valid base rom for enemizing at expected path %s." % args.rom)
-                    if os.path.exists(args.enemizercli):
-                        patch_enemizer(world, player, rom, local_rom, args.enemizercli, sprite_random_on_hit)
-                        enemized = True
-                        if not args.jsonout:
-                            rom = LocalRom.fromJsonRom(rom, args.rom, 0x400000)
-                    else:
-                        enemizerMsg  = world.fish.translate("cli","cli","enemizer.not.found") + ': ' + args.enemizercli + "\n"
-                        enemizerMsg += world.fish.translate("cli","cli","enemizer.nothing.applied")
-                        logging.warning(enemizerMsg)
-                        raise EnemizerError(enemizerMsg)
-
-                patch_rom(world, rom, player, team, enemized, bool(args.mystery))
+                patch_rom(world, rom, player, team, bool(args.mystery))
 
                 if args.race:
                     patch_race_rom(rom)
@@ -409,6 +406,8 @@ def main(args, seed=None, fish=None):
     if args.create_spoiler and not args.jsonout:
         logger.info(world.fish.translate("cli", "cli", "patching.spoiler"))
         world.spoiler.to_file(output_path(f'{outfilebase}_Spoiler.txt'))
+        if args.loglevel == 'debug':
+            world.spoiler.extras(output_path(f'{outfilebase}_Spoiler.txt'))
 
     if not args.skip_playthrough:
         logger.info(world.fish.translate("cli","cli","calc.playthrough"))
@@ -432,7 +431,6 @@ def main(args, seed=None, fish=None):
     logger.info(world.fish.translate("cli","cli","made.rom") % (YES if (args.create_rom) else NO))
     logger.info(world.fish.translate("cli","cli","made.playthrough") % (YES if (args.calc_playthrough) else NO))
     logger.info(world.fish.translate("cli","cli","made.spoiler") % (YES if (not args.jsonout and args.create_spoiler) else NO))
-    logger.info(world.fish.translate("cli","cli","used.enemizer") % (YES if enemized else NO))
     logger.info(world.fish.translate("cli","cli","seed") + ": %s", world.seed)
     logger.info(world.fish.translate("cli","cli","total.time"), time.perf_counter() - start)
 
@@ -459,8 +457,6 @@ def copy_world(world):
     ret.treasure_hunt_count = world.treasure_hunt_count.copy()
     ret.treasure_hunt_icon = world.treasure_hunt_icon.copy()
     ret.sewer_light_cone = world.sewer_light_cone.copy()
-    ret.light_world_light_cone = world.light_world_light_cone
-    ret.dark_world_light_cone = world.dark_world_light_cone
     ret.seed = world.seed
     ret.can_access_trock_eyebridge = world.can_access_trock_eyebridge.copy()
     ret.can_access_trock_front = world.can_access_trock_front.copy()
@@ -476,19 +472,26 @@ def copy_world(world):
     ret.bigkeyshuffle = world.bigkeyshuffle.copy()
     ret.bombbag = world.bombbag.copy()
     ret.flute_mode = world.flute_mode.copy()
+    ret.bow_mode = world.bow_mode.copy()
     ret.crystals_needed_for_ganon = world.crystals_needed_for_ganon.copy()
     ret.crystals_needed_for_gt = world.crystals_needed_for_gt.copy()
     ret.crystals_ganon_orig = world.crystals_ganon_orig.copy()
     ret.crystals_gt_orig = world.crystals_gt_orig.copy()
     ret.open_pyramid = world.open_pyramid.copy()
+    ret.take_any = world.take_any.copy()
     ret.boss_shuffle = world.boss_shuffle.copy()
     ret.enemy_shuffle = world.enemy_shuffle.copy()
     ret.enemy_health = world.enemy_health.copy()
     ret.enemy_damage = world.enemy_damage.copy()
+    ret.any_enemy_logic = world.any_enemy_logic.copy()
     ret.beemizer = world.beemizer.copy()
     ret.intensity = world.intensity.copy()
     ret.decoupledoors = world.decoupledoors.copy()
     ret.door_self_loops = world.door_self_loops.copy()
+    ret.door_type_mode = world.door_type_mode.copy()
+    ret.trap_door_mode = world.trap_door_mode.copy()
+    ret.key_logic_algorithm = world.key_logic_algorithm.copy()
+    ret.aga_randomness = world.aga_randomness.copy()
     ret.experimental = world.experimental.copy()
     ret.shopsanity = world.shopsanity.copy()
     ret.dropshuffle = world.dropshuffle.copy()
@@ -497,6 +500,8 @@ def copy_world(world):
     ret.mixed_travel = world.mixed_travel.copy()
     ret.standardize_palettes = world.standardize_palettes.copy()
     ret.restrict_boss_items = world.restrict_boss_items.copy()
+    ret.damage_table = world.damage_table
+    ret.data_tables = world.data_tables  # can be changed...
 
     for player in range(1, world.players + 1):
         create_regions(ret, player)
@@ -505,8 +510,11 @@ def copy_world(world):
         create_shops(ret, player)
         create_rooms(ret, player)
         create_dungeons(ret, player)
-        if world.logic[player] in ('owglitches', 'nologic'):
+        if world.logic[player] in ('owglitches', 'hybridglitches', 'nologic'):
             create_owg_connections(ret, player)
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connections(ret, player)
+
 
     # there are region references here they must be migrated to preserve integrity
     # ret.exp_cache = world.exp_cache.copy()
@@ -587,6 +595,8 @@ def copy_world(world):
     ret.sanc_portal = world.sanc_portal
 
     for player in range(1, world.players + 1):
+        if world.logic[player] in ('nologic', 'hybridglitches'):
+            create_hybridmajor_connectors(ret, player)
         set_rules(ret, player)
 
     return ret

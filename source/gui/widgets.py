@@ -289,9 +289,9 @@ def widget_command(widget, command=""):
             temp_widget.storageVar.set('keys')
 
         temp_widget = root.pages["randomizer"].pages["item"].widgets["dropshuffle"]
-        text_output += f'\n    {temp_widget.checkbox.cget("text")}'
-        if temp_widget.storageVar.get() == 0:
-            temp_widget.storageVar.set(1)
+        text_output += f'\n    {temp_widget.label.cget("text")}'
+        if temp_widget.storageVar.get() == 'none':
+            temp_widget.storageVar.set('keys')
 
         if text_output:
             messagebox.showinfo('', f'The following settings were changed:{text_output}')

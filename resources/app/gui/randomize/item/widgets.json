@@ -20,6 +20,7 @@
         "noglitches",
         "minorglitches",
         "owglitches",
+        "hybridglitches",
         "nologic"
       ]
     },
@@ -158,12 +159,17 @@
       }
     },
     "dropshuffle": {
-      "type": "checkbox"
-    }
+      "type": "selectbox",
+      "default": "none",
+      "options": [
+        "none",
+        "keys",
+        "underworld"
+    ]}
   },
   "leftPoolFrame2": {
     "keydropshuffle": {
-      "type": "button",
+      "type": "checkbox",
       "config": {
         "command": "keydropshuffle"
       }

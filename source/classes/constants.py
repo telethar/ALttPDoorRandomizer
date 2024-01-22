@@ -116,7 +116,8 @@ SETTINGSTOPROCESS = {
       "enemyshuffle": "shuffleenemies",
       "bossshuffle": "shufflebosses",
       "enemydamage": "enemy_damage",
-      "enemyhealth": "enemy_health"
+      "enemyhealth": "enemy_health",
+      "enemylogic": "any_enemy_logic"
     },
     "gameoptions": {
       "nobgm": "disablemusic",

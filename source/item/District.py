@@ -75,7 +75,7 @@ def create_district_helper(world, player):
                            'Fortune Teller (Dark)', 'Dark World Shop', 'Dark Lumberjack Shop',
                            'Skull Woods First Section Hole (West)', 'Skull Woods First Section Hole (East)',
                            'Skull Woods First Section Hole (North)', 'Skull Woods Second Section Hole']
-    mire_entrances = ['Misery Mire', 'Mire Shed', 'Dark Desert Hint', 'Dark Desert Fairy']
+    mire_entrances = ['Misery Mire', 'Mire Shed', 'Mire Hint', 'Mire Fairy']
     ddm_entrances = ['Turtle Rock', 'Dark Death Mountain Ledge (West)', 'Dark Death Mountain Ledge (East)',
                      'Turtle Rock Isolated Ledge Entrance', 'Superbunny Cave (Top)', 'Superbunny Cave (Bottom)',
                      'Hookshot Cave', 'Hookshot Cave Back Entrance', 'Ganons Tower', 'Spike Cave',
@@ -150,10 +150,10 @@ def find_reachable_locations(state, player):
     return check_set
 
 
-inaccessible_regions_std = {'Desert Palace Mouth', 'Bumper Cave Ledge', 'Skull Woods Forest (West)',
+inaccessible_regions_std = {'Desert Mouth', 'Bumper Cave Ledge', 'Skull Woods Forest (West)',
                             'Dark Death Mountain Ledge', 'Dark Death Mountain Isolated Ledge',
                             'Dark Death Mountain Floating Island'}
 
 
-inaccessible_regions_inv = {'Desert Palace Mouth', 'Maze Race Ledge', 'Desert Ledge',
-                            'Desert Palace Entrance (North) Spot', 'Hyrule Castle Ledge', 'Death Mountain Return Ledge'}
+inaccessible_regions_inv = {'Desert Mouth', 'Maze Race Ledge', 'Desert Ledge',
+                            'Desert Ledge Keep', 'Hyrule Castle Ledge', 'Mountain Pass Ledge'}

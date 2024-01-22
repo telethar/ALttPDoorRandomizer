@@ -33,7 +33,6 @@ def main():
     parser.add_argument('--suppress_meta', action='store_true')
     parser.add_argument('--bps', action='store_true')
     parser.add_argument('--rom')
-    parser.add_argument('--enemizercli')
     parser.add_argument('--outputpath')
     parser.add_argument('--loglevel', default='info', choices=['debug', 'info', 'warning', 'error', 'critical'])
     for player in range(1, multiargs.multi + 1):
@@ -76,8 +75,6 @@ def main():
 
     if args.rom:
         erargs.rom = args.rom
-    if args.enemizercli:
-        erargs.enemizercli = args.enemizercli
 
     mw_settings = {'algorithm': False}
 

@@ -7,7 +7,7 @@ meta:
 settings:
   1:
     door_shuffle: basic
-    dropshuffle: true
+    dropshuffle: keys
     experimental: true
     goal: ganon
     hints: true

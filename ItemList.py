@@ -10,6 +10,7 @@ from Fill import FillError, fill_restrictive, get_dungeon_item_pool, track_dunge
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
+from source.dungeon.EnemyList import add_drop_contents
 from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST
@@ -198,7 +199,7 @@ def generate_itempool(world, player):
         world.push_item(world.get_location('Ganon', player), ItemFactory('Triforce', player), False)
 
     if world.goal[player] in ['triforcehunt', 'trinity']:
-        region = world.get_region('Light World', player)
+        region = world.get_region('Hyrule Castle Courtyard', player)
         loc = Location(player, "Murahdahla", parent=region)
         region.locations.append(loc)
         world.dynamic_locations.append(loc)
@@ -286,6 +287,11 @@ def generate_itempool(world, player):
             for _ in range(0, amt):
                 pool.append('Rupees (20)')
 
+    if world.logic[player] == 'hybridglitches' and world.pottery[player] not in ['none', 'cave']:
+        # In HMG force swamp smalls in pots to allow getting out of swamp palace
+        placed_items['Swamp Palace - Trench 1 Pot Key'] = 'Small Key (Swamp Palace)'
+        placed_items['Swamp Palace - Pot Row Pot Key'] = 'Small Key (Swamp Palace)'
+
     start_inventory = list(world.precollected_items)
     for item in precollected_items:
         world.push_precollected(ItemFactory(item, player))
@@ -300,6 +306,8 @@ def generate_itempool(world, player):
                     if not found_sword and world.swords[player] != 'swordless':
                         found_sword = True
                         possible_weapons.append(item)
+                if world.algorithm == 'vanilla_fill':  # skip other possibilities
+                    continue
                 if (item in ['Progressive Bow', 'Bow'] and not found_bow
                    and not world.bow_mode[player].startswith('retro')):
                     found_bow = True
@@ -393,9 +401,15 @@ def generate_itempool(world, player):
                 if tr_medallion == 'Random':
                     tr_medallion = None
     if not mm_medallion:
-        mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+        if world.algorithm == 'vanilla_fill':
+            mm_medallion = 'Ether'
+        else:
+            mm_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     if not tr_medallion:
-        tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
+        if world.algorithm == 'vanilla_fill':
+            tr_medallion = 'Quake'
+        else:
+            tr_medallion = ['Ether', 'Quake', 'Bombos'][random.randint(0, 2)]
     world.required_medallions[player] = (mm_medallion, tr_medallion)
 
     # shuffle bottle refills
@@ -412,7 +426,7 @@ def generate_itempool(world, player):
     if world.take_any[player] != 'none':
         set_up_take_anys(world, player, skip_pool_adjustments)
     if world.keyshuffle[player] == 'universal':
-        if world.dropshuffle[player] and not skip_pool_adjustments:
+        if world.dropshuffle[player] != 'none' and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 13
         if world.pottery[player] not in ['none', 'cave'] and not skip_pool_adjustments:
             world.itempool += [ItemFactory('Small Key (Universal)', player)] * 19
@@ -421,6 +435,9 @@ def generate_itempool(world, player):
 
     if world.pottery[player] not in ['none', 'keys'] and not skip_pool_adjustments:
         add_pot_contents(world, player)
+
+    if world.dropshuffle[player] == 'underworld' and not skip_pool_adjustments:
+        add_drop_contents(world, player)
 
     # modfiy based on start inventory, if any
     modify_pool_for_start_inventory(start_inventory, world, player)
@@ -453,15 +470,17 @@ def generate_itempool(world, player):
             world.itempool.append(ItemFactory(item_name, player))
 
 
+
+
 take_any_locations = [
     'Snitch Lady (East)', 'Snitch Lady (West)', 'Bush Covered House', 'Light World Bomb Hut',
     'Fortune Teller (Light)', 'Lake Hylia Fortune Teller', 'Lumberjack House', 'Bonk Fairy (Light)',
     'Bonk Fairy (Dark)', 'Lake Hylia Healer Fairy', 'Light Hype Fairy', 'Desert Healer Fairy',
-    'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Dark Desert Healer Fairy',
+    'Dark Lake Hylia Healer Fairy', 'Dark Lake Hylia Ledge Healer Fairy', 'Mire Healer Fairy',
     'Dark Death Mountain Healer Fairy', 'Long Fairy Cave', 'Good Bee Cave', '20 Rupee Cave',
     'Kakariko Gamble Game', '50 Rupee Cave', 'Lost Woods Gamble', 'Hookshot Fairy',
     'Palace of Darkness Hint', 'East Dark World Hint', 'Archery Game', 'Dark Lake Hylia Ledge Hint',
-    'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Dark Desert Hint']
+    'Dark Lake Hylia Ledge Spike Cave', 'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Mire Hint']
 
 fixed_take_anys = [
     'Desert Healer Fairy', 'Light Hype Fairy', 'Dark Death Mountain Healer Fairy',
@@ -503,7 +522,7 @@ def set_up_take_anys(world, player, skip_adjustments=False):
     else:
         if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Rupees (300)', player))
-        old_man_take_any.shop.add_inventory(0, 'Rupees (300)', 0, 0, create_location=world.shopsanity[player])
+        old_man_take_any.shop.add_inventory(0, 'Rupees (300)', 0, 0, create_location=True)
 
     take_any_type = ShopType.Shop if world.shopsanity[player] else ShopType.TakeAny
     for num in range(4):
@@ -512,13 +531,15 @@ def set_up_take_anys(world, player, skip_adjustments=False):
         world.dynamic_regions.append(take_any)
         target, room_id = random.choice([(0x58, 0x0112), (0x60, 0x010F), (0x46, 0x011F)])
         reg = regions.pop()
-        entrance = world.get_region(reg, player).entrances[0]
+        entrance = next((ent for ent in world.get_region(reg, player).entrances if ent.parent_region.is_outdoors()), None)
+        if entrance is None:
+            raise Exception(f'No outside entrance found for {reg}')
         connect_entrance(world, entrance, take_any, player)
         entrance.target = target
         take_any.shop = Shop(take_any, room_id, take_any_type, 0xE3, True, not world.shopsanity[player], 33 + num*2)
         world.shops[player].append(take_any.shop)
         take_any.shop.add_inventory(0, 'Blue Potion', 0, 0, create_location=world.shopsanity[player])
-        take_any.shop.add_inventory(1, 'Boss Heart Container', 0, 0, create_location=world.shopsanity[player])
+        take_any.shop.add_inventory(1, 'Boss Heart Container', 0, 0, create_location=True)
         if world.shopsanity[player] and not skip_adjustments:
             world.itempool.append(ItemFactory('Blue Potion', player))
             world.itempool.append(ItemFactory('Boss Heart Container', player))
@@ -627,6 +648,7 @@ def set_up_shops(world, player):
         else:
             cap_shop = world.get_region('Capacity Upgrade', player).shop
             cap_shop.inventory[0] = cap_shop.inventory[1]  # remove bomb capacity upgrades in bombbag
+            cap_shop.inventory[1] = None
 
 
 def customize_shops(world, player):
@@ -800,7 +822,7 @@ def balance_prices(world, player):
 
 
 def check_hints(world, player):
-    if world.shuffle[player] in ['simple', 'restricted', 'full', 'crossed', 'insanity']:
+    if world.shuffle[player] in ['simple', 'restricted', 'full', 'lite', 'lean', 'swapped', 'crossed', 'insanity']:
         for shop, location_list in  shop_to_location_table.items():
             if shop in ['Capacity Upgrade', 'Paradox Shop', 'Potion Shop']:
                 continue  # near the queen, near potions, and near 7 chests are fine
@@ -864,7 +886,7 @@ def get_pool_core(world, player, progressive, shuffle, difficulty, treasure_hunt
         return random.choice([True, False]) if progressive == 'random' else progressive == 'on'
 
     # provide boots to boots glitch dependent modes
-    if logic in ['owglitches', 'nologic']:
+    if logic in ['owglitches', 'hybridglitches', 'nologic']:
         precollected_items.append('Pegasus Boots')
         pool.remove('Pegasus Boots')
         pool.extend(['Rupees (20)'])
@@ -1157,20 +1179,19 @@ def make_custom_item_pool(world, player, progressive, shuffle, difficulty, timer
         pool.extend(['Nothing'] * nothings)
 
     start_inventory = [x for x in world.precollected_items if x.player == player]
-    if not start_inventory:
-        if world.logic[player] in ['owglitches', 'nologic']:
-            precollected_items.append('Pegasus Boots')
-            if 'Pegasus Boots' in pool:
-                pool.remove('Pegasus Boots')
-                pool.append('Rupees (20)')
-        if world.swords[player] == 'assured':
-            precollected_items.append('Progressive Sword')
-            if 'Progressive Sword' in pool:
-                pool.remove('Progressive Sword')
-                pool.append('Rupees (50)')
-            elif 'Fighter Sword' in pool:
-                pool.remove('Fighter Sword')
-                pool.append('Rupees (50)')
+    if world.logic[player] in ['owglitches', 'hybridglitches', 'nologic'] and all(x.name != 'Pegasus Boots' for x in start_inventory):
+        precollected_items.append('Pegasus Boots')
+        if 'Pegasus Boots' in pool:
+            pool.remove('Pegasus Boots')
+            pool.append('Rupees (20)')
+    if world.swords[player] == 'assured' and all(' Sword' not in x.name for x in start_inventory):
+        precollected_items.append('Progressive Sword')
+        if 'Progressive Sword' in pool:
+            pool.remove('Progressive Sword')
+            pool.append('Rupees (50)')
+        elif 'Fighter Sword' in pool:
+            pool.remove('Fighter Sword')
+            pool.append('Rupees (50)')
 
     return (pool, placed_items, precollected_items, clock_mode, treasure_hunt_count, treasure_hunt_icon, lamps_needed_for_dark_rooms)
 
@@ -1300,7 +1321,7 @@ def make_customizer_pool(world, player):
     sphere_0 = world.customizer.get_start_inventory()
     no_start_inventory = not sphere_0 or not sphere_0[player]
     init_equip = [] if no_start_inventory else sphere_0[player]
-    if (world.logic[player] in ['owglitches', 'nologic']
+    if (world.logic[player] in ['owglitches', 'hybridglitches', 'nologic']
        and (no_start_inventory or all(x != 'Pegasus Boots' for x in init_equip))):
         precollected_items.append('Pegasus Boots')
         if 'Pegasus Boots' in pool:

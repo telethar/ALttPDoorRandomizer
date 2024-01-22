@@ -23,6 +23,7 @@
       "noglitches",
       "minorglitches",
       "owglitches",
+      "hybridglitches",
       "nologic"
     ]
   },
@@ -95,8 +96,11 @@
     "type": "bool"
   },
   "dropshuffle" : {
-    "action": "store_true",
-    "type": "bool"
+    "choices" : [
+      "none",
+      "keys",
+      "underworld"
+    ]
   },
   "pottery" : {
     "choices" : [
@@ -164,6 +168,7 @@
       "simple",
       "restricted",
       "full",
+      "swapped",
       "crossed",
       "insanity",
       "dungeonsfull",
@@ -463,9 +468,6 @@
   "bps": {
     "action": "store_true"
   },
-  "enemizercli": {
-    "setting": "enemizercli"
-  },
   "shufflebosses": {
     "choices": [
       "none",
@@ -478,9 +480,7 @@
   "shuffleenemies": {
     "choices": [
       "none",
-      "shuffled",
-      "random",
-      "legacy"
+      "shuffled"
     ]
   },
   "enemy_health": {
@@ -499,6 +499,13 @@
       "random"
     ]
   },
+  "any_enemy_logic": {
+    "choices": [
+      "none",
+      "allow_drops",
+      "allow_all"
+    ]
+  },
   "remote_items": {
     "action": "store_true",
     "type": "bool"
@@ -507,6 +514,10 @@
   "outputpath": {},
   "race": {
     "action": "store_true",
+    "type": "bool"
+  },
+  "aga_randomness": {
+    "action": "store_false",
     "type": "bool"
   },
   "saveonexit": {

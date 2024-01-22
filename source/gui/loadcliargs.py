@@ -80,20 +80,6 @@ def loadcliargs(gui, args, settings=None):
                                 # If we've got a Game Options val and we don't have an Adjust val, use the Game Options val
                                 gui.pages["adjust"].content.widgets[widget].storageVar.set(args[arg])
 
-        # Get EnemizerCLI setting
-        mainpage = "randomizer"
-        subpage = "enemizer"
-        widget = "enemizercli"
-        setting = "enemizercli"
-        # set storagevar
-        gui.pages[mainpage].pages[subpage].widgets[widget].storageVar.set(args[setting])
-        # set textbox/frame label
-        label = fish.translate("gui","gui",mainpage + '.' + subpage + '.' + widget)
-        gui.pages[mainpage].pages[subpage].widgets[widget].pieces["frame"].label.configure(text=label)
-        # set get from web label
-        label = fish.translate("gui","gui",mainpage + '.' + subpage + '.' + widget + ".online")
-        gui.pages[mainpage].pages[subpage].widgets[widget].pieces["online"].label.configure(text=label)
-
         # Get baserom path
         mainpage = "randomizer"
         subpage = "generation"
@@ -206,7 +192,9 @@ def loadadjustargs(gui, settings):
                 "heartbeep": "adjust.heartbeep",
                 "menuspeed": "adjust.menuspeed",
                 "owpalettes": "adjust.owpalettes",
-                "uwpalettes": "adjust.uwpalettes"
+                "uwpalettes": "adjust.uwpalettes",
+                "reduce_flashing": "adjust.reduce_flashing",
+                "shuffle_sfx": "adjust.shuffle_sfx"
             }
         }
     }

@@ -94,7 +94,8 @@ class CustomSettings(object):
                 args.pottery[p] = get_setting(settings['pottery'], args.pottery[p])
 
                 if get_setting(settings['keydropshuffle'], args.keydropshuffle[p]):
-                    args.dropshuffle[p] = True
+                    if args.dropshuffle[p] == 'none':
+                        args.dropshuffle[p] = 'keys'
                     if args.pottery[p] == 'none':
                         args.pottery[p] = 'keys'
 
@@ -133,10 +134,11 @@ class CustomSettings(object):
                     args.mapshuffle[p] = True
                     args.compassshuffle[p] = True
 
-                args.shufflebosses[p] = get_setting(settings['boss_shuffle'], args.shufflebosses[p])
-                args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], args.shuffleenemies[p])
+                args.shufflebosses[p] = get_setting(settings['boss_shuffle'], get_setting(settings['shufflebosses'], args.shufflebosses[p]))
+                args.shuffleenemies[p] = get_setting(settings['enemy_shuffle'], get_setting(settings['shuffleenemies'], args.shuffleenemies[p]))
                 args.enemy_health[p] = get_setting(settings['enemy_health'], args.enemy_health[p])
                 args.enemy_damage[p] = get_setting(settings['enemy_damage'], args.enemy_damage[p])
+                args.any_enemy_logic[p] = get_setting(settings['any_enemy_logic'], args.any_enemy_logic[p])
                 args.shufflepots[p] = get_setting(settings['shufflepots'], args.shufflepots[p])
                 args.bombbag[p] = get_setting(settings['bombbag'], args.bombbag[p])
                 args.shufflelinks[p] = get_setting(settings['shufflelinks'], args.shufflelinks[p])
@@ -153,6 +155,7 @@ class CustomSettings(object):
                 args.triforce_min_difference[p] = get_setting(settings['triforce_min_difference'], args.triforce_min_difference[p])
                 args.triforce_max_difference[p] = get_setting(settings['triforce_max_difference'], args.triforce_max_difference[p])
                 args.beemizer[p] = get_setting(settings['beemizer'], args.beemizer[p])
+                args.aga_randomness[p] = get_setting(settings['aga_randomness'], args.aga_randomness[p])
 
                 # mystery usage
                 args.usestartinventory[p] = get_setting(settings['usestartinventory'], args.usestartinventory[p])
@@ -216,6 +219,11 @@ class CustomSettings(object):
             return self.file_source['drops']
         return None
 
+    def get_enemies(self):
+        if 'enemies' in self.file_source:
+            return self.file_source['enemies']
+        return None
+
     def create_from_world(self, world, settings):
         self.player_range = range(1, world.players + 1)
         settings_dict, meta_dict = {}, {}
@@ -262,10 +270,11 @@ class CustomSettings(object):
             settings_dict[p]['keyshuffle'] = world.keyshuffle[p]
             settings_dict[p]['mapshuffle'] = world.mapshuffle[p]
             settings_dict[p]['compassshuffle'] = world.compassshuffle[p]
-            settings_dict[p]['shufflebosses'] = world.boss_shuffle[p]
-            settings_dict[p]['shuffleenemies'] = world.enemy_shuffle[p]
+            settings_dict[p]['boss_shuffle'] = world.boss_shuffle[p]
+            settings_dict[p]['enemy_shuffle'] = world.enemy_shuffle[p]
             settings_dict[p]['enemy_health'] = world.enemy_health[p]
             settings_dict[p]['enemy_damage'] = world.enemy_damage[p]
+            settings_dict[p]['any_enemy_logic'] = world.any_enemy_logic[p]
             settings_dict[p]['shufflepots'] = world.potshuffle[p]
             settings_dict[p]['bombbag'] = world.bombbag[p]
             settings_dict[p]['shufflelinks'] = world.shufflelinks[p]
@@ -275,6 +284,7 @@ class CustomSettings(object):
             settings_dict[p]['triforce_goal'] = world.treasure_hunt_count[p]
             settings_dict[p]['triforce_pool'] = world.treasure_hunt_total[p]
             settings_dict[p]['beemizer'] = world.beemizer[p]
+            settings_dict[p]['aga_randomness'] = world.aga_randomness[p]
 
             # rom adjust stuff
             # settings_dict[p]['sprite'] = world.sprite[p]

@@ -16,6 +16,8 @@ import Items
 import Regions
 import PotShuffle
 from MultiClient import ReceivedItem, get_item_name_from_id, get_location_name_from_address
+import source.dungeon.EnemyList as EnemyList
+import source.rom.DataTables as DataTables
 
 class Client:
     def __init__(self, socket):
@@ -355,12 +357,6 @@ async def console(ctx : Context):
 def init_lookups(ctx):
     ctx.lookup_id_to_name = {x: y for x, y in Regions.lookup_id_to_name.items()}
     ctx.lookup_name_to_id = {x: y for x, y in Regions.lookup_name_to_id.items()}
-    for location, datum in PotShuffle.key_drop_data.items():
-        type = datum[0]
-        if type == 'Drop':
-            location_id = datum[1][0]
-            ctx.lookup_name_to_id[location] = location_id
-            ctx.lookup_id_to_name[location_id] = location
     for super_tile, pot_list in PotShuffle.vanilla_pots.items():
         for pot_index, pot in enumerate(pot_list):
             if pot.item != PotItem.Hole:
@@ -373,6 +369,18 @@ def init_lookups(ctx):
                 location_id = Regions.pot_address(pot_index, super_tile)
                 ctx.lookup_name_to_id[loc_name] = location_id
                 ctx.lookup_id_to_name[location_id] = loc_name
+    uw_table = DataTables.get_uw_enemy_table()
+    key_drop_data = {(v[1][1], v[1][2]): k for k, v in PotShuffle.key_drop_data.items() if v[0] == 'Drop'}
+    for super_tile, enemy_list in uw_table.room_map.items():
+        for index, sprite in enumerate(enemy_list):
+            if (super_tile, index) in key_drop_data:
+                loc_name = key_drop_data[(super_tile, index)]
+                location_id = PotShuffle.key_drop_data[loc_name][1][0]
+            else:
+                loc_name = f'{sprite.region} Enemy #{index+1}'
+                location_id = EnemyList.drop_address(index, super_tile)
+            ctx.lookup_name_to_id[loc_name] = location_id
+            ctx.lookup_id_to_name[location_id] = loc_name
 
 
 async def main():

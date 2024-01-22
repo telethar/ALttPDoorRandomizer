@@ -70,7 +70,7 @@ def create_item_pool_config(world):
         for player in range(1, world.players + 1):
             config.static_placement[player] = defaultdict(list)
             config.static_placement[player].update(vanilla_mapping)
-            if world.dropshuffle[player]:
+            if world.dropshuffle[player] != 'none':
                 for item, locs in keydrop_vanilla_mapping.items():
                     config.static_placement[player][item].extend(locs)
             if world.pottery[player] not in ['none', 'cave']:
@@ -96,7 +96,7 @@ def create_item_pool_config(world):
                 for item, locs in vanilla_mapping.items():
                     if 'Small Key' in item:
                         universal_key_locations.extend(locs)
-                if world.dropshuffle[player]:
+                if world.dropshuffle[player] != 'none':
                     for item, locs in keydrop_vanilla_mapping.items():
                         if 'Small Key' in item:
                             universal_key_locations.extend(locs)
@@ -357,7 +357,7 @@ def determine_major_items(world, player):
         major_item_set.add('Single Arrow')
     if world.keyshuffle[player] == 'universal':
         major_item_set.add('Small Key (Universal)')
-    if world.goal[player] in {'triforcehunt', 'ganonhunt'}:
+    if world.goal[player] in {'triforcehunt', 'ganonhunt', 'trinity'}:
         major_item_set.add('Triforce Piece')
     if world.bombbag[player]:
         major_item_set.add('Bomb Upgrade (+10)')
@@ -416,11 +416,11 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
             return filtered
     if world.algorithm == 'district':
         config = world.item_pool_config
-        if ((isinstance(item_to_place,str) and item_to_place == 'Placeholder')
+        if ((isinstance(item_to_place, str) and item_to_place == 'Placeholder')
            or item_to_place.name in config.item_pool[item_to_place.player]):
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name in restricted and l.player in restricted[l.name]]
-            return filtered if len(filtered) > 0 else locations
+            return filtered
         elif potion:
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
@@ -439,14 +439,16 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
     return locations
 
 
-def filter_pot_locations(locations, world):
+
+
+def filter_special_locations(locations, world, vanilla_matcher):
     if world.algorithm == 'district':
         config = world.item_pool_config
         restricted = config.location_groups[0].locations
         filtered = [l for l in locations if l.name not in restricted or l.player not in restricted[l.name]]
         return filtered if len(filtered) > 0 else locations
     if world.algorithm == 'vanilla_fill':
-        filtered = [l for l in locations if l.pot and l.pot.item in [PotItem.Chicken, PotItem.BigMagic]]
+        filtered = [l for l in locations if vanilla_matcher(l)]
         return filtered if len(filtered) > 0 else locations
     return locations
 

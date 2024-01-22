@@ -35,8 +35,9 @@ door_self_loops:
   on: 1
   off: 1
 dropshuffle:
-  on: 1
-  off: 1
+  none: 10 # fewer locations
+  keys: 1
+  underworld: 1
 pottery:
   none: 10 # fewer locations
   keys: 1
@@ -59,6 +60,9 @@ entrance_shuffle:
   simple: 1
   restricted: 1
   full: 1
+  lite: 1
+  lean: 1
+  swapped: 1
   crossed: 1
   insanity: 1
 shufflelinks:
@@ -149,6 +153,7 @@ enemy_shuffle:  # shouldn't affect generation
   shuffled: 1
   random: 1
   legacy: 0
+any_enemy_logic: allow_all  # more interesting logic
 hints:
   on: 1
   off: 1
