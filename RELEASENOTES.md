@@ -141,6 +141,9 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Bug Fixes and Notes
 
+* 1.4.1.4u
+  * Inverted: Castle warp should not appear after defeating Aga 1
+  * Enemzier: Fixed a crash with cached sprites Zora/Swamola 
 * 1.4.1.3v
   * Enemizer: Raven/Murderdactyls using the correct damage table 
   * Enemzier: Boss drops only center when boss shuffle is on

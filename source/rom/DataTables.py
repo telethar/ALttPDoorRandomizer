@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes, load_cached_yaml
+from Utils import snes_to_pc, int24_as_bytes, int16_as_bytes, load_cached_yaml, pc_to_snes
 
 from source.dungeon.EnemyList import EnemyTable, init_vanilla_sprites, vanilla_sprites, init_enemy_stats, EnemySprite
 from source.dungeon.EnemyList import sprite_translation
@@ -94,9 +94,7 @@ class DataTables:
             # _00FA81 is LW normal
             # _00FAC1 is LW post-aga
             # _00FB01 is DW
-        for area, sprite_list in self.ow_enemy_table.items():
-            for sprite in sprite_list:
-                rom.write_bytes(snes_to_pc(sprite.original_address), sprite.sprite_data_ow())
+        self.write_ow_sprite_data_to_rom(rom)
         for sprite, stats in self.enemy_stats.items():
             # write health to rom
             if stats.health is not None:
@@ -131,6 +129,42 @@ class DataTables:
                 0x01, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x12,
                 0x0F, 0x01, 0x0F, 0x0F, 0x11, 0x0F, 0x0F, 0x03
             ])
+
+    def write_ow_sprite_data_to_rom(self, rom):
+        max_per_state = {0: 0x40, 1: 0x90, 2: 0x8D}  # dropped max on state 2 to steal space for a couple extra sprites (Murahdahla)
+        pointer_address = snes_to_pc(0x09C881)
+        data_pointer = snes_to_pc(0x09CB3B)  # was originally 0x09CB41 - stealing space for a couple extra sprites (Murahdahla)
+        empty_pointer = pc_to_snes(data_pointer) & 0xFFFF
+        rom.write_byte(data_pointer, 0xff)
+        cached_dark_world = {}
+        data_pointer += 1
+        for state in range(0, 3):
+            if state > 0:  # move pointer to next section
+                pointer_address += max_per_state[state-1] * 2
+            for screen in range(0, max_per_state[state]):
+                internal_screen_id = screen
+                if state == 0:
+                    internal_screen_id += 0x200
+                if state == 2 and screen < 0x40:
+                    internal_screen_id += 0x90
+                if internal_screen_id not in self.ow_enemy_table:  # has no sprites
+                    rom.write_bytes(pointer_address + screen * 2, int16_as_bytes(empty_pointer))
+                else:
+                    if state == 2 and  screen >= 0x40:  # state 2 uses state 1 pointer for screens >= 0x40
+                        rom.write_bytes(pointer_address + screen * 2, cached_dark_world[screen])
+                        # the sprites are already written out
+                    else:
+                        data_address = pc_to_snes(data_pointer) & 0xFFFF
+                        ref = int16_as_bytes(data_address)
+                        if screen >= 40:
+                            cached_dark_world[screen] = ref
+                        rom.write_bytes(pointer_address + screen * 2, ref)
+                        for sprite in self.ow_enemy_table[internal_screen_id]:
+                            data = sprite.sprite_data()
+                            rom.write_bytes(data_pointer, data)
+                            data_pointer += len(data)
+                        rom.write_byte(data_pointer, 0xff)
+                        data_pointer += 1
 
 
 special_health_table = {

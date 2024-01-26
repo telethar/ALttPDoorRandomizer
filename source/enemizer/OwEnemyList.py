@@ -521,7 +521,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x1a, EnemySprite.GreenGuard, 0x0C, 0x0E, '', 0x09D0A3)
     create_sprite(0x1a, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D0A6, fix=True)
     create_sprite(0x1a, EnemySprite.BlueRupee, 0x17, 0x17, '', 0x09D0A9)
-    # create_sprite(0x1a, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D0AC)
+    create_sprite(0x1a, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D0AC)
     create_sprite(0x1a, EnemySprite.RedSpearGuard, 0x0F, 0x18, '', 0x09D0AC)  # was 0x09D0AF
     # Screen1B_1:
     create_sprite(0x1b, EnemySprite.Wiseman, 0x19, 0x12, '', 0x09D0B0)
@@ -843,7 +843,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0xaa, EnemySprite.BlueGuard, 0x0F, 0x08, '', 0x09D418)
     create_sprite(0xaa, EnemySprite.BlueGuard, 0x0C, 0x0E, '', 0x09D41B)
     create_sprite(0xaa, EnemySprite.Faerie, 0x0D, 0x11, '', 0x09D41E, fix=True)
-    # create_sprite(0xaa, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D421)
+    create_sprite(0xaa, EnemySprite.SmallHeart, 0x0A, 0x18, '', 0x09D421)
     create_sprite(0xaa, EnemySprite.UsainBolt, 0x0F, 0x18, '', 0x09D421)  # was 0x09D424
     # Screen1B_2:
     create_sprite(0xab, EnemySprite.Wiseman, 0x19, 0x12, '', 0x09D425)

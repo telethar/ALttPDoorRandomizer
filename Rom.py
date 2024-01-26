@@ -42,7 +42,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = 'd63715be60a548e080dc84ae588307e5'
+RANDOMIZERBASEHASH = 'd47bab6e3c7de77295fcdc0b0ab84a9d'
 
 
 class JsonRom(object):
@@ -2474,7 +2474,6 @@ def set_inverted_mode(world, player, rom):
     rom.write_byte(snes_to_pc(0x00D0e8), 0xE0)
     rom.write_byte(snes_to_pc(0x00D1c7), 0x00)
     write_int16(rom, snes_to_pc(0x1BE8DA), 0x39AD)
-    rom.write_byte(0xF6E58, 0x80)  # no whirlpool under castle gate
     rom.write_bytes(0x0086E, [0x5C, 0x00, 0xA0, 0xA1])  # TR tail
     rom.write_bytes(snes_to_pc(0x1BC67A), [0x2E, 0x0B, 0x82])  # add warps under rocks
     rom.write_bytes(snes_to_pc(0x1BC81E), [0x94, 0x1D, 0x82])
