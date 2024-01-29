@@ -2437,6 +2437,11 @@ def change_door_to_trap(d, world, player):
         if d.entrance.connected_region is not None and d.blocked:
             d.entrance.connected_region.entrances.remove(d.entrance)
             d.entrance.connected_region = None
+            if d.dependents:
+                for dep in d.dependents:
+                    if dep.entrance.connected_region is not None:
+                        dep.entrance.connected_region.remove(dep.entrance)
+                        dep.entrance.connected_region = None
 
 
 trap_door_exceptions = {
@@ -2448,7 +2453,7 @@ trap_door_exceptions = {
     'GT Torch Cross WN', 'Mire Tile Room SW', 'Mire Tile Room ES', 'TR Torches WN', 'PoD Lobby N', 'PoD Middle Cage S',
     'Ice Bomb Jump NW', 'GT Hidden Spikes SE', 'Ice Tall Hint EN', 'Ice Tall Hint SE', 'Eastern Pot Switch WN',
     'Thieves Conveyor Maze WN', 'Thieves Conveyor Maze SW', 'Eastern Dark Square Key Door WN', 'Eastern Lobby NW',
-    'Eastern Lobby NE', 'Ice Cross Bottom SE', 'Desert Back Lobby S', 'Desert West S',
+    'Eastern Lobby NE', 'Ice Cross Bottom SE', 'Ice Cross Right ES', 'Desert Back Lobby S', 'Desert West S',
     'Desert West Lobby ES', 'Mire Hidden Shooters SE', 'Mire Hidden Shooters ES', 'Mire Hidden Shooters WS',
     'Tower Dark Pits EN', 'Tower Dark Maze ES', 'TR Tongue Pull WS', 'GT Conveyor Cross EN',
 }

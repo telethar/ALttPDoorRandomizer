@@ -895,8 +895,14 @@ def bomb_rules(world, player):
         for door in doors_to_bomb_check:
             if door.kind(world) in [DoorKind.Dashable]:
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
+                if door.dependents:
+                    for dep in door.dependents:
+                        add_rule(dep.entrance, lambda state: state.can_use_bombs(player) or state.has_Boots(player))
             elif door.kind(world) in [DoorKind.Bombable]:
                 add_rule(door.entrance, lambda state: state.can_use_bombs(player))
+                if door.dependents:
+                    for dep in door.dependents:
+                        add_rule(dep.entrance, lambda state: state.can_use_bombs(player))
 
 
 def challenge_room_rules(world, player):
@@ -2335,6 +2341,9 @@ def add_key_logic_rules(world, player):
             forbid_item(location, d_logic.small_key_name, player)
         for door in d_logic.bk_doors:
             add_rule(world.get_entrance(door.name, player), create_rule(d_logic.bk_name, player))
+            if door.dependents:
+                for dep in door.dependents:
+                    add_rule(dep.entrance, create_rule(d_logic.bk_name, player))
         for chest in d_logic.bk_chests:
             big_chest = world.get_location(chest.name, player)
             add_rule(big_chest, create_rule(d_logic.bk_name, player))
