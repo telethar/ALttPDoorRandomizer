@@ -131,6 +131,9 @@ class DataTables:
             ])
 
     def write_ow_sprite_data_to_rom(self, rom):
+        # calculate how big this table is going to be?
+        # bytes = sum(1+len(x)*3 for x in self.ow_enemy_table.values() if len(x) > 0)+1
+        # ending_byte = 0x09CB3B + bytes
         max_per_state = {0: 0x40, 1: 0x90, 2: 0x8D}  # dropped max on state 2 to steal space for a couple extra sprites (Murahdahla)
         pointer_address = snes_to_pc(0x09C881)
         data_pointer = snes_to_pc(0x09CB3B)  # was originally 0x09CB41 - stealing space for a couple extra sprites (Murahdahla)
@@ -150,10 +153,10 @@ class DataTables:
                 if internal_screen_id not in self.ow_enemy_table:  # has no sprites
                     rom.write_bytes(pointer_address + screen * 2, int16_as_bytes(empty_pointer))
                 else:
-                    if state == 2 and  screen >= 0x40:  # state 2 uses state 1 pointer for screens >= 0x40
+                    if state == 2 and screen >= 0x40:  # state 2 uses state 1 pointer for screens >= 0x40
                         rom.write_bytes(pointer_address + screen * 2, cached_dark_world[screen])
                         # the sprites are already written out
-                    else:
+                    elif len(self.ow_enemy_table[internal_screen_id]) > 0:
                         data_address = pc_to_snes(data_pointer) & 0xFFFF
                         ref = int16_as_bytes(data_address)
                         if screen >= 40:
