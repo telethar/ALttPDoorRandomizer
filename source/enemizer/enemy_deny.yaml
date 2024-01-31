@@ -67,6 +67,7 @@ UwGeneralDeny:
   - [ 0x0034, 4, [ "Statue", "SparkCW", "SparkCCW", "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Swamp Palace - West Wing - Zol"
   - [ 0x0035, 6, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - West Lever - Stalfos 2"
   - [ 0x0035, 9, [ "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Swamp Palace - West Lever - Blue Bari"
+  - [0x0036, 5, ["AntiFairyCircle", "Bumper"]]
   - [ 0x0036, 7, [ "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "FirebarCW", "FirebarCCW", "SpikeBlock", "Bumper" ] ]  #"Swamp Palace - Lobby - Hover 3"
   - [ 0x0037, 7, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - Water 1 - Blue Bari"
   - [ 0x0038, 4, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - Long Hall - Kyameron 2"
@@ -125,7 +126,7 @@ UwGeneralDeny:
   - [ 0x0052, 2, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "Bumper" ] ]  #"Hyrule Castle - North East Passage - Green Knife Guard 2"
   - [ 0x0053, 1, [ "AntiFairyCircle", "Bumper" ] ]  #"Desert Palace - Bridge - Beamos 1"
   - [ 0x0053, 5, [ "RollerVerticalDown" ] ]  #"Desert Palace - Popo Genocide - Popo TL"
-  - [ 0x0053, 7, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Desert Palace - Bridge - Popo 5"
+  - [ 0x0053, 7, ["Beamos", "AntiFairyCircle", "Bumper", "RollerVerticalUp", "RollerVerticalDown"]]  #"Desert Palace - Bridge - Popo 5"
   - [ 0x0055, 1, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Secret Passage Exit - Green Knife Guard 1"
   - [ 0x0057, 0, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0057, 1, ["Statue"]]  # Statue switch issues

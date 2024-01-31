@@ -144,6 +144,7 @@ These are now independent of retro mode and have three options: None, Random, an
 * 1.4.1.5u
   * Major Fix: Problem with Ganon's Room sprites
   * HMG: Remove extra Swamp Smalls in the pool due to pottery settings
+  * Enemizer: Couple enemy bans
 * 1.4.1.4u
   * Logic: Fixed logic bugs surrounding dynammic doors missing logic from big keys and other door types 
   * Inverted: Castle warp should not appear after defeating Aga 1
