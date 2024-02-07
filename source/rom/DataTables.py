@@ -150,7 +150,8 @@ class DataTables:
                     internal_screen_id += 0x200
                 if state == 2 and screen < 0x40:
                     internal_screen_id += 0x90
-                if internal_screen_id not in self.ow_enemy_table:  # has no sprites
+                # has no sprites
+                if internal_screen_id not in self.ow_enemy_table or len(self.ow_enemy_table[internal_screen_id]) == 0:
                     rom.write_bytes(pointer_address + screen * 2, int16_as_bytes(empty_pointer))
                 else:
                     if state == 2 and screen >= 0x40:  # state 2 uses state 1 pointer for screens >= 0x40
