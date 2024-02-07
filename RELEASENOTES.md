@@ -139,8 +139,14 @@ These are now independent of retro mode and have three options: None, Random, an
 * Dark Lake Hylia Ledge Healer Fairy (aka Shopping Mall Bomb)
 * Bonk Fairy (Dark)
 
-# Bug Fixes and Notes
+# Patch Notes
 
+* 1.4.1.6u
+  * Difficulty: Fixed some issues around item caps not being respected 
+  * Enemezier: Tutorial guards remove from South Kakariko
+  * Map: Pendant colors fixed
+  * Minor rom code cleanup 
+  * Enemizer: Hovers added to problematic pool near pits. Some other bans
 * 1.4.1.5u
   * Major Fix: Problem with Ganon's Room sprites
   * HMG: Remove extra Swamp Smalls in the pool due to pottery settings
