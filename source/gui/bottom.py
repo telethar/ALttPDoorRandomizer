@@ -76,8 +76,9 @@ def bottom_frame(self, parent, args=None):
         for k,v in vars(parse_cli(cliargs)).items():
             if k not in vars(guiargs):
                 setattr(guiargs, k, v)
-            elif type(v) is dict: # use same settings for every player
-                setattr(guiargs, k, {player: getattr(guiargs, k) for player in range(1, len(v) + 1)})
+            elif type(v) is dict:  # use same settings for every player
+                players = guiargs.multi if len(v) == 0 else len(v)
+                setattr(guiargs, k, {player: getattr(guiargs, k) for player in range(1, players + 1)})
         argsDump = vars(guiargs)
 
         needEnemizer = False
