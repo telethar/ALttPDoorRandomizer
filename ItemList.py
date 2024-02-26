@@ -265,7 +265,7 @@ def generate_itempool(world, player):
 
     # set up item pool
     skip_pool_adjustments = False
-    if world.customizer and world.customizer.get_item_pool():
+    if world.customizer and world.customizer.get_item_pool() and player in world.customizer.get_item_pool():
         (pool, placed_items, precollected_items, clock_mode, lamps_needed_for_dark_rooms) = make_customizer_pool(world, player)
         skip_pool_adjustments = True
     elif world.custom:
