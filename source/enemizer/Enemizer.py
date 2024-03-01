@@ -362,14 +362,11 @@ def determine_forbidden(forbid, room_id, drop_flag=False):
     forbidden_set = set()
     if forbid:
         forbidden_set.update({EnemySprite.Terrorpin, EnemySprite.Deadrock, EnemySprite.Buzzblob,
-                              EnemySprite.Lynel})
+                              EnemySprite.Lynel, EnemySprite.RedEyegoreMimic, EnemySprite.RedMimic})
         if drop_flag:
             forbidden_set.add(EnemySprite.RedBari)  # requires FireRod to Drop
         # else:  Not yet able to protect triggers, would change default GT tile room behavior
         #     forbidden_set.add(EnemySprite.AntiFairy)  # can't drop anyway
-        if room_id not in {0x6b, 0x4b, 0x1b, 0xd8}:  # mimics/eyegore are allowed in vanilla rooms
-            forbidden_set.add(EnemySprite.RedEyegoreMimic)
-            forbidden_set.add(EnemySprite.RedMimic)
     return forbidden_set
 
 

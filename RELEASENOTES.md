@@ -141,6 +141,10 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.7u
+  * Some bugs around Triforce Pieces smoothed out
+  * Enemizer: No exception for mimics/eyegores in vanilla rooms if enemy logic is turned to off
+  * Enemizer: Various enemy bans
 * 1.4.1.6u
   * Difficulty: Fixed some issues around item caps not being respected 
   * Enemezier: Tutorial guards remove from South Kakariko
