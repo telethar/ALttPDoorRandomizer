@@ -571,7 +571,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         dr_flags |= DROptions.OriginalPalettes
     if world.experimental[player]:
         dr_flags |= DROptions.DarkWorld_Spawns
-    if world.logic[player] != 'nologic':
+    if world.logic[player] not in ['owglitches', 'hybridglitches', 'nologic']:
         dr_flags |= DROptions.Fix_EG
     if world.door_type_mode[player] in ['big', 'all', 'chaos']:
         dr_flags |= DROptions.BigKeyDoor_Shuffle
@@ -1299,10 +1299,10 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     digging_game_rng = random.randint(1, 30)  # set rng for digging game
     rom.write_byte(0x180020, digging_game_rng)
     rom.write_byte(0xEFD95, digging_game_rng)
-    rom.write_byte(0x1800A3, 0x01)  # enable correct world setting behaviour after agahnim kills
-    rom.write_byte(0x1800A4, 0x01 if world.logic[player] != 'nologic' else 0x00)  # enable POD EG fix
-    rom.write_byte(0x180042, 0x01 if world.save_and_quit_from_boss else 0x00)  # Allow Save and Quit after boss kill
     glitches_enabled = world.logic[player] in ['owglitches', 'hybridglitches', 'nologic']
+    rom.write_byte(0x1800A3, 0x01)  # enable correct world setting behaviour after agahnim kills
+    rom.write_byte(0x1800A4, 0x01 if not glitches_enabled else 0x00)  # enable POD EG fix
+    rom.write_byte(0x180042, 0x01 if world.save_and_quit_from_boss else 0x00)  # Allow Save and Quit after boss kill
     rom.write_byte(0x180358, 0x01 if glitches_enabled else 0x00)
     rom.write_byte(0x18008B, 0x01 if glitches_enabled else 0x00)
 
