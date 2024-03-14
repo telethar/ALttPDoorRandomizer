@@ -141,6 +141,12 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.8u
+  * HUD: New dungeon indicators based on common abbreviations 
+  * OWG+HMG: EG is allowed to be armed
+  * Drop Shuffle: Fixed an issue with minor drops counting for the wrong dungeon
+  * Enemizer: Trinexx ice breath should be properly disabled if Trinexx is located outside of Turtle Rock
+  * Enemizer: Enemy bans
 * 1.4.1.7u
   * Some bugs around Triforce Pieces smoothed out
   * Enemizer: No exception for mimics/eyegores in vanilla rooms if enemy logic is turned to off
