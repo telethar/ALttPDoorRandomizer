@@ -160,6 +160,7 @@ UwGeneralDeny:
   - [ 0x0058, 8, ["Statue"]]
   - [ 0x0059, 0, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Mini Moldorm 1"
   - [ 0x0059, 1, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Mini Moldorm 2"
+  - [0x0059, 5, ["RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper"]]
   - [ 0x0059, 9, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Skull Woods - Bridge Room - Gibdo 1"
   - [ 0x005e, 3, [ "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Pit Trap - Big Spike Trap"
   - [ 0x005e, 4, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Ice Palace - Pit Trap - Fire Bar (Clockwise)"
