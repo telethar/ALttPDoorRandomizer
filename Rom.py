@@ -42,7 +42,7 @@ from source.enemizer.Enemizer import write_enemy_shuffle_settings
 
 
 JAP10HASH = '03a63945398191337e896e5771f77173'
-RANDOMIZERBASEHASH = '67b9ede4928dac94a650e9e9396ef44a'
+RANDOMIZERBASEHASH = 'deda3f2e279062c296181393dba6c51c'
 
 
 class JsonRom(object):
@@ -569,8 +569,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
         rom.write_bytes(0xfb1fc, [0xc8, 0x9d, 0x69, 0xb4, 0xac, 0x5d])
     if world.standardize_palettes[player] == 'original':
         dr_flags |= DROptions.OriginalPalettes
-    if world.experimental[player]:
-        dr_flags |= DROptions.DarkWorld_Spawns
+    dr_flags |= DROptions.DarkWorld_Spawns  # no longer experimental
     if world.logic[player] not in ['owglitches', 'hybridglitches', 'nologic']:
         dr_flags |= DROptions.Fix_EG
     if world.door_type_mode[player] in ['big', 'all', 'chaos']:
