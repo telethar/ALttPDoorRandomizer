@@ -181,6 +181,8 @@ Same as above but both small keys and bigs keys of the dungeon are not allowed o
 
 # Bug Fixes and Notes
 
+* 1.1.8
+  * Updated tournament winners
 * 1.1.7
   * Fixed logic issues:
     * Self-locking key not allowed in Sanctuary in standard (typo fixed)

@@ -1772,7 +1772,10 @@ class TextTable(object):
         text['telepathic_tile_misery_mire'] = CompressedTextMapper.convert("{NOBORDER}\nLighting 4 torches will open your way forward!")
         text['hylian_text_2'] = CompressedTextMapper.convert("%%^= %==%\n ^ =%^=\n==%= ^^%^")
         text['desert_entry_translated'] = CompressedTextMapper.convert("Kneel before this stone, and magic will move around you.")
-        text['telepathic_tile_under_ganon'] = CompressedTextMapper.convert("Doors Async League winners\n{HARP}\n  ~~~2022~~~\nAndy\n\n  ~~~2021~~~\nprdwong")
+        text['telepathic_tile_under_ganon'] = CompressedTextMapper.convert("Doors Async League winners\n{HARP}\n"
+                                                                           "  ~~~2023~~~\nEriror\n\n"
+                                                                           "  ~~~2022~~~\nAndy\n\n"
+                                                                           "  ~~~2021~~~\nprdwong")
         text['telepathic_tile_palace_of_darkness'] = CompressedTextMapper.convert("{NOBORDER}\nThis is a funny looking Enemizer")
         # C0
         text['telepathic_tile_desert_bonk_torch_room'] = CompressedTextMapper.convert("{NOBORDER}\nThings can be knocked down, if you fancy yourself a dashing dude.")
@@ -1782,7 +1785,13 @@ class TextTable(object):
         text['telepathic_tile_ice_entrance'] = CompressedTextMapper.convert("{NOBORDER}\nYou can use Fire Rod or Bombos to pass.")
         text['telepathic_tile_ice_stalfos_knights_room'] = CompressedTextMapper.convert("{NOBORDER}\nKnock 'em down and then bomb them dead.")
         text['telepathic_tile_tower_of_hera_entrance'] = CompressedTextMapper.convert("{NOBORDER}\nThis is a bad place, with a guy who will make you fall…\n\n\na lot.")
-        text['houlihan_room'] = CompressedTextMapper.convert("Randomizer tournament winners\n{HARP}\n  ~~~2023~~~\nGanonsGoneWild\n\n\n  ~~~2022~~~\nObscure\n\n\n  ~~~2021~~~\nDaaanty\n\n  ~~~2019~~~\nJet082\n\n  ~~~2018~~~\nAndy\n\n  ~~~2017~~~\nA: ajneb174\nS: ajneb174")
+        text['houlihan_room'] = CompressedTextMapper.convert("Randomizer tournament winners\n{HARP}\n"
+                                                             "  ~~~2023~~~\nnGanonsGoneWild\n\n"
+                                                             "  ~~~2022~~~\nObscure\n\n"
+                                                             "  ~~~2021~~~\nDaaanty\n\n"
+                                                             "  ~~~2019~~~\nJet082\n\n"
+                                                             "  ~~~2018~~~\nAndy\n\n"
+                                                             "  ~~~2017~~~\nA: ajneb174\nS: ajneb174")
         text['caught_a_bee'] = CompressedTextMapper.convert("Caught a Bee\n  ≥ Keep\n    Release\n{CHOICE}")
         text['caught_a_fairy'] = CompressedTextMapper.convert("Caught Fairy!\n  ≥ Keep\n    Release\n{CHOICE}")
         text['no_empty_bottles'] = CompressedTextMapper.convert("Whoa, bucko!\nNo empty bottles.")
@@ -2010,7 +2019,12 @@ class TextTable(object):
         text['ganon_fall_in_alt'] = CompressedTextMapper.convert("You think you are ready to face me?\n\nI will not die unless you complete your goals. Dingus!")
         text['ganon_phase_3_alt'] = CompressedTextMapper.convert("Got wax in your ears? I cannot die!")
         # 190
-        text['sign_east_death_mountain_bridge'] = CompressedTextMapper.convert("Glitched\ntournament\nwinners\n{HARP}\n~~~HMG 2023~~~\ntam\n\n~~~No Logic 2022~~~\nChexhuman\n\n~~~HMG 2021~~~\nKrithel\n\n~~~OWG 2019~~~\nGlan\n\n~~~OWG 2018~~~\nChristosOwen\nthe numpty")
+        text['sign_east_death_mountain_bridge'] = CompressedTextMapper.convert("Glitched\ntournament\nwinners\n{HARP}\n"
+                                                                               "~~~HMG 2023~~~\ntam\n\n"
+                                                                               "~~~No Logic 2022~~~\nChexhuman\n\n"
+                                                                               "~~~HMG 2021~~~\nKrithel\n\n"
+                                                                               "~~~OWG 2019~~~\nGlan\n\n"
+                                                                               "~~~OWG 2018~~~\nChristosOwen\nthe numpty")
         text['fish_money'] = CompressedTextMapper.convert("It's a secret to everyone.")
         text['sign_ganons_tower'] = CompressedTextMapper.convert("You need all 7 crystals to enter.")
         text['sign_ganon'] = CompressedTextMapper.convert("You need all 7 crystals to beat Ganon.")
