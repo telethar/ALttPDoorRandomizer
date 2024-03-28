@@ -1285,6 +1285,7 @@ def forbid_bomb_jump_requirements(world, player):
 
 
 
+
 # Light cones in standard depend on which world we actually are in, not which one the location would normally be
 # We add Lamp requirements only to those locations which lie in the dark world (or everything if open
 DW_Entrances = ['Bumper Cave (Bottom)', 'Superbunny Cave (Top)', 'Superbunny Cave (Bottom)', 'Hookshot Cave', 'Bumper Cave (Top)', 'Hookshot Cave Back Entrance', 'Dark Death Mountain Ledge (East)',
@@ -1480,6 +1481,7 @@ kill_chests = {
     'Mimic Cave':
         (['Mimic Cave'], 0x10c, [4, 5, 6, 7]),
 }
+
 
 
 

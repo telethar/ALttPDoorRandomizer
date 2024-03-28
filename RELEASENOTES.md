@@ -141,6 +141,8 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.9u
+  * todo
 * 1.4.1.8u
   * HUD: New dungeon indicators based on common abbreviations 
   * OWG+HMG: EG is allowed to be armed

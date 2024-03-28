@@ -2025,6 +2025,8 @@ class TextTable(object):
         text['ganon_phase_3_alt'] = CompressedTextMapper.convert("Got wax in your ears? I cannot die!")
         # 190
         text['sign_east_death_mountain_bridge'] = CompressedTextMapper.convert("Glitched\ntournament\nwinners\n{HARP}\n"
+                                                                               "~~~HMG 2023~~~\ntam\n\n"
+                                                                               "~~~No Logic 2022~~~\nChexhuman\n\n"
                                                                                "~~~HMG 2021~~~\nKrithel\n\n"
                                                                                "~~~OWG 2019~~~\nGlan\n\n"
                                                                                "~~~OWG 2018~~~\nChristosOwen\nthe numpty")
