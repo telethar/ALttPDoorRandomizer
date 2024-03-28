@@ -146,7 +146,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * Experimental: Moved dark world bunny spawns out of experimental. (It is now always on)
   * Fix: Red/Blue pendants were swapped for autotracking. (Thanks Muffins!)
   * Fix: Red square sometimes wasn't blinking
-  * Updated tournament winner
+  * Updated tournament winners
+  * Enemizer: Enemy bans
 * 1.4.1.8u
   * HUD: New dungeon indicators based on common abbreviations 
   * OWG+HMG: EG is allowed to be armed
