@@ -695,7 +695,7 @@ class CollectionState(object):
     @staticmethod
     def valid_crystal(door, new_crystal_state):
         return (not door.crystal or door.crystal == CrystalBarrier.Either or new_crystal_state == CrystalBarrier.Either
-                or new_crystal_state == door.crystal)
+                or new_crystal_state == door.crystal or door.alternative_crystal_rule)
 
     def check_key_doors_in_dungeons(self, rrp, player):
         for dungeon_name, checklist in self.dungeons_to_check[player].items():
@@ -1828,6 +1828,7 @@ class Door(object):
         self.bigKey = False  # There's a big key door on this side
         self.ugly = False  # Indicates that it can't be seen from the front (e.g. back of a big key door)
         self.crystal = CrystalBarrier.Null  # How your crystal state changes if you use this door
+        self.alternative_crystal_rule = False
         self.req_event = None  # if a dungeon event is required for this door - swamp palace mostly
         self.controller = None
         self.dependents = []
@@ -3209,3 +3210,4 @@ class KeyRuleType(FastEnum):
     WorstCase = 0
     AllowSmall = 1
     Lock = 2
+    CrystalAlternative = 3

@@ -20,7 +20,7 @@ from DungeonGenerator import create_dungeon_builders, split_dungeon_builder, sim
 from DungeonGenerator import dungeon_portals, dungeon_drops, connect_doors, count_reserved_locations
 from DungeonGenerator import valid_region_to_explore
 from KeyDoorShuffle import analyze_dungeon, build_key_layout, validate_key_layout, determine_prize_lock
-from KeyDoorShuffle import validate_bk_layout
+from KeyDoorShuffle import validate_bk_layout, DoorRules
 from Utils import ncr, kth_combination
 
 
@@ -263,7 +263,7 @@ def vanilla_key_logic(world, player):
             log_key_logic(builder.name, key_layout.key_logic)
     # special adjustments for vanilla
     if world.keyshuffle[player] != 'universal':
-        if world.mode[player] != 'standard' and world.dropshuffle[player] == 'none' :
+        if world.mode[player] != 'standard' and world.dropshuffle[player] == 'none':
             # adjust hc doors
             def adjust_hc_door(door_rule):
                 if door_rule.new_rules[KeyRuleType.WorstCase] == 3:
@@ -279,7 +279,26 @@ def vanilla_key_logic(world, player):
         if pod_front.new_rules[KeyRuleType.WorstCase] == 6:
             pod_front.new_rules[KeyRuleType.WorstCase] = 1
             pod_front.small_key_num = 1
+        # adjust mire key logic - this currently cannot be done dynamically
+        create_alternative_door_rules('Mire Hub Upper Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Hub Lower Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Hub Right Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Hub Top Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Hub Switch Blue Barrier N', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Hub Switch Blue Barrier S', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Map Spot Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Map Spike Side Blue Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Crystal Dead End Left Barrier', 2, 'Misery Mire', world, player)
+        create_alternative_door_rules('Mire Crystal Dead End Right Barrier', 2, 'Misery Mire', world, player)
         # gt logic? I'm unsure it needs adjusting
+
+
+def create_alternative_door_rules(door, amount, dungeon, world, player):
+    rules = DoorRules(0, True)
+    world.key_logic[player][dungeon].door_rules[door] = rules
+    rules.new_rules[KeyRuleType.CrystalAlternative] = amount
+    world.get_door(door, player).alternative_crystal_rule = True
+
 
 
 def validate_vanilla_reservation(dungeon, world, player):

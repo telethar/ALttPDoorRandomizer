@@ -142,7 +142,7 @@ These are now independent of retro mode and have three options: None, Random, an
 # Patch Notes
 
 * 1.4.1.10u
-  * ? 
+  * Vanilla key logic: Fix for vanilla layout Misery Mire which allows more complex key logic. Locations blocked by crystal switch access is only locked by 2 keys thanks to that being the minimun in Mire to reach one of two crystal switches. 
   * Autotracking: Fix for chest turn counter with chest containing multiworld items (Thanks Hiimcody) 
   * Rom: Code prettification and fixing byte designations by Codemann
 * 1.4.1.9u
