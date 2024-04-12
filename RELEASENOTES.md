@@ -141,6 +141,10 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.10u
+  * ? 
+  * Autotracking: Fix for chest turn counter with chest containing multiworld items (Thanks Hiimcody) 
+  * Rom: Code prettification and fixing byte designations by Codemann
 * 1.4.1.9u
   * Enemy Drop Underworld: Changed enemy drop indicator to not require compass
   * Experimental: Moved dark world bunny spawns out of experimental. (It is now always on)
