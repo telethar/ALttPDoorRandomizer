@@ -77,7 +77,7 @@ UwGeneralDeny:
   - [ 0x0038, 4, [ "RollerHorizontalRight" ] ]  #"Swamp Palace - Long Hall - Kyameron 2"
   - [ 0x0039, 3, [ "RollerVerticalUp", "RollerHorizontalLeft" ] ]  #"Skull Woods - Play Pen - Mini Helmasaur"
   - [ 0x0039, 4, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "FirebarCW", "FirebarCCW" ] ]  #"Skull Woods - Play Pen - Spike Trap 1"
-  - [ 0x0039, 5, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft" ] ]  #"Skull Woods - Play Pen - Hardhat Beetle"
+  - [0x0039, 5, ["RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "Bumper"]]  #"Skull Woods - Play Pen - Hardhat Beetle"
   - [ 0x0039, 6, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "FirebarCW", "FirebarCCW" ] ]  #"Skull Woods - Play Pen - Spike Trap 2"
   - [ 0x003b, 1, [ "Bumper" ]]
   - [ 0x003c, 0, ["BigSpike"]]
@@ -289,6 +289,8 @@ UwGeneralDeny:
   - [ 0x00ae, 0, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Ice T - Blue Bari 1"
   - [ 0x00ae, 1, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Ice T - Blue Bari 2"
   - [ 0x00af, 0, [ "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Ice Palace - Ice Clock - Fire Bar (Clockwise)"
+  - [0x00b0, 7, [ "StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
+  - [0x00b0, 8, [ "StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
   - [ 0x00b1, 2, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Misery Mire - Hourglass - Spike Trap 1"
   - [ 0x00b1, 3, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Misery Mire - Hourglass - Spike Trap 2"
   - [ 0x00b1, 4, ["Bumper", "BigSpike", "AntiFairyCircle" ]]
@@ -445,6 +447,7 @@ OwGeneralDeny:
   - [0x5e, 19, ["Gibo"]]  # kiki eating Gibo
   - [0x5e, 20, ["Gibo"]]  # kiki eating Gibo
   - [0x77, 1, ["Bumper"]]  # soft-lock potential near ladder
+  - [0x7f, 1, ["Bumper"]]  # soft-lock potential near ladder
 UwEnemyDrop:
   - [0x0085, 9, ["Babasu"]]  # ran off the edge and didn't return
   - [0x00cb, 3, ["Zoro"]]  # layer issues
@@ -457,8 +460,6 @@ UwEnemyDrop:
   - [0x0077, 5, ["StalfosKnight", "Geldman", "Blob", "Stal", "Wizzrobe"]]
   - [0x008D, 10, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
   - [0x008D, 12, ["StalfosKnight", "Geldman", "Blob", "Stal"]]
-  - [0x00b0, 7, ["StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
-  - [0x00b0, 8, ["StalfosKnight", "Blob", "Stal", "Wizzrobe"]] # blocked, but Geldmen are probably okay
 # the following are not allowed at certain pits (or on conveyors near pits)
 # because they despawned or clipped away or immediately fell, etc
   - [0x003d, 9, ["HardhatBeetle", "Wizzrobe", "MiniHelmasaur", "BlueGuard", "GreenGuard", "RedSpearGuard", "Hover",

@@ -142,9 +142,11 @@ These are now independent of retro mode and have three options: None, Random, an
 # Patch Notes
 
 * 1.4.1.10u
-  * Vanilla key logic: Fix for vanilla layout Misery Mire which allows more complex key logic. Locations blocked by crystal switch access is only locked by 2 keys thanks to that being the minimun in Mire to reach one of two crystal switches. 
-  * Autotracking: Fix for chest turn counter with chest containing multiworld items (Thanks Hiimcody) 
+  * Vanilla key logic: Fix for vanilla layout Misery Mire which allows more complex key logic. Locations blocked by crystal switch access are only locked by 2 keys thanks to that being the minimum in Mire to reach one of two crystal switches. 
+  * Autotracking: Fix for chest turn counter with chest containing multiworld items (Thanks Hiimcody)
+  * Enemizer: Enemy bans
   * Rom: Code prettification and fixing byte designations by Codemann
+  * Support added for BPS patches via jsonout setting (Thanks Veetorp!)
 * 1.4.1.9u
   * Enemy Drop Underworld: Changed enemy drop indicator to not require compass
   * Experimental: Moved dark world bunny spawns out of experimental. (It is now always on)
