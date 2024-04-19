@@ -260,7 +260,7 @@ def get_randomize_able_sprites_ow(area_id, data_tables):
         req = data_tables.sprite_requirements[key]
         if isinstance(req, dict):
             continue
-        if not req.static and req.can_randomize:
+        if not req.static and req.can_randomize and not sprite.static:
             sprite_table[idx] = sprite
     return sprite_table
 

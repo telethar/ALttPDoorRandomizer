@@ -134,9 +134,11 @@ class DataTables:
         # calculate how big this table is going to be?
         # bytes = sum(1+len(x)*3 for x in self.ow_enemy_table.values() if len(x) > 0)+1
         # ending_byte = 0x09CB3B + bytes
-        max_per_state = {0: 0x40, 1: 0x90, 2: 0x8D}  # dropped max on state 2 to steal space for a couple extra sprites (Murahdahla)
+        max_per_state = {0: 0x40, 1: 0x90, 2: 0x8B}  # dropped max on state 2 to steal space for a couple extra sprites (Murahdahla, extra tutorial guard)
+
         pointer_address = snes_to_pc(0x09C881)
-        data_pointer = snes_to_pc(0x09CB3B)  # was originally 0x09CB41 - stealing space for a couple extra sprites (Murahdahla)
+        # currently borrowed 10 bytes, used 9 (2xMurah + TutorialGuard)
+        data_pointer = snes_to_pc(0x09CB38)  # was originally 0x09CB41 - stealing space for a couple extra sprites (Murahdahla, extra tutorial guard)
         empty_pointer = pc_to_snes(data_pointer) & 0xFFFF
         rom.write_byte(data_pointer, 0xff)
         cached_dark_world = {}

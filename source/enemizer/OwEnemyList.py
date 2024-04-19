@@ -27,6 +27,7 @@ def init_vanilla_sprites_ow():
     create_sprite(0x21b, EnemySprite.GreenKnifeGuard, 0x20, 0x1A, '', 0x09CB51)
     create_sprite(0x21b, EnemySprite.TutorialGuard, 0x2D, 0x25, '', 0x09CB54)
     create_sprite(0x21b, EnemySprite.TutorialGuard, 0x20, 0x29, '', 0x09CB57)
+    create_sprite(0x21b, EnemySprite.TutorialGuard, 0x3C, 0x2A, '', 0x09CB5B)
     create_sprite(0x21d, EnemySprite.Apple, 0x0B, 0x06, '', 0x09CB5B)
     create_sprite(0x22b, EnemySprite.TutorialGuard, 0x09, 0x1E, '', 0x09CB5F)
     create_sprite(0x22b, EnemySprite.TutorialGuard, 0x0B, 0x1E, '', 0x09CB62)    
