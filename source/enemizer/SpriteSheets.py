@@ -687,7 +687,11 @@ def setup_required_overworld_groups(sheets):
     sheets[4].add_sprite_to_sheet([None, None, None, None], {0xF, 0x9F})  # Waterfall of wishing (pre/post-Aga)
     sheets[3].add_sprite_to_sheet([None, None, None, 14], {0x14, 0xA4})  # Graveyard (pre/post-Aga)
     sheets[1].add_sprite_to_sheet([None, None, 76, 0x3F], {0x1B, 0xAB})  # Hyrule Castle (pre/post-Aga)
-    sheets[2].add_sprite_to_sheet([None, None, None, 0x3F], {})  # Hyrule Castle - rain state
+    ## group 0 set to 0x48 for tutortial guards
+    ## group 1 & 2 set for green knife guards (and probably normal green guard)
+    ## group 3 set for lightning gate
+    sheets[2].add_sprite_to_sheet([0x48, 0x49, 0x13, 0x3F], {})  # Hyrule Castle - rain state
+
     # Smithy/Race/Kak (pre/post-Aga)
     sheets[6].add_sprite_to_sheet([0x4F, 0x49, 0x4A, 0x50], {0x18, 0x22, 0x28, 0xA8, 0xB2, 0xB8})
     sheets[8].add_sprite_to_sheet([None, None, 18, None], {0x30, 0xC0})  # Desert (pre/post-Aga)

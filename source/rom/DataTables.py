@@ -94,6 +94,7 @@ class DataTables:
             # _00FA81 is LW normal
             # _00FAC1 is LW post-aga
             # _00FB01 is DW
+            # _00FA41 is rain state
         self.write_ow_sprite_data_to_rom(rom)
         for sprite, stats in self.enemy_stats.items():
             # write health to rom
