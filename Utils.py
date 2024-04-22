@@ -342,11 +342,11 @@ def update_deprecated_args(args):
         # Don't do: Yes
         # Do:       No
         if "suppress_spoiler" in argVars:
-            args.create_spoiler = not args.suppress_spoiler in truthy
+            args.spoiler = 'none'
         # Don't do: No
         # Do:       Yes
         if "create_spoiler" in argVars:
-            args.suppress_spoiler = not args.create_spoiler in truthy
+            args.spoiler = 'full'
 
         # ROM defaults to TRUE
         # Don't do: Yes

@@ -206,7 +206,12 @@
 
 
     "randomizer.generation.bps": "Create BPS Patches",
-    "randomizer.generation.createspoiler": "Create Spoiler Log",
+    "randomizer.generation.spoiler": "Create Spoiler Log",
+    "randomizer.generation.spoiler.none": "None",
+    "randomizer.generation.spoiler.settings": "Settings Only",
+    "randomizer.generation.spoiler.semi": "Semi (Entrances and Prizes)",
+    "randomizer.generation.spoiler.full": "Full",
+    "randomizer.generation.spoiler.debug": "Debug",
     "randomizer.generation.createrom": "Create Patched ROM",
     "randomizer.generation.calcplaythrough": "Calculate Playthrough",
     "randomizer.generation.print_custom_yaml": "Print Customizer File",

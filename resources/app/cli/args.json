@@ -4,14 +4,14 @@
     "action": "store_true",
     "type": "bool"
   },
-  "create_spoiler": {
-    "action": "store_false",
-    "dest": "suppress_spoiler",
-    "type": "bool",
-    "help": "suppress"
-  },
-  "suppress_spoiler": {
-    "action": "store_true"
+  "spoiler": {
+    "choices": [
+      "none",
+      "settings",
+      "semi",
+      "full",
+      "debug"
+    ]
   },
   "mystery": {
     "action": "store_true",

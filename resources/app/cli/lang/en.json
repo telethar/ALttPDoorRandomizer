@@ -60,7 +60,15 @@
   },
   "help": {
     "lang": [ "App Language, if available, defaults to English" ],
-    "create_spoiler": [ "Output a Spoiler File" ],
+    "spoiler": [
+      "Spoiler File Options. (default: %(default)s)",
+      "None:            No Spoiler",
+      "Meta:            Meta information only about game. Intended for mystery settings",
+      "Settings:        Only settings information",
+      "Semi:            ",
+      "Full:            Full spoiler generated",
+      "Debug:           Includes debug information"
+    ],
     "bps": [ "Output BPS patches instead of ROMs"],
     "logic": [
       "Select Enforcement of Item Requirements. (default: %(default)s)",
