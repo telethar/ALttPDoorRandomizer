@@ -916,11 +916,17 @@ def do_limited_shuffle_exclude_drops(pool_def, avail, lw=True):
 
 
 def do_vanilla_connect(pool_def, avail):
-    if pool_def['condition'] == 'shopsanity':
+    if 'shopsanity' in pool_def['condition']:
         if avail.world.shopsanity[avail.player]:
             return
-    elif pool_def['condition'] == 'pottery':  # this condition involves whether caves with pots are shuffled or not
+    if 'pottery' in pool_def['condition']:  # this condition involves whether caves with pots are shuffled or not
         if avail.world.pottery[avail.player] not in ['none', 'keys', 'dungeon']:
+            return
+    if 'dropshuffle' in pool_def['condition']:
+        if avail.world.dropshuffle[avail.player] not in ['none', 'keys']:
+            return
+    if 'enemy_drop' in pool_def['condition']:
+        if avail.world.dropshuffle[avail.player] not in ['none', 'keys'] or avail.world.enemy_shuffle[avail.player] != 'none':
             return
     defaults = {**default_connections, **(inverted_default_connections if avail.inverted else open_default_connections)}
     if avail.inverted:
@@ -1440,28 +1446,44 @@ modes = {
                 'special': 'vanilla',
                 'condition': '',
                 'entrances': ['Dark Death Mountain Fairy', 'Mire Fairy', 'Archery Game',
-                              'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Bonk Fairy (Dark)',
+                              'Fortune Teller (Dark)', 'Dark Sanctuary Hint',
                               'Dark Lake Hylia Ledge Hint', 'Dark Lake Hylia Ledge Fairy', 'Dark Lake Hylia Fairy',
-                              'Dark Lake Hylia Shop', 'East Dark World Hint', 'Kakariko Gamble Game', 'Good Bee Cave',
-                              'Long Fairy Cave', 'Bush Covered House',  'Fortune Teller (Light)', 'Lost Woods Gamble',
-                              'Desert Fairy', 'Light Hype Fairy', 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy',
-                              'Bonk Fairy (Light)'],
+                              'East Dark World Hint', 'Kakariko Gamble Game',
+                              'Bush Covered House',  'Fortune Teller (Light)', 'Lost Woods Gamble',
+                              'Desert Fairy', 'Light Hype Fairy', 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy'],
             },
             'fixed_shops': {
                 'special': 'vanilla',
                 'condition': 'shopsanity',
                 'entrances': ['Dark Death Mountain Shop', 'Dark Potion Shop', 'Dark Lumberjack Shop',
-                              'Dark World Shop', 'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade',
-                              'Lake Hylia Shop'],
+                              'Dark World Shop', 'Red Shield Shop', 'Kakariko Shop', 'Lake Hylia Shop', 'Dark Lake Hylia Shop'],
             },
             'fixed_pottery': {
                 'special': 'vanilla',
                 'condition': 'pottery',
                 'entrances': ['Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
-                              'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
-                              'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Mire Hint']
-
+                              '20 Rupee Cave', '50 Rupee Cave', 'Palace of Darkness Hint',
+                              'Dark Lake Hylia Ledge Spike Cave', 'Mire Hint']
+            },
+            'fixed_enemy_drops_fairies': {
+                'special': 'vanilla',
+                'condition': 'enemy_drop',
+                'entrances': ['Bonk Fairy (Dark)', 'Good Bee Cave', 'Long Fairy Cave', 'Bonk Fairy (Light)']
+            },
+            'fixed_pots_n_bones_fairies': {
+                'special': 'vanilla',
+                'condition': ['pottery', 'enemy_drop'],
+                'entrances': ['Hookshot Fairy']
+            },
+            'fixed_pots_n_bones': {
+                'special': 'vanilla',
+                'condition': ['pottery', 'dropshuffle'],
+                'entrances': ['Light World Bomb Hut']
+            },
+            'fixed_shop_n_bones': {
+                'special': 'vanilla',
+                'condition': ['shopsanity', 'enemy_drop'],
+                'entrances': ['Capacity Upgrade']
             },
             'item_caves': {  # shuffles shops/pottery if they weren't fixed in the last steps
                 'entrances': ['Mimic Cave', 'Spike Cave', 'Mire Shed', 'Hammer Peg Cave', 'Chest Game',
@@ -1469,14 +1491,14 @@ modes = {
                               'Ice Rod Cave', 'Dam', 'Bonk Rock Cave', 'Library', 'Potion Shop', 'Mini Moldorm Cave',
                               'Checkerboard Cave', 'Graveyard Cave', 'Cave 45', 'Sick Kids House', 'Blacksmiths Hut',
                               'Sahasrahlas Hut', 'Aginahs Cave', 'Chicken House', 'Kings Grave', 'Blinds Hideout',
-                              'Waterfall of Wishing', 'Dark Death Mountain Shop',
+                              'Waterfall of Wishing', 'Dark Death Mountain Shop', 'Dark Lake Hylia Shop',
                               'Dark Potion Shop', 'Dark Lumberjack Shop', 'Dark World Shop',
                               'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade', 'Lake Hylia Shop',
                               'Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Mire Hint',
-                              'Links House', 'Tavern North']
+                              'Bonk Fairy (Dark)', 'Good Bee Cave', 'Long Fairy Cave', 'Bonk Fairy (Light)',
+                              'Mire Hint', 'Links House', 'Tavern North']
             },
             'old_man_cave': {  # have to do old man cave first so lw dungeon don't use up everything
                 'special': 'old_man_cave_east',
@@ -1516,28 +1538,44 @@ modes = {
                 'special': 'vanilla',
                 'condition': '',
                 'entrances': ['Dark Death Mountain Fairy', 'Mire Fairy', 'Archery Game',
-                              'Fortune Teller (Dark)', 'Dark Sanctuary Hint', 'Bonk Fairy (Dark)',
+                              'Fortune Teller (Dark)', 'Dark Sanctuary Hint',
                               'Dark Lake Hylia Ledge Hint', 'Dark Lake Hylia Ledge Fairy', 'Dark Lake Hylia Fairy',
-                              'Dark Lake Hylia Shop', 'East Dark World Hint', 'Kakariko Gamble Game', 'Good Bee Cave',
-                              'Long Fairy Cave', 'Bush Covered House',  'Fortune Teller (Light)', 'Lost Woods Gamble',
-                              'Desert Fairy', 'Light Hype Fairy', 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy',
-                              'Bonk Fairy (Light)'],
+                              'East Dark World Hint', 'Kakariko Gamble Game',
+                              'Bush Covered House',  'Fortune Teller (Light)', 'Lost Woods Gamble',
+                              'Desert Fairy', 'Light Hype Fairy', 'Lake Hylia Fortune Teller', 'Lake Hylia Fairy'],
             },
             'fixed_shops': {
                 'special': 'vanilla',
                 'condition': 'shopsanity',
                 'entrances': ['Dark Death Mountain Shop', 'Dark Potion Shop', 'Dark Lumberjack Shop',
-                              'Dark World Shop', 'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade',
-                              'Lake Hylia Shop'],
+                              'Dark World Shop', 'Red Shield Shop', 'Kakariko Shop', 'Lake Hylia Shop', 'Dark Lake Hylia Shop'],
             },
             'fixed_pottery': {
                 'special': 'vanilla',
                 'condition': 'pottery',
                 'entrances': ['Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
-                              'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
-                              'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Mire Hint']
-
+                              '20 Rupee Cave', '50 Rupee Cave', 'Palace of Darkness Hint',
+                              'Dark Lake Hylia Ledge Spike Cave', 'Mire Hint']
+            },
+            'fixed_enemy_drops_fairies': {
+                'special': 'vanilla',
+                'condition': 'enemy_drop',
+                'entrances': ['Bonk Fairy (Dark)', 'Good Bee Cave', 'Long Fairy Cave', 'Bonk Fairy (Light)']
+            },
+            'fixed_pots_n_bones_fairies': {
+                'special': 'vanilla',
+                'condition': ['pottery', 'enemy_drop'],
+                'entrances': ['Hookshot Fairy']
+            },
+            'fixed_pots_n_bones': {
+                'special': 'vanilla',
+                'condition': ['pottery', 'dropshuffle'],
+                'entrances': ['Light World Bomb Hut']
+            },
+            'fixed_shop_n_bones': {
+                'special': 'vanilla',
+                'condition': ['shopsanity', 'enemy_drop'],
+                'entrances': ['Capacity Upgrade']
             },
             'item_caves': {  # shuffles shops/pottery if they weren't fixed in the last steps
                 'entrances': ['Mimic Cave', 'Spike Cave', 'Mire Shed', 'Hammer Peg Cave', 'Chest Game',
@@ -1545,14 +1583,14 @@ modes = {
                               'Ice Rod Cave', 'Dam', 'Bonk Rock Cave', 'Library', 'Potion Shop', 'Mini Moldorm Cave',
                               'Checkerboard Cave', 'Graveyard Cave', 'Cave 45', 'Sick Kids House', 'Blacksmiths Hut',
                               'Sahasrahlas Hut', 'Aginahs Cave', 'Chicken House', 'Kings Grave', 'Blinds Hideout',
-                              'Waterfall of Wishing', 'Dark Death Mountain Shop',
+                              'Waterfall of Wishing', 'Dark Death Mountain Shop', 'Dark Lake Hylia Shop',
                               'Dark Potion Shop', 'Dark Lumberjack Shop', 'Dark World Shop',
                               'Red Shield Shop', 'Kakariko Shop', 'Capacity Upgrade', 'Lake Hylia Shop',
                               'Lumberjack House', 'Snitch Lady (West)', 'Snitch Lady (East)', 'Tavern (Front)',
                               'Light World Bomb Hut', '20 Rupee Cave', '50 Rupee Cave', 'Hookshot Fairy',
                               'Palace of Darkness Hint', 'Dark Lake Hylia Ledge Spike Cave',
-                              'Mire Hint',
-                              'Links House', 'Tavern North']  # inverted links house gets substituted
+                              'Bonk Fairy (Dark)', 'Good Bee Cave', 'Long Fairy Cave', 'Bonk Fairy (Light)',
+                              'Mire Hint', 'Links House', 'Tavern North']  # inverted links house gets substituted
             }
         }
     },

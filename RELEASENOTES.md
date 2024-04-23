@@ -144,6 +144,7 @@ These are now independent of retro mode and have three options: None, Random, an
 * 1.4.1.11u
   * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug
     * Semi includes only entrances, prizes, and medallions (potential new spoiler mode being worked on, definition may change)
+  * Entrance: Lite/Lean support enemy drop shuffle
   * Standard: Re-added tutorial guard near large rock
   * Enemizer
     * Fixed the overwriting of bonk fairies
