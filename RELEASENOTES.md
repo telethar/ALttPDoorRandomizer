@@ -141,6 +141,15 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.11u
+  * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug
+    * Semi includes only entrances, prizes, and medallions (potential new spoiler mode being worked on, definition may change)
+  * Standard: Re-added tutorial guard near large rock
+  * Enemizer
+    * Fixed the overwriting of bonk fairies
+    * Fixed broken graphics on hyrule castle
+    * Enemy bans
+  * Customizer: Fixed bug with customizing prize packs
 * 1.4.1.10u
   * Vanilla key logic: Fix for vanilla layout Misery Mire which allows more complex key logic. Locations blocked by crystal switch access are only locked by 2 keys thanks to that being the minimum in Mire to reach one of two crystal switches. 
   * Autotracking: Fix for chest turn counter with chest containing multiworld items (Thanks Hiimcody)

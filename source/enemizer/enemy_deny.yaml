@@ -325,6 +325,7 @@ UwGeneralDeny:
   - [ 0x00c2, 5, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00c5, 6, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Turtle Rock - Catwalk - Mini Helmasaur"
   - [ 0x00c5, 7, [ "Statue" ] ]  #"Turtle Rock - Catwalk - Laser Eye (Left) 4"
+  - [0x00c6, 5, ["Bumper"]]
   - [ 0x00cb, 0, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x00cb, 3, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Grand Room NW - Zol 1"
   - [ 0x00cb, 5, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Grand Room NW - Zol 2"
@@ -419,10 +420,12 @@ OwGeneralDeny:
   - [0x03, 10, ["Gibo"]]  # OldMan eating Gibo
   - [0x05, 11, ["Bumper", "AntiFairyCircle"]]  # Blocks path to portal
   - [0x1e, 3, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]  # forbid a beamos here
+  - [0x35, 8, ["RollerVerticalUp", "RollerVerticalDown"]]  # blocks the dock
   - [0x40, 0, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
   - [0x40, 7, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
   - [0x40, 13, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
   - [0x40, 14, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle", "Thief"]]
+  - [0x40, 16, ["RollerVerticalUp", "RollerVerticalDown"]]  # Ropa near back hole is really large as a roller
   - [0x55, 6, ["BigSpike"]]
   - [0x57, 5, ["RollerVerticalUp", "RollerVerticalDown"]]
   - [0x5e, 0, ["Gibo"]]  # kiki eating Gibo
