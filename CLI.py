@@ -190,7 +190,7 @@ def parse_settings():
         "shuffleganon": True,
         "shuffle": "vanilla",
         "shufflelinks": False,
-        "shuffletavern": False,
+        "shuffletavern": True,
         "overworld_map": "default",
         'take_any': 'none',
         "pseudoboots": False,
