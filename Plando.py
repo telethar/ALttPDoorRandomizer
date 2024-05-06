@@ -10,7 +10,7 @@ import sys
 from BaseClasses import World
 from Regions import create_regions
 from OverworldShuffle import link_overworld
-from EntranceShuffle import link_entrances, connect_entrance, connect_two_way, connect_exit
+from source.overworld.EntranceShuffle2 import link_entrances_new, connect_entrance, connect_two_way, connect_exit
 from Rom import patch_rom, LocalRom, write_string_to_rom, apply_rom_settings, get_sprite_from_name
 from Rules import set_rules
 from Dungeons import create_dungeons
@@ -44,7 +44,7 @@ def main(args):
     create_dungeons(world, 1)
 
     link_overworld(world, 1)
-    link_entrances(world, 1)
+    link_entrances_new(world, 1)
 
     logger.info('Calculating Access Rules.')
 

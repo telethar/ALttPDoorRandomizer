@@ -10,7 +10,6 @@ import Items
 import RaceRandom as random
 import struct
 import sys
-import subprocess
 try:
     import bps.apply
     import bps.io
@@ -28,9 +27,10 @@ from Text import Triforce_texts, Blind_texts, BombShop2_texts, junk_texts
 from Text import KingsReturn_texts, Sanctuary_texts, Kakariko_texts, Blacksmiths_texts, DeathMountain_texts
 from Text import LostWoods_texts, WishingWell_texts, DesertPalace_texts, MountainTower_texts, LinksHouse_texts
 from Text import Lumberjacks_texts, SickKid_texts, FluteBoy_texts, Zora_texts, MagicShop_texts, Sahasrahla_names
-from Utils import output_path, local_path, int16_as_bytes, int32_as_bytes, snes_to_pc
+from Utils import local_path, int16_as_bytes, int32_as_bytes, snes_to_pc
 from Items import ItemFactory
-from EntranceShuffle import door_addresses, exit_ids, ow_prize_table
+from source.overworld.EntranceData import door_addresses
+from source.overworld.EntranceShuffle2 import exit_ids, ow_prize_table
 from InitialSram import InitialSram
 
 from source.classes.SFX import randomize_sfx

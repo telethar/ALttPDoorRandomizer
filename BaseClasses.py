@@ -11,11 +11,11 @@ except ImportError:
     from enum import IntFlag as FastEnum
 
 from source.classes.BabelFish import BabelFish
-from EntranceShuffle import door_addresses, indirect_connections
 from Utils import int16_as_bytes
 from Tables import normal_offset_table, spiral_offset_table, multiply_lookup, divisor_lookup
 from RoomData import Room
 from source.dungeon.RoomObject import RoomObject
+from source.overworld.EntranceData import door_addresses, indirect_connections
 
 
 class World(object):

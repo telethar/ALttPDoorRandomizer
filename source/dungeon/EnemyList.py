@@ -11,11 +11,11 @@ except ImportError:
 
 import RaceRandom as random
 from BaseClasses import Location, LocationType, RegionType
-from EntranceShuffle import door_addresses
 from Items import ItemFactory
 from PotShuffle import key_drop_special
 from Utils import snes_to_pc, pc_to_snes, int16_as_bytes
 
+from source.overworld.EntranceData import door_addresses
 
 class EnemyStats:
     def __init__(self, sprite, static, drop_flag=False, prize_pack: typing.Union[tuple, int] = 0,

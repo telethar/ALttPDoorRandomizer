@@ -4,13 +4,13 @@ import math
 import RaceRandom as random
 
 from BaseClasses import Region, RegionType, Shop, ShopType, Location, CollectionState, PotItem
-from EntranceShuffle import connect_entrance
 from Regions import shop_to_location_table, retro_shops, shop_table_by_location, valid_pot_location
 from Fill import FillError, fill_restrictive, get_dungeon_item_pool, track_dungeon_items, track_outside_keys
 from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
 from source.dungeon.EnemyList import add_drop_contents
+from source.overworld.EntranceShuffle2 import connect_entrance
 from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST

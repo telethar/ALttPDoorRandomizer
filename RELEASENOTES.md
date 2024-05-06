@@ -141,6 +141,10 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.1.12u
+  * New Entrance Shuffle Algorithm no longer experimental
+  * Back of Tavern Shuffle now on by default
+  * Fixed a small bug with traversal algorithm
 * 1.4.1.11u
   * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug
     * Semi includes only entrances, prizes, and medallions (potential new spoiler mode being worked on, definition may change)

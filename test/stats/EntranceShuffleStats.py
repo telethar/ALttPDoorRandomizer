@@ -7,10 +7,12 @@ import time
 from collections import Counter, defaultdict
 
 from source.overworld.EntranceShuffle2 import link_entrances_new
-from EntranceShuffle import link_entrances
+# from source.oEntranceShuffle import link_entrances_new
 from BaseClasses import World
 from Regions import create_regions, create_dungeon_regions
 
+
+# probably deprecated
 
 # tested: open + crossed (lh) Mar. 17 (made changes)
 # tested: open + simple (lh) Mar. 22

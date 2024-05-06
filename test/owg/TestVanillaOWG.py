@@ -3,7 +3,7 @@ from DoorShuffle import link_doors
 from Doors import create_doors
 from Dungeons import create_dungeons, get_dungeon_item_pool
 from OverworldShuffle import link_overworld
-from EntranceShuffle import link_entrances
+from source.overworld.EntranceShuffle2 import link_entrances_new
 from ItemList import difficulties, generate_itempool
 from Items import ItemFactory
 from OverworldGlitchRules import create_owg_connections
@@ -26,7 +26,7 @@ class TestVanillaOWG(TestBase):
         create_rooms(self.world, 1)
         create_dungeons(self.world, 1)
         link_overworld(self.world, 1)
-        link_entrances(self.world, 1)
+        link_entrances_new(self.world, 1)
         link_doors(self.world, 1)
         create_owg_connections(self.world, 1)
         generate_itempool(self.world, 1)
