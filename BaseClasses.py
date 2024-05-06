@@ -635,7 +635,7 @@ class CollectionState(object):
                                 bc[conn] = door_crystal_state
                                 queue.append((conn, door_crystal_state))
                         elif door is None:
-                            # note: no door in dungeon indicates what exactly? (always traversable)?
+                            bc[conn] = new_crystal_state
                             queue.append((conn, new_crystal_state))
                 else:
                     new_crystal_state = CrystalBarrier.Orange
