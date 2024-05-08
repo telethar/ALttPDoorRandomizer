@@ -146,6 +146,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Back of Tavern Shuffle now on by default
   * Enemizer: Wallmasters banned from tiles where spiral staircases are. (Softlock issue)
   * Packaged build of unstable now available
+  * Fix: HC Big Key drop doesn't count on Basic Doors 
   * Fixed a small bug with traversal algorithm
 * 1.4.1.11u
   * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug

@@ -585,8 +585,8 @@ def patch_rom(world, rom, player, team, is_mystery=False):
     valid_loc_by_dungeon = valid_dungeon_locations(valid_locations)
 
     # fix hc big key problems (map and compass too)
-    if (world.doorShuffle[player] not in  ['vanilla', 'basic'] or world.dropshuffle[player] != 'none'
-         or world.pottery[player] not in ['none', 'cave']):
+    if (world.doorShuffle[player] != 'vanilla' or world.dropshuffle[player] != 'none'
+            or world.pottery[player] not in ['none', 'cave']):
         rom.write_byte(0x151f1, 2)
         rom.write_byte(0x15270, 2)
         sanctuary = world.get_region('Sanctuary', player)
