@@ -146,6 +146,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Back of Tavern Shuffle now on by default
   * Enemizer: Wallmasters banned from tiles where spiral staircases are. (Softlock issue)
   * Packaged build of unstable now available
+  * Customizer: Fixed an issue with starting with `Ocarina` and flute_mode is active
   * Fix: HC Big Key drop doesn't count on Basic Doors
   * Fix: Small Key for this dungeon in Hera Basement doesn't count twice for the key counter
   * Fixed a small bug with traversal algorithm

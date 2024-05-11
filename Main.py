@@ -228,7 +228,9 @@ def main(args, seed=None, fish=None):
         for p, inv_list in world.customizer.get_start_inventory().items():
             if inv_list:
                 for inv_item in inv_list:
-                    item = ItemFactory(inv_item.strip(), p)
+                    name = inv_item.strip()
+                    name = name if name != 'Ocarina' or world.flute_mode[player] != 'active' else 'Ocarina (Activated)'
+                    item = ItemFactory(name, p)
                     if item:
                         world.push_precollected(item)
     if args.print_custom_yaml:
