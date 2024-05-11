@@ -760,7 +760,7 @@ mode_grouping = {
         'Castle Tower - Dark Archer Key Drop', 'Castle Tower - Circle of Pots Key Drop',
         'Skull Woods - Spike Corner Key Drop',  'Ice Palace - Jelly Key Drop', 'Ice Palace - Conveyor Key Drop',
         'Misery Mire - Conveyor Crystal Key Drop', 'Turtle Rock - Pokey 1 Key Drop',
-        'Turtle Rock - Pokey 2 Key Drop', 'Ganons Tower - Mini Helmasuar Key Drop',
+        'Turtle Rock - Pokey 2 Key Drop', 'Ganons Tower - Mini Helmasaur Key Drop',
     ],
     'Pot Keys': [
         'Eastern Palace - Dark Square Pot Key', 'Desert Palace - Desert Tiles 1 Pot Key',
