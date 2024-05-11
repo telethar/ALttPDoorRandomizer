@@ -493,7 +493,7 @@ def config_sort(world):
     if world.item_pool_config.verify:
         config_sort_helper(world, world.item_pool_config.verify)
     elif world.item_pool_config.preferred:
-        config_sort_helper(world, world.item_pool_config.preferred)
+        config_sort_helper_random(world, world.item_pool_config.preferred)
 
 
 def config_sort_helper(world, sort_dict):
@@ -501,6 +501,10 @@ def config_sort_helper(world, sort_dict):
     pref_len = len(pref)
     world.itempool.sort(key=lambda i: pref_len - pref.index((i.name, i.player))
                         if (i.name, i.player) in sort_dict else 0)
+
+
+def config_sort_helper_random(world, sort_dict):
+    world.itempool.sort(key=lambda i: 1 if (i.name, i.player) in sort_dict else 0)
 
 
 def calc_trash_locations(world, player):

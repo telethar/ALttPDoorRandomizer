@@ -1468,11 +1468,17 @@ def fill_specific_items(world):
                         item_name = item_parts[0]
                         world.item_pool_config.restricted[(item_name, item_player)] = placement['locations']
                     elif placement['type'] == 'PreferredLocationGroup':
-                        item = placement['item']
-                        item_parts = item.split('#')
-                        item_player = player if len(item_parts) < 2 else int(item_parts[1])
-                        item_name = item_parts[0]
-                        world.item_pool_config.preferred[(item_name, item_player)] = placement['locations']
+                        items = []
+                        if 'item' in placement:
+                            items.append(placement['item'])
+                        elif 'items' in placement:
+                            items.extend(placement['items'])
+                        for item in items:
+                            item_parts = item.split('#')
+                            item_player = player if len(item_parts) < 2 else int(item_parts[1])
+                            item_name = item_parts[0]
+                            world.item_pool_config.preferred[(item_name, item_player)] = placement['locations']
+                        world.item_pool_config.reserved_locations[player].update(placement['locations'])
                     elif placement['type'] == 'Verification':
                         item = placement['item']
                         item_parts = item.split('#')
