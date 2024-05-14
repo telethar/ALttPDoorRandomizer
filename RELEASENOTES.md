@@ -150,6 +150,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Customizer: Fixed an issue with starting with `Ocarina` and flute_mode is active
   * Fix: HC Big Key drop doesn't count on Basic Doors
   * Fix: Small Key for this dungeon in Hera Basement doesn't count twice for the key counter
+  * Fix: All cross-dungeon modes with restrict boss items should require map/compass for the boss
   * Fixed a small bug with traversal algorithm
 * 1.4.1.11u
   * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug
