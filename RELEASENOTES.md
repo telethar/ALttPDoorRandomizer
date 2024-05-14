@@ -148,6 +148,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * Packaged build of unstable now available
   * Customizer: New PreferredLocationGroup for putting a set of items in a set of locations. See customizer docs.
   * Customizer: Fixed an issue with starting with `Ocarina` and flute_mode is active
+  * Spoiler: Some reformatting. Crystal req. for GT/Ganon moved to requirements section so randomized requirements don't show up in the meta section
+  * Algorithm: Major_Only. Supports up to 16 extra locations (the visible heart pieces) for when major item count exceeds major location count. Examples: Triforce Hunt, Trinity (Triforce on Ped), Bombbag shuffle
   * Fix: HC Big Key drop doesn't count on Basic Doors
   * Fix: Small Key for this dungeon in Hera Basement doesn't count twice for the key counter
   * Fix: All cross-dungeon modes with restrict boss items should require map/compass for the boss

@@ -30,7 +30,7 @@ from ItemList import generate_itempool, difficulties, fill_prizes, customize_sho
 from UnderworldGlitchRules import create_hybridmajor_connections, create_hybridmajor_connectors
 from Utils import output_path, parse_player_names
 
-from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config
+from source.item.FillUtil import create_item_pool_config, massage_item_pool, district_item_pool_config, verify_item_pool_config
 from source.overworld.EntranceShuffle2 import link_entrances_new
 from source.tools.BPS import create_bps_from_data
 from source.classes.CustomSettings import CustomSettings
@@ -274,6 +274,7 @@ def main(args, seed=None, fish=None):
     for player in range(1, world.players + 1):
         generate_itempool(world, player)
 
+    verify_item_pool_config(world)
     logger.info(world.fish.translate("cli","cli","calc.access.rules"))
 
     for player in range(1, world.players + 1):

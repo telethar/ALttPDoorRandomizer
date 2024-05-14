@@ -449,7 +449,11 @@ This fill attempts to place all items in their vanilla locations when possible. 
 
 This fill attempts to place major items in major locations. Major locations are where the major items are found in the vanilla game. This includes the spot next to Uncle in the Sewers, and the Boomerang chest in Hyrule Castle.
 
-This location pool is expanded to where dungeon items are locations if those dungeon items are shuffled. The Capacity Fairy locations are included if Shopsanity is on. If retro is enabled in addition to shopsanity, then the Old Man Sword Cave and one location in each retro cave is included. Key drop locations can be included if small or big key shuffle is on. This gives a very good balance between overworld and underworld locations though the dungeons ones will be on bosses and in big chests generally. Seeds do become more linear but usually easier to figure out.
+The location pool expands to where dungeon items are located if those dungeon items are shuffled. The Capacity Fairy locations are included if Shopsanity is on. If retro is enabled in addition to shopsanity, then the major locations will include the Old Man Sword Cave and one location in each retro cave. When the various enemy and pots keys are in the location pool, then those are included if small or big key shuffle is on. 
+
+THe location pool will be expanded to include visible heart pieces locations if the number of major items exceeds the number of locations that are considered major. This mainly affects Trinity goal, Triforce Pieces hunts, Bomb Bag shuffle, and other settings that may not have perfect 1-to-1 correspondence with major locations and items.
+
+This algorithm generally gives a good balance between overworld and underworld locations. Seeds do become more linear but usually easier to figure out.
 
 #### Dungeon Restriction
 
@@ -491,7 +495,7 @@ In multiworld, the districts chosen apply to all players.
 
 #### New Hints
 
-Based on the district algorithm above (whether it is enabled or not,) new hints can appear about that district or dungeon. For each district and dungeon, it is evaluated whether it contains vital items and how many. If it has not any vital item, items then it moves onto useful items. Useful items are generally safeties or convenience items: shields, mails, half magic, bottles, medallions that aren't required, etc. If it contains none of those and is an overworld district, then it checks for a couple more things. First, if dungeons are shuffled, it looks to see if any are in the district, if so, one of those dungeons is picked for the hint. Then, if connectors are shuffled, it checks to see if you can get to unique region through a connector in that district. If none of the above apply, the district or dungeon is considered completely foolish.
+Based on the district algorithm above (whether it is enabled or not), new hints can appear about that district or dungeon. For each district and dungeon, it is evaluated whether it contains vital items and how many. If it has not any vital item, items then it moves onto useful items. Useful items are generally safeties or convenience items: shields, mails, half magic, bottles, medallions that aren't required, etc. If it contains none of those and is an overworld district, then it checks for a couple more things. First, if dungeons are shuffled, it looks to see if any are in the district, if so, one of those dungeons is picked for the hint. Then, if connectors are shuffled, it checks to see if you can get to unique region through a connector in that district. If none of the above apply, the district or dungeon is considered completely foolish.
 
 ### Forbidden Boss Items
 

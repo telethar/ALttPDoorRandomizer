@@ -2753,49 +2753,64 @@ class Spoiler(object):
                     if self.metadata['goal'][player] in ['triforcehunt', 'trinity', 'ganonhunt']:
                         outfile.write('Triforce Pieces Required:        %s\n' % self.metadata['triforcegoal'][player])
                         outfile.write('Triforce Pieces Total:           %s\n' % self.metadata['triforcepool'][player])
-                    outfile.write('Crystals required for GT:        %s\n' % (str(self.world.crystals_gt_orig[player])))
-                    outfile.write('Crystals required for Ganon:     %s\n' % (str(self.world.crystals_ganon_orig[player])))
+                    outfile.write('\n')
+
+                    # Item Settings
                     outfile.write('Accessibility:                   %s\n' % self.metadata['accessibility'][player])
                     outfile.write(f"Restricted Boss Items:           {self.metadata['restricted_boss_items'][player]}\n")
                     outfile.write('Difficulty:                      %s\n' % self.metadata['item_pool'][player])
                     outfile.write('Item Functionality:              %s\n' % self.metadata['item_functionality'][player])
                     outfile.write(f"Flute Mode:                      {self.metadata['flute_mode'][player]}\n")
                     outfile.write(f"Bow Mode:                        {self.metadata['bow_mode'][player]}\n")
-                    outfile.write(f"Shopsanity:                      {yn(self.metadata['shopsanity'][player])}\n")
                     outfile.write(f"Bombbag:                         {yn(self.metadata['bombbag'][player])}\n")
                     outfile.write(f"Pseudoboots:                     {yn(self.metadata['pseudoboots'][player])}\n")
+                    outfile.write('\n')
+
+                    # Item Pool Settings
+                    outfile.write(f"Shopsanity:                      {yn(self.metadata['shopsanity'][player])}\n")
+                    outfile.write(f"Pottery Mode:                    {self.metadata['pottery'][player]}\n")
+                    outfile.write(f"Pot Shuffle (Legacy):            {yn(self.metadata['potshuffle'][player])}\n")
+                    outfile.write(f"Enemy Drop Shuffle:              {self.metadata['dropshuffle'][player]}\n")
+                    outfile.write(f"Take Any Caves:                  {self.metadata['take_any'][player]}\n")
+                    outfile.write('\n')
+
+                    # Entrances
                     outfile.write('Entrance Shuffle:                %s\n' % self.metadata['shuffle'][player])
                     if self.metadata['shuffle'][player] != 'vanilla':
                         outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'][player])}\n")
                         outfile.write(f"Back of Tavern Shuffled:         {yn(self.metadata['shuffletavern'][player])}\n")
                         outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                         outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
-                    outfile.write(f"Take Any Caves:                  {self.metadata['take_any'][player]}\n")
-                    if self.metadata['goal'][player] != 'trinity':
-                        outfile.write('Pyramid hole pre-opened:         %s\n' % (self.metadata['open_pyramid'][player]))
+                    outfile.write('Pyramid hole pre-opened:         %s\n' % (self.metadata['open_pyramid'][player]))
+                    outfile.write('\n')
+
+                    # Dungeons
+                    outfile.write('Map shuffle:                     %s\n' % ('Yes' if self.metadata['mapshuffle'][player] else 'No'))
+                    outfile.write('Compass shuffle:                 %s\n' % ('Yes' if self.metadata['compassshuffle'][player] else 'No'))
+                    outfile.write(f"Small Key shuffle:               {self.metadata['keyshuffle'][player]}\n")
+                    outfile.write('Big Key shuffle:                 %s\n' % ('Yes' if self.metadata['bigkeyshuffle'][player] else 'No'))
+                    outfile.write(f"Key Logic Algorithm:'            {self.metadata['key_logic'][player]}\n")
                     outfile.write('Door Shuffle:                    %s\n' % self.metadata['door_shuffle'][player])
                     if self.metadata['door_shuffle'][player] != 'vanilla':
                         outfile.write(f"Intensity:                       {self.metadata['intensity'][player]}\n")
                         outfile.write(f"Door Type Mode:                  {self.metadata['door_type_mode'][player]}\n")
                         outfile.write(f"Trap Door Mode:                  {self.metadata['trap_door_mode'][player]}\n")
-                        outfile.write(f"Key Logic Algorithm:             {self.metadata['key_logic'][player]}\n")
                         outfile.write(f"Decouple Doors:                  {yn(self.metadata['decoupledoors'][player])}\n")
                         outfile.write(f"Spiral Stairs can self-loop:     {yn(self.metadata['door_self_loops'][player])}\n")
-                        outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
+                    outfile.write(f"Experimental:                    {yn(self.metadata['experimental'][player])}\n")
                     outfile.write(f"Dungeon Counters:                {self.metadata['dungeon_counters'][player]}\n")
-                    outfile.write(f"Drop Shuffle:                    {self.metadata['dropshuffle'][player]}\n")
-                    outfile.write(f"Pottery Mode:                    {self.metadata['pottery'][player]}\n")
-                    outfile.write(f"Pot Shuffle (Legacy):            {yn(self.metadata['potshuffle'][player])}\n")
-                    outfile.write('Map shuffle:                     %s\n' % ('Yes' if self.metadata['mapshuffle'][player] else 'No'))
-                    outfile.write('Compass shuffle:                 %s\n' % ('Yes' if self.metadata['compassshuffle'][player] else 'No'))
-                    outfile.write(f"Small Key shuffle:               {self.metadata['keyshuffle'][player]}\n")
-                    outfile.write('Big Key shuffle:                 %s\n' % ('Yes' if self.metadata['bigkeyshuffle'][player] else 'No'))
+                    outfile.write('\n')
+
+                    # Enemizer
                     outfile.write('Boss shuffle:                    %s\n' % self.metadata['boss_shuffle'][player])
                     outfile.write('Enemy shuffle:                   %s\n' % self.metadata['enemy_shuffle'][player])
                     outfile.write('Enemy health:                    %s\n' % self.metadata['enemy_health'][player])
                     outfile.write('Enemy damage:                    %s\n' % self.metadata['enemy_damage'][player])
                     if self.metadata['enemy_shuffle'][player] != 'none':
                         outfile.write(f"Enemy logic:                     {self.metadata['any_enemy_logic'][player]}\n")
+                    outfile.write('\n')
+
+                    # Misc
                     outfile.write(f"Hints:                           {yn(self.metadata['hints'][player])}\n")
                     outfile.write('Race:                            %s\n' % ('Yes' if self.world.settings.world_rep['meta']['race'] else 'No'))
 
@@ -2842,10 +2857,8 @@ class Spoiler(object):
                     outfile.write(f'{dungeon}: {medallion} Medallion\n')
                 for player in range(1, self.world.players + 1):
                     player_name = '' if self.world.players == 1 else str(' (Player ' + str(player) + ')')
-                    if self.world.crystals_gt_orig[player] == 'random':
-                        outfile.write(str('Crystals Required for GT' + player_name + ':').ljust(line_width) + '%s\n' % (str(self.metadata['gt_crystals'][player])))
-                    if self.world.crystals_ganon_orig[player] == 'random':
-                        outfile.write(str('Crystals Required for Ganon' + player_name + ':').ljust(line_width) + '%s\n' % (str(self.metadata['ganon_crystals'][player])))
+                    outfile.write(str('Crystals Required for GT' + player_name + ':').ljust(line_width) + '%s\n' % (str(self.metadata['gt_crystals'][player])))
+                    outfile.write(str('Crystals Required for Ganon' + player_name + ':').ljust(line_width) + '%s\n' % (str(self.metadata['ganon_crystals'][player])))
 
             if 'misc' in self.settings:
                 outfile.write('\n\nBottle Refills:\n\n')

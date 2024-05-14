@@ -263,6 +263,24 @@ def previously_reserved(location, world, player):
     return False
 
 
+def verify_item_pool_config(world):
+    if world.algorithm == 'major_only':
+        major_pool = defaultdict(list)
+        for item in world.itempool:
+            if item.name in world.item_pool_config.item_pool[item.player]:
+                major_pool[item.player].append(item)
+        for player in major_pool:
+            available_locations = [world.get_location(l, player) for l in world.item_pool_config.location_groups[0].locations]
+            available_locations = [l for l in available_locations if l.item is None]
+            if len(available_locations) < len(major_pool[player]):
+                if len(major_pool[player]) - len(available_locations) <= len(mode_grouping['Heart Pieces Visible']):
+                    logging.getLogger('').warning('Expanding location pool for extra major items')
+                    world.item_pool_config.location_groups[1].locations = set(mode_grouping['Heart Pieces Visible'])
+                else:
+                    raise Exception(f'Major only: there are only {len(available_locations)} locations'
+                                    f' for {len(major_pool[player])} major items for player {player}. Cannot generate.')
+
+
 def massage_item_pool(world):
     player_pool = defaultdict(list)
     for item in world.itempool:
@@ -413,6 +431,9 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
         if item_to_place.name in config.item_pool[item_to_place.player]:
             restricted = config.location_groups[0].locations
             filtered = [l for l in locations if l.name in restricted]
+            if len(filtered) == 0 and len(config.location_groups[1].locations) > 0:
+                restricted = config.location_groups[1].locations
+                filtered = [l for l in locations if l.name in restricted]
             return filtered
     if world.algorithm == 'district':
         config = world.item_pool_config
@@ -688,6 +709,12 @@ mode_grouping = {
         'Sunken Treasure', 'Spectacle Rock Cave', 'Lost Woods Hideout', 'Checkerboard Cave', 'Peg Cave', 'Cave 45',
         'Graveyard Cave', 'Kakariko Well - Top', "Blind's Hideout - Top", 'Bonk Rock Cave', "Aginah's Cave",
         'Chest Game', 'Digging Game', 'Mire Shed - Left', 'Mimic Cave'
+    ],
+    'Heart Pieces Visible': [
+        'Bumper Cave Ledge', 'Desert Ledge', 'Lake Hylia Island', 'Floating Island',  # visible on OW
+        'Maze Race', 'Pyramid', "Zora's Ledge", 'Sunken Treasure', 'Spectacle Rock',
+        'Lumberjack Tree',  'Spectacle Rock Cave', 'Lost Woods Hideout', 'Checkerboard Cave',
+        'Peg Cave', 'Cave 45', 'Graveyard Cave'
     ],
     'Big Keys': [
         'Eastern Palace - Big Key Chest', 'Ganons Tower - Big Key Chest',
