@@ -152,6 +152,7 @@ These are now independent of retro mode and have three options: None, Random, an
   * Fix: Small Key for this dungeon in Hera Basement doesn't count twice for the key counter
   * Fix: All cross-dungeon modes with restrict boss items should require map/compass for the boss
   * Fixed a small bug with traversal algorithm
+  * Enemizer: Enemy bans+
 * 1.4.1.11u
   * New Feature: Several spoiler levels added: None, Settings-only, Semi, Full, Debug
     * Semi includes only entrances, prizes, and medallions (potential new spoiler mode being worked on, definition may change)

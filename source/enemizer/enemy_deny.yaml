@@ -109,7 +109,7 @@ UwGeneralDeny:
   - [ 0x0044, 6, [ "RollerVerticalUp", "RollerVerticalDown", "Beamos", "BigSpike" ] ]  #"Thieves' Town - Joke Room - Red Bari"
   - [ 0x0044, 8, [ "Statue", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "SpikeBlock", "Bumper" ] ]  #"Thieves' Town - Joke Room - Blue Bari 4"
   - [ 0x0045, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Thieves' Town - Basement Block Totems - Red Zazak"
-  - [ 0x0045, 4, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
+  - [ 0x0045, 4, [ "Wizzrobe", "Statue", "Lynel" ] ]  # Wizzrobes can't spawn on pots
   - [ 0x0045, 7, [ "AntiFairyCircle", "Bumper" ] ]  #"Thieves' Town - Cells - Blue Zazak 4"
   - [ 0x0045, 8, [ "RollerHorizontalRight" ] ]  #"Thieves' Town - Cells - Zol"
   - [ 0x0046, 0, [ "RollerVerticalUp", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper", "Statue" ] ]  #"Swamp Palace - Big O Top - Hover 1"
@@ -166,7 +166,7 @@ UwGeneralDeny:
   - [ 0x005e, 4, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Ice Palace - Pit Trap - Fire Bar (Clockwise)"
   - [ 0x005f, 0, [ "RollerVerticalDown", "RollerHorizontalLeft" ] ]  #"Ice Palace - Bari University - Blue Bari 1"
   - [ 0x005f, 1, [ "RollerVerticalDown", "RollerHorizontalRight" ] ]  #"Ice Palace - Bari University - Blue Bari 2"
-  - [ 0x0060, 0, [ "RollerVerticalUp", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper", "Beamos" ] ]  #"Hyrule Castle - West - Blue Guard"
+  - [ 0x0060, 0, [ "RollerVerticalUp", "RollerHorizontalLeft", "AntiFairyCircle", "BigSpike", "Bumper", "Beamos", "SpikeBlock" ] ]  #"Hyrule Castle - West - Blue Guard"
   - [ 0x0062, 0, [ "RollerVerticalUp", "AntiFairyCircle", "BigSpike", "SpikeBlock", "Bumper" ] ]  #"Hyrule Castle - East - Blue Guard"
   - [ 0x0064, 2, [ "Bumper" , "Beamos" ] ]  #"Thieves' Town - Attic Hall Left - Keese 2"
   - [ 0x0064, 3, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
