@@ -1069,7 +1069,7 @@ async def game_watcher(ctx : Context):
 
 async def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--snes', default='localhost:8080', help='Address of the QUsb2snes server.')
+    parser.add_argument('--snes', default='localhost:23074', help='Address of the QUsb2snes/SNI server.')
     parser.add_argument('--connect', default=None, help='Address of the multiworld host.')
     parser.add_argument('--password', default=None, help='Password of the multiworld host.')
     parser.add_argument('--loglevel', default='info', choices=['debug', 'info', 'warning', 'error', 'critical'])
