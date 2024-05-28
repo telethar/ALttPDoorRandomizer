@@ -439,6 +439,21 @@
     "action": "store_true",
     "type": "bool"
   },
+  "skullwoods": {
+    "choices": [
+      "original",
+      "restricted",
+      "loose",
+      "followlinked"
+    ]
+  },
+  "linked_drops": {
+    "choices": [
+      "unset",
+      "linked",
+      "independent"
+    ]
+  },
   "overworld_map": {
     "choices": [
       "default",

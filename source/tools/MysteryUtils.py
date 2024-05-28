@@ -131,6 +131,8 @@ def roll_settings(weights):
 
     ret.shufflelinks = get_choice_bool('shufflelinks')
     ret.shuffletavern = get_choice_bool('shuffletavern')
+    ret.skullwoods = get_choice('skullwoods')
+    ret.linked_drops = get_choice('linked_drops')
     ret.pseudoboots = get_choice_bool('pseudoboots')
     ret.shopsanity = get_choice_bool('shopsanity')
     keydropshuffle = get_choice_bool('keydropshuffle')

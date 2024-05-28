@@ -92,6 +92,8 @@ SETTINGSTOPROCESS = {
       "shuffleganon": "shuffleganon",
       "shufflelinks": "shufflelinks",
       "shuffletavern": "shuffletavern",
+      "skullwoods": "skullwoods",
+      "linked_drops": "linked_drops",
       "openpyramid": "openpyramid",
       "overworld_map": "overworld_map",
     },

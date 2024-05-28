@@ -10,7 +10,7 @@ from PotShuffle import vanilla_pots
 from Items import ItemFactory
 
 from source.dungeon.EnemyList import add_drop_contents
-from source.overworld.EntranceShuffle2 import connect_entrance
+from source.overworld.EntranceShuffle2 import exit_ids, door_addresses
 from source.item.FillUtil import trash_items, pot_items
 
 import source.classes.constants as CONST
@@ -547,6 +547,27 @@ def set_up_take_anys(world, player, skip_adjustments=False):
             world.itempool.append(ItemFactory('Boss Heart Container', player))
 
     world.initialize_regions()
+
+
+def connect_entrance(world, entrancename, exitname, player):
+    entrance = world.get_entrance(entrancename, player)
+    # check if we got an entrance or a region to connect to
+    try:
+        region = world.get_region(exitname, player)
+        exit = None
+    except RuntimeError:
+        exit = world.get_entrance(exitname, player)
+        region = exit.parent_region
+
+    # if this was already connected somewhere, remove the backreference
+    if entrance.connected_region is not None:
+        entrance.connected_region.entrances.remove(entrance)
+
+    target = exit_ids[exit.name][0] if exit is not None else exit_ids.get(region.name, None)
+    addresses = door_addresses[entrance.name][0]
+
+    entrance.connect(region, addresses, target)
+    world.spoiler.set_entrance(entrance.name, exit.name if exit is not None else region.name, 'entrance', player)
 
 
 def create_dynamic_shop_locations(world, player):

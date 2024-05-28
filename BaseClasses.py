@@ -2551,6 +2551,8 @@ class Spoiler(object):
                          'shuffleganon': self.world.shuffle_ganon,
                          'shufflelinks': self.world.shufflelinks,
                          'shuffletavern': self.world.shuffletavern,
+                         'skullwoods': self.world.skullwoods,
+                         'linked_drops': self.world.linked_drops,
                          'take_any': self.world.take_any,
                          'overworld_map': self.world.overworld_map,
                          'door_shuffle': self.world.doorShuffle,
@@ -2779,6 +2781,9 @@ class Spoiler(object):
                     if self.metadata['shuffle'][player] != 'vanilla':
                         outfile.write(f"Link's House Shuffled:           {yn(self.metadata['shufflelinks'][player])}\n")
                         outfile.write(f"Back of Tavern Shuffled:         {yn(self.metadata['shuffletavern'][player])}\n")
+                        outfile.write(f"Skull Woods Shuffle:             {self.metadata['skullwoods'][player]}\n")
+                        if self.metadata['linked_drops'] != "unset":
+                            outfile.write(f"Linked Drops Override:           {self.metadata['linked_drops'][player]}\n")
                         outfile.write(f"GT/Ganon Shuffled:               {yn(self.metadata['shuffleganon'])}\n")
                         outfile.write(f"Overworld Map:                   {self.metadata['overworld_map'][player]}\n")
                     outfile.write('Pyramid hole pre-opened:         %s\n' % (self.metadata['open_pyramid'][player]))
@@ -3120,6 +3125,10 @@ overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
 trap_door_mode = {'vanilla': 0, 'optional': 1, 'boss': 2, 'oneway': 3}
 key_logic_algo = {'default': 0, 'partial': 1, 'strict': 2}
 
+# byte 13: SSDD ???? (skullwoods, linked_drops, 4 free bytes)
+skullwoods_mode = {'original': 0, 'restricted': 1, 'loose': 2, 'followlinked': 3}
+linked_drops_mode = {'unset': 0, 'linked': 1, 'independent': 2}
+
 # sfx_shuffle and other adjust items does not affect settings code
 
 # Bump this when making changes that are not backwards compatible (nearly all of them)
@@ -3169,6 +3178,8 @@ class Settings(object):
 
             ((0x80 if w.pseudoboots[p] else 0) | overworld_map_mode[w.overworld_map[p]] << 5
              | trap_door_mode[w.trap_door_mode[p]] << 3 | key_logic_algo[w.key_logic_algorithm[p]]),
+
+            (skullwoods_mode[w.skullwoods[p]] << 6 | linked_drops_mode[w.linked_drops[p]] << 4),
         ])
         return base64.b64encode(code, "+-".encode()).decode()
 
@@ -3242,6 +3253,9 @@ class Settings(object):
             args.overworld_map[p] = r(overworld_map_mode)[(settings[12] & 0x60) >> 5]
             args.trap_door_mode[p] = r(trap_door_mode)[(settings[12] & 0x18) >> 3]
             args.key_logic_algorithm[p] = r(key_logic_algo)[settings[12] & 0x07]
+        if len(settings) > 13:
+            args.skullwoods[p] = r(skullwoods_mode)[(settings[13] & 0xc0) >> 6]
+            args.linked_drops[p] = r(linked_drops_mode)[(settings[13] & 0x30) >> 4]
 
 
 class KeyRuleType(FastEnum):

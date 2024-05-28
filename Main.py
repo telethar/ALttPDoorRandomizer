@@ -38,7 +38,7 @@ from source.enemizer.DamageTables import DamageTable
 from source.enemizer.Enemizer import randomize_enemies
 from source.rom.DataTables import init_data_tables
 
-version_number = '1.4.1.12'
+version_number = '1.4.2'
 version_branch = '-u'
 __version__ = f'{version_number}{version_branch}'
 
@@ -135,6 +135,8 @@ def main(args, seed=None, fish=None):
     world.standardize_palettes = args.standardize_palettes.copy()
     world.shufflelinks = args.shufflelinks.copy()
     world.shuffletavern = args.shuffletavern.copy()
+    world.skullwoods = args.skullwoods.copy()
+    world.linked_drops = args.linked_drops.copy()
     world.pseudoboots = args.pseudoboots.copy()
     world.overworld_map = args.overworld_map.copy()
     world.take_any = args.take_any.copy()

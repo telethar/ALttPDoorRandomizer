@@ -125,6 +125,47 @@ Designed by Codemann, these are available now (only with experimental turned on 
 - Both dungeons and connectors can be cross-world connections
 - No dungeon guarantees like in Lite ER
 
+### Skull Woods Shuffle
+
+In an effort to reduce annoying Skull Woods layouts, several new options have been created.
+
+- Original: Skull woods shuffles classically amongst itself unless insanity is the mode. This should mimic prior behavior.
+- Restricted (Vanilla Drops, Entrances Restricted): Skull woods drops are vanilla. Skull woods entrances stay in skull woods and are shuffled.
+- Loose (Vanilla Drops, Entrances use Shuffle): Skull woods drops are vanilla. The main ER mode's pool determines how to handle. 
+- Followdrops (Follow Linked Drops Setting): This looks at the new linked drop settings. If linked drops are turned on, then two new pairs of linked drop down and holes are formed. Skull front and the hole near the big chest form a pair. The east entrance to Skull 2 and th hole in the back of skull woods form another pair. If the mode is not a cross-world shuffle, then these 2 new drop-down pairs are limited to the dark world. The other drop-down in skull woods, the front two holes will be vanilla. If linked drops are off, then the mode determines how to handle the holes and entrances.
+
+### Linked Drops Override
+
+This controls whether drops should be linked to nearby entrances or not.
+
+- Unset: This uses the mode's default which is considered linked for all modes except insanity
+- Linked: Forces drops to be linked to their entrances.
+- Independent: Decouples drops from their entrances. In same-world shuffles, holes & entrances may be restricted to a singe world depending on settings and placement to prevent cross-world connection through holes and/or entrances in dungeons.
+
+### Brief Explanations
+
+Loose Skull Woods Shuffle:
+
+- Simple dungeons modes will attempt to fix the layout of skull woods to be more vanilla. This includes dungeonssimple, simple, and restricted ER modes.
+- The dungeonsfull mode allows skull woods to be used as a connector but attempt to maintain same-world connectivity.
+- Same world modes like lite & full will generally keep skull woods entrances to a single world to prevent cross-world connections. If not inverted, this is not guaranteed to be the dark world though.
+- Cross-world modes will be eaiser to comprehend due to fewer restrictions like crossed, lean and swapped.
+
+Followdrops with Linked Drops:
+
+- Some modes don't care much about linked drops: simple, dungeonssimple, dungeonsfull
+- Same-world modes like restricted, full, & lite will often keep skull woods drop pairs in the dark world and there are only 3 options there: pyramid, and the vanilla locations
+- Cross-world modes will benefit the most from the changes as the drop pool expands by two new options for drop placement and guarantees a way out from skull woods west, though the connector must be located.
+- Insanity with linked drops will kind of allow a player to scout holes, at the cost of not being to get back to the hole immediately.
+
+Followdrops with Independent Drops:
+- dungeonssimple will place holes vanilla anyway
+- dungeonsfull will shuffle the holes
+- Same-world modes like simple, restricted, full, & lite will likely pull all skull woods entrances to a single world. (It'll likely be the light world if a single hole is in the light world, unless inverted, then the reverse.)
+- Cross-world modes like swapped, lean, and crossed will mean drops are no longer scoutable. Enjoy your coin flips!
+- This is insanity's default anyway, no change.
+
+
 ### Back of Tavern Shuffle (Experimental required)
 
 Thanks goes to Catobat which now allows the back of tavern to be shuffled anywhere and any valid cave can be at the back of tavern with this option checked. Available in experimental only for now as it requires the new algorithm to be shuffled properly.
@@ -141,6 +182,11 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.2
+  * New ER Options:
+    * [Skull Woods shuffle options](#skull-woods-shuffle) 
+    * [New option](#linked-drops-override) to override linked drop down behavior
+  * MultiClient: change default port to 23074 for newer SNI versions
 * 1.4.1.12u
   * New Entrance Shuffle Algorithm no longer experimental
   * Back of Tavern Shuffle now on by default

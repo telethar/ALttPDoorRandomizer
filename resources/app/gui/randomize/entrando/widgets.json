@@ -34,6 +34,26 @@
         "padx": [20,0]
       }
     },
+    "skullwoods": {
+      "type": "selectbox",
+      "options": [
+        "original",
+        "restricted",
+        "loose",
+        "followlinked"
+      ],
+      "config": {
+        "width": 30
+      }
+    },
+    "linked_drops": {
+      "type": "selectbox",
+      "options": [
+        "unset",
+        "linked",
+        "independent"
+      ]
+    },
     "openpyramid": {
       "type": "selectbox",
       "options": [

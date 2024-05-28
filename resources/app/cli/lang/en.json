@@ -385,6 +385,20 @@
     "shuffletavern": [
       "Include the back of the tavern in the entrance shuffle pool. (default: %(default)s)"
     ],
+    "skullwoods": [
+      "Select how to shuffle skull woods (default: %(default)s)",
+      "Original:       Skull Woods is shuffled amongst itself",
+      "Restricted:     Drops are vanilla. Entrances stay in skull woods",
+      "Loose:          Drops are vanilla. Entrances go in the main pool",
+      "Followlinked:   If drops are linked, then pinball/left side will be vanilla",
+      "                with other drops paired with an entrance. Otherwise, all go into the main pool"
+    ],
+    "linked_drops": [
+      "Select how drops are treated in entrance shuffle. (default: %(default)s)",
+      "Unset:          The shuffle mode determines the setting.",
+      "Linked:         Dropdowns will be linked with entrance caves",
+      "Independent:    Dropdowns will not be linked"
+    ],
     "overworld_map": [
       "Control if and how the overworld map indicators show the locations of dungeons (default: %(default)s)"
     ],

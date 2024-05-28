@@ -162,6 +162,17 @@
     "randomizer.entrance.entranceshuffle.dungeonsfull": "Dungeons + Full",
     "randomizer.entrance.entranceshuffle.dungeonssimple": "Dungeons + Simple",
 
+    "randomizer.entrance.skullwoods": "Skull Woods Shuffle",
+    "randomizer.entrance.skullwoods.original": "Original",
+    "randomizer.entrance.skullwoods.restricted": "Vanilla Drops, Entrances Restricted",
+    "randomizer.entrance.skullwoods.loose": "Vanilla Drops, Entrances use Shuffle",
+    "randomizer.entrance.skullwoods.followlinked": "Follow Linked Drops Setting",
+
+    "randomizer.entrance.linked_drops": "Linked Drops Override",
+    "randomizer.entrance.linked_drops.unset": "Determined by Shuffle",
+    "randomizer.entrance.linked_drops.linked": "Always Linked",
+    "randomizer.entrance.linked_drops.independent": "Independent",
+
     "randomizer.gameoptions.nobgm": "Disable Music & MSU-1",
     "randomizer.gameoptions.quickswap": "L/R Quickswapping",
     "randomizer.gameoptions.reduce_flashing": "Reduce Flashing",
