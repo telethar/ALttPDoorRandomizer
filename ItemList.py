@@ -1331,6 +1331,7 @@ def make_customizer_pool(world, player):
     bow_found = next((i for i in pool if i in {'Bow', 'Progressive Bow'}), None)
     if not bow_found:
         missing_items.append('Progressive Bow')
+    missing_items = [i for i in missing_items if all(i != start.name or player != start.player for start in world.precollected_items)]
     if missing_items:
         logging.getLogger('').warning(f'The following items are not in the custom item pool {", ".join(missing_items)}')
 

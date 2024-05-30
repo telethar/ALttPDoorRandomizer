@@ -188,7 +188,9 @@ These are now independent of retro mode and have three options: None, Random, an
     * [New option](#linked-drops-override) to override linked drop down behavior
   * Customizer: You can now start with a "RandomWeapon" in the start inventory section
   * Customizer: You may now start with "Big Magic" or "Small Magic" items
+  * Customizer: Suppress warning for missing items if they are in start inventory
   * MultiClient: change default port to 23074 for newer SNI versions
+  * Generation: Fixed typo causing ER gen failure with Bomb Shop at Graveyard Ledge
 * 1.4.1.12u
   * New Entrance Shuffle Algorithm no longer experimental
   * Back of Tavern Shuffle now on by default
