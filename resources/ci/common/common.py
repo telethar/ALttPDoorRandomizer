@@ -19,7 +19,7 @@ global FILESIZE_CHECK
 #  windows:  2022, 2019
 #  macos:    14, 13, 12, 11
 DEFAULT_EVENT = "event"
-DEFAULT_REPO_SLUG = "miketrethewey/ALttPDoorRandomizer"
+DEFAULT_REPO_SLUG = "aerinon/ALttPDoorRandomizer"
 FILENAME_CHECKS = [
   "DungeonRandomizer",
   "Gui",

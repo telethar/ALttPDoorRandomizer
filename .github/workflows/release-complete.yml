@@ -43,5 +43,5 @@ jobs:
           FINE_PAT: ${{ secrets.ALTTPER_TAGGER }}
         with:
           repository: ${{ github.repository_owner }}/z3randomizer
-          ref-name:   heads/OWMain
+          ref-name:   heads/DRUnstable
           github-tag: ${{ github.event.release.tag_name }}
