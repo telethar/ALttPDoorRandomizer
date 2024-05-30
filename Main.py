@@ -231,7 +231,18 @@ def main(args, seed=None, fish=None):
             if inv_list:
                 for inv_item in inv_list:
                     name = inv_item.strip()
-                    name = name if name != 'Ocarina' or world.flute_mode[player] != 'active' else 'Ocarina (Activated)'
+                    if inv_item == 'RandomWeapon':
+                        name = random.choice(['Progressive Bow', 'Hammer', 'Progressive Sword', 'Cane of Somaria', 'Cane of Byrna', 'Fire Rod'])
+                        extra = []
+                        if name in ['Cane of Somaria', 'Cane of Byrna', 'Fire Rod']:
+                            extra.append('Big Magic')
+                        if name == 'Progressive Bow':
+                            extra.extend(['Arrows (10)'] * 3)
+                        for e in extra:
+                            item = ItemFactory(e, p)
+                            if item:
+                                world.push_precollected(item)
+                    name = name if name != 'Ocarina' or world.flute_mode[p] != 'active' else 'Ocarina (Activated)'
                     item = ItemFactory(name, p)
                     if item:
                         world.push_precollected(item)

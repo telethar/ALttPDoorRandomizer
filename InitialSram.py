@@ -66,6 +66,7 @@ class InitialSram:
         starting_arrow_cap_upgrades = 30
         starting_bombs = 0
         starting_arrows = 0
+        starting_magic = 0
 
         startingstate = CollectionState(world)
 
@@ -105,10 +106,10 @@ class InitialSram:
 
         if startingstate.has('Magic Upgrade (1/4)', player):
             equip[0x37B] = 2
-            equip[0x36E] = 0x80
+            starting_magic = 0x80
         elif startingstate.has('Magic Upgrade (1/2)', player):
             equip[0x37B] = 1
-            equip[0x36E] = 0x80
+            starting_magic = 0x80
 
         for item in world.precollected_items:
             if item.player != player:
@@ -162,6 +163,7 @@ class InitialSram:
             arrow_caps = {'Arrow Upgrade (+5)': 5, 'Arrow Upgrade (+10)': 10}
             bombs = {'Single Bomb': 1, 'Bombs (3)': 3, 'Bombs (10)': 10}
             arrows = {'Single Arrow': 1, 'Arrows (10)': 10}
+            magic = {'Big Magic': 0x80, 'Small Magic': 0x10}
 
             if item.name in set_table:
                 equip[set_table[item.name][0]] = set_table[item.name][1]
@@ -198,9 +200,12 @@ class InitialSram:
                 if item.name != 'Piece of Heart' or equip[0x36B] == 0:
                     equip[0x36C] = min(equip[0x36C] + 0x08, 0xA0)
                     equip[0x36D] = min(equip[0x36D] + 0x08, 0xA0)
+            elif item.name in magic:
+                starting_magic += magic[item.name]
             else:
                 raise RuntimeError(f'Unsupported item in starting equipment: {item.name}')
 
+        equip[0x36E] = min(starting_magic, 0x80)
         equip[0x370] = min(starting_bomb_cap_upgrades, 50)
         equip[0x371] = min(starting_arrow_cap_upgrades, 70)
         equip[0x343] = min(starting_bombs, equip[0x370])

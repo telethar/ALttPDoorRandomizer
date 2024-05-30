@@ -186,6 +186,8 @@ These are now independent of retro mode and have three options: None, Random, an
   * New ER Options:
     * [Skull Woods shuffle options](#skull-woods-shuffle) 
     * [New option](#linked-drops-override) to override linked drop down behavior
+  * Customizer: You can now start with a "RandomWeapon" in the start inventory section
+  * Customizer: You may now start with "Big Magic" or "Small Magic" items
   * MultiClient: change default port to 23074 for newer SNI versions
 * 1.4.1.12u
   * New Entrance Shuffle Algorithm no longer experimental
