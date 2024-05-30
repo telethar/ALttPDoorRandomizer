@@ -1798,7 +1798,7 @@ def set_big_bomb_rules(world, player):
         # 1. flute then basic routes
         # 2. (has west dark world access) use existing mirror spot (required Pearl), mirror again off ledge
         # -> (Flute or (M and P and West Dark World access) and BR
-        add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: (state.can_flute(player) or (state.can_reach('Village of Outcasts Area', 'Region', player) and state.has_Pearl(player) and state.has_Mirror(player))) and basic_routes(state))
+        add_rule(world.get_entrance('Pyramid Fairy', player), lambda state: (state.can_flute(player) or (state.can_reach('Village of Outcasts', 'Region', player) and state.has_Pearl(player) and state.has_Mirror(player))) and basic_routes(state))
     elif bombshop_entrance.name in Mirror_from_SDW_entrances:
         # 1. flute then basic routes
         # 2. (has South dark world access) use existing mirror spot, mirror again off ledge
