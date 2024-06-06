@@ -17,6 +17,7 @@ class EntrancePool(object):
         self.swapped = False
         self.default_map = {}
         self.one_way_map = {}
+        self.combine_map = {}
         self.skull_handled = False
         self.links_on_mountain = False
         self.decoupled_entrances = []
@@ -77,6 +78,7 @@ def link_entrances_new(world, player):
         default_map['Big Bomb Shop'] = 'Links House Exit'
     avail_pool.default_map = default_map
     avail_pool.one_way_map = one_way_map
+    avail_pool.combine_map = {**default_map, **one_way_map}
 
     # setup mandatory connections
     for exit_name, region_name in mandatory_connections:
@@ -261,7 +263,8 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         # cross world mandantory
         entrance_list = list(entrances)
         if avail.swapped:
-            forbidden = [e for e in Forbidden_Swap_Entrances if e in entrance_list]
+            ban_list = Forbidden_Swap_Entrances_Inv if avail.inverted else Forbidden_Swap_Entrances
+            forbidden = [e for e in ban_list if e in entrance_list]
             entrance_list = [e for e in entrance_list if e not in forbidden]
         must_exit, multi_exit_caves = figure_out_must_exits_cross_world(entrances, exits, avail)
         do_mandatory_connections(avail, entrance_list, multi_exit_caves, must_exit)
@@ -469,20 +472,22 @@ def do_holes_and_linked_drops(entrances, exits, avail, cross_world, keep_togethe
     if not cross_world:
         if 'Sanctuary Grave' in holes_to_shuffle:
             hc = avail.world.get_entrance('Hyrule Castle Exit (South)', avail.player)
-            is_hc_in_dw = avail.world.mode[avail.player] == 'inverted'
+            is_hc_in_opp_world = avail.inverted
             if hc.connected_region:
-                is_hc_in_dw = hc.connected_region.type == RegionType.DarkWorld
+                is_hc_in_opp_world = hc.connected_region.type == RegionType.DarkWorld
+            start_world_entrances = DW_Entrances if avail.inverted else LW_Entrances
+            opp_world_entrances = LW_Entrances if avail.inverted else DW_Entrances
             chosen_entrance = None
-            if is_hc_in_dw:
+            if is_hc_in_opp_world:
                 if avail.swapped:
-                    chosen_entrance = next(e for e in hole_entrances if e[0] in DW_Entrances and e[0] != 'Sanctuary')
+                    chosen_entrance = next(e for e in hole_entrances if e[0] in opp_world_entrances and e[0] != 'Sanctuary')
                 if not chosen_entrance:
-                    chosen_entrance = next(e for e in hole_entrances if e[0] in DW_Entrances)
+                    chosen_entrance = next((e for e in hole_entrances if e[0] in opp_world_entrances), None)
             if not chosen_entrance:
                 if avail.swapped:
-                    chosen_entrance = next(e for e in hole_entrances if e[0] in LW_Entrances and e[0] != 'Sanctuary')
+                    chosen_entrance = next(e for e in hole_entrances if e[0] in start_world_entrances and e[0] != 'Sanctuary')
                 if not chosen_entrance:
-                    chosen_entrance = next(e for e in hole_entrances if e[0] in LW_Entrances)
+                    chosen_entrance = next(e for e in hole_entrances if e[0] in start_world_entrances)
 
             if chosen_entrance:
                 connect_hole_via_interior(chosen_entrance, 'Sanctuary Exit', hole_entrances, hole_targets, entrances, exits, avail)
@@ -831,7 +836,7 @@ def do_cross_world_connectors(entrances, caves, avail):
                 avail.decoupled_entrances.remove(choice)
             else:
                 if avail.swapped and len(entrances) > 1:
-                    chosen_entrance = next(e for e in entrances if combine_map[e] != ext)
+                    chosen_entrance = next(e for e in entrances if avail.combine_map[e] != ext)
                     entrances.remove(chosen_entrance)
                 else:
                     chosen_entrance = entrances.pop()
@@ -1098,7 +1103,7 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
                 if entrance not in entrances:
                     entrances.append(entrance)
     if avail.swapped:
-        swap_forbidden = [e for e in entrances if combine_map[e] in must_exit]
+        swap_forbidden = [e for e in entrances if avail.combine_map[e] in must_exit]
         for e in swap_forbidden:
             entrances.remove(e)
     entrances.sort()  # sort these for consistency
@@ -1135,7 +1140,7 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         for candidate in cave_options:
             if not isinstance(candidate, str) and len(candidate) > 1 and (candidate in used_caves
                                                                           or len(candidate) < len(entrances) - required_entrances):
-                if not avail.swapped or (combine_map[exit] not in candidate and not any(e for e in must_exit if combine_map[e] in candidate)): #maybe someday allow these, but we need to disallow mutual locks in Swapped
+                if not avail.swapped or (avail.combine_map[exit] not in candidate and not any(e for e in must_exit if avail.combine_map[e] in candidate)): #maybe someday allow these, but we need to disallow mutual locks in Swapped
                     candidates.append(candidate)
         cave = random.choice(candidates)
 
@@ -1164,10 +1169,10 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
         if len(cave) == 2:
             entrance = next(e for e in entrances[::-1] if e not in invalid_connections[exit]
                             and e not in invalid_cave_connections[tuple(cave)] and e not in must_exit
-                            and (not avail.swapped or rnd_cave[0] != combine_map[e]))
+                            and (not avail.swapped or rnd_cave[0] != avail.combine_map[e]))
             entrances.remove(entrance)
             connect_two_way(entrance, rnd_cave[0], avail)
-            if avail.swapped and combine_map[entrance] != rnd_cave[0]:
+            if avail.swapped and avail.combine_map[entrance] != rnd_cave[0]:
                 swap_ent, _ = connect_cave_swap(entrance, rnd_cave[0], cave)
                 entrances.remove(swap_ent)
             if cave in used_caves:
@@ -1184,11 +1189,11 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
                     cave_entrances.append(entrance)
                 else:
                     entrance = next(e for e in entrances[::-1] if e not in invalid_connections[exit] and e not in must_exit
-                                    and (not avail.swapped or cave_exit != combine_map[e]))
+                                    and (not avail.swapped or cave_exit != avail.combine_map[e]))
                     cave_entrances.append(entrance)
                     entrances.remove(entrance)
                     connect_two_way(entrance, cave_exit, avail)
-                    if avail.swapped and combine_map[entrance] != cave_exit:
+                    if avail.swapped and avail.combine_map[entrance] != cave_exit:
                         swap_ent, _ = connect_cave_swap(entrance, cave_exit, cave)
                         entrances.remove(swap_ent)
                 if entrance not in invalid_connections:
@@ -1215,11 +1220,11 @@ def do_mandatory_connections(avail, entrances, cave_options, must_exit):
                     continue
                 else:
                     entrance = next(e for e in entrances[::-1] if e not in invalid_cave_connections[tuple(cave)]
-                                    and (not avail.swapped or cave_exit != combine_map[e]))
+                                    and (not avail.swapped or cave_exit != avail.combine_map[e]))
                     invalid_cave_connections[tuple(cave)] = set()
                     entrances.remove(entrance)
                     connect_two_way(entrance, cave_exit, avail)
-                    if avail.swapped and combine_map[entrance] != cave_exit:
+                    if avail.swapped and avail.combine_map[entrance] != cave_exit:
                         swap_ent, _ = connect_cave_swap(entrance, cave_exit, cave)
                         entrances.remove(swap_ent)
             cave_options.remove(cave)
@@ -1346,11 +1351,11 @@ def connect_swapped(entrancelist, targetlist, avail, two_way=False):
     random.shuffle(entrancelist)
     sorted_targets = list()
     for ent in entrancelist:
-        if ent in combine_map:
-            if combine_map[ent] not in targetlist:
-                logging.getLogger('').error(f'{combine_map[ent]} not in target list, cannot swap entrance')
-                raise Exception(f'{combine_map[ent]} not in target list, cannot swap entrance')
-            sorted_targets.append(combine_map[ent])
+        if ent in avail.combine_map:
+            if avail.combine_map[ent] not in targetlist:
+                logging.getLogger('').error(f'{avail.combine_map[ent]} not in target list, cannot swap entrance')
+                raise Exception(f'{avail.combine_map[ent]} not in target list, cannot swap entrance')
+            sorted_targets.append(avail.combine_map[ent])
     if len(sorted_targets):
         targetlist = list(sorted_targets)
     else:
@@ -1371,12 +1376,12 @@ def connect_swapped(entrancelist, targetlist, avail, two_way=False):
 
 
 def connect_swap(entrance, exit, avail):
-    swap_exit = combine_map[entrance]
+    swap_exit = avail.combine_map[entrance]
     if swap_exit != exit:
-        swap_entrance = next(e for e, x in combine_map.items() if x == exit)
+        swap_entrance = next(e for e, x in avail.combine_map.items() if x == exit)
         if swap_entrance in ['Pyramid Entrance', 'Pyramid Hole'] and avail.inverted:
             swap_entrance = 'Inverted ' + swap_entrance
-        if entrance in entrance_map:
+        if swap_exit in entrance_map.values():
             connect_two_way(swap_entrance, swap_exit, avail)
         else:
             connect_entrance(swap_entrance, swap_exit, avail)
@@ -2063,8 +2068,6 @@ single_entrance_map = {
     'Blinds Hideout': 'Blinds Hideout', 'Waterfall of Wishing': 'Waterfall of Wishing'
 }
 
-combine_map = {**entrance_map, **single_entrance_map, **drop_map}
-
 default_dw = {
     'Thieves Town Exit', 'Skull Woods First Section Exit', 'Skull Woods Second Section Exit (East)',
     'Skull Woods Second Section Exit (West)', 'Skull Woods Final Section Exit', 'Ice Palace Exit', 'Misery Mire Exit',
@@ -2320,6 +2323,7 @@ Inverted_Bomb_Shop_Options = [
 
 
 Forbidden_Swap_Entrances = {'Old Man Cave (East)', 'Blacksmiths Hut', 'Big Bomb Shop'}
+Forbidden_Swap_Entrances_Inv = {'Dark Death Mountain Fairy', 'Blacksmiths Hut', 'Links House'}
 
 # these are connections that cannot be shuffled and always exist.
 # They link together separate parts of the world we need to divide into regions
