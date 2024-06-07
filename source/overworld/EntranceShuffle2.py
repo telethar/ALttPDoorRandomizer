@@ -751,6 +751,7 @@ def figure_out_must_exits_cross_world(entrances, exits, avail):
     if not avail.skull_handled:
         skull_connector = [x for x in ['Skull Woods Second Section Exit (West)', 'Skull Woods Second Section Exit (East)'] if x in exits]
         multi_exit_caves.append(skull_connector)
+        remove_from_list(exits, skull_connector)
 
     must_exit_lw = (Inverted_LW_Must_Exit if avail.inverted else LW_Must_Exit).copy()
     must_exit_dw = (Inverted_DW_Must_Exit if avail.inverted else DW_Must_Exit).copy()
