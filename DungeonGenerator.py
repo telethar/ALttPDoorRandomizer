@@ -1848,10 +1848,8 @@ def ensure_crystal_switches_reachable(dungeon_map, crystal_switches, polarized_s
                     sector.equations = calc_sector_equations(sector)
                 if sector.is_entrance_sector() and not sector.destination_entrance:
                     need_switch = True
-                    for region in sector.get_start_regions():
-                        if region.crystal_switch:
-                            need_switch = False
-                            break
+                    if sector.c_switch:  # this relies on the fact that Mire Fishbone SE cannot be a portal
+                        need_switch = False
                     any_benefit = False
                     for eq in sector.equations:
                         if len(eq.benefit) > 0:
@@ -4033,7 +4031,7 @@ def calc_door_equation(door, sector, look_for_entrance, sewers_flag=None):
             eq = DoorEquation(door)
             eq.benefit[hook_from_door(door)].append(door)
             eq.required = True
-            eq.c_switch = door.crystal == CrystalBarrier.Either
+            eq.c_switch = sector.c_switch  # Big change - not true for mire fishbone, need to verify for others
             # exceptions for long entrances ???
             # if door.name in ['PoD Dark Alley']:
             eq.entrance_flag = True
