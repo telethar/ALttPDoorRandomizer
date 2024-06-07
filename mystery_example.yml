@@ -27,8 +27,8 @@
     boss: 0
     oneway: 0
   key_logic_algorithm:
-    default: 1
-    partial: 0
+    dangerous: 0
+    partial: 1
     strict: 0
   decoupledoors: off
   door_self_loops:

@@ -2327,7 +2327,7 @@ def add_key_logic_rules(world, player):
     eval_func = eval_small_key_door
     if world.key_logic_algorithm[player] == 'strict' and world.keyshuffle[player] == 'wild':
         eval_func = eval_small_key_door_strict
-    elif world.key_logic_algorithm[player] != 'default':
+    elif world.key_logic_algorithm[player] != 'dangerous':
         eval_func = eval_small_key_door_partial
     for d_name, d_logic in key_logic.items():
         for door_name, rule in d_logic.door_rules.items():

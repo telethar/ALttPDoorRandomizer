@@ -2,11 +2,11 @@
   "widgets": {
     "key_logic_algorithm": {
       "type": "selectbox",
-      "default": "default",
+      "default": "partial",
       "options": [
-        "default",
         "partial",
-        "strict"
+        "strict",
+        "dangerous"
       ],
       "config": {
         "padx": [20,0],

@@ -575,7 +575,7 @@ class CollectionState(object):
         queue = deque(old_state.blocked_connections[player].items())
 
         old_state.traverse_world(queue, rrp, bc, player)
-        if old_state.world.key_logic_algorithm[player] == 'default':
+        if old_state.world.key_logic_algorithm[player] == 'dangerous':
             unresolved_events = [x for y in old_state.reachable_regions[player] for x in y.locations
                                  if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
                                  and x not in old_state.locations_checked and x.can_reach(old_state)]
@@ -603,7 +603,7 @@ class CollectionState(object):
         queue = deque(self.blocked_connections[player].items())
 
         self.traverse_world(queue, rrp, bc, player)
-        if self.world.key_logic_algorithm[player] == 'default':
+        if self.world.key_logic_algorithm[player] == 'dangerous':
             unresolved_events = [x for y in self.reachable_regions[player] for x in y.locations
                                  if x.event and x.item and (x.item.smallkey or x.item.bigkey or x.item.advancement)
                                  and x not in self.locations_checked and x.can_reach(self)]
@@ -3123,7 +3123,7 @@ bow_mode = {'progressive': 0, 'silvers': 1, 'retro': 2, 'retro_silvers': 3}
 # byte 12: POOT TKKK (pseudoboots, overworld_map, trap_door_mode, key_logic_algo)
 overworld_map_mode = {'default': 0, 'compass': 1, 'map': 2}
 trap_door_mode = {'vanilla': 0, 'optional': 1, 'boss': 2, 'oneway': 3}
-key_logic_algo = {'default': 0, 'partial': 1, 'strict': 2}
+key_logic_algo = {'dangerous': 0, 'partial': 1, 'strict': 2}
 
 # byte 13: SSDD ???? (skullwoods, linked_drops, 4 free bytes)
 skullwoods_mode = {'original': 0, 'restricted': 1, 'loose': 2, 'followlinked': 3}

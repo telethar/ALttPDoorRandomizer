@@ -266,7 +266,7 @@ Option that controls whether enemies that drop items are randomized or not.
 * None: Special enemies drop keys normally
 * Keys: Enemies that drop keys are added to the randomization pool. Includes the Hyrule Castle Big Key. Universal adds
    generic keys to the pool instead.
-* Underworld: Enemies in the underworld are added to the randomization pool. Vanilla drops from the various drop tables are added to the item pool. In caves and in dungeons while you have the compass, a blue square will indicate if there are any enemies on the supertile that still have an available drop in the dungeon. Certain enemies do have logical requirements. In particular, the Red Bari requires Fire Rod or Bombos to collect it's drop. More information in hte [Enemizer](#enemizer) section.
+* Underworld: Enemies in the underworld are added to the randomization pool. Vanilla drops from the various drop tables are added to the item pool. In caves and in dungeons while you have the compass, a blue square will indicate if there are any enemies on the supertile that still have an available drop in the dungeon. Certain enemies do have logical requirements. In particular, the Red Bari requires Fire Rod or Bombos to collect its drop. More information in the [Enemizer](#enemizer) section.
 
 CLI: `--dropshuffle [none|keys|underworld]`
 
@@ -518,7 +518,19 @@ Please see [Customizer documentation](docs/Customizer.md) on how to create custo
 ### New Modes
 
 * Lite: Non item entrances are vanilla.
+  - Dungeon and multi-entrance caves can only lead to dungeon and multi-entrance caves
+  - Dropdowns can only lead to dropdowns, with them staying coupled to their appropriate exits
+  - Cave entrances that normally lead to items can only lead to caves that have items (this includes Potion Shop and Big Bomb Shop)
+  - All remaining entrances remain vanilla
+  - Multi-entrance caves are connected same-world only
+  - LW is guaranteed to have HC/EP/DP/ToH/AT and DW: IP/MM/TR/GT
+  - Shop locations are included in the Item Cave pool if Shopsanity is enabled
+  - Caves with pots are included in the Item Cave pool if Pottery is enabled
+  - Caves with enemies/fairies are included in the Item Cave pool if Shuffle Enemy Drops is enabled
 * Lean
+  - Same grouping/pooling mechanism as in Lite ER
+  - Both dungeons and connectors can be cross-world connections
+  - No dungeon guarantees like in Lite ER
 * Swapped: Entrances are swapped with each other
 
 ### Shuffle Links House
@@ -528,6 +540,46 @@ In certain ER shuffles, (not dungeonssimple or dungeonsfulls), you can now contr
 ### Shuffle Back of Tavern
 
 You may shuffle the back of tavern entrance in ER modes when Experimental Features are turned on.
+
+### Skull Woods Shuffle
+
+In an effort to reduce annoying Skull Woods layouts, several new options have been created.
+
+- Original: Skull woods shuffles classically amongst itself unless insanity is the mode. This should mimic prior behavior.
+- Restricted (Vanilla Drops, Entrances Restricted): Skull woods drops are vanilla. Skull woods entrances stay in skull woods and are shuffled.
+- Loose (Vanilla Drops, Entrances use Shuffle): Skull woods drops are vanilla. The main ER mode's pool determines how to handle.
+- Followlinked (Follow Linked Drops Setting): This looks at the new linked drop settings. If linked drops are turned on, then two new pairs of linked drop down and holes are formed. Skull front and the hole near the big chest form a pair. The east entrance to Skull 2 and th hole in the back of skull woods form another pair. If the mode is not a cross-world shuffle, then these 2 new drop-down pairs are limited to the dark world. The other drop-down in skull woods, the front two holes will be vanilla. If linked drops are off, then the mode determines how to handle the holes and entrances.
+
+### Linked Drops Override
+
+This controls whether drops should be linked to nearby entrances or not.
+
+- Unset: This uses the mode's default which is considered linked for all modes except insanity
+- Linked: Forces drops to be linked to their entrances.
+- Independent: Decouples drops from their entrances. In same-world shuffles, holes & entrances may be restricted to a singe world depending on settings and placement to prevent cross-world connection through holes and/or entrances in dungeons.
+
+### Brief Explanations
+
+Loose Skull Woods Shuffle:
+
+- Simple dungeons modes will attempt to fix the layout of skull woods to be more vanilla. This includes dungeonssimple, simple, and restricted ER modes.
+- The dungeonsfull mode allows skull woods to be used as a connector but attempt to maintain same-world connectivity.
+- Same world modes like lite & full will generally keep skull woods entrances to a single world to prevent cross-world connections. If not inverted, this is not guaranteed to be the dark world though.
+- Cross-world modes will be eaiser to comprehend due to fewer restrictions like crossed, lean and swapped.
+
+Followdrops with Linked Drops:
+
+- Some modes don't care much about linked drops: simple, dungeonssimple, dungeonsfull
+- Same-world modes like restricted, full, & lite will often keep skull woods drop pairs in the dark world and there are only 3 options there: pyramid, and the vanilla locations
+- Cross-world modes will benefit the most from the changes as the drop pool expands by two new options for drop placement and guarantees a way out from skull woods west, though the connector must be located.
+- Insanity with linked drops will kind of allow a player to scout holes, at the cost of not being to get back to the hole immediately.
+
+Followdrops with Independent Drops:
+- dungeonssimple will place holes vanilla anyway
+- dungeonsfull will shuffle the holes
+- Same-world modes like simple, restricted, full, & lite will likely pull all skull woods entrances to a single world. (It'll likely be the light world if a single hole is in the light world, unless inverted, then the reverse.)
+- Cross-world modes like swapped, lean, and crossed will mean drops are no longer scoutable. Enjoy your coin flips!
+- This is insanity's default anyway, no change.
 
 ### Overworld Map
 
@@ -545,13 +597,21 @@ CLI ```--overworld_map [default|compass|map]```
 
 ## Enemizer
 
-Enemizer has been incorporated into the generator adn no longer requires an external program. However, there are differences.
+Enemizer has been incorporated into the generator and no longer requires an external program. However, there are differences.
 
-A document hightlighting the major changes: [Enemizer in DR](https://docs.google.com/document/d/1iwY7Gy50DR3SsdXVaLFIbx4xRBqo9a-e1_jAl5LMCX8/edit?usp=sharing)
+Please see this document for extensive details: [Enemizer in DR](https://docs.google.com/document/d/1iwY7Gy50DR3SsdXVaLFIbx4xRBqo9a-e1_jAl5LMCX8/edit?usp=sharing)
+
+Notable differences:
+
+* Several sprites added to the pool. Most notable is how enemies behave on shallow water. They work now.
+* Clearing rooms, spawnable chests, and enemy keys drops can now have enemies with specific logic in the room. This logic is controlled by the new [Enemy Logic option](#enemy-logic)
+* New system for banning enemies that cause issues is in place. If you see an enemy in a place that would cause issue, please report it and it can be banned to never happen again. Current bans can be found [in the code](source/enemizer/enemy_deny.yaml) for the curious
+* Thieves are always unkillable, but banned from the entire underworld. We can selectively ban them from problematic places in the overworld, and if someone wants to figure out where they could be safe in the underworld, I'll allow them there once the major problems have been banned.
+* Tile room patterns are currently shuffled with enemies.
 
 ### Enemy Shuffle
 
-Shuffling enemies is different as there are places that certain enemies are not allowed to go. This is known as the enemy ban list, and is updated regularly as report of poor enemy placement occurs. Poor enemy placement included Bumpers, Statues, Beamos or other enemies that block your path with or without certain items. Other disallowed placements include unavoidable damage and glitches. Thieves are unkillable, but restricted to the overworld and even then, are banned from narrow locations.
+Shuffling enemies is different as there are places that certain enemies are not allowed to go. This is known as the enemy ban list, and is updated regularly as reports of poor enemy placement occurs. Poor enemy placement included Bumpers, Statues, Beamos or other enemies that block your path with or without certain items. Other disallowed placements include unavoidable damage and glitches. Thieves are unkillable, but restricted to the overworld and even then, are banned from narrow locations.
 
 ### Enemy Damage
 

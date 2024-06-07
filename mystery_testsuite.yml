@@ -25,7 +25,7 @@ trap_door_mode:
   boss: 1
   oneway: 1
 key_logic_algorithm:
-  default: 1
+  dangerous: 1
   partial: 0
   strict: 0
 decoupledoors:

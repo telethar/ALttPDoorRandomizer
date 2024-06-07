@@ -261,7 +261,7 @@
     ],
     "key_logic_algorithm": [
       "Key Logic Algorithm (default: %(default)s)",
-      "default: Balance between safety and randomization",
+      "dangerous: Key usage must follow logic for safety",
       "partial: Partial protection when using certain minor glitches",
       "strict:  Ensure small keys are available"
     ],

@@ -208,7 +208,7 @@
   },
   "key_logic_algorithm": {
     "choices": [
-      "default",
+      "dangerous",
       "partial",
       "strict"
     ]
