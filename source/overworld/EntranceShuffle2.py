@@ -394,8 +394,6 @@ def do_old_man_cave_exit(entrances, exits, avail, cross_world):
         if avail.inverted and cross_world:
             om_cave_options = Inverted_Old_Man_Entrances + Old_Man_Entrances
         om_cave_options = [x for x in om_cave_options if x in entrances]
-        if avail.swapped:
-            om_cave_options = [e for e in om_cave_options if e not in Forbidden_Swap_Entrances]
         om_cave_choice = random.choice(om_cave_options)
         if not avail.coupled:
             connect_exit('Old Man Cave Exit (East)', om_cave_choice, avail)
@@ -403,7 +401,8 @@ def do_old_man_cave_exit(entrances, exits, avail, cross_world):
         else:
             connect_two_way(om_cave_choice, 'Old Man Cave Exit (East)', avail)
             entrances.remove(om_cave_choice)
-            if avail.swapped and om_cave_choice != 'Old Man Cave (East)':
+            default_entrance = 'Dark Death Mountain Fairy' if avail.inverted else 'Old Man Cave (East)'
+            if avail.swapped and om_cave_choice != default_entrance:
                 swap_ent, swap_ext = connect_swap(om_cave_choice, 'Old Man Cave Exit (East)', avail)
                 entrances.remove(swap_ent)
                 exits.remove(swap_ext)
@@ -474,7 +473,8 @@ def do_holes_and_linked_drops(entrances, exits, avail, cross_world, keep_togethe
             hc = avail.world.get_entrance('Hyrule Castle Exit (South)', avail.player)
             is_hc_in_opp_world = avail.inverted
             if hc.connected_region:
-                is_hc_in_opp_world = hc.connected_region.type == RegionType.DarkWorld
+                opp_world = RegionType.LightWorld if avail.inverted else RegionType.DarkWorld
+                is_hc_in_opp_world = hc.connected_region.type == opp_world
             start_world_entrances = DW_Entrances if avail.inverted else LW_Entrances
             opp_world_entrances = LW_Entrances if avail.inverted else DW_Entrances
             chosen_entrance = None
