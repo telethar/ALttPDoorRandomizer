@@ -182,6 +182,8 @@ These are now independent of retro mode and have three options: None, Random, an
 
 # Patch Notes
 
+* 1.4.3
+  * Generation: Fixed several generation problems with ER and intensity 3
 * 1.4.2
   * New ER Options:
     * [Skull Woods shuffle options](#skull-woods-shuffle) 
