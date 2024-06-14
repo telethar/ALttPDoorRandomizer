@@ -210,6 +210,9 @@ class InitialSram:
         equip[0x371] = min(starting_arrow_cap_upgrades, 70)
         equip[0x343] = min(starting_bombs, equip[0x370])
         equip[0x377] = min(starting_arrows, equip[0x371])
+
+        if not startingstate.has('Magic Mirror', player) and world.doorShuffle[player] != 'vanilla':
+            equip[0x353] = 1
         
         # Assertion and copy equip to initial_sram_bytes
         assert equip[:0x340] == [0] * 0x340

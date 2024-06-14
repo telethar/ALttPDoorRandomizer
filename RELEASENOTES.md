@@ -1,6 +1,6 @@
 # New Features
 
-None for this release.
+File Select/End Game screen: Mirror Scroll and Pseudoboots added (Thanks Hiimcody!)
 
 # Patch Notes
 
