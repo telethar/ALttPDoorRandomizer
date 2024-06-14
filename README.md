@@ -175,11 +175,11 @@ All other dungeon items can be restricted to their own dungeon or shuffled in th
 
 Determines how small key door logic works.
 
-* ~~Default: Current key logic. Assumes worse case usage, placement checks, but assumes you can't get to a chest until you have sufficient keys. (May assume items are unreachable)~~ (Not recommended to use this setting)
 * Partial Protection: Assumes you always have full inventory and worse case usage. This should account for dark room and bunny revival glitches.
 * Strict: For those would like to glitch and be protected from yourselves. Small keys door require all small keys to be available to be in logic.
+* Dangerous: Assumes you never use keys out of logic. This is the most dangerous setting and not recommend for use.
 
-CLI: `--key_logic [default|partial|strict]`
+CLI: `--key_logic [partial|strict|dangerous]`
 
 ### Decouple Doors
 
