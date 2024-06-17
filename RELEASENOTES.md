@@ -5,6 +5,8 @@ File Select/End Game screen: Mirror Scroll and Pseudoboots added (Thanks Hiimcod
 # Patch Notes
 
 * 1.4.3
-  * Key Logic Algorithm: Renamed "Default" to "Dangerous" to indicate the potential soft-lock issues 
+  * Key Logic Algorithm: Renamed "Default" to "Dangerous" to indicate the potential soft-lock issues
+  * Hera Basement Cage: Fix for small key counting multiple times (again)
   * Generation: Fixed several generation problems with ER and intensity 3
+  * Customizer: Generation bug when attempting to place small keys
   * Enemizer: Various enemy bans

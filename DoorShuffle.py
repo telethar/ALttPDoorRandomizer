@@ -2087,7 +2087,7 @@ def shuffle_small_key_doors(door_type_pools, used_doors, start_regions_map, all_
                     if actual_chest_keys == 0:
                         dungeon.small_keys = []
                     else:
-                        dungeon.small_keys = [ItemFactory(dungeon_keys[dungeon_name], player)] * actual_chest_keys
+                        dungeon.small_keys = [ItemFactory(dungeon_keys[dungeon_name], player) for _ in range(actual_chest_keys)]
 
         for name, small_list in small_map.items():
             used_doors.update(flatten_pair_list(small_list))
