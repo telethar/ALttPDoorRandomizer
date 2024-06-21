@@ -34,8 +34,9 @@ UwGeneralDeny:
   - [ 0x001e, 4, [ "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "BigSpike", "Bumper" ] ]  #"Ice Palace - Blob Ambush - Red Bari 4"
   - [ 0x001e, 5, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerHorizontalRight", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Blob Ambush - Zol 1"
   - [ 0x001e, 6, [ "SparkCW", "SparkCCW", "RollerVerticalDown", "RollerVerticalUp", "RollerHorizontalRight", "RollerHorizontalLeft", "Beamos", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Ice Palace - Blob Ambush - Zol 2"
-  - [ 0x001f, 0, [ "RollerHorizontalRight" ] ]  #"Ice Palace - Big Key View - Pengator 1"
+  - [0x001f, 0, ["RollerHorizontalRight", "RollerHorizontalLeft"]]  #"Ice Palace - Big Key View - Pengator 1"
   - [ 0x001f, 3, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
+  - [0x001f, 4, ["RollerVerticalDown", "RollerVerticalUp"]]  # too large, hits the door
   - [ 0x0021, 3, [ "RollerVerticalDown", "RollerVerticalUp" ] ]  #"Sewers - Dark U - Rat 2"
   - [ 0x0021, 4, [ "RollerVerticalDown", "RollerVerticalUp" ] ]  #"Sewers - Dark U - Rat 3"
   - [ 0x0024, 6, [ "Wizzrobe", "Statue" ] ]  # Wizzrobes can't spawn on pots
@@ -121,7 +122,7 @@ UwGeneralDeny:
   - [ 0x0049, 5, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Bari Pits - Gibdo 2"
   - [ 0x0049, 7, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Skull Woods - Bari Pits - Gibdo 4"
   - [ 0x0049, 8, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Skull Woods - Bari Pits - Gibdo 5"
-  - [ 0x004b, 0, [ "Beamos", "AntiFairyCircle", "Bumper" ] ]  #"Palace of Darkness - Mimics 1 - Red Eyegore"
+  - [0x004b, 0, ["Beamos", "AntiFairyCircle", "Bumper", "BigSpike"]]  #"Palace of Darkness - Mimics 1 - Red Eyegore"
   - [ 0x004b, 1, [ "RollerHorizontalRight" ] ]  #"Palace of Darkness - Warp Hint - Antifairy 1"
   - [ 0x004b, 5, [ "RollerHorizontalLeft", "RollerHorizontalRight", "AntiFairyCircle", "BigSpike", "Bumper" ] ]  #"Palace of Darkness - Jelly Hall - Blue Bari 1"
   - [ 0x004b, 6, [ "AntiFairyCircle", "BigSpike" ] ]  #"Palace of Darkness - Jelly Hall - Blue Bari 2"
@@ -132,6 +133,7 @@ UwGeneralDeny:
   - [ 0x0050, 0, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Hyrule Castle - North West Passage - Green Guard"
   - [ 0x0050, 1, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Hyrule Castle - North West Passage - Green Knife Guard 1"
   - [ 0x0050, 2, [ "RollerVerticalUp", "RollerVerticalDown" ] ]  #"Hyrule Castle - North West Passage - Green Knife Guard 2"
+  - [0x0051, 2, ["Zoro"]]  # Zoro clips off and doesn't return
   - [ 0x0052, 0, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "Bumper" ] ]  #"Hyrule Castle - North East Passage - Green Guard"
   - [ 0x0052, 1, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "Bumper" ] ]  #"Hyrule Castle - North East Passage - Green Knife Guard 1"
   - [ 0x0052, 2, [ "RollerVerticalUp", "RollerVerticalDown", "AntiFairyCircle", "Bumper" ] ]  #"Hyrule Castle - North East Passage - Green Knife Guard 2"
@@ -154,7 +156,7 @@ UwGeneralDeny:
   - [ 0x0057, 13, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "Statue", "BigSpike"]]  #"Skull Woods - Big Key Room - Blue Bari 1"
   - [ 0x0057, 14, [ "RollerVerticalDown", "Beamos", "AntiFairyCircle", "Bumper", "Statue", "BigSpike"]]  #"Skull Woods - Big Key Room - Blue Bari 2"
   - [ 0x0058, 0, ["Statue"]]
-  - [ 0x0058, 1, ["Statue"]]
+  - [0x0058, 1, ["Statue", "RollerHorizontalRight", "RollerHorizontalLeft"]]
   - [ 0x0058, 2, ["Statue"]]
   - [ 0x0058, 3, ["Statue"]]
   - [ 0x0058, 4, ["Statue"]]
@@ -407,7 +409,7 @@ UwGeneralDeny:
   - [ 0x00f1, 3, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Old Man Maze - Keese 4"
   - [ 0x00f1, 4, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Old Man Maze - Keese 5"
   - [ 0x00f1, 5, [ "RollerVerticalUp", "RollerVerticalDown", "RollerHorizontalLeft", "RollerHorizontalRight" ] ]  #"Old Man Maze - Keese 6"
-  - [ 0x00fd, 0, [ "Bumper" ] ]
+  - [0x00fd, 0, ["Bumper", "AntiFairyCircle"]]
   - [ 0x0107, 1, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
   - [ 0x0107, 2, ["Beamos", "Bumper", "BigSpike", "AntiFairyCircle"]]
   - [0x010b, 6, ["RollerHorizontalRight"]]
@@ -454,6 +456,8 @@ OwGeneralDeny:
   - [0x5e, 18, ["Gibo"]]  # kiki eating Gibo
   - [0x5e, 19, ["Gibo"]]  # kiki eating Gibo
   - [0x5e, 20, ["Gibo"]]  # kiki eating Gibo
+  - [0x62, 1, ["RollerVerticalUp", "RollerVerticalDown"]]  # hard to avoid roller around hammer pegs
+  - [0x62, 3, ["RollerVerticalUp", "RollerVerticalDown"]]  # hard to avoid roller around hammer pegs
   - [0x77, 1, ["Bumper"]]  # soft-lock potential near ladder
   - [0x7f, 1, ["Bumper"]]  # soft-lock potential near ladder
 UwEnemyDrop:
