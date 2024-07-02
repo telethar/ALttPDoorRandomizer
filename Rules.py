@@ -517,11 +517,12 @@ def global_rules(world, player):
     set_rule(world.get_entrance('Mire Post-Gap Gap', player), lambda state: state.has_Boots(player) or state.has('Hookshot', player))
     set_rule(world.get_entrance('Mire Falling Bridge Hook Path', player), lambda state: state.has_Boots(player) or state.has('Hookshot', player))
     set_rule(world.get_entrance('Mire Falling Bridge Hook Only Path', player), lambda state: state.has('Hookshot', player))
-    set_rule(world.get_entrance('Mire 2 NE', player), lambda state: state.has_sword(player) or
-             (state.has('Fire Rod', player) and (state.can_use_bombs(player) or state.can_extend_magic(player, 9))) or  # 9 fr shots or 8 with some bombs
-             (state.has('Ice Rod', player) and state.can_use_bombs(player)) or  # freeze popo and throw, bomb to finish
-             state.has('Hammer', player) or state.has('Cane of Somaria', player) or state.can_shoot_arrows(player))  # need to defeat wizzrobes, bombs don't work ...
-            # byrna could work with sufficient magic
+    # Note: new enemy logic doesn't account for Fire Rod + Bombs or Ice Rod + Bombs yet
+    # set_rule(world.get_entrance('Mire 2 NE', player), lambda state: state.has_sword(player) or
+    #          (state.has('Fire Rod', player) and (state.can_use_bombs(player) or state.can_extend_magic(player, 9))) or  # 9 fr shots or 8 with some bombs
+    #          (state.has('Ice Rod', player) and state.can_use_bombs(player)) or  # freeze popo and throw, bomb to finish
+    #          state.has('Hammer', player) or state.has('Cane of Somaria', player) or state.can_shoot_arrows(player))  # need to defeat wizzrobes, bombs don't work ...
+    #         byrna could work with sufficient magic
     set_rule(world.get_location('Misery Mire - Spike Chest', player), lambda state: (state.world.can_take_damage and state.has_hearts(player, 4)) or state.has('Cane of Byrna', player) or state.has('Cape', player))
     loc = world.get_location('Misery Mire - Spikes Pot Key', player)
     if loc.pot:
@@ -603,10 +604,6 @@ def global_rules(world, player):
     set_rule(world.get_entrance('GT Ice Armos NE', player), lambda state: world.get_region('GT Ice Armos', player).dungeon.bosses['bottom'].can_defeat(state))
     set_rule(world.get_entrance('GT Ice Armos WS', player), lambda state: world.get_region('GT Ice Armos', player).dungeon.bosses['bottom'].can_defeat(state))
 
-    set_rule(world.get_entrance('GT Mimics 1 NW', player), lambda state: state.can_shoot_arrows(player))
-    set_rule(world.get_entrance('GT Mimics 1 ES', player), lambda state: state.can_shoot_arrows(player))
-    set_rule(world.get_entrance('GT Mimics 2 WS', player), lambda state: state.can_shoot_arrows(player))
-    set_rule(world.get_entrance('GT Mimics 2 NE', player), lambda state: state.can_shoot_arrows(player))
     # consider access to refill room - interior doors would need a change
     set_rule(world.get_entrance('GT Cannonball Bridge SE', player), lambda state: state.has_Boots(player))
     set_rule(world.get_entrance('GT Lanmolas 2 ES', player), lambda state: world.get_region('GT Lanmolas 2', player).dungeon.bosses['middle'].can_defeat(state))
@@ -1452,6 +1449,10 @@ std_kill_rooms = {
         (['GT Petting Zoo SE'], [], 0x7d, [4, 5, 6, 7, 8, 10]),
     'GT DMs Room':  # Four red stalfos
         (['GT DMs Room SW'], [], 0x7b, [2, 3, 4, 5, 8, 9, 10]),
+    'GT Mimics 1':  # two red mimics
+        (['GT Mimics 1 NW', 'GT Mimics 1 ES'], [], 0x006b, [5, 6, 7, 8, 9]),
+    'GT Mimics 2':  # two red mimics
+        (['GT Mimics 2 NE', 'GT Mimics 2 WS'], [], 0x006b, [10, 11, 12, 13]),
     'GT Gauntlet 1':  # Stalfos/zazaks
         (['GT Gauntlet 1 WN'], [], 0x5d, [3, 4, 5, 6]),
     'GT Gauntlet 2':  # Red stalfos

@@ -201,8 +201,7 @@ def find_possible_rules(vln_list, used_resources, world, player):
                 flag = flag if flag < 0 else (hits + used_resources['Magic'] * 7 / 8)
                 optional_clears[vln_sub_list].append((byrna_rule(world, player, flag), resources))
             elif damage_type == 'FireRod' and hits + used_resources['Magic'] <= 160:
-                flag = min(vln[damage_type] for vln in vln_list.values())
-                flag = flag if flag < 0 else (hits + used_resources['Magic'])
+                flag = hits + used_resources['Magic']
                 optional_clears[vln_sub_list].append((fire_rod_rule(world, player, flag), resources))
             elif damage_type == 'IceRod' and hits + used_resources['Magic'] <= 160:
                 flag = min(vln[damage_type] for vln in vln_list.values())

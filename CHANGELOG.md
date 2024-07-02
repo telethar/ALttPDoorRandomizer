@@ -6,6 +6,8 @@
 # Patch Notes
 
 Changelog archive
+* 1.4.4
+  - Fixed a crash near the end of the credits when total collection rate was over 1000
 * 1.4.3
   * Key Logic Algorithm: Renamed "Default" to "Dangerous" to indicate the potential soft-lock issues
   * Hera Basement Cage: Fix for small key counting multiple times (again)
