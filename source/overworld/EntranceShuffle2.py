@@ -942,7 +942,8 @@ def do_same_world_shuffle(avail, pool_def):
     for option in multi_exit:
         multi_entrances, multi_exits = find_entrances_and_exits(avail, option)
         # complete_entrance_set.update(multi_entrances)
-        multi_exits_caves.append(multi_exits)
+        if multi_exits:
+            multi_exits_caves.append(multi_exits)
         for x in multi_entrances:
             (dw_entrances, lw_entrances)[x in LW_Entrances].append(x)
 
@@ -955,12 +956,12 @@ def do_same_world_shuffle(avail, pool_def):
     lw_candidates = filter_restricted_caves(multi_exits_caves, 'LightWorld', avail)
     other_candidates = [x for x in multi_exits_caves if x not in lw_candidates]  # remember those not passed in
     do_mandatory_connections(avail, lw_entrances, lw_candidates, must_exit_lw)
-    multi_exits_caves = other_candidates + lw_candidates  # rebuild list from the lw_candidates and those not passed
+    multi_exits_caves = (other_candidates + lw_candidates) if other_candidates else lw_candidates  # rebuild list from the lw_candidates and those not passed
 
     dw_candidates = filter_restricted_caves(multi_exits_caves, 'DarkWorld', avail)
     other_candidates = [x for x in multi_exits_caves if x not in dw_candidates]  # remember those not passed in
     do_mandatory_connections(avail, dw_entrances, dw_candidates, must_exit_dw)
-    multi_exits_caves = other_candidates + dw_candidates  # rebuild list from the dw_candidates and those not passed
+    multi_exits_caves = (other_candidates + dw_candidates) if other_candidates else dw_candidates  # rebuild list from the dw_candidates and those not passed
 
     # connect caves
     random.shuffle(lw_entrances)

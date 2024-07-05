@@ -240,7 +240,7 @@ New pottery option that control which pots (and large blocks) are in the locatio
 * Reduced Dungeon Pots: Same as Cave+Keys but also roughly a quarter of dungeon pots are added to the location pool picked at random. This is a dynamic mode so pots in the pool will be colored. Pots out of the pool will have vanilla contents.
 * Clustered Dungeon Pots: Like reduced but pots are grouped by logical sets and roughly 50% of pots are chosen from those groups. This is a dynamic mode like the above.
 * Excludes Empty Pots: All pots that had some sort of objects under them are chosen to be in the location pool. This excludes most large blocks and some pots out of dungeons.
-* Dungeon Pots: The pots that are in dungeons are in the pool. (Includes serveral large blocks)
+* Dungeon Pots: The pots that are in dungeons are in the pool. (Includes several large blocks)
 * Lottery: All pots and large blocks are in the pool.
 
 By default, switches remain in their vanilla location (unless you turn on the legacy option below)
