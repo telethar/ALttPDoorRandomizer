@@ -448,11 +448,9 @@ def distribute_items_restrictive(world, gftower_trash=False, fill_locations=None
         fill_restrictive(world, world.state, fill_locations, progitempool, key_pool, vanilla=True)
     fill_restrictive(world, world.state, fill_locations, progitempool, key_pool)
     random.shuffle(fill_locations)
-    if world.algorithm == 'balanced':
-        fast_fill(world, prioitempool, fill_locations)
-    elif world.algorithm == 'vanilla_fill':
+    if world.algorithm == 'vanilla_fill':
         fast_vanilla_fill(world, prioitempool, fill_locations)
-    elif world.algorithm in ['major_only', 'dungeon_only', 'district']:
+    elif world.algorithm in ['balanced', 'major_only', 'dungeon_only', 'district']:
         filtered_fill(world, prioitempool, fill_locations)
     else:  # just need to ensure dungeon items still get placed in dungeons
         fast_equitable_fill(world, prioitempool, fill_locations)

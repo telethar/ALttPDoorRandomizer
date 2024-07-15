@@ -408,11 +408,13 @@ def filter_locations(item_to_place, locations, world, vanilla_skip=False, potion
     config = world.item_pool_config
     if not isinstance(item_to_place, str):
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
+        item_name = 'Ocarina' if item_name.startswith('Ocarina') else item_name
     else:
         item_name = item_to_place
     if world.algorithm == 'vanilla_fill':
         filtered = []
         item_name = 'Bottle' if item_to_place.name.startswith('Bottle') else item_to_place.name
+        item_name = 'Ocarina' if item_name.startswith('Ocarina') else item_name
         if item_name in config.static_placement[item_to_place.player]:
             restricted = config.static_placement[item_to_place.player][item_name]
             filtered = [l for l in locations if l.player == item_to_place.player and l.name in restricted]
