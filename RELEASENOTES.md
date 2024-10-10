@@ -8,3 +8,4 @@
 - Murahdahla is now logically accessible in inverted mode as a bunny. May affect some beatable-only TFH seeds by allowing Moon Pearl to be inaccessible.
 - Fixed an issue around PreferredLocationGroups in customizer which would not work with pre-activated Ocraina or priority items.
 - Minor fix on triforce text
+- Enemy bans for poor placements
