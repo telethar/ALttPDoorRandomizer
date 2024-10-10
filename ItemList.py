@@ -291,8 +291,6 @@ def generate_itempool(world, player):
         # In HMG force swamp smalls in pots to allow getting out of swamp palace
         placed_items['Swamp Palace - Trench 1 Pot Key'] = 'Small Key (Swamp Palace)'
         placed_items['Swamp Palace - Pot Row Pot Key'] = 'Small Key (Swamp Palace)'
-        pool.remove('Small Key (Swamp Palace)')
-        pool.remove('Small Key (Swamp Palace)')
 
     start_inventory = list(world.precollected_items)
     for item in precollected_items:
@@ -369,6 +367,17 @@ def generate_itempool(world, player):
                                 or (item.bigkey and world.bigkeyshuffle[player])
                                 or (item.map and world.mapshuffle[player])
                                 or (item.compass and world.compassshuffle[player]))])
+    
+    if world.logic[player] == 'hybridglitches' and world.pottery[player] not in ['none', 'cave']:
+        keys_to_remove = 2
+        to_remove = []
+        for wix, wi in enumerate(world.itempool):
+            if wi.name == 'Small Key (Swamp Palace)' and wi.player == player:
+                to_remove.append(wix)
+            if keys_to_remove == len(to_remove):
+                break
+        for wix in reversed(to_remove):
+            del world.itempool[wix]
 
     # logic has some branches where having 4 hearts is one possible requirement (of several alternatives)
     # rather than making all hearts/heart pieces progression items (which slows down generation considerably)

@@ -128,7 +128,6 @@ boots_clip_exits_lw = [
     ('TR Pegs Ledge Clip', 'Death Mountain TR Pegs Area', 'Death Mountain TR Pegs Ledge'),
     ('Mountain Pass Ledge Clip', 'Mountain Pass Area', 'Mountain Pass Ledge'),
     ('Mountain Pass Entry Clip', 'Kakariko Pond Area', 'Mountain Pass Entry'),
-    ('Bat Cave River Clip', 'Blacksmith Area', 'Blacksmith Ledge'),
     ('Desert Keep Clip', 'Maze Race Area', 'Desert Ledge Keep'),
     ('Desert Ledge Clip', 'Maze Race Area', 'Desert Ledge'),
     ('Maze Race Prize Clip', 'Maze Race Area', 'Maze Race Prize'),

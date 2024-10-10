@@ -2,7 +2,9 @@ from BaseClasses import Entrance
 import Rules
 from OverworldGlitchRules import create_no_logic_connections
 
-kikiskip_spots = [("Kiki Skip", "Spectacle Rock Cave (Bottom)", "Palace of Darkness Portal")]
+kikiskip_spots = [
+    ("Kiki Skip", "Spectacle Rock Cave (Bottom)", "Palace of Darkness Portal")
+]
 
 mireheraswamp_spots = [
     ("Mire to Hera Clip", "Mire Torches Top", "Hera Portal"),
@@ -12,35 +14,53 @@ mireheraswamp_spots = [
 icepalace_spots = [("Ice Lobby Clip", "Ice Portal", "Ice Bomb Drop")]
 
 thievesdesert_spots = [
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert West Portal"),
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert South Portal"),
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert East Portal"),
+    ("Thieves to Desert West Clip", "Thieves Attic", "Desert West Portal"),
+    ("Thieves to Desert South Clip", "Thieves Attic", "Desert South Portal"),
+    ("Thieves to Desert East Clip", "Thieves Attic", "Desert East Portal"),
 ]
 
-specrock_spots = [("Spec Rock Clip", "Spectacle Rock Cave (Peak)", "Spectacle Rock Cave (Top)")]
+specrock_spots = [
+    ("Spec Rock Clip", "Spectacle Rock Cave (Peak)", "Spectacle Rock Cave (Top)")
+]
 
-paradox_spots = [("Paradox Front Teleport", "Paradox Cave Front", "Paradox Cave Chest Area")]
+paradox_spots = [
+    ("Paradox Front Teleport", "Paradox Cave Front", "Paradox Cave Chest Area")
+]
 
 
 # We need to make connectors at a separate time from the connections, because of how dungeons are linked to regions
-kikiskip_connectors = [("Kiki Skip", "Spectacle Rock Cave (Bottom)", "Palace of Darkness Exit")]
+kikiskip_connectors = [
+    ("Kiki Skip Connector", "Spectacle Rock Cave (Bottom)", "Palace of Darkness Exit")
+]
 
 
 mireheraswamp_connectors = [
-    ("Mire to Hera Clip", "Mire Torches Top", "Tower of Hera Exit"),
-    ("Mire to Hera Clip", "Mire Torches Top", "Swamp Palace Exit"),
+    ("Mire to Hera Connector", "Mire Torches Top", "Tower of Hera Exit"),
+    ("Mire to Swamp Connector", "Mire Torches Top", "Swamp Palace Exit"),
 ]
 
 
 thievesdesert_connectors = [
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert Palace Exit (West)"),
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert Palace Exit (South)"),
-    ("Thieves to Desert Clip", "Thieves Attic", "Desert Palace Exit (East)"),
+    ("Thieves to Desert West Connector", "Thieves Attic", "Desert Palace Exit (West)"),
+    (
+        "Thieves to Desert South Connector",
+        "Thieves Attic",
+        "Desert Palace Exit (South)",
+    ),
+    ("Thieves to Desert East Connector", "Thieves Attic", "Desert Palace Exit (East)"),
 ]
 
 specrock_connectors = [
-    ("Spec Rock Clip", "Spectacle Rock Cave (Peak)", "Spectacle Rock Cave Exit (Top)"),
-    ("Spec Rock Clip", "Spectacle Rock Cave (Peak)", "Spectacle Rock Cave Exit"),
+    (
+        "Spec Rock Top Connector",
+        "Spectacle Rock Cave (Peak)",
+        "Spectacle Rock Cave Exit (Top)",
+    ),
+    (
+        "Spec Rock Exit Connector",
+        "Spectacle Rock Cave (Peak)",
+        "Spectacle Rock Cave Exit",
+    ),
 ]
 
 
@@ -65,7 +85,14 @@ def create_hybridmajor_connectors(world, player):
         thievesdesert_connectors,
         specrock_connectors,
     ]:
-        new_connectors = [(connector[0], connector[1], world.get_entrance(connector[2], player).connected_region) for connector in connectors]
+        new_connectors = [
+            (
+                connector[0],
+                connector[1],
+                world.get_entrance(connector[2], player).connected_region,
+            )
+            for connector in connectors
+        ]
         create_no_logic_connections(player, world, new_connectors)
 
 
@@ -81,12 +108,20 @@ def fake_pearl_state(state, player):
 
 # Sets the rules on where we can actually go using this clip.
 # Behavior differs based on what type of ER shuffle we're playing.
-def dungeon_reentry_rules(world, player, clip: Entrance, dungeon_region: str, dungeon_exit: str):
+def dungeon_reentry_rules(
+    world, player, clip: Entrance, dungeon_region: str, dungeon_exit: str
+):
     fix_dungeon_exits = world.fix_palaceofdarkness_exit[player]
     fix_fake_worlds = world.fix_fake_world[player]
 
-    dungeon_entrance = [r for r in world.get_region(dungeon_region, player).entrances if r.name != clip.name][0]
-    if not fix_dungeon_exits:  # vanilla, simple, restricted, dungeonssimple; should never have fake worlds fix
+    dungeon_entrance = [
+        r
+        for r in world.get_region(dungeon_region, player).entrances
+        if r.name != clip.name
+    ][0]
+    if (
+        not fix_dungeon_exits
+    ):  # vanilla, simple, restricted, dungeonssimple; should never have fake worlds fix
         # Dungeons are only shuffled among themselves. We need to check SW, MM, and AT because they can't be reentered trivially.
 
         # entrance doesn't exist until you fire rod it from the other side
@@ -95,9 +130,15 @@ def dungeon_reentry_rules(world, player, clip: Entrance, dungeon_region: str, du
 
         elif dungeon_entrance.name == "Misery Mire":
             if world.swords[player] == "swordless":
-                Rules.add_rule(clip, lambda state: state.has_misery_mire_medallion(player))
+                Rules.add_rule(
+                    clip, lambda state: state.has_misery_mire_medallion(player)
+                )
             else:
-                Rules.add_rule(clip, lambda state: state.has_sword(player) and state.has_misery_mire_medallion(player))
+                Rules.add_rule(
+                    clip,
+                    lambda state: state.has_sword(player)
+                    and state.has_misery_mire_medallion(player),
+                )
 
         elif dungeon_entrance.name == "Agahnims Tower":
             Rules.add_rule(
@@ -108,12 +149,23 @@ def dungeon_reentry_rules(world, player, clip: Entrance, dungeon_region: str, du
             )
 
         # Then we set a restriction on exiting the dungeon, so you can't leave unless you got in normally.
-        Rules.add_rule(world.get_entrance(dungeon_exit, player), lambda state: dungeon_entrance.can_reach(state))
-    elif not fix_fake_worlds:  # full, dungeonsfull; fixed dungeon exits, but no fake worlds fix
+        Rules.add_rule(
+            world.get_entrance(dungeon_exit, player),
+            lambda state: dungeon_entrance.can_reach(state),
+        )
+    elif (
+        not fix_fake_worlds
+    ):  # full, dungeonsfull; fixed dungeon exits, but no fake worlds fix
         # Entry requires the entrance's requirements plus a fake pearl, but you don't gain logical access to the surrounding region.
-        Rules.add_rule(clip, lambda state: dungeon_entrance.access_rule(fake_pearl_state(state, player)))
+        Rules.add_rule(
+            clip,
+            lambda state: dungeon_entrance.access_rule(fake_pearl_state(state, player)),
+        )
         # exiting restriction
-        Rules.add_rule(world.get_entrance(dungeon_exit, player), lambda state: dungeon_entrance.can_reach(state))
+        Rules.add_rule(
+            world.get_entrance(dungeon_exit, player),
+            lambda state: dungeon_entrance.can_reach(state),
+        )
 
     # Otherwise, the shuffle type is lean, lite, crossed, or insanity; all of these do not need additional rules on where we can go,
     # since the clip links directly to the exterior region.
@@ -131,13 +183,15 @@ def underworld_glitches_rules(world, player):
     # Kiki Skip
     kks = world.get_entrance("Kiki Skip", player)
     Rules.set_rule(kks, lambda state: state.can_bomb_clip(kks.parent_region, player))
-    dungeon_reentry_rules(world, player, kks, "Palace of Darkness Portal", "Palace of Darkness Exit")
+    dungeon_reentry_rules(
+        world, player, kks, "Palace of Darkness Portal", "Palace of Darkness Exit"
+    )
 
     # Mire -> Hera -> Swamp
     def mire_clip(state):
-        return state.can_reach("Mire Torches Top", "Region", player) and state.can_dash_clip(
-            world.get_region("Mire Torches Top", player), player
-        )
+        return state.can_reach(
+            "Mire Torches Top", "Region", player
+        ) and state.can_dash_clip(world.get_region("Mire Torches Top", player), player)
 
     def hera_clip(state):
         return state.can_reach("Hera 4F", "Region", player) and state.can_dash_clip(
@@ -158,11 +212,17 @@ def underworld_glitches_rules(world, player):
     mire_to_hera = world.get_entrance("Mire to Hera Clip", player)
     mire_to_swamp = world.get_entrance("Hera to Swamp Clip", player)
     Rules.set_rule(mire_to_hera, mire_clip)
-    Rules.set_rule(mire_to_swamp, lambda state: mire_clip(state) and state.has("Flippers", player))
+    Rules.set_rule(
+        mire_to_swamp, lambda state: mire_clip(state) and state.has("Flippers", player)
+    )
 
     # Using the entrances for various ER types. Hera -> Swamp never matters because you can only logically traverse with the mire keys
-    dungeon_reentry_rules(world, player, mire_to_hera, "Hera Lobby", "Tower of Hera Exit")
-    dungeon_reentry_rules(world, player, mire_to_swamp, "Swamp Lobby", "Swamp Palace Exit")
+    dungeon_reentry_rules(
+        world, player, mire_to_hera, "Hera Lobby", "Tower of Hera Exit"
+    )
+    dungeon_reentry_rules(
+        world, player, mire_to_swamp, "Swamp Lobby", "Swamp Palace Exit"
+    )
     # We need to set _all_ swamp doors to be openable with mire keys, otherwise the small key can't be behind them - 6 keys because of Pots
     # Flippers required for all of these doors to prevent locks when flooding
     for door in [
@@ -188,90 +248,99 @@ def underworld_glitches_rules(world, player):
         # Rules.add_rule(world.get_entrance(door, player), lambda state: mire_clip(state) and state.has('Flippers', player), combine="or")
 
     Rules.add_rule(
-        world.get_location("Trench 1 Switch", player), lambda state: mire_clip(state) or hera_clip(state), combine="or"
+        world.get_location("Trench 1 Switch", player),
+        lambda state: mire_clip(state) or hera_clip(state),
+        combine="or",
     )
 
     # Build the rule for SP moat.
     # We need to be able to s+q to old man, then go to either Mire or Hera at either Hera or GT.
     # First we require a certain type of entrance shuffle, then build the rule from its pieces.
-    if not world.swamp_patch_required[player]:
-        if world.shuffle[player] in [
-            "vanilla",
-            "dungeonssimple",
-            "dungeonsfull",
-            "dungeonscrossed",
-        ]:
-            rule_map = {
-                "Mire Portal": (lambda state: state.can_reach("Mire Torches Top", "Entrance", player)),
-                "Hera Portal": (lambda state: state.can_reach("Hera Startile Corner NW", "Entrance", player)),
-            }
-            inverted = world.mode[player] == "inverted"
-
-            def hera_rule(state):
-                return (state.has("Moon Pearl", player) or not inverted) and rule_map.get(
-                    world.get_entrance("Tower of Hera", player).connected_region.name, lambda state: False
-                )(state)
-
-            def gt_rule(state):
-                return (state.has("Moon Pearl", player) or inverted) and rule_map.get(
-                    world.get_entrance(("Ganons Tower"), player).connected_region.name, lambda state: False
-                )(state)
-
-            def mirrorless_moat_rule(state):
-                return (
-                    state.can_reach("Old Man S&Q", "Entrance", player)
-                    and state.has("Flippers", player)
-                    and mire_clip(state)
-                    and (hera_rule(state) or gt_rule(state))
+    if not world.swamp_patch_required[player] and world.shuffle[player] in [
+        "vanilla",
+        "dungeonssimple",
+        "dungeonsfull",
+    ]:
+        rule_map = {
+            "Mire Portal": (
+                lambda state: state.can_reach("Mire Torches Top", "Entrance", player)
+            ),
+            "Hera Portal": (
+                lambda state: state.can_reach(
+                    "Hera Startile Corner NW", "Entrance", player
                 )
+            ),
+        }
+        inverted = world.mode[player] == "inverted"
 
-            Rules.add_rule(
-                world.get_entrance("Swamp Lobby Moat", player), lambda state: mirrorless_moat_rule(state), combine="or"
+        def hera_rule(state):
+            return (state.has("Moon Pearl", player) or not inverted) and rule_map.get(
+                world.get_entrance("Tower of Hera", player).connected_region.name,
+                lambda state: False,
+            )(state)
+
+        def gt_rule(state):
+            return (state.has("Moon Pearl", player) or inverted) and rule_map.get(
+                world.get_entrance(("Ganons Tower"), player).connected_region.name,
+                lambda state: False,
+            )(state)
+
+        def mirrorless_moat_rule(state):
+            return (
+                state.can_reach("Old Man S&Q", "Entrance", player)
+                and state.has("Flippers", player)
+                and mire_clip(state)
+                and (hera_rule(state) or gt_rule(state))
             )
 
-    # Thieves -> Desert
-    Rules.add_rule(
-        world.get_entrance("Thieves to Desert Clip", player),
-        lambda state: state.can_dash_clip(world.get_region("Thieves Attic", player), player),
-    )
-    dungeon_reentry_rules(
-        world,
-        player,
-        world.get_entrance("Thieves to Desert Clip", player),
-        "Desert West Portal",
-        "Desert Palace Exit (West)",
-    )
-    dungeon_reentry_rules(
-        world,
-        player,
-        world.get_entrance("Thieves to Desert Clip", player),
-        "Desert South Portal",
-        "Desert Palace Exit (South)",
-    )
-    dungeon_reentry_rules(
-        world,
-        player,
-        world.get_entrance("Thieves to Desert Clip", player),
-        "Desert East Portal",
-        "Desert Palace Exit (East)",
-    )
+        Rules.add_rule(
+            world.get_entrance("Swamp Lobby Moat", player),
+            lambda state: mirrorless_moat_rule(state),
+            combine="or",
+        )
+
+    for desert_exit in ["East", "South", "West"]:
+        Rules.add_rule(
+            world.get_entrance(f"Thieves to Desert {desert_exit} Connector", player),
+            lambda state: state.can_dash_clip(
+                world.get_region("Thieves Attic", player), player
+            ),
+        )
+        dungeon_reentry_rules(
+            world,
+            player,
+            world.get_entrance(f"Thieves to Desert {desert_exit} Connector", player),
+            f"Desert {desert_exit} Portal",
+            f"Desert Palace Exit ({desert_exit})",
+        )
 
     # Collecting left chests in Paradox Cave using a dash clip -> dash citrus, 1f right, teleport up
-    paradox_left_chests = ["Paradox Cave Lower - Far Left", "Paradox Cave Lower - Left", "Paradox Cave Lower - Middle"]
+    paradox_left_chests = [
+        "Paradox Cave Lower - Far Left",
+        "Paradox Cave Lower - Left",
+        "Paradox Cave Lower - Middle",
+    ]
     for location in paradox_left_chests:
         Rules.add_rule(
             world.get_location(location, player),
-            lambda state: state.can_dash_clip(world.get_location(location, player).parent_region, player),
+            lambda state: state.can_dash_clip(
+                world.get_location(location, player).parent_region, player
+            ),
             "or",
         )
 
     # Collecting right chests in Paradox Cave using a dash clip on left side -> dash citrus, 1f right, teleport up, then hitting the switch
-    paradox_right_chests = ["Paradox Cave Lower - Right", "Paradox Cave Lower - Far Right"]
+    paradox_right_chests = [
+        "Paradox Cave Lower - Right",
+        "Paradox Cave Lower - Far Right",
+    ]
     for location in paradox_right_chests:
         Rules.add_rule(
             world.get_location(location, player),
             lambda state: (
-                state.can_dash_clip(world.get_location(location, player).parent_region, player)
+                state.can_dash_clip(
+                    world.get_location(location, player).parent_region, player
+                )
                 and state.can_hit_crystal(player)
             ),
             "or",
