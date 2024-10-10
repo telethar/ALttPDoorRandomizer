@@ -127,7 +127,7 @@ Triforce_texts = [
     "    You get one\n   wish.  Choose\n   wisely, hero!",
     "  Can you please\n  break us three\n   up?  Thanks.",
     "    Pick us up\n    before we\n    get dizzy!",
-    "    Thank you,\n  Mikey. You’re\n  2 minutes late",
+    "    Thank you,\n  Mikey. You're\n  2 minutes late",
     "    This was a\n    7000 series\n      train.",
     "     I'd buy\n     that for\n     a rupee!",
     "   Did you like\n     that bow\n    placement?",
