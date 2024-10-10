@@ -1064,7 +1064,7 @@ def do_vanilla_connect(pool_def, avail):
         if avail.world.dropshuffle[avail.player] not in ['none', 'keys']:
             return
     if 'enemy_drop' in pool_def['condition']:
-        if avail.world.dropshuffle[avail.player] not in ['none', 'keys'] or avail.world.enemy_shuffle[avail.player] != 'none':
+        if avail.world.dropshuffle[avail.player] not in ['none', 'keys'] and avail.world.enemy_shuffle[avail.player] != 'none':
             return
     defaults = {**default_connections, **(inverted_default_connections if avail.inverted else open_default_connections)}
     if avail.inverted:
