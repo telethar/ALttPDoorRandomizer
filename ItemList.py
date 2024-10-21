@@ -1280,7 +1280,7 @@ def make_customizer_pool(world, player):
                    or (d_item.map and not world.mapshuffle[player])):
                     d_name = d_item.dungeon
                     dungeon = world.get_dungeon(d_name, player)
-                    current_amount = 1 if d_item == dungeon.big_key or d_item in dungeon.dungeon_items else 0
+                    current_amount = 1 if dungeon.big_key and (d_item == dungeon.big_key or d_item in dungeon.dungeon_items) else 0
                     additional_amount = amount - current_amount
                     possible_fit = min(additional_amount, len(dungeon_locations[d_name])-dungeon_count[d_name])
                     if possible_fit > 0:
@@ -1291,7 +1291,7 @@ def make_customizer_pool(world, player):
                         pool.extend([item_name] * amount)
                 else:
                     dungeon = world.get_dungeon(d_item.dungeon, player)
-                    current_amount = 1 if d_item == dungeon.big_key or d_item in dungeon.dungeon_items else 0
+                    current_amount = 1 if dungeon.big_key and (d_item == dungeon.big_key or d_item in dungeon.dungeon_items) else 0
                     additional_amount = amount - current_amount
                     dungeon.dungeon_items.extend([d_item] * additional_amount)
             else:
