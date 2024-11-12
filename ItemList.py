@@ -459,7 +459,7 @@ def generate_itempool(world, player):
                   '3': {'trap': 50, 'bee': 50},
                   '4': {'trap': 100}}
     def beemizer(item):
-        if world.beemizer[item.player] and not item.advancement and not item.priority and not item.type:
+        if world.beemizer[item.player] != '0' and not item.advancement and not item.priority and not item.type:
             choice = random.choices(list(beeweights[world.beemizer[item.player]].keys()), weights=list(beeweights[world.beemizer[item.player]].values()))[0]
             return item if not choice else ItemFactory("Bee Trap", player) if choice == 'trap' else ItemFactory("Bee", player)
         return item

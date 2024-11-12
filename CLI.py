@@ -270,7 +270,7 @@ def parse_settings():
         "seed": "",
         "count": 1,
         "startinventory": "",
-        "beemizer": 0,
+        'beemizer': '0',
         "remote_items": False,
         "race": False,
         "customitemarray": {

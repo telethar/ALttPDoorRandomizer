@@ -129,7 +129,7 @@ class World(object):
             set_player_attr('enemy_health', 'default')
             set_player_attr('enemy_damage', 'default')
             set_player_attr('any_enemy_logic', 'allow_all')
-            set_player_attr('beemizer', 0)
+            set_player_attr('beemizer', '0')
             set_player_attr('escape_assist', [])
             set_player_attr('crystals_needed_for_ganon', 7)
             set_player_attr('crystals_needed_for_gt', 7)
