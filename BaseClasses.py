@@ -2406,7 +2406,7 @@ class Item(object):
         return self.world.get_name_string_for_object(self) if self.world else f'{self.name} (Player {self.player})'
 
     def __eq__(self, other):
-        return self.name == other.name and self.player == other.player
+        return other is not None and self.name == other.name and self.player == other.player
 
 
 # have 6 address that need to be filled
