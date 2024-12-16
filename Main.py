@@ -624,12 +624,6 @@ def copy_world(world):
 
     for region in world.regions:
         copied_region = ret.get_region(region.name, region.player)
-        copied_region.is_light_world = region.is_light_world
-        copied_region.is_dark_world = region.is_dark_world
-        copied_region.dungeon = region.dungeon
-        copied_region.locations = [copied_locations[(location.name, location.player)] for location in region.locations]
-        for location in copied_region.locations:
-            location.parent_region = copied_region
         for entrance in region.entrances:
             if entrance.name not in hmg_entrances:
                 continue
