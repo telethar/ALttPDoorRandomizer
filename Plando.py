@@ -132,7 +132,7 @@ def fill_world(world, plando, text_patches):
                         world.fix_trock_exit = {1: trfstr.strip().lower() == 'true'}
                     elif line.startswith('!fix_gtower_exit'):
                         _, gtfstr = line.split(':', 1)
-                        world.fix_gtower_exit = gtfstr.strip().lower() == 'true'
+                        world.fix_gtower_exit = {1: gtfstr.strip().lower() == 'true'}
                     elif line.startswith('!fix_pod_exit'):
                         _, podestr = line.split(':', 1)
                         world.fix_palaceofdarkness_exit = {1: podestr.strip().lower() == 'true'}

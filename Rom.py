@@ -520,7 +520,7 @@ def patch_rom(world, rom, player, team, is_mystery=False):
                         write_int16(rom, 0x15DB5 + 2 * offset, 0x0640)
                     elif room_id == 0x00d6 and world.fix_trock_exit[player]:
                         write_int16(rom, 0x15DB5 + 2 * offset, 0x0134)
-                    elif room_id == 0x000c and world.fix_gtower_exit: # fix ganons tower exit point
+                    elif room_id == 0x000c and world.fix_gtower_exit[player]: # fix ganons tower exit point
                         write_int16(rom, 0x15DB5 + 2 * offset, 0x00A4)
                     else:
                         write_int16(rom, 0x15DB5 + 2 * offset, link_y)
@@ -2512,6 +2512,8 @@ def patch_shuffled_dark_sanc(world, rom, player):
     dark_sanc = world.get_region('Dark Sanctuary Hint', player)
     dark_sanc_entrance = str([i for i in dark_sanc.entrances if i.parent_region.name != 'Menu'][0].name)
     room_id, ow_area, vram_loc, scroll_y, scroll_x, link_y, link_x, camera_y, camera_x, unknown_1, unknown_2, door_1, door_2 = door_addresses[dark_sanc_entrance][1]
+    if dark_sanc_entrance == 'Tavern North':
+        link_y -= 0x10  # rom code assumes south-facing doors and adds $10 to the y-coordinate
     door_index = door_addresses[str(dark_sanc_entrance)][0]
 
     rom.write_byte(0x180241, 0x01)
