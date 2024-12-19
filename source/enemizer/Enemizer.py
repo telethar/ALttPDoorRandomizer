@@ -408,8 +408,9 @@ def randomize_overworld_enemies(data_tables, custom_ow):
                     chosen = random.choices(candidate_sprites, weight, k=1)[0]
                     sprite.kind = chosen.sprite
         # randomize the bush sprite per area
+        bush_candidates = [x for x in candidate_sprites if x.bush_valid]
         weight = [data_tables.ow_weights[r.sprite] for r in candidate_sprites]
-        bush_sprite_choice = random.choices(candidate_sprites, weight, k=1)[0]
+        bush_sprite_choice = random.choices(bush_candidates, weight, k=1)[0]
         data_tables.bush_sprite_table[area_id] = bush_sprite_choice
 
 
