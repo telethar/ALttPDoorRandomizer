@@ -237,7 +237,7 @@ def init_sprite_requirements():
         SpriteRequirement(EnemySprite.ArmosKnight).exalt().sub_group(3, 0x1d),
         SpriteRequirement(EnemySprite.Lanmolas).exalt().sub_group(3, 0x31),
         SpriteRequirement(EnemySprite.FireballZora).immerse().no_drop().sub_group(2, [0xc, 0x18]),  # .uw_skip() test
-        SpriteRequirement(EnemySprite.Zora).sub_group(2, 0xc).sub_group(3, 0x44),  # .uw_skip() test
+        SpriteRequirement(EnemySprite.Zora).sub_group(2, 0xc).sub_group(3, 0x44).uw_skip(),
         SpriteRequirement(EnemySprite.DesertStatue).affix().sub_group(2, 0x12),
         SpriteRequirement(EnemySprite.Crab).sub_group(2, 0xc),
         SpriteRequirement(EnemySprite.LostWoodsBird).affix().sub_group(2, 0x37).sub_group(3, 0x36),
