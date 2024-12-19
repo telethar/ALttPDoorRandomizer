@@ -4,6 +4,7 @@
   - Fixed generation error with Big Key in starting inventory (thanks Cody!)
   - HMG/NL logic fixes by Muffins
   - Enemizer: Disabled Walking Zora in the UW due to crash with Swamola (they ignore a lot of collison anyway)
+  - Enemizer: Fixed an issue with enemizer bush sprites
   - Enemizer: Banned new Mimics from being the randomized bush sprite due to crash
   - "Beatable" or "accessibility: none" can now use randomized trap doors to seal off entire parts of dungeons (was intended, bug prevented the logic skip)
   - Logic error with enemizer and standard should use new enemy logic rules

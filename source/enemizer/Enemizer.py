@@ -409,7 +409,7 @@ def randomize_overworld_enemies(data_tables, custom_ow):
                     sprite.kind = chosen.sprite
         # randomize the bush sprite per area
         bush_candidates = [x for x in candidate_sprites if x.bush_valid]
-        weight = [data_tables.ow_weights[r.sprite] for r in candidate_sprites]
+        weight = [data_tables.ow_weights[r.sprite] for r in bush_candidates]
         bush_sprite_choice = random.choices(bush_candidates, weight, k=1)[0]
         data_tables.bush_sprite_table[area_id] = bush_sprite_choice
 
@@ -533,5 +533,5 @@ def write_enemy_shuffle_settings(world, player, rom):
         for idx, pair in enumerate(tile_pattern):
             rom.write_byte(snes_to_pc(0x09BA2A + idx), (pair[0] + 3) * 16)
             rom.write_byte(snes_to_pc(0x09BA40 + idx), (pair[1] + 4) * 16)
-    if world.enemy_shuffle[player] == 'random':
+    if world.enemy_shuffle[player] == 'shuffled':
         rom.write_byte(snes_to_pc(0x368100), 1)  # randomize bushes
