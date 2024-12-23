@@ -1,7 +1,8 @@
 # Patch Notes
 
 * 1.4.7.2
-  - Fixed an issue with shuffle_ganon/fix_gtower_exit causing a generation failure 
+  - Fixed an issue with shuffle_ganon/fix_gtower_exit causing a generation failure
+  - More HMG fixes by Muffins
 * 1.4.7.1
   - Fixed an issue with the repaired "beemizer" setting not being backwards compatible
 * 1.4.7
