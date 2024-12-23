@@ -181,7 +181,7 @@ def do_main_shuffle(entrances, exits, avail, mode_def):
         avail.decoupled_entrances.extend(entrances)
         avail.decoupled_exits.extend(exits)
 
-    if not avail.world.shuffle_ganon:
+    if not avail.world.shuffle_ganon[avail.player]:
         if avail.world.is_atgt_swapped(avail.player) and 'Agahnims Tower' in entrances:
             connect_two_way('Agahnims Tower', 'Ganons Tower Exit', avail)
             entrances.remove('Agahnims Tower')

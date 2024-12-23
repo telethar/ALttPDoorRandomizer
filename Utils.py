@@ -325,6 +325,10 @@ def update_deprecated_args(args):
     if args:
         argVars = vars(args)
         truthy = [1, True, "True", "true"]
+        if "multi" in argVars:
+            players = int(args.multi)
+        else:
+            players = 1
         # Hints default to FALSE
         # Don't do: Yes
         # Do:       No
@@ -362,11 +366,11 @@ def update_deprecated_args(args):
         # Don't do: Yes
         # Do:       No
         if "no_shuffleganon" in argVars:
-            args.shuffleganon = not args.no_shuffleganon in truthy
-        # Don't do: No
-        # Do:       Yes
-        if "shuffleganon" in argVars:
-            args.no_shuffleganon = not args.shuffleganon in truthy
+            if isinstance(args.shuffleganon, dict):
+                for player in range(1, players + 1):
+                    args.shuffleganon[player] = not args.no_shuffleganon in truthy
+            else:
+                args.shuffleganon = not args.no_shuffleganon in truthy
 
         # Playthrough defaults to TRUE
         # Don't do: Yes
